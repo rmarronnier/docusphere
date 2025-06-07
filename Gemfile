@@ -64,7 +64,7 @@ gem "friendly_id", "~> 5.5"
 gem "kaminari", "~> 1.2"
 gem "audited", "~> 5.4"
 gem "ancestry", "~> 4.3"
-gem "acts-as-taggable-on", "~> 10.0"
+gem "acts-as-taggable-on", "~> 12.0"
 gem "paper_trail", "~> 15.1"
 gem "chronic", "~> 0.10" # Natural language date parsing
 gem "ice_cube", "~> 0.16" # Recurring events
