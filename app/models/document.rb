@@ -19,9 +19,31 @@ class Document < ApplicationRecord
   has_many :linked_documents, through: :links, source: :linked_document
   
   has_one_attached :file
+  has_one_attached :preview
+  has_one_attached :thumbnail
   
   validates :title, presence: true
   validates :file, presence: true
+  validates :file_size, numericality: { less_than_or_equal_to: 100.megabytes }, if: :file_attached?
+  
+  # Processing status enum
+  enum processing_status: {
+    pending: 'pending',
+    processing: 'processing',
+    completed: 'completed',
+    failed: 'failed'
+  }
+  
+  # Virus scan status enum
+  enum virus_scan_status: {
+    scan_pending: 'pending',
+    scan_clean: 'clean',
+    scan_infected: 'infected',
+    scan_error: 'error'
+  }, _prefix: true
+  
+  # Callbacks
+  after_create_commit :enqueue_processing_job
   
   searchkick word_start: [:title, :description], 
              searchable: [:title, :description, :content, :metadata_text],
@@ -97,11 +119,121 @@ class Document < ApplicationRecord
   end
   
   def extracted_content
-    # TODO: Implement content extraction from files
-    ''
+    # Return content if already extracted
+    content.presence || ''
   end
   
   def metadata_text
     metadata.map { |m| "#{m.name}: #{m.value}" }.join(' ')
+  end
+  
+  # Check if preview exists
+  def preview_generated?
+    preview.attached?
+  end
+  
+  # Check if thumbnail exists
+  def thumbnail_generated?
+    thumbnail.attached?
+  end
+  
+  # File size validation helper
+  def file_attached?
+    file.attached?
+  end
+  
+  # Get file size in bytes
+  def file_size
+    file.blob.byte_size if file.attached?
+  end
+  
+  # Is this an image file?
+  def image?
+    file.content_type.start_with?('image/') if file.attached?
+  end
+  
+  # Is this a PDF?
+  def pdf?
+    file.content_type == 'application/pdf' if file.attached?
+  end
+  
+  # Is this an office document?
+  def office_document?
+    return false unless file.attached?
+    
+    office_types = [
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+      'application/msword',
+      'application/vnd.ms-excel',
+      'application/vnd.ms-powerpoint'
+    ]
+    
+    office_types.include?(file.content_type)
+  end
+  
+  # Should perform OCR?
+  def needs_ocr?
+    image? || (pdf? && !has_text?)
+  end
+  
+  # Check if document has extractable text
+  def has_text?
+    content.present? && content.strip.length > 50
+  end
+  
+  # Mark processing as started
+  def start_processing!
+    update!(
+      processing_status: 'processing',
+      processing_started_at: Time.current
+    )
+  end
+  
+  # Mark processing as completed
+  def complete_processing!
+    update!(
+      processing_status: 'completed',
+      processing_completed_at: Time.current,
+      processing_error: nil
+    )
+  end
+  
+  # Mark processing as failed
+  def fail_processing!(error_message)
+    update!(
+      processing_status: 'failed',
+      processing_completed_at: Time.current,
+      processing_error: error_message
+    )
+  end
+  
+  # Store extracted metadata
+  def add_metadata(key, value, field = nil)
+    metadata.create!(
+      key: key,
+      value: value.to_s,
+      metadata_field: field
+    )
+  end
+  
+  # Store document properties as metadata
+  def store_document_properties(properties)
+    properties.each do |key, value|
+      next if value.blank?
+      add_metadata("document_#{key}", value)
+    end
+  end
+  
+  # Check if virus scan detected infection
+  def virus_scan_infected?
+    virus_scan_status == 'infected'
+  end
+  
+  private
+  
+  def enqueue_processing_job
+    DocumentProcessingJob.perform_later(self)
   end
 end

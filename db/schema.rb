@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_06_07_190455) do
+ActiveRecord::Schema[7.1].define(version: 2025_06_07_220000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -136,8 +136,18 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_07_190455) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "parent_id"
+    t.string "processing_status", default: "pending"
+    t.datetime "processing_started_at"
+    t.datetime "processing_completed_at"
+    t.text "processing_error"
+    t.boolean "ocr_performed", default: false
+    t.string "virus_scan_status"
+    t.datetime "virus_scan_performed_at"
+    t.text "virus_scan_result"
     t.index ["folder_id"], name: "index_documents_on_folder_id"
     t.index ["parent_id"], name: "index_documents_on_parent_id"
+    t.index ["processing_status", "created_at"], name: "index_documents_on_processing_status_and_created_at"
+    t.index ["processing_status"], name: "index_documents_on_processing_status"
     t.index ["space_id"], name: "index_documents_on_space_id"
     t.index ["user_id"], name: "index_documents_on_user_id"
   end

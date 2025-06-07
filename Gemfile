@@ -96,3 +96,12 @@ group :test do
   gem "rails-controller-testing"
   gem "pundit-matchers", "~> 3.1"
 end
+
+# Document processing gems (additional)
+# Note: Using libreoffice command-line for Office document extraction due to yomu dependency conflict
+
+# Content analysis gems
+gem "monetize", "~> 1.13"         # Money parsing from text
+
+# Security
+gem "clamav-client", "~> 3.2"     # Virus scanning with ClamAV

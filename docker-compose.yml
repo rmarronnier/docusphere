@@ -34,6 +34,8 @@ services:
       REDIS_URL: redis://redis:6379/0
       RAILS_ENV: development
       ELASTICSEARCH_URL: http://elasticsearch:9200
+      CLAMAV_HOST: clamav
+      CLAMAV_PORT: 3310
 
   sidekiq:
     build:
@@ -52,6 +54,8 @@ services:
       REDIS_URL: redis://redis:6379/0
       RAILS_ENV: development
       ELASTICSEARCH_URL: http://elasticsearch:9200
+      CLAMAV_HOST: clamav
+      CLAMAV_PORT: 3310
 
   elasticsearch:
     image: elasticsearch:8.11.1
@@ -64,7 +68,18 @@ services:
     volumes:
       - elasticsearch_data:/usr/share/elasticsearch/data
 
+  clamav:
+    image: clamav/clamav:stable
+    ports:
+      - "3310:3310"
+    volumes:
+      - clamav_data:/var/lib/clamav
+    environment:
+      - CLAMAV_NO_FRESHCLAMD=false
+      - CLAMAV_NO_CLAMD=false
+
 volumes:
   postgres_data:
   bundle_cache:
   elasticsearch_data:
+  clamav_data:

@@ -36,6 +36,9 @@ module Docusphere
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
     
+    # Use Sidekiq for background jobs
+    config.active_job.queue_adapter = :sidekiq
+    
     # Internationalization
     config.i18n.default_locale = :fr
     config.i18n.available_locales = [:fr, :en]

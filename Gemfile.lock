@@ -123,6 +123,7 @@ GEM
       marcel (~> 1.0.0)
       mime-types (~> 3.0)
     chronic (0.10.2)
+    clamav-client (3.2.0)
     combine_pdf (1.0.31)
       matrix
       ruby-rc4 (>= 0.1.5)
@@ -530,6 +531,7 @@ DEPENDENCIES
   carrierwave (~> 3.0)
   carrierwave-base64 (~> 2.10)
   chronic (~> 0.10)
+  clamav-client (~> 3.2)
   combine_pdf (~> 1.0)
   debug
   devise (~> 4.9)
@@ -548,6 +550,7 @@ DEPENDENCIES
   listen (~> 3.9)
   mail (~> 2.8)
   mini_magick (~> 5.0)
+  monetize (~> 1.13)
   money-rails (~> 1.15)
   paper_trail (~> 15.1)
   parallel_tests (~> 4.2)

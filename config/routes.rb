@@ -13,6 +13,9 @@ Rails.application.routes.draw do
     post '/spaces', to: 'ged#create_space', as: 'create_space'
     post '/folders', to: 'ged#create_folder', as: 'create_folder'
     post '/documents', to: 'ged#upload_document', as: 'upload_document'
+    
+    # Document status check
+    get '/documents/:id/status', to: 'ged#document_status', as: 'document_status'
   end
   
   # Immo Promo Routes

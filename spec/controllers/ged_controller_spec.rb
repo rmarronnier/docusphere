@@ -228,7 +228,7 @@ RSpec.describe GedController, type: :controller do
         post :upload_document, params: { document: valid_attributes }, format: :json
         json = JSON.parse(response.body)
         expect(json['success']).to be true
-        expect(json['message']).to eq('Document uploadé avec succès')
+        expect(json['message']).to eq('Document uploadé avec succès. Le traitement est en cours...')
       end
     end
     

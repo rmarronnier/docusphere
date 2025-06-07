@@ -68,10 +68,39 @@ class GedController < ApplicationController
     
     if @document.save
       redirect_path = @document.folder ? ged_folder_path(@document.folder) : ged_space_path(@document.space)
-      render json: { success: true, message: 'Document uploadé avec succès', redirect_url: redirect_path }
+      render json: { 
+        success: true, 
+        message: 'Document uploadé avec succès. Le traitement est en cours...',
+        redirect_url: redirect_path,
+        document: {
+          id: @document.id,
+          title: @document.title,
+          processing_status: @document.processing_status,
+          file_size: @document.file_size,
+          content_type: @document.file.content_type
+        }
+      }
     else
       render json: { success: false, errors: @document.errors.full_messages }
     end
+  end
+  
+  def document_status
+    skip_authorization
+    @document = Document.find(params[:id])
+    
+    render json: {
+      id: @document.id,
+      processing_status: @document.processing_status,
+      virus_scan_status: @document.virus_scan_status,
+      preview_generated: @document.preview_generated?,
+      thumbnail_generated: @document.thumbnail_generated?,
+      ocr_performed: @document.ocr_performed,
+      extracted_content: @document.content.present?,
+      tags_count: @document.tags.count,
+      metadata_count: @document.metadata.count,
+      processing_error: @document.processing_error
+    }
   end
 
   private
