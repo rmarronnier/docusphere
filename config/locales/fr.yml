@@ -1,0 +1,148 @@
+fr:
+  activerecord:
+    models:
+      user: "Utilisateur"
+      document: "Document"
+      space: "Espace"
+      organization: "Organisation"
+      folder: "Dossier"
+      workflow: "Workflow"
+      basket: "Bannette"
+      group: "Groupe"
+      tag: "Étiquette"
+    attributes:
+      user:
+        email: "Email"
+        password: "Mot de passe"
+        first_name: "Prénom"
+        last_name: "Nom"
+        created_at: "Créé le"
+        updated_at: "Modifié le"
+      document:
+        title: "Titre"
+        description: "Description"
+        file: "Fichier"
+        status: "Statut"
+        created_at: "Créé le"
+        updated_at: "Modifié le"
+    errors:
+      messages:
+        blank: "ne peut pas être vide"
+        taken: "est déjà utilisé"
+        invalid: "est invalide"
+        too_short: "est trop court"
+        too_long: "est trop long"
+  
+  date:
+    formats:
+      default: "%d/%m/%Y"
+      short: "%d %b"
+      long: "%d %B %Y"
+  
+  time:
+    formats:
+      default: "%d/%m/%Y %H:%M"
+      short: "%d %b %H:%M"
+      long: "%d %B %Y à %H:%M"
+  
+  helpers:
+    submit:
+      create: "Créer %{model}"
+      update: "Modifier %{model}"
+      submit: "Enregistrer %{model}"
+    
+  common:
+    actions: "Actions"
+    add: "Ajouter"
+    edit: "Modifier"
+    delete: "Supprimer"
+    cancel: "Annuler"
+    save: "Enregistrer"
+    search: "Rechercher"
+    filter: "Filtrer"
+    export: "Exporter"
+    import: "Importer"
+    download: "Télécharger"
+    upload: "Téléverser"
+    share: "Partager"
+    back: "Retour"
+    next: "Suivant"
+    previous: "Précédent"
+    confirm: "Êtes-vous sûr ?"
+    yes: "Oui"
+    no: "Non"
+    
+  navigation:
+    dashboard: "Tableau de bord"
+    documents: "Documents"
+    spaces: "Espaces"
+    workflows: "Workflows"
+    baskets: "Bannettes"
+    search: "Recherche"
+    administration: "Administration"
+    profile: "Mon profil"
+    logout: "Déconnexion"
+    
+  documents:
+    title: "Documents"
+    new_document: "Nouveau document"
+    upload_multiple: "Téléverser plusieurs documents"
+    drag_drop: "Glissez-déposez vos fichiers ici"
+    or_click: "ou cliquez pour sélectionner"
+    supported_formats: "Formats supportés : PDF, Word, Excel, PowerPoint, Images, Audio, Vidéo, Email, ZIP"
+    metadata: "Métadonnées"
+    versions: "Versions"
+    share_document: "Partager le document"
+    lock_document: "Verrouiller le document"
+    merge_pdf: "Fusionner des PDF"
+    split_document: "Découper le document"
+    link_documents: "Lier des documents"
+    extract_pages: "Extraire des pages"
+    ocr_processing: "Traitement OCR"
+    
+  workflows:
+    title: "Workflows"
+    new_workflow: "Nouveau workflow"
+    steps: "Étapes"
+    assignee: "Assigné à"
+    deadline: "Date limite"
+    status: "Statut"
+    pending: "En attente"
+    in_progress: "En cours"
+    completed: "Terminé"
+    rejected: "Rejeté"
+    
+  baskets:
+    title: "Bannettes"
+    personal: "Personnelle"
+    shared: "Partagée"
+    new_basket: "Nouvelle bannette"
+    add_to_basket: "Ajouter à la bannette"
+    
+  search:
+    title: "Recherche"
+    advanced_search: "Recherche avancée"
+    full_text: "Recherche plein texte"
+    by_metadata: "Par métadonnées"
+    by_tags: "Par étiquettes"
+    date_range: "Période"
+    document_type: "Type de document"
+    save_search: "Enregistrer la recherche"
+    
+  administration:
+    title: "Administration"
+    users: "Utilisateurs"
+    groups: "Groupes"
+    spaces: "Espaces"
+    metadata_templates: "Modèles de métadonnées"
+    workflow_templates: "Modèles de workflow"
+    permissions: "Permissions"
+    statistics: "Statistiques"
+    retention_rules: "Règles de conservation"
+    
+  permissions:
+    read: "Lecture"
+    write: "Écriture"
+    delete: "Suppression"
+    share: "Partage"
+    manage: "Gestion"

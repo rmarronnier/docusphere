@@ -1,0 +1,99 @@
+<nav class="bg-white shadow-sm border-b border-gray-200">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between h-16">
+      <!-- Logo et navigation principale -->
+      <div class="flex">
+        <div class="flex-shrink-0 flex items-center">
+          <%= link_to root_path, class: "text-xl font-bold text-primary-600" do %>
+            Docusphere
+          <% end %>
+        </div>
+        
+        <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+          <% navigation_items.each do |item| %>
+            <%= link_to item[:path], 
+                class: "#{active_item?(item[:path]) ? 'border-primary-500 text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" do %>
+              <%= item[:name] %>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Menu utilisateur -->
+      <div class="hidden sm:ml-6 sm:flex sm:items-center">
+        <% if current_user %>
+          <!-- Notifications -->
+          <button type="button" class="bg-white p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+            <span class="sr-only">Voir les notifications</span>
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19H6.5A2.5 2.5 0 014 16.5v-9A2.5 2.5 0 016.5 5h10A2.5 2.5 0 0119 7.5v3.5" />
+            </svg>
+          </button>
+
+          <!-- Menu déroulant utilisateur -->
+          <div class="ml-3 relative" data-controller="dropdown">
+            <div>
+              <button type="button" 
+                      class="max-w-xs bg-white flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500" 
+                      id="user-menu-button" 
+                      data-action="click->dropdown#toggle">
+                <span class="sr-only">Ouvrir le menu utilisateur</span>
+                <div class="h-8 w-8 rounded-full bg-primary-100 flex items-center justify-center">
+                  <span class="text-sm font-medium text-primary-700">
+                    <%= current_user.first_name&.first&.upcase || current_user.email.first.upcase %>
+                  </span>
+                </div>
+              </button>
+            </div>
+
+            <div class="hidden origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none" 
+                 data-dropdown-target="menu"
+                 role="menu" 
+                 aria-orientation="vertical" 
+                 aria-labelledby="user-menu-button">
+              <% user_items.each do |item| %>
+                <%= link_to item[:path], 
+                    class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100",
+                    role: "menuitem",
+                    method: item[:method] do %>
+                  <%= item[:name] %>
+                <% end %>
+              <% end %>
+            </div>
+          </div>
+        <% else %>
+          <div class="flex space-x-4">
+            <%= link_to "Connexion", new_user_session_path, class: "text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium" %>
+            <%= link_to "Inscription", new_user_registration_path, class: "btn btn-primary" %>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- Menu mobile -->
+      <div class="sm:hidden flex items-center">
+        <button type="button" 
+                class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500"
+                data-controller="mobile-menu"
+                data-action="click->mobile-menu#toggle">
+          <span class="sr-only">Ouvrir le menu principal</span>
+          <svg class="block h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Menu mobile étendu -->
+  <div class="sm:hidden hidden" data-mobile-menu-target="menu">
+    <div class="pt-2 pb-3 space-y-1">
+      <% navigation_items.each do |item| %>
+        <%= link_to item[:path], 
+            class: "#{active_item?(item[:path]) ? 'bg-primary-50 border-primary-500 text-primary-700' : 'border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium" do %>
+          <%= item[:name] %>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+</nav>

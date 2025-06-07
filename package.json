@@ -1,0 +1,25 @@
+{
+  "name": "docusphere",
+  "private": true,
+  "dependencies": {
+    "@hotwired/stimulus": "^3.2.2",
+    "@hotwired/turbo-rails": "^7.3.0",
+    "@rails/actioncable": "^7.1.2",
+    "@rails/activestorage": "^7.1.2",
+    "@rails/ujs": "^7.1.2",
+    "alpinejs": "^3.13.3",
+    "dropzone": "^6.0.0-beta.2",
+    "pdfjs-dist": "^3.11.174",
+    "trix": "^2.0.7"
+  },
+  "devDependencies": {
+    "@tailwindcss/forms": "^0.5.7",
+    "@tailwindcss/typography": "^0.5.10",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.32",
+    "tailwindcss": "^3.4.0"
+  },
+  "scripts": {
+    "build:css": "tailwindcss -i ./app/assets/stylesheets/application.css -o ./app/assets/builds/application.css --watch"
+  }
+}

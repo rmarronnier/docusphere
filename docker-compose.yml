@@ -1,0 +1,70 @@
+services:
+  db:
+    image: postgres:15-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: docusphere_development
+      POSTGRES_USER: docusphere
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails server -b 0.0.0.0"
+    volumes:
+      - .:/app
+      - bundle_cache:/usr/local/bundle
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+      - redis
+      - elasticsearch
+    environment:
+      DATABASE_URL: postgresql://docusphere:password@db:5432/docusphere_development
+      REDIS_URL: redis://redis:6379/0
+      RAILS_ENV: development
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+
+  sidekiq:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    command: bundle exec sidekiq
+    volumes:
+      - .:/app
+      - bundle_cache:/usr/local/bundle
+    depends_on:
+      - db
+      - redis
+      - elasticsearch
+    environment:
+      DATABASE_URL: postgresql://docusphere:password@db:5432/docusphere_development
+      REDIS_URL: redis://redis:6379/0
+      RAILS_ENV: development
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+
+  elasticsearch:
+    image: elasticsearch:8.11.1
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+
+volumes:
+  postgres_data:
+  bundle_cache:
+  elasticsearch_data:

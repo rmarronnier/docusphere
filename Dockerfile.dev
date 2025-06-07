@@ -1,0 +1,41 @@
+FROM ruby:3.3.0
+
+# Install dependencies
+RUN apt-get update -qq && apt-get install -y \
+    build-essential \
+    libpq-dev \
+    curl \
+    imagemagick \
+    libvips-dev \
+    ffmpeg \
+    poppler-utils \
+    libreoffice \
+    tesseract-ocr \
+    tesseract-ocr-fra \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Node.js and Yarn
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
+    apt-get install -y nodejs && \
+    npm install -g yarn
+
+WORKDIR /app
+
+# Install bundler
+RUN gem install bundler
+
+# Copy Gemfile
+COPY Gemfile ./
+
+# Install gems (this will create Gemfile.lock)
+RUN bundle install
+
+# Copy package.json
+COPY package.json ./
+
+# Install node packages (this will create yarn.lock)
+RUN yarn install || npm install
+
+EXPOSE 3000
+
+CMD ["rails", "server", "-b", "0.0.0.0"]

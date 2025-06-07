@@ -1,0 +1,65 @@
+<div class="min-h-screen bg-gray-50">
+  <%= render Navigation::NavbarComponent.new %>
+  
+  <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <div class="px-4 py-6 sm:px-0">
+      <div class="border-4 border-dashed border-gray-200 rounded-lg p-8">
+        <div class="text-center">
+          <h1 class="text-4xl font-bold text-gray-900 mb-4">
+            Bienvenue sur Docusphere
+          </h1>
+          <p class="text-lg text-gray-600 mb-8">
+            Votre système de gestion électronique de documents collaboratif
+          </p>
+          
+          <% if user_signed_in? %>
+            <div class="bg-white shadow rounded-lg p-6 max-w-md mx-auto">
+              <h2 class="text-xl font-semibold text-gray-900 mb-4">
+                Bonjour <%= current_user.display_name %> !
+              </h2>
+              <p class="text-gray-600 mb-4">
+                Vous êtes connecté en tant que <%= current_user.role&.humanize || 'utilisateur' %>
+              </p>
+              <div class="space-y-3">
+                <%= link_to "Mes Documents", "#", class: "block w-full btn btn-primary" %>
+                <%= link_to "Espaces", "#", class: "block w-full btn btn-secondary" %>
+                <%= link_to "Recherche", "#", class: "block w-full btn btn-secondary" %>
+              </div>
+            </div>
+          <% else %>
+            <div class="space-x-4">
+              <%= link_to "Se connecter", new_user_session_path, class: "btn btn-primary" %>
+              <%= link_to "S'inscrire", new_user_registration_path, class: "btn btn-secondary" %>
+            </div>
+          <% end %>
+          
+          <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <%= render Ui::CardComponent.new(title: "Gestion des documents") do %>
+              <p class="text-gray-600">
+                Stockez, organisez et partagez vos documents en toute sécurité
+              </p>
+            <% end %>
+            
+            <%= render Ui::CardComponent.new(title: "Collaboration") do %>
+              <p class="text-gray-600">
+                Travaillez en équipe avec des workflows et des espaces partagés
+              </p>
+            <% end %>
+            
+            <%= render Ui::CardComponent.new(title: "Recherche avancée") do %>
+              <p class="text-gray-600">
+                Trouvez rapidement vos documents grâce à la recherche intelligente
+              </p>
+            <% end %>
+          </div>
+          
+          <div class="mt-8 text-sm text-gray-500">
+            <p>
+              Formats supportés : PDF, Word, Excel, PowerPoint, Images, Audio, Vidéo, Email, ZIP
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
