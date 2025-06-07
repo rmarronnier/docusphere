@@ -10,7 +10,7 @@ class Document < ApplicationRecord
   has_many :shares, dependent: :destroy
   has_many :shared_users, through: :shares, source: :user
   has_many :document_versions, dependent: :destroy
-  has_many :document_metadata, dependent: :destroy
+  has_many :metadata, class_name: 'Metadatum', as: :metadatable, dependent: :destroy
   has_many :document_tags, dependent: :destroy
   has_many :tags, through: :document_tags
   has_many :workflow_submissions, as: :submittable, dependent: :destroy
@@ -102,6 +102,6 @@ class Document < ApplicationRecord
   end
   
   def metadata_text
-    document_metadata.map { |m| "#{m.metadata_field.name}: #{m.value}" }.join(' ')
+    metadata.map { |m| "#{m.name}: #{m.value}" }.join(' ')
   end
 end

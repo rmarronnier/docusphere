@@ -159,13 +159,6 @@ docker-compose run --rm web rails generate model UserGroup \
   group:references \
   --skip
 
-# DocumentShare
-docker-compose run --rm web rails generate model DocumentShare \
-  document:references \
-  user:references \
-  permission:string \
-  expires_at:datetime \
-  --skip
 
 # DocumentVersion
 docker-compose run --rm web rails generate model DocumentVersion \

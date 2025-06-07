@@ -10,7 +10,7 @@ RSpec.describe Document, type: :model do
     it { should have_many(:shares).dependent(:destroy) }
     it { should have_many(:shared_users).through(:shares) }
     it { should have_many(:document_versions).dependent(:destroy) }
-    it { should have_many(:document_metadata).dependent(:destroy) }
+    it { should have_many(:metadata).dependent(:destroy) }
     it { should have_many(:document_tags).dependent(:destroy) }
     it { should have_many(:tags).through(:document_tags) }
     it { should have_many(:workflow_submissions).dependent(:destroy) }

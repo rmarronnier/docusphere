@@ -102,30 +102,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_07_190455) do
     t.index ["user_id"], name: "index_baskets_on_user_id"
   end
 
-  create_table "document_metadata", force: :cascade do |t|
-    t.bigint "document_id", null: false
-    t.bigint "metadata_field_id", null: false
-    t.text "value"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["document_id", "metadata_field_id"], name: "idx_doc_metadata_unique", unique: true
-    t.index ["document_id"], name: "index_document_metadata_on_document_id"
-    t.index ["metadata_field_id"], name: "index_document_metadata_on_metadata_field_id"
-  end
-
-  create_table "document_shares", force: :cascade do |t|
-    t.bigint "document_id", null: false
-    t.bigint "user_id", null: false
-    t.string "permission"
-    t.datetime "expires_at"
-    t.bigint "shared_by_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["document_id"], name: "index_document_shares_on_document_id"
-    t.index ["shared_by_id"], name: "index_document_shares_on_shared_by_id"
-    t.index ["user_id"], name: "index_document_shares_on_user_id"
-  end
-
   create_table "document_tags", force: :cascade do |t|
     t.bigint "document_id", null: false
     t.bigint "tag_id", null: false
@@ -559,13 +535,17 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_07_190455) do
   end
 
   create_table "metadata", force: :cascade do |t|
-    t.bigint "document_id", null: false
+    t.string "metadatable_type", null: false
+    t.bigint "metadatable_id", null: false
     t.string "key"
     t.text "value"
-    t.string "metadata_type"
+    t.bigint "metadata_field_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["document_id"], name: "index_metadata_on_document_id"
+    t.index ["metadata_field_id"], name: "index_metadata_on_metadata_field_id"
+    t.index ["metadatable_type", "metadatable_id", "key"], name: "idx_metadata_unique_key", unique: true, where: "(metadata_field_id IS NULL)"
+    t.index ["metadatable_type", "metadatable_id", "metadata_field_id"], name: "idx_metadata_unique_field", unique: true, where: "(metadata_field_id IS NOT NULL)"
+    t.index ["metadatable_type", "metadatable_id"], name: "index_metadata_on_metadatable"
   end
 
   create_table "metadata_fields", force: :cascade do |t|
@@ -816,11 +796,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_07_190455) do
   add_foreign_key "basket_items", "baskets"
   add_foreign_key "basket_items", "documents"
   add_foreign_key "baskets", "users"
-  add_foreign_key "document_metadata", "documents"
-  add_foreign_key "document_metadata", "metadata_fields"
-  add_foreign_key "document_shares", "documents"
-  add_foreign_key "document_shares", "users"
-  add_foreign_key "document_shares", "users", column: "shared_by_id"
   add_foreign_key "document_tags", "documents"
   add_foreign_key "document_tags", "tags"
   add_foreign_key "document_versions", "documents"
@@ -865,7 +840,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_07_190455) do
   add_foreign_key "immo_promo_time_logs", "users"
   add_foreign_key "links", "documents"
   add_foreign_key "links", "documents", column: "linked_document_id"
-  add_foreign_key "metadata", "documents"
+  add_foreign_key "metadata", "metadata_fields"
   add_foreign_key "metadata_fields", "metadata_templates"
   add_foreign_key "metadata_templates", "organizations"
   add_foreign_key "notifications", "users"

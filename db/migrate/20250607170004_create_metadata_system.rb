@@ -17,15 +17,8 @@ class CreateMetadataSystem < ActiveRecord::Migration[7.1]
       t.references :metadata_template, null: false, foreign_key: true
       t.timestamps
     end
-
-    # Finally document metadata
-    create_table :document_metadata do |t|
-      t.references :document, null: false, foreign_key: true
-      t.references :metadata_field, null: false, foreign_key: true
-      t.text :value
-      t.timestamps
-    end
-
-    add_index :document_metadata, [:document_id, :metadata_field_id], unique: true, name: 'idx_doc_metadata_unique'
+    
+    # Note: We'll use the existing polymorphic metadata table
+    # instead of creating document_metadata
   end
 end

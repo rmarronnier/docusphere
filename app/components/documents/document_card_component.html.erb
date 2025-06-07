@@ -68,7 +68,7 @@
             <%= link_to "Voir", document_path(document), class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
             <%= link_to "Modifier", edit_document_path(document), class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
             <%= link_to "Télécharger", document_path(document, format: :pdf), class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
-            <%= link_to "Partager", new_document_share_path(document), class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
+            <%= link_to "Partager", new_document_share_path(document_id: document.id), class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
             <div class="border-t border-gray-100"></div>
             <%= link_to "Supprimer", document_path(document), 
                 method: :delete, 

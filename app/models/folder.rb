@@ -3,7 +3,7 @@ class Folder < ApplicationRecord
   
   belongs_to :space
   has_many :documents, dependent: :destroy
-  has_many :folder_metadata, dependent: :destroy
+  has_many :metadata, class_name: 'Metadatum', as: :metadatable, dependent: :destroy
   
   validates :name, presence: true
   validates :name, uniqueness: { scope: [:space_id, :parent_id] }
