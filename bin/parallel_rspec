@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -e
+
+echo "Running RSpec tests in parallel..."
+
+# Set the number of processes (use half of available CPUs for better performance)
+PROCESSES=${PARALLEL_TEST_PROCESSORS:-7}
+
+# Run tests in parallel
+docker compose exec -T -e RAILS_ENV=test web bundle exec parallel_rspec -n $PROCESSES "$@"

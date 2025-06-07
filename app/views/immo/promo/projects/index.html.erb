@@ -1,0 +1,183 @@
+<% content_for :title, "Projets immobiliers" %>
+
+<div class="space-y-6">
+  <!-- Header with filters -->
+  <div class="md:flex md:items-center md:justify-between">
+    <div class="min-w-0 flex-1">
+      <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+        Projets immobiliers
+      </h2>
+    </div>
+    <div class="mt-4 flex space-x-3 md:ml-4 md:mt-0">
+      <%= link_to "Nouveau projet", new_immo_promo_project_path, 
+                  class: "inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500" %>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="bg-white shadow rounded-lg p-4">
+    <%= form_with url: immo_promo_projects_path, method: :get, local: true, class: "flex flex-wrap gap-4 items-end" do |form| %>
+      <div class="flex-1 min-w-0">
+        <%= form.select :type, 
+                        options_for_select([
+                          ['Tous les types', ''],
+                          ['Résidentiel', 'residential'],
+                          ['Commercial', 'commercial'],
+                          ['Mixte', 'mixed'],
+                          ['Industriel', 'industrial']
+                        ], params[:type]),
+                        {},
+                        { class: "block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" } %>
+      </div>
+      
+      <div class="flex-1 min-w-0">
+        <%= form.select :status,
+                        options_for_select([
+                          ['Tous les statuts', ''],
+                          ['Planification', 'planning'],
+                          ['Développement', 'development'],
+                          ['Construction', 'construction'],
+                          ['Livraison', 'delivery'],
+                          ['Terminé', 'completed']
+                        ], params[:status]),
+                        {},
+                        { class: "block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" } %>
+      </div>
+      
+      <div class="flex-shrink-0">
+        <%= form.submit "Filtrer", class: "rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Projects Grid -->
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3">
+    <% @projects.each do |project| %>
+      <div class="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition-shadow duration-200">
+        <div class="p-6">
+          <!-- Project Header -->
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center space-x-3">
+              <div class="flex-shrink-0">
+                <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+                  <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m4 0V9a2 2 0 012-2h2a2 2 0 012 2v12"></path>
+                  </svg>
+                </div>
+              </div>
+              <div class="flex-1 min-w-0">
+                <h3 class="text-lg font-medium text-gray-900 truncate">
+                  <%= link_to project.name, project, class: "hover:text-indigo-600" %>
+                </h3>
+                <p class="text-sm text-gray-500"><%= project.reference %></p>
+              </div>
+            </div>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                         <%= project.status == 'planning' ? 'bg-blue-100 text-blue-800' :
+                             project.status == 'development' ? 'bg-purple-100 text-purple-800' :
+                             project.status == 'construction' ? 'bg-yellow-100 text-yellow-800' :
+                             project.status == 'delivery' ? 'bg-orange-100 text-orange-800' :
+                             project.status == 'completed' ? 'bg-green-100 text-green-800' :
+                             'bg-gray-100 text-gray-800' %>">
+              <%= project.status.humanize %>
+            </span>
+          </div>
+
+          <!-- Project Info -->
+          <div class="space-y-2 mb-4">
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-500">Type:</span>
+              <span class="text-gray-900"><%= project.project_type.humanize %></span>
+            </div>
+            <% if project.total_units %>
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-500">Logements:</span>
+                <span class="text-gray-900"><%= project.total_units %></span>
+              </div>
+            <% end %>
+            <% if project.total_surface_area %>
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-500">Surface:</span>
+                <span class="text-gray-900"><%= number_with_delimiter(project.total_surface_area.to_i) %> m²</span>
+              </div>
+            <% end %>
+            <% if project.project_manager %>
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-500">Chef de projet:</span>
+                <span class="text-gray-900"><%= project.project_manager.display_name %></span>
+              </div>
+            <% end %>
+          </div>
+
+          <!-- Progress Bar -->
+          <div class="mb-4">
+            <div class="flex items-center justify-between text-sm mb-1">
+              <span class="text-gray-500">Avancement</span>
+              <span class="text-gray-900 font-medium"><%= project.completion_percentage %>%</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+              <div class="bg-indigo-600 h-2 rounded-full transition-all duration-300" 
+                   style="width: <%= project.completion_percentage %>%"></div>
+            </div>
+          </div>
+
+          <!-- Dates -->
+          <div class="flex justify-between text-sm text-gray-500 mb-4">
+            <span>
+              Début: <%= project.start_date&.strftime('%d/%m/%Y') || 'À définir' %>
+            </span>
+            <span>
+              Fin: <%= project.end_date&.strftime('%d/%m/%Y') || 'À définir' %>
+            </span>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex justify-between items-center pt-4 border-t border-gray-200">
+            <%= link_to "Voir détails", project, 
+                        class: "text-indigo-600 hover:text-indigo-900 text-sm font-medium" %>
+            <div class="flex space-x-2">
+              <%= link_to "Éditer", edit_immo_promo_project_path(project), 
+                          class: "text-gray-400 hover:text-gray-600" %>
+              <% if policy(project).destroy? %>
+                <%= link_to "Supprimer", project, method: :delete,
+                            confirm: "Êtes-vous sûr de vouloir supprimer ce projet ?",
+                            class: "text-red-400 hover:text-red-600" %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Alerts if any -->
+        <% if project.is_delayed? %>
+          <div class="bg-red-50 border-l-4 border-red-400 p-3">
+            <div class="flex">
+              <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                </svg>
+              </div>
+              <div class="ml-3">
+                <p class="text-sm text-red-700">Projet en retard</p>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Empty State -->
+  <% if @projects.empty? %>
+    <div class="text-center py-12">
+      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m4 0V9a2 2 0 012-2h2a2 2 0 012 2v12"></path>
+      </svg>
+      <h3 class="mt-2 text-sm font-medium text-gray-900">Aucun projet</h3>
+      <p class="mt-1 text-sm text-gray-500">Commencez par créer votre premier projet immobilier.</p>
+      <div class="mt-6">
+        <%= link_to "Nouveau projet", new_immo_promo_project_path, 
+                    class: "inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500" %>
+      </div>
+    </div>
+  <% end %>
+</div>

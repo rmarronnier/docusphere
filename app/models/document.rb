@@ -7,16 +7,16 @@ class Document < ApplicationRecord
   belongs_to :folder, optional: true
   
   has_many :children, class_name: 'Document', foreign_key: 'parent_id', dependent: :destroy
-  has_many :document_shares, dependent: :destroy
-  has_many :shared_users, through: :document_shares, source: :user
+  has_many :shares, dependent: :destroy
+  has_many :shared_users, through: :shares, source: :user
   has_many :document_versions, dependent: :destroy
   has_many :document_metadata, dependent: :destroy
   has_many :document_tags, dependent: :destroy
   has_many :tags, through: :document_tags
-  has_many :workflow_documents, dependent: :destroy
-  has_many :workflows, through: :workflow_documents
-  has_many :document_links, dependent: :destroy
-  has_many :linked_documents, through: :document_links
+  has_many :workflow_submissions, as: :submittable, dependent: :destroy
+  has_many :workflows, through: :workflow_submissions
+  has_many :links, dependent: :destroy
+  has_many :linked_documents, through: :links, source: :linked_document
   
   has_one_attached :file
   
@@ -87,12 +87,21 @@ class Document < ApplicationRecord
       title: title,
       description: description,
       content: extracted_content,
-      metadata_text: document_metadata.pluck(:value).join(' '),
+      metadata_text: metadata_text,
       document_type: document_type,
       created_at: created_at,
       user_id: user_id,
       space_id: space_id,
       tags: tags.pluck(:name)
     }
+  end
+  
+  def extracted_content
+    # TODO: Implement content extraction from files
+    ''
+  end
+  
+  def metadata_text
+    document_metadata.map { |m| "#{m.metadata_field.name}: #{m.value}" }.join(' ')
   end
 end

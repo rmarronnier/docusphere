@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -e
+
+echo "Setting up parallel test databases..."
+
+# Create databases for parallel tests
+docker compose exec -T web bundle exec rake parallel:create
+
+# Run migrations
+docker compose exec -T web bundle exec rake parallel:prepare
+
+echo "Parallel test databases are ready!"

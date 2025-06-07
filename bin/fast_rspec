@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -e
+
+echo "Running RSpec tests with optimizations..."
+
+# Use Spring preloader if available
+if command -v spring &> /dev/null; then
+    echo "Using Spring preloader..."
+    SPRING="spring"
+else
+    SPRING=""
+fi
+
+# Run tests with fail-fast by default
+FAIL_FAST="--fail-fast"
+if [[ "$*" == *"--no-fail-fast"* ]]; then
+    FAIL_FAST=""
+fi
+
+# Run tests with progress format
+docker compose exec -T -e RAILS_ENV=test web bundle exec $SPRING rspec $FAIL_FAST --format progress "$@"

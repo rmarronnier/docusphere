@@ -14,10 +14,10 @@ development:
 
 test:
   <<: *default
-  database: docusphere_test
+  database: docusphere_test<%= ENV['TEST_ENV_NUMBER'] %>
   username: docusphere
   password: password
-  host: <%= ENV.fetch("DATABASE_HOST", "localhost") %>
+  host: <%= ENV.fetch("DATABASE_HOST", "db") %>
   port: 5432
 
 production:

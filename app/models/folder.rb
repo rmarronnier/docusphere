@@ -1,16 +1,29 @@
 class Folder < ApplicationRecord
+  include Treeable
+  
   belongs_to :space
-  belongs_to :parent, class_name: 'Folder', optional: true
-  has_many :children, class_name: 'Folder', foreign_key: 'parent_id', dependent: :destroy
   has_many :documents, dependent: :destroy
   has_many :folder_metadata, dependent: :destroy
   
-  has_ancestry
-  
   validates :name, presence: true
   validates :name, uniqueness: { scope: [:space_id, :parent_id] }
+  validates :slug, presence: true, uniqueness: { scope: :space_id }
+  
+  before_validation :generate_slug_if_blank
+  
+  scope :in_space, ->(space) { where(space: space) }
   
   def full_path
-    ancestors.map(&:name).push(name).join('/')
+    path.map(&:name).join('/')
+  end
+  
+  def parent_folders
+    ancestors
+  end
+  
+  private
+  
+  def generate_slug_if_blank
+    self.slug = name.parameterize if slug.blank? && name.present?
   end
 end

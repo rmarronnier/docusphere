@@ -1,0 +1,94 @@
+<div class="container mx-auto px-4 py-8">
+  <h1 class="text-3xl font-bold mb-8">
+    <% if @project.present? %>
+      Tableau de bord - <%= @project.name %>
+    <% else %>
+      Tableau de bord des projets
+    <% end %>
+  </h1>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <!-- Projets actifs -->
+    <div class="bg-white shadow rounded-lg p-6">
+      <h2 class="text-lg font-semibold mb-4">Projets actifs</h2>
+      <p class="text-3xl font-bold text-indigo-600"><%= @projects.count %></p>
+    </div>
+
+    <!-- Jalons à venir -->
+    <div class="bg-white shadow rounded-lg p-6">
+      <h2 class="text-lg font-semibold mb-4">Jalons à venir</h2>
+      <p class="text-3xl font-bold text-yellow-600"><%= @upcoming_milestones.count %></p>
+    </div>
+
+    <!-- Tâches en retard -->
+    <div class="bg-white shadow rounded-lg p-6">
+      <h2 class="text-lg font-semibold mb-4">Tâches en retard</h2>
+      <p class="text-3xl font-bold text-red-600"><%= @overdue_tasks.count %></p>
+    </div>
+  </div>
+
+  <!-- Section jalons à venir -->
+  <div class="mt-8 bg-white shadow rounded-lg">
+    <div class="px-6 py-4 border-b">
+      <h2 class="text-xl font-semibold">Prochains jalons</h2>
+    </div>
+    <div class="p-6">
+      <% if @upcoming_milestones.any? %>
+        <ul class="space-y-2">
+          <% @upcoming_milestones.each do |milestone| %>
+            <li class="flex justify-between items-center">
+              <span><%= milestone.name %></span>
+              <span class="text-sm text-gray-500"><%= l(milestone.target_date, format: :short) if milestone.target_date %></span>
+            </li>
+          <% end %>
+        </ul>
+      <% else %>
+        <p class="text-gray-500">Aucun jalon à venir</p>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Section tâches en retard -->
+  <div class="mt-8 bg-white shadow rounded-lg">
+    <div class="px-6 py-4 border-b">
+      <h2 class="text-xl font-semibold">Tâches en retard</h2>
+    </div>
+    <div class="p-6">
+      <% if @overdue_tasks.any? %>
+        <ul class="space-y-2">
+          <% @overdue_tasks.each do |task| %>
+            <li class="flex justify-between items-center">
+              <span><%= task.name %></span>
+              <span class="text-sm text-gray-500">
+                <%= task.assigned_to&.full_name || 'Non assigné' %>
+              </span>
+            </li>
+          <% end %>
+        </ul>
+      <% else %>
+        <p class="text-gray-500">Aucune tâche en retard</p>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Section rapports récents -->
+  <div class="mt-8 bg-white shadow rounded-lg">
+    <div class="px-6 py-4 border-b">
+      <h2 class="text-xl font-semibold">Rapports récents</h2>
+    </div>
+    <div class="p-6">
+      <% if @recent_reports.any? %>
+        <ul class="space-y-2">
+          <% @recent_reports.each do |report| %>
+            <li class="flex justify-between items-center">
+              <span><%= report.report_type.humanize %></span>
+              <span class="text-sm text-gray-500"><%= l(report.report_date, format: :short) %></span>
+            </li>
+          <% end %>
+        </ul>
+      <% else %>
+        <p class="text-gray-500">Aucun rapport récent</p>
+      <% end %>
+    </div>
+  </div>
+</div>

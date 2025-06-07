@@ -17,6 +17,7 @@ gem "bootsnap", require: false
 # Active Storage & Image Processing
 gem "image_processing", "~> 1.12"
 
+
 # Background Jobs
 gem "sidekiq", "~> 7.1"
 gem "sidekiq-cron", "~> 1.10"
@@ -65,6 +66,11 @@ gem "audited", "~> 5.4"
 gem "ancestry", "~> 4.3"
 gem "acts-as-taggable-on", "~> 10.0"
 gem "paper_trail", "~> 15.1"
+gem "chronic", "~> 0.10" # Natural language date parsing
+gem "ice_cube", "~> 0.16" # Recurring events
+gem "money-rails", "~> 1.15" # Money management
+gem "state_machines-activerecord", "~> 0.9" # State machines
+gem "geocoder", "~> 1.8" # Geocoding for addresses
 
 group :development, :test do
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
@@ -73,15 +79,20 @@ group :development, :test do
   gem "rspec-rails", "~> 7.1"
   gem "factory_bot_rails", "~> 6.4"
   gem "faker", "~> 3.5"
+  gem "parallel_tests", "~> 4.2"
 end
 
 group :development do
   gem "web-console"
   gem "listen", "~> 3.9"
+  gem "spring"
+  gem "spring-commands-rspec"
 end
 
 group :test do
   gem "capybara"
   gem "selenium-webdriver"
   gem "shoulda-matchers", "~> 6.4"
+  gem "rails-controller-testing"
+  gem "pundit-matchers", "~> 3.1"
 end

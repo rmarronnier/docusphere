@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+set -e
+
+echo "Setting up parallel test databases..."
+
+# Get number of CPUs for parallel tests
+CPU_COUNT=$(docker-compose run --rm web nproc 2>/dev/null || echo "4")
+echo "Detected $CPU_COUNT CPUs"
+
+# Create test databases
+for i in $(seq 2 $CPU_COUNT); do
+  echo "Creating docusphere_test$i..."
+  docker-compose exec -T db psql -U docusphere -d postgres -c "CREATE DATABASE docusphere_test$i;" 2>/dev/null || echo "Database docusphere_test$i may already exist"
+done
+
+# Load schema into each test database
+echo "Loading schema into test databases..."
+docker-compose run --rm -e RAILS_ENV=test web bundle exec rails db:schema:load
+
+for i in $(seq 2 $CPU_COUNT); do
+  echo "Loading schema into docusphere_test$i..."
+  docker-compose run --rm -e RAILS_ENV=test -e TEST_ENV_NUMBER=$i web bundle exec rails db:schema:load
+done
+
+echo "Parallel test databases ready!"

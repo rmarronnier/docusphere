@@ -1,0 +1,86 @@
+<!-- Modal Créer un Espace -->
+<div id="createSpaceModal" class="fixed inset-0 z-50 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+  <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="closeModal('createSpaceModal')"></div>
+
+    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+    <div class="relative inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+      <div>
+        <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
+          <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+          </svg>
+        </div>
+        <div class="mt-3 text-center sm:mt-5">
+          <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+            Créer un nouvel espace
+          </h3>
+          <div class="mt-2">
+            <p class="text-sm text-gray-500">
+              Les espaces permettent d'organiser vos documents par thématique ou équipe.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <form id="createSpaceForm" class="mt-5 sm:mt-6">
+        <div class="space-y-4">
+          <div>
+            <label for="space_name" class="block text-sm font-medium text-gray-700">
+              Nom de l'espace *
+            </label>
+            <div class="mt-1">
+              <input type="text" 
+                     id="space_name" 
+                     name="space[name]" 
+                     required
+                     class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                     placeholder="Ex: Direction Générale">
+            </div>
+          </div>
+
+          <div>
+            <label for="space_description" class="block text-sm font-medium text-gray-700">
+              Description
+            </label>
+            <div class="mt-1">
+              <textarea id="space_description" 
+                        name="space[description]" 
+                        rows="3"
+                        class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                        placeholder="Description de l'espace..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div id="createSpaceErrors" class="mt-4 hidden">
+          <div class="rounded-md bg-red-50 p-4">
+            <div class="flex">
+              <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                </svg>
+              </div>
+              <div class="ml-3">
+                <ul id="createSpaceErrorsList" class="list-disc list-inside text-sm text-red-700"></ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-5 sm:mt-6 sm:grid sm:grid-cols-2 sm:gap-3 sm:grid-flow-row-dense">
+          <button type="submit"
+                  class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:col-start-2 sm:text-sm">
+            Créer
+          </button>
+          <button type="button"
+                  onclick="closeModal('createSpaceModal')"
+                  class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:col-start-1 sm:text-sm">
+            Annuler
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

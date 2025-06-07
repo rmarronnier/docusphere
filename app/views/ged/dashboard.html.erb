@@ -1,0 +1,154 @@
+<div class="min-h-screen bg-gray-50" data-controller="ged">
+  <%= render Navigation::NavbarComponent.new %>
+  
+  <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <div class="px-4 py-6 sm:px-0">
+      <!-- Header avec actions rapides -->
+      <div class="md:flex md:items-center md:justify-between mb-8">
+        <div class="min-w-0 flex-1">
+          <h1 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate">
+            Gestion Électronique de Documents
+          </h1>
+        </div>
+        <div class="mt-4 flex md:ml-4 md:mt-0">
+          <button type="button" 
+                  onclick="openModal('createSpaceModal')" 
+                  class="ml-3 inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700">
+            <svg class="-ml-0.5 mr-1.5 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+            </svg>
+            Nouvel Espace
+          </button>
+          <button type="button" 
+                  onclick="openModal('createFolderModal')" 
+                  class="ml-3 inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+            <svg class="-ml-0.5 mr-1.5 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-5l-2-2H5a2 2 0 00-2 2z"/>
+            </svg>
+            Nouveau Dossier
+          </button>
+          <button type="button" 
+                  onclick="openModal('uploadModal')" 
+                  class="ml-3 inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+            <svg class="-ml-0.5 mr-1.5 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+            </svg>
+            Upload Document
+          </button>
+        </div>
+      </div>
+
+      <!-- Statistiques -->
+      <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+          <div class="p-5">
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                </svg>
+              </div>
+              <div class="ml-5 w-0 flex-1">
+                <dl>
+                  <dt class="text-sm font-medium text-gray-500 truncate">Espaces</dt>
+                  <dd class="text-lg font-medium text-gray-900"><%= @spaces_count %></dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+          <div class="p-5">
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+              </div>
+              <div class="ml-5 w-0 flex-1">
+                <dl>
+                  <dt class="text-sm font-medium text-gray-500 truncate">Documents</dt>
+                  <dd class="text-lg font-medium text-gray-900"><%= @documents_count %></dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Espaces favoris -->
+      <div class="mb-8">
+        <h2 class="text-lg font-medium text-gray-900 mb-4">Espaces de travail</h2>
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <% @favorite_spaces.each do |space| %>
+            <div class="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm hover:border-gray-400 cursor-pointer">
+              <%= link_to ged_space_path(space), class: "absolute inset-0" do %>
+                <span class="sr-only">Voir <%= space.name %></span>
+              <% end %>
+              <div class="flex items-center space-x-3">
+                <div class="flex-shrink-0">
+                  <div class="h-10 w-10 rounded-lg bg-indigo-500 flex items-center justify-center">
+                    <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                    </svg>
+                  </div>
+                </div>
+                <div class="min-w-0 flex-1">
+                  <span class="absolute inset-0" aria-hidden="true"></span>
+                  <p class="text-sm font-medium text-gray-900"><%= space.name %></p>
+                  <p class="text-sm text-gray-500 truncate"><%= space.description || "Aucune description" %></p>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Documents récents -->
+      <div>
+        <h2 class="text-lg font-medium text-gray-900 mb-4">Documents récents</h2>
+        <div class="bg-white shadow overflow-hidden sm:rounded-md">
+          <ul role="list" class="divide-y divide-gray-200">
+            <% @recent_documents.each do |document| %>
+              <li>
+                <%= link_to ged_document_path(document), class: "block hover:bg-gray-50" do %>
+                  <div class="px-4 py-4 sm:px-6">
+                    <div class="flex items-center justify-between">
+                      <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                          <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                          </svg>
+                        </div>
+                        <div class="ml-4">
+                          <p class="text-sm font-medium text-indigo-600 truncate"><%= document.title %></p>
+                          <p class="text-sm text-gray-500">
+                            <%= document.space.name %>
+                            <% if document.folder %>
+                              • <%= document.folder.name %>
+                            <% end %>
+                          </p>
+                        </div>
+                      </div>
+                      <div class="flex flex-shrink-0 items-center">
+                        <p class="text-sm text-gray-500">
+                          Modifié le <%= l(document.updated_at, format: :short) %>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modales -->
+<%= render 'ged/modals/create_space' %>
+<%= render 'ged/modals/create_folder' %>
+<%= render 'ged/modals/upload_document' %>

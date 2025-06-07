@@ -32,6 +32,7 @@ class Navigation::NavbarComponent < ApplicationComponent
   end
 
   def active_item?(path)
-    current_page == path || request.path.start_with?(path)
+    return false if path == '#'
+    current_page == path || (helpers.request.path.start_with?(path) if path != '/')
   end
 end

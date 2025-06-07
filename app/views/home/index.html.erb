@@ -21,9 +21,9 @@
                 Vous êtes connecté en tant que <%= current_user.role&.humanize || 'utilisateur' %>
               </p>
               <div class="space-y-3">
-                <%= link_to "Mes Documents", "#", class: "block w-full btn btn-primary" %>
-                <%= link_to "Espaces", "#", class: "block w-full btn btn-secondary" %>
-                <%= link_to "Recherche", "#", class: "block w-full btn btn-secondary" %>
+                <%= link_to "Accéder à la GED", ged_dashboard_path, class: "block w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700" %>
+                <%= link_to "Mes Documents", ged_dashboard_path, class: "block w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" %>
+                <%= link_to "Recherche", "#", class: "block w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" %>
               </div>
             </div>
           <% else %>
