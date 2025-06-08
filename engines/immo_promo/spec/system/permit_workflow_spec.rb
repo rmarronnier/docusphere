@@ -81,7 +81,7 @@ RSpec.describe 'Permit Workflow', type: :system do
       expect(page).to have_content('Projet résidentiel')
       
       # Check workflow steps
-      expect(page).to have_content('1. Études préliminaires')
+      expect(page).to have_content('1. Planification préliminaires')
       expect(page).to have_content('2. Permis de démolir')
       expect(page).to have_content('3. Permis de construire')
       expect(page).to have_content('4. Autorisations spécifiques')

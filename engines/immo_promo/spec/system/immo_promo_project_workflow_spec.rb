@@ -41,7 +41,7 @@ RSpec.describe "Immo::Promo Project Workflow", type: :system do
 
       # 5. Vérifier que les phases par défaut ont été créées
       within '.phases-section' do
-        expect(page).to have_content("Études préliminaires")
+        expect(page).to have_content("Planification préliminaires")
         expect(page).to have_content("Obtention des permis")
         expect(page).to have_content("Travaux de construction")
         expect(page).to have_content("Réception des travaux")

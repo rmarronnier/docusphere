@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_06_08_211529) do
+ActiveRecord::Schema[7.1].define(version: 2025_06_08_213528) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -519,8 +519,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_08_211529) do
     t.date "expected_completion_date"
     t.date "actual_end_date"
     t.string "building_permit_number"
-    t.integer "total_budget_cents"
-    t.integer "current_budget_cents"
+    t.bigint "total_budget_cents"
+    t.bigint "current_budget_cents"
     t.jsonb "metadata", default: {}
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false

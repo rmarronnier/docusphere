@@ -88,14 +88,14 @@
                       </td>
                       <td class="px-6 py-4 whitespace-nowrap">
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
-                          <%= case authorization.permission_type
+                          <%= case authorization.permission_level
                               when 'read' then 'bg-gray-100 text-gray-800'
                               when 'write' then 'bg-blue-100 text-blue-800'
                               when 'admin' then 'bg-red-100 text-red-800'
                               when 'validate' then 'bg-purple-100 text-purple-800'
                               else 'bg-gray-100 text-gray-800'
                               end %>">
-                          <%= authorization.permission_type.humanize %>
+                          <%= authorization.permission_level.humanize %>
                         </span>
                       </td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -157,7 +157,7 @@
               
               <div>
                 <label class="block text-sm font-medium text-gray-700">Permission</label>
-                <%= f.select "permissions[][permission_type]", 
+                <%= f.select "permissions[][permission_level]", 
                     options_for_select([
                       ['Lecture', 'read'],
                       ['Écriture', 'write'],

@@ -281,7 +281,7 @@ class GedController < ApplicationController
                    User.find(permission_data[:user_id]) : 
                    UserGroup.find(permission_data[:user_group_id])
           
-          resource.authorize_user(subject, permission_data[:permission_type], 
+          resource.authorize_user(subject, permission_data[:permission_level], 
                                  granted_by: current_user,
                                  comment: permission_data[:comment])
         end
@@ -292,7 +292,7 @@ class GedController < ApplicationController
         params[:revoke_permissions].each do |auth_id|
           auth = resource.authorizations.find(auth_id)
           subject = auth.user || auth.user_group
-          resource.revoke_authorization(subject, auth.permission_type, 
+          resource.revoke_authorization(subject, auth.permission_level, 
                                        revoked_by: current_user, 
                                        comment: "Révoqué via interface")
         end

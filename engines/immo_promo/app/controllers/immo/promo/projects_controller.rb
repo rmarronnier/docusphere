@@ -128,7 +128,7 @@ module Immo
     start_date = Date.today
 
     default_phases = [
-      { name: 'Études préliminaires', phase_type: 'studies', position: 1, duration_months: 3 },
+      { name: 'Planification préliminaires', phase_type: 'studies', position: 1, duration_months: 3 },
       { name: 'Obtention des permis', phase_type: 'permits', position: 2, duration_months: 6 },
       { name: 'Travaux de construction', phase_type: 'construction', position: 3, duration_months: 18 },
       { name: 'Réception des travaux', phase_type: 'reception', position: 4, duration_months: 1 },

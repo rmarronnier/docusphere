@@ -330,11 +330,11 @@ class Document < ApplicationRecord
     space.has_permission?(user, 'validation')
   end
   
-  def has_permission?(user, permission_type)
+  def has_permission?(user, permission_level)
     # Check if user has direct authorization
-    authorizations.where(user: user, permission_type: permission_type).exists? ||
+    authorizations.where(user: user, permission_level: permission_level).exists? ||
     # Check if user belongs to a group with authorization
-    authorizations.joins(user_group: :users).where(user_group: { users: { id: user.id } }, permission_type: permission_type).exists?
+    authorizations.joins(user_group: :users).where(user_group: { users: { id: user.id } }, permission_level: permission_level).exists?
   end
   
   def validation_approved?

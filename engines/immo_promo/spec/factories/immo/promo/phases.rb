@@ -9,7 +9,7 @@ FactoryBot.define do
 
     trait :studies do
       phase_type { 'studies' }
-      name { 'Études préliminaires' }
+      name { 'Planification préliminaires' }
     end
 
     trait :permits do

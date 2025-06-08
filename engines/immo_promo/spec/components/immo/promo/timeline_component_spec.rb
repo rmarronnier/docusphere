@@ -16,7 +16,7 @@ RSpec.describe Immo::Promo::TimelineComponent, type: :component do
     end
 
     context 'with phases' do
-      let(:phase1) { create(:immo_promo_phase, project: project, name: 'Études', position: 1, status: 'completed') }
+      let(:phase1) { create(:immo_promo_phase, project: project, name: 'Planification', position: 1, status: 'completed') }
       let(:phase2) { create(:immo_promo_phase, project: project, name: 'Permis', position: 2, status: 'in_progress') }
       let(:phase3) { create(:immo_promo_phase, project: project, name: 'Construction', position: 3, status: 'pending') }
       let(:phases) { [phase1, phase2, phase3] }
@@ -25,7 +25,7 @@ RSpec.describe Immo::Promo::TimelineComponent, type: :component do
         component = described_class.new(phases: phases)
         render_inline(component)
         
-        expect(page).to have_text('Études')
+        expect(page).to have_text('Planification')
         expect(page).to have_text('Permis')
         expect(page).to have_text('Construction')
       end

@@ -36,7 +36,7 @@ RSpec.describe 'Immo::Promo System Integration', type: :request do
 
       # Créer une phase (sans factory)
       phase = project.phases.create!(
-        name: 'Études préliminaires',
+        name: 'Planification préliminaires',
         phase_type: 'studies',
         position: 1,
         start_date: Date.current,
@@ -44,7 +44,7 @@ RSpec.describe 'Immo::Promo System Integration', type: :request do
       )
 
       expect(phase).to be_persisted
-      expect(phase.name).to eq('Études préliminaires')
+      expect(phase.name).to eq('Planification préliminaires')
 
       # Tester les services
       project_service = Immo::Promo::ProjectManagerService.new(project, user)

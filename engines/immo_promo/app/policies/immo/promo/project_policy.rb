@@ -71,16 +71,17 @@ class Immo::Promo::ProjectPolicy < ApplicationPolicy
     def resolve
       if user.super_admin?
         scope.all
-      elsif user.admin?
+      elsif user.admin? || user.has_permission?('immo_promo:access')
+        # Admins and users with immo_promo:access can see all projects in their organization
         scope.where(organization: user.organization)
       else
-        # Users can see projects where they have read permissions OR are project manager
+        # Other users can see projects where they have specific permissions OR are project manager
         projects_with_permissions = scope.joins(:authorizations)
                                         .where(organization: user.organization)
                                         .where(
                                           authorizations: {
                                             user: user,
-                                            permission_type: [ 'read', 'write', 'admin' ]
+                                            permission_level: [ 'read', 'write', 'admin' ]
                                           }
                                         )
 
