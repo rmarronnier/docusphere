@@ -1,0 +1,151 @@
+<% if show_ai_insights? %>
+  <div class="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg p-6 border border-purple-200">
+    <div class="flex items-center mb-4">
+      <div class="flex-shrink-0">
+        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+        </svg>
+      </div>
+      <div class="ml-3">
+        <h3 class="text-lg font-medium text-gray-900">Analyse IA du document</h3>
+        <p class="text-sm text-gray-500">Informations extraites automatiquement</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- Classification -->
+      <div class="bg-white rounded-lg p-4 shadow-sm">
+        <h4 class="text-sm font-medium text-gray-900 mb-3 flex items-center">
+          <svg class="w-4 h-4 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.99 1.99 0 013 12V7a2 2 0 012-2z"></path>
+          </svg>
+          Classification
+        </h4>
+        
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-sm text-gray-600">Type de document :</span>
+            <span class="px-2 py-1 text-xs font-medium rounded-full <%= classification_badge_color %>">
+              <%= category_description(document.ai_classification_category) %>
+            </span>
+          </div>
+          
+          <div class="flex items-center justify-between">
+            <span class="text-sm text-gray-600">Confiance :</span>
+            <div class="flex items-center">
+              <div class="w-16 bg-gray-200 rounded-full h-2 mr-2">
+                <div class="bg-indigo-600 h-2 rounded-full" style="width: <%= document.ai_classification_confidence_percent %>%"></div>
+              </div>
+              <span class="text-xs text-gray-500"><%= document.ai_classification_confidence_percent %>%</span>
+            </div>
+          </div>
+          
+          <div class="text-xs text-gray-500">
+            Niveau : <%= confidence_level_text %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Entités extraites -->
+      <div class="bg-white rounded-lg p-4 shadow-sm">
+        <h4 class="text-sm font-medium text-gray-900 mb-3 flex items-center">
+          <svg class="w-4 h-4 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          Informations détectées
+        </h4>
+        
+        <% if document.ai_entities.present? %>
+          <div class="space-y-2 max-h-32 overflow-y-auto">
+            <% document.ai_entities_by_type.group_by { |e| e['type'] }.each do |type, entities| %>
+              <div class="flex items-start">
+                <svg class="w-4 h-4 mt-0.5 mr-2 <%= entity_color(type) %>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="<%= entity_icon(type) %>"></path>
+                </svg>
+                <div class="flex-1 min-w-0">
+                  <div class="text-xs font-medium text-gray-900 capitalize"><%= type.humanize %></div>
+                  <div class="text-xs text-gray-600 truncate">
+                    <%= entities.map { |e| e['value'] }.uniq.join(', ') %>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="text-sm text-gray-500 italic">Aucune information spécifique détectée</p>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Résumé IA si disponible -->
+    <% if document.ai_summary.present? %>
+      <div class="mt-6 bg-white rounded-lg p-4 shadow-sm">
+        <h4 class="text-sm font-medium text-gray-900 mb-2 flex items-center">
+          <svg class="w-4 h-4 mr-2 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path>
+          </svg>
+          Résumé automatique
+        </h4>
+        <p class="text-sm text-gray-700 leading-relaxed"><%= document.ai_summary %></p>
+      </div>
+    <% end %>
+
+    <!-- Texte extrait (aperçu) -->
+    <% if document.extracted_text.present? %>
+      <div class="mt-6">
+        <h4 class="text-sm font-medium text-gray-900 mb-2 flex items-center">
+          <svg class="w-4 h-4 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          Contenu textuel extrait
+        </h4>
+        <div class="bg-gray-50 rounded p-3 max-h-32 overflow-y-auto">
+          <p class="text-xs text-gray-700 whitespace-pre-wrap"><%= truncate(document.extracted_text, length: 500) %></p>
+          <% if document.extracted_text.length > 500 %>
+            <div class="mt-2">
+              <button type="button" class="text-xs text-indigo-600 hover:text-indigo-800" onclick="showFullText()">Voir le texte complet...</button>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Timestamp de traitement -->
+    <div class="mt-4 pt-4 border-t border-gray-200">
+      <p class="text-xs text-gray-500">
+        Analysé le <%= l(document.ai_processed_at, format: :short) %>
+      </p>
+    </div>
+  </div>
+<% elsif document.supports_ai_processing? && !document.ai_processed? %>
+  <!-- Statut de traitement en cours -->
+  <div class="bg-yellow-50 rounded-lg p-4 border border-yellow-200">
+    <div class="flex items-center">
+      <div class="flex-shrink-0">
+        <svg class="animate-spin w-5 h-5 text-yellow-600" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+      </div>
+      <div class="ml-3">
+        <h3 class="text-sm font-medium text-yellow-800">Analyse IA en cours</h3>
+        <p class="text-sm text-yellow-700">Le document est en cours d'analyse par notre intelligence artificielle...</p>
+      </div>
+    </div>
+  </div>
+<% elsif !document.supports_ai_processing? %>
+  <!-- Format non supporté -->
+  <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+    <div class="flex items-center">
+      <div class="flex-shrink-0">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+      </div>
+      <div class="ml-3">
+        <h3 class="text-sm font-medium text-gray-700">Analyse IA non disponible</h3>
+        <p class="text-sm text-gray-500">Ce type de fichier ne supporte pas l'analyse automatique.</p>
+      </div>
+    </div>
+  </div>
+<% end %>

@@ -1,5 +1,6 @@
 class Document < ApplicationRecord
   include AASM
+  include Authorizable
   
   belongs_to :user
   belongs_to :parent, class_name: 'Document', optional: true
@@ -17,6 +18,9 @@ class Document < ApplicationRecord
   has_many :workflows, through: :workflow_submissions
   has_many :links, dependent: :destroy
   has_many :linked_documents, through: :links, source: :linked_document
+  has_many :validation_requests, dependent: :destroy
+  has_many :document_validations, dependent: :destroy
+  has_many :validators, through: :document_validations, source: :validator
   
   has_one_attached :file
   has_one_attached :preview
@@ -30,6 +34,7 @@ class Document < ApplicationRecord
   enum processing_status: {
     pending: 'pending',
     processing: 'processing',
+    ai_processing: 'ai_processing',
     completed: 'completed',
     failed: 'failed'
   }
@@ -44,6 +49,7 @@ class Document < ApplicationRecord
   
   # Callbacks
   after_create_commit :enqueue_processing_job
+  after_update_commit :enqueue_ai_processing_job, if: :should_process_with_ai?
   
   searchkick word_start: [:title, :description], 
              searchable: [:title, :description, :content, :metadata_text],
@@ -231,9 +237,137 @@ class Document < ApplicationRecord
     virus_scan_status == 'infected'
   end
   
+  # AI-related methods
+  def ai_processed?
+    ai_processed_at.present?
+  end
+  
+  def ai_classification_category
+    ai_category || 'unknown'
+  end
+  
+  def ai_classification_confidence_percent
+    return 0 unless ai_confidence
+    (ai_confidence * 100).round(1)
+  end
+  
+  def ai_entities_by_type(entity_type = nil)
+    return [] unless ai_entities.present?
+    
+    entities = ai_entities.is_a?(Array) ? ai_entities : []
+    return entities unless entity_type
+    
+    entities.select { |entity| entity['type'] == entity_type.to_s }
+  end
+  
+  def ai_extracted_emails
+    ai_entities_by_type('email').map { |e| e['value'] }
+  end
+  
+  def ai_extracted_phones
+    ai_entities_by_type('phone').map { |e| e['value'] }
+  end
+  
+  def ai_extracted_amounts
+    ai_entities_by_type('amount').map { |e| e['value'] }
+  end
+  
+  def should_process_with_ai?
+    return false unless file.attached?
+    return false if ai_processed?
+    
+    # Traitement IA après le traitement de base
+    processing_status_changed? && 
+    processing_status == 'completed' && 
+    processing_status_was == 'processing'
+  end
+  
+  def supports_ai_processing?
+    return false unless file.attached?
+    
+    # Types de fichiers supportés par l'IA
+    ai_supported_types = %w[
+      application/pdf
+      application/msword
+      application/vnd.openxmlformats-officedocument.wordprocessingml.document
+      text/plain
+      image/jpeg
+      image/png
+      image/tiff
+    ]
+    
+    ai_supported_types.include?(file.content_type)
+  end
+  
+  # Validation methods
+  def request_validation(requester:, validators:, min_validations: 1)
+    validation_request = validation_requests.create!(
+      requester: requester,
+      min_validations: min_validations,
+      status: 'pending'
+    )
+    
+    validation_request.add_validators(validators)
+    validation_request
+  end
+  
+  def current_validation_request
+    validation_requests.active.last
+  end
+  
+  def validation_pending?
+    current_validation_request&.pending?
+  end
+  
+  def validation_approved?
+    current_validation_request&.approved?
+  end
+  
+  def validation_rejected?
+    current_validation_request&.rejected?
+  end
+  
+  def validation_status
+    return 'none' unless current_validation_request
+    current_validation_request.status
+  end
+  
+  def can_request_validation?(user)
+    return false unless user
+    return false if validation_pending?
+    
+    # Owner can always request validation
+    return true if self.user == user
+    
+    # Admin can request validation
+    return true if admin_by?(user)
+    
+    # Users with write permission can request validation
+    writable_by?(user)
+  end
+  
+  def validation_summary
+    return nil unless current_validation_request
+    
+    {
+      status: validation_status,
+      progress: current_validation_request.validation_progress,
+      requester: current_validation_request.requester.full_name,
+      created_at: current_validation_request.created_at,
+      completed_at: current_validation_request.completed_at
+    }
+  end
+
   private
   
   def enqueue_processing_job
     DocumentProcessingJob.perform_later(self)
+  end
+  
+  def enqueue_ai_processing_job
+    return unless supports_ai_processing?
+    
+    # Délai pour permettre la finalisation du traitement de base
+    DocumentAiProcessingJob.set(wait: 30.seconds).perform_later(id)
   end
 end

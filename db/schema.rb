@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_06_07_220000) do
+ActiveRecord::Schema[7.1].define(version: 2025_06_08_004501) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -67,14 +67,23 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_07_220000) do
   create_table "authorizations", force: :cascade do |t|
     t.string "authorizable_type", null: false
     t.bigint "authorizable_id", null: false
-    t.bigint "user_id", null: false
-    t.bigint "user_group_id", null: false
+    t.bigint "user_id"
+    t.bigint "user_group_id"
     t.string "permission_type"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "granted_by_id"
+    t.datetime "granted_at"
+    t.datetime "expired_at"
+    t.datetime "revoked_at"
+    t.bigint "revoked_by_id"
+    t.text "comment"
     t.index ["authorizable_type", "authorizable_id"], name: "index_authorizations_on_authorizable"
+    t.index ["granted_by_id"], name: "index_authorizations_on_granted_by_id"
+    t.index ["revoked_by_id"], name: "index_authorizations_on_revoked_by_id"
     t.index ["user_group_id"], name: "index_authorizations_on_user_group_id"
     t.index ["user_id"], name: "index_authorizations_on_user_id"
+    t.check_constraint "user_id IS NOT NULL AND user_group_id IS NULL OR user_id IS NULL AND user_group_id IS NOT NULL", name: "check_user_or_group_present"
   end
 
   create_table "basket_items", force: :cascade do |t|
@@ -111,6 +120,20 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_07_220000) do
     t.index ["tag_id"], name: "index_document_tags_on_tag_id"
   end
 
+  create_table "document_validations", force: :cascade do |t|
+    t.bigint "document_id", null: false
+    t.bigint "validator_id", null: false
+    t.string "status"
+    t.text "comment"
+    t.datetime "validated_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "validation_request_id", null: false
+    t.index ["document_id"], name: "index_document_validations_on_document_id"
+    t.index ["validation_request_id"], name: "index_document_validations_on_validation_request_id"
+    t.index ["validator_id"], name: "index_document_validations_on_validator_id"
+  end
+
   create_table "document_versions", force: :cascade do |t|
     t.bigint "document_id", null: false
     t.integer "version_number"
@@ -144,6 +167,13 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_07_220000) do
     t.string "virus_scan_status"
     t.datetime "virus_scan_performed_at"
     t.text "virus_scan_result"
+    t.text "extracted_text"
+    t.string "ai_category"
+    t.decimal "ai_confidence"
+    t.text "ai_summary"
+    t.json "ai_entities"
+    t.json "ai_classification_data"
+    t.datetime "ai_processed_at"
     t.index ["folder_id"], name: "index_documents_on_folder_id"
     t.index ["parent_id"], name: "index_documents_on_parent_id"
     t.index ["processing_status", "created_at"], name: "index_documents_on_processing_status_and_created_at"
@@ -717,6 +747,18 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_07_220000) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  create_table "validation_requests", force: :cascade do |t|
+    t.bigint "document_id", null: false
+    t.bigint "requester_id", null: false
+    t.integer "min_validations"
+    t.string "status"
+    t.datetime "completed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["document_id"], name: "index_validation_requests_on_document_id"
+    t.index ["requester_id"], name: "index_validation_requests_on_requester_id"
+  end
+
   create_table "versions", force: :cascade do |t|
     t.string "whodunnit"
     t.datetime "created_at"
@@ -803,11 +845,16 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_07_220000) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "authorizations", "user_groups"
   add_foreign_key "authorizations", "users"
+  add_foreign_key "authorizations", "users", column: "granted_by_id"
+  add_foreign_key "authorizations", "users", column: "revoked_by_id"
   add_foreign_key "basket_items", "baskets"
   add_foreign_key "basket_items", "documents"
   add_foreign_key "baskets", "users"
   add_foreign_key "document_tags", "documents"
   add_foreign_key "document_tags", "tags"
+  add_foreign_key "document_validations", "documents"
+  add_foreign_key "document_validations", "users", column: "validator_id"
+  add_foreign_key "document_validations", "validation_requests"
   add_foreign_key "document_versions", "documents"
   add_foreign_key "document_versions", "users", column: "created_by_id"
   add_foreign_key "documents", "documents", column: "parent_id"
@@ -865,6 +912,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_07_220000) do
   add_foreign_key "user_group_memberships", "users"
   add_foreign_key "user_groups", "organizations"
   add_foreign_key "users", "organizations"
+  add_foreign_key "validation_requests", "documents"
+  add_foreign_key "validation_requests", "users", column: "requester_id"
   add_foreign_key "workflow_steps", "users", column: "assignee_id"
   add_foreign_key "workflow_steps", "users", column: "completed_by_id"
   add_foreign_key "workflow_steps", "workflows"

@@ -46,6 +46,9 @@ module Docusphere
     
     # Time zone
     config.time_zone = 'Europe/Paris'
+    
+    # Document Processor Service Configuration
+    config.document_processor_url = ENV.fetch('DOCUMENT_PROCESSOR_URL', 'http://document-processor:8000')
 
     # Don't generate system test files.
     config.generators.system_tests = nil

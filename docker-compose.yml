@@ -79,8 +79,36 @@ services:
       - CLAMAV_NO_FRESHCLAMD=false
       - CLAMAV_NO_CLAMD=false
 
+  document-processor:
+    build:
+      context: ./docker/document-processor
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=1
+      - TEMP_DIR=/app/temp
+      - OUTPUT_DIR=/app/output
+      - MODELS_DIR=/app/models
+    volumes:
+      - document_processor_temp:/app/temp
+      - document_processor_output:/app/output
+      - document_processor_models:/app/models
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
 volumes:
   postgres_data:
   bundle_cache:
   elasticsearch_data:
   clamav_data:
+  document_processor_temp:
+  document_processor_output:
+  document_processor_models:
