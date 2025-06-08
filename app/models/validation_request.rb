@@ -7,6 +7,9 @@ class ValidationRequest < ApplicationRecord
   validates :min_validations, presence: true, numericality: { greater_than: 0 }
   validates :status, presence: true, inclusion: { in: %w[pending approved rejected completed] }
   
+  # Declare attribute type for enum
+  attribute :status, :string
+  
   enum status: {
     pending: 'pending',
     approved: 'approved',
@@ -21,7 +24,6 @@ class ValidationRequest < ApplicationRecord
   }
   
   after_create :create_validator_tasks
-  after_create :notify_validators
   
   def add_validators(users)
     users.each do |user|
@@ -31,13 +33,16 @@ class ValidationRequest < ApplicationRecord
         status: 'pending'
       )
     end
+    notify_validators
   end
   
   def check_completion!
+    Rails.logger.info "ValidationRequest#check_completion! called for request #{id}, current status: #{status}"
     return if approved? || rejected? || completed?
     
     # Check if any validation was rejected (rejection is definitive)
     if document_validations.rejected.exists?
+      Rails.logger.info "Found rejected validation, updating status to rejected"
       update!(
         status: 'rejected',
         completed_at: Time.current
@@ -48,8 +53,10 @@ class ValidationRequest < ApplicationRecord
     
     # Check if minimum validations reached
     approved_count = document_validations.approved.count
+    Rails.logger.info "Approved count: #{approved_count}, min_validations: #{min_validations}"
     
     if approved_count >= min_validations
+      Rails.logger.info "Minimum validations reached, updating status to approved"
       update!(
         status: 'approved',
         completed_at: Time.current

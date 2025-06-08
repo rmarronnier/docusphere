@@ -1,8 +1,43 @@
 # CLAUDE.md - AI Assistant Instructions
 
+## Recent Changes (January 2025)
+
+### 1. Database Consolidation
+The database migrations have been consolidated from 44 files down to 8 comprehensive migration files:
+- 001_create_core_system.rb - Core system tables (organizations, users, notifications, audited)
+- 002_create_document_system.rb - Document management system
+- 003_create_authorization_system.rb - User groups and authorization
+- 004_create_metadata_system.rb - Metadata system
+- 005_create_workflow_system.rb - Workflow system
+- 006_create_validation_system.rb - Validation system
+- 007_create_auxiliary_features.rb - Auxiliary features (baskets, links, etc.)
+- 008_create_immo_promo_module.rb - Immo Promo module (now in engine)
+
+### 2. New Concerns Created
+Four new concerns have been added to enhance modularity:
+- **Validatable** - Adds validation workflow capabilities to models
+- **Uploadable** - Adds file upload capabilities to models
+- **Storable** - Manages storage location and organization
+- **Linkable** - Adds linking capabilities between models
+
+### 3. Immo::Promo Converted to Rails Engine
+The Immo::Promo module has been converted to a Rails engine located at `engines/immo_promo/`:
+- All models, controllers, views, services, and policies moved to the engine
+- Engine is mounted at `/immo/promo` in the main application
+- Engine has its own gemspec, routes, and migration
+- To run engine migrations: `rails immo_promo:install:migrations && rails db:migrate`
+
+### 4. Seed Data Optimization
+- Document creation reduced from 5000 to 300 for faster seeding
+- Fixed authorization uniqueness constraints using find_or_create_by
+
 ## Testing Requirements
 
-**IMPORTANT**: For every new feature or functionality added to the codebase, you MUST:
+**IMPORTANT**: 
+- **DO NOT use parallel tests in GitHub Actions** - Use standard `bundle exec rspec` instead
+- Parallel tests are only for local development
+
+For every new feature or functionality added to the codebase, you MUST:
 1. Write corresponding RSpec tests (unit tests, integration tests, or system tests as appropriate)
 2. Ensure tests cover both happy paths and edge cases
 3. Run tests to verify they pass before considering the feature complete
@@ -71,3 +106,105 @@ docker-compose run --rm web rake db:setup
 - Test setup requires `require 'pundit/rspec'` in rails_helper.rb
 - ViewComponent tests need `helpers.policy` instead of direct `policy` calls
 - Test environment needs `config.hosts.clear` to avoid host blocking issues
+
+## Database Migration Consolidation Plan
+
+As of January 2025, the database migrations have been analyzed and can be consolidated from 44 files down to 8-10 comprehensive migration files. This consolidation is possible because there are no production constraints.
+
+### Migration Categories for Consolidation:
+
+#### 1. Core System Tables (001_create_core_system.rb)
+Combines:
+- Organizations
+- Users (with Devise)
+- Notifications
+- Audited installation
+
+#### 2. Document Management System (002_create_document_system.rb)
+Combines:
+- Spaces
+- Folders (with parent_id, slug, treeable)
+- Documents (with parent_id, all fields)
+- Document versions
+- Document shares
+- Document tags
+- Tags
+- Active Storage tables
+
+#### 3. User Groups and Authorization (003_create_authorization_system.rb)
+Combines:
+- User groups
+- User group memberships
+- Authorizations (with polymorphic associations)
+- User roles and permissions
+- Shares (generic sharing)
+
+#### 4. Metadata System (004_create_metadata_system.rb)
+Combines:
+- Metadata templates
+- Metadata fields
+- Document metadata
+- Metadata (polymorphic)
+- Metadatum
+- Search queries
+
+#### 5. Workflow System (005_create_workflow_system.rb)
+Combines:
+- Workflows
+- Workflow steps
+- Workflow submissions
+- Project workflow steps
+- Project workflow transitions
+
+#### 6. Validation System (006_create_validation_system.rb)
+Combines:
+- Validation requests
+- Document validations
+- Validation templates
+
+#### 7. Auxiliary Features (007_create_auxiliary_features.rb)
+Combines:
+- Baskets
+- Basket items
+- Links
+- User features (if any)
+
+#### 8. Immo Promo Module (008_create_immo_promo_module.rb)
+All Immo::Promo tables remain as one comprehensive migration
+
+### Migration Consolidation Benefits:
+- Reduces migration count from 44 to 8
+- Eliminates incremental changes and fixes
+- Creates logical groupings of related functionality
+- Simplifies schema understanding
+- Faster database setup
+
+### How to Apply Consolidation:
+
+1. **Drop existing database**:
+   ```bash
+   docker-compose down
+   docker-compose run --rm web rails db:drop
+   ```
+
+2. **Remove old migrations**:
+   ```bash
+   rm -rf db/migrate/*
+   ```
+
+3. **Create new consolidated migrations**:
+   Create the 8 migration files as outlined above, ensuring all fields, indexes, and constraints from the original migrations are included.
+
+4. **Setup new database**:
+   ```bash
+   docker-compose run --rm web rails db:create
+   docker-compose run --rm web rails db:migrate
+   docker-compose run --rm web rails db:seed
+   ```
+
+### Important Considerations:
+- Ensure all foreign key constraints are added in the correct order
+- Maintain all unique indexes and compound indexes
+- Keep all default values and null constraints
+- Preserve all check constraints (e.g., authorization user/group constraint)
+- Include all polymorphic association indexes

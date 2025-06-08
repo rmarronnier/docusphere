@@ -4,7 +4,7 @@ RSpec.describe Basket, type: :model do
   describe 'associations' do
     it { should belong_to(:user) }
     it { should have_many(:basket_items).dependent(:destroy) }
-    it { should have_many(:documents).through(:basket_items) }
+    # Basket items are polymorphic - no direct association to items
   end
 
   describe 'validations' do
@@ -23,7 +23,7 @@ RSpec.describe Basket, type: :model do
       let(:basket) { create(:basket, :with_documents) }
       
       it 'creates a basket with documents' do
-        expect(basket.documents.count).to eq(3)
+        expect(basket.basket_items.count).to eq(3)
       end
     end
   end
@@ -34,12 +34,12 @@ RSpec.describe Basket, type: :model do
     
     describe '#add_document' do
       it 'adds a document to the basket' do
-        expect { basket.add_document(document) }.to change { basket.documents.count }.by(1)
+        expect { basket.add_document(document) }.to change { basket.basket_items.count }.by(1)
       end
       
       it 'does not add the same document twice' do
         basket.add_document(document)
-        expect { basket.add_document(document) }.not_to change { basket.documents.count }
+        expect { basket.add_document(document) }.not_to change { basket.basket_items.count }
       end
     end
 
@@ -47,7 +47,7 @@ RSpec.describe Basket, type: :model do
       before { basket.add_document(document) }
       
       it 'removes a document from the basket' do
-        expect { basket.remove_document(document) }.to change { basket.documents.count }.by(-1)
+        expect { basket.remove_document(document) }.to change { basket.basket_items.count }.by(-1)
       end
     end
 

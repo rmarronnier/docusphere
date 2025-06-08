@@ -1,0 +1,188 @@
+<div class="min-h-screen bg-gray-50">
+  <%= render Navigation::NavbarComponent.new %>
+  
+  <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <div class="px-4 py-6 sm:px-0">
+      <!-- Header -->
+      <div class="mb-8">
+        <div class="md:flex md:items-center md:justify-between">
+          <div class="min-w-0 flex-1">
+            <h1 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate">
+              Permissions de l'espace <%= @space.name %>
+            </h1>
+            <p class="mt-1 text-sm text-gray-500">
+              Gérez qui peut accéder à cet espace et quelles actions sont autorisées.
+            </p>
+          </div>
+          <div class="mt-4 flex md:ml-4 md:mt-0">
+            <%= link_to ged_space_path(@space), 
+                class: "inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" do %>
+              <svg class="-ml-0.5 mr-1.5 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+              </svg>
+              Retour à l'espace
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Permissions actuelles -->
+      <div class="bg-white shadow sm:rounded-lg mb-8">
+        <div class="px-4 py-5 sm:p-6">
+          <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Permissions actuelles</h3>
+          
+          <% if @authorizations.any? %>
+            <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
+              <table class="min-w-full divide-y divide-gray-300">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Utilisateur/Groupe
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Permission
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Accordé par
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Date
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Statut
+                    </th>
+                    <th scope="col" class="relative px-6 py-3">
+                      <span class="sr-only">Actions</span>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                  <% @authorizations.each do |authorization| %>
+                    <tr>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        <div class="flex items-center">
+                          <div class="flex-shrink-0 h-8 w-8">
+                            <% if authorization.user %>
+                              <div class="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
+                                <span class="text-sm font-medium text-blue-700">
+                                  <%= authorization.user.first_name&.first&.upcase || authorization.user.email.first.upcase %>
+                                </span>
+                              </div>
+                            <% else %>
+                              <div class="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center">
+                                <svg class="h-5 w-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                                </svg>
+                              </div>
+                            <% end %>
+                          </div>
+                          <div class="ml-4">
+                            <div class="text-sm font-medium text-gray-900">
+                              <%= authorization.user ? authorization.user.display_name : authorization.user_group.name %>
+                            </div>
+                            <div class="text-sm text-gray-500">
+                              <%= authorization.user ? "Utilisateur" : "Groupe" %>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                          <%= case authorization.permission_type
+                              when 'read' then 'bg-gray-100 text-gray-800'
+                              when 'write' then 'bg-blue-100 text-blue-800'
+                              when 'admin' then 'bg-red-100 text-red-800'
+                              when 'validate' then 'bg-purple-100 text-purple-800'
+                              else 'bg-gray-100 text-gray-800'
+                              end %>">
+                          <%= authorization.permission_type.humanize %>
+                        </span>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <%= authorization.granted_by&.display_name || "Système" %>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <%= l(authorization.granted_at || authorization.created_at, format: :short) if authorization.granted_at || authorization.created_at %>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <% if authorization.active? %>
+                          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            Actif
+                          </span>
+                        <% elsif authorization.expired? %>
+                          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                            Expiré
+                          </span>
+                        <% else %>
+                          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                            Révoqué
+                          </span>
+                        <% end %>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <% if authorization.active? %>
+                          <%= form_with url: ged_update_space_permissions_path(@space), local: true, method: :patch do |f| %>
+                            <%= f.hidden_field :revoke_permissions, value: [authorization.id], multiple: true %>
+                            <%= f.submit "Révoquer", 
+                                class: "text-red-600 hover:text-red-900 cursor-pointer bg-transparent border-none text-sm",
+                                confirm: "Êtes-vous sûr de vouloir révoquer cette permission ?" %>
+                          <% end %>
+                        <% end %>
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          <% else %>
+            <p class="text-gray-500">Aucune permission spécifique accordée. Seuls les administrateurs et le propriétaire peuvent accéder à cet espace.</p>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Ajouter une nouvelle permission -->
+      <div class="bg-white shadow sm:rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+          <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Ajouter une permission</h3>
+          
+          <%= form_with url: ged_update_space_permissions_path(@space), local: true, method: :patch do |f| %>
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Utilisateur</label>
+                <%= f.select "permissions[][user_id]", 
+                    options_from_collection_for_select(@users, :id, :display_name), 
+                    { prompt: "Sélectionner un utilisateur" },
+                    { class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" } %>
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Permission</label>
+                <%= f.select "permissions[][permission_type]", 
+                    options_for_select([
+                      ['Lecture', 'read'],
+                      ['Écriture', 'write'],
+                      ['Administration', 'admin'],
+                      ['Validation', 'validate']
+                    ]), 
+                    { prompt: "Sélectionner une permission" },
+                    { class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" } %>
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700">Commentaire (optionnel)</label>
+                <%= f.text_field "permissions[][comment]", 
+                    placeholder: "Raison de cette permission",
+                    class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" %>
+              </div>
+            </div>
+            
+            <div class="mt-6">
+              <%= f.submit "Ajouter la permission", 
+                  class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

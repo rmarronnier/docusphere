@@ -7,7 +7,7 @@ RSpec.describe Documents::DocumentCardComponent, type: :component do
     title: "Test Document",
     description: "A test description",
     space: space,
-    user: user,
+    uploaded_by: user,
     processing_status: 'completed'
   )}
   

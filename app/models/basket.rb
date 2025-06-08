@@ -2,7 +2,7 @@ class Basket < ApplicationRecord
   belongs_to :user
   
   has_many :basket_items, dependent: :destroy
-  has_many :documents, through: :basket_items
+  # Basket items are polymorphic - they can contain any type of item
   
   validates :name, presence: true
   
@@ -10,19 +10,21 @@ class Basket < ApplicationRecord
   scope :active, -> { where('share_expires_at IS NULL OR share_expires_at > ?', Time.current) }
   
   def add_document(document)
-    basket_items.find_or_create_by(document: document)
+    basket_items.find_or_create_by(item: document) do |item|
+      item.position = basket_items.maximum(:position).to_i + 1
+    end
   end
   
   def remove_document(document)
-    basket_items.where(document: document).destroy_all
+    basket_items.where(item: document).destroy_all
   end
   
   def document_count
-    documents.count
+    basket_items.count
   end
   
   def empty?
-    documents.empty?
+    basket_items.empty?
   end
   
   def generate_share_token!

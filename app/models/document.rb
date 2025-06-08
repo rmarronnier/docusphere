@@ -2,25 +2,25 @@ class Document < ApplicationRecord
   include AASM
   include Authorizable
   
-  belongs_to :user
+  has_paper_trail
+  
+  belongs_to :uploaded_by, class_name: 'User', foreign_key: 'uploaded_by_id'
   belongs_to :parent, class_name: 'Document', optional: true
   belongs_to :space
   belongs_to :folder, optional: true
   
   has_many :children, class_name: 'Document', foreign_key: 'parent_id', dependent: :destroy
-  has_many :shares, dependent: :destroy
-  has_many :shared_users, through: :shares, source: :user
-  has_many :document_versions, dependent: :destroy
+  has_many :shares, as: :shareable, dependent: :destroy
+  has_many :document_shares, dependent: :destroy
   has_many :metadata, class_name: 'Metadatum', as: :metadatable, dependent: :destroy
   has_many :document_tags, dependent: :destroy
   has_many :tags, through: :document_tags
-  has_many :workflow_submissions, as: :submittable, dependent: :destroy
-  has_many :workflows, through: :workflow_submissions
-  has_many :links, dependent: :destroy
-  has_many :linked_documents, through: :links, source: :linked_document
+  has_many :source_links, class_name: 'Link', as: :source, dependent: :destroy
+  has_many :target_links, class_name: 'Link', as: :target, dependent: :destroy
   has_many :validation_requests, dependent: :destroy
   has_many :document_validations, dependent: :destroy
   has_many :validators, through: :document_validations, source: :validator
+  has_many :document_versions, dependent: :destroy
   
   has_one_attached :file
   has_one_attached :preview
@@ -118,7 +118,7 @@ class Document < ApplicationRecord
       metadata_text: metadata_text,
       document_type: document_type,
       created_at: created_at,
-      user_id: user_id,
+      user_id: uploaded_by_id,
       space_id: space_id,
       tags: tags.pluck(:name)
     }
@@ -319,6 +319,24 @@ class Document < ApplicationRecord
     current_validation_request&.pending?
   end
   
+  def can_validate?(user)
+    # Owner can always request validation
+    return true if self.uploaded_by == user
+    
+    # Check if user has validation permission on the document
+    return true if has_permission?(user, 'validation')
+    
+    # Check if user has validation permission on the space
+    space.has_permission?(user, 'validation')
+  end
+  
+  def has_permission?(user, permission_type)
+    # Check if user has direct authorization
+    authorizations.where(user: user, permission_type: permission_type).exists? ||
+    # Check if user belongs to a group with authorization
+    authorizations.joins(user_group: :users).where(user_group: { users: { id: user.id } }, permission_type: permission_type).exists?
+  end
+  
   def validation_approved?
     current_validation_request&.approved?
   end
@@ -337,7 +355,7 @@ class Document < ApplicationRecord
     return false if validation_pending?
     
     # Owner can always request validation
-    return true if self.user == user
+    return true if self.uploaded_by == user
     
     # Admin can request validation
     return true if admin_by?(user)

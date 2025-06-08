@@ -11,9 +11,9 @@ RSpec.describe "Search Autocomplete", type: :system, js: true do
   
   describe "search bar in navbar" do
     before do
-      create(:document, title: "Financial Report 2023", space: space, user: user)
-      create(:document, title: "Financial Budget 2024", space: space, user: user)
-      create(:document, title: "Meeting Notes", space: space, user: user)
+      create(:document, title: "Financial Report 2023", space: space, uploaded_by: user)
+      create(:document, title: "Financial Budget 2024", space: space, uploaded_by: user)
+      create(:document, title: "Meeting Notes", space: space, uploaded_by: user)
       visit ged_dashboard_path
     end
     
@@ -99,8 +99,8 @@ RSpec.describe "Search Autocomplete", type: :system, js: true do
   
   describe "search results page" do
     before do
-      create(:document, title: "Contract ABC", description: "Important legal document", space: space, user: user)
-      create(:document, title: "Invoice 123", description: "Payment for services", space: space, user: user)
+      create(:document, title: "Contract ABC", description: "Important legal document", space: space, uploaded_by: user)
+      create(:document, title: "Invoice 123", description: "Payment for services", space: space, uploaded_by: user)
     end
     
     it "displays search results" do

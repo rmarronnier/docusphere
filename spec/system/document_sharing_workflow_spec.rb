@@ -8,7 +8,7 @@ RSpec.describe "Document Sharing Workflow", type: :system do
   let(:document) { create(:document, 
     title: "Rapport Confidentiel",
     space: space,
-    user: owner,
+    uploaded_by: owner,
     processing_status: 'completed'
   )}
   
@@ -308,8 +308,8 @@ RSpec.describe "Document Sharing Workflow", type: :system do
   end
   
   describe "bulk sharing", js: true do
-    let!(:doc2) { create(:document, title: "Document 2", space: space, user: owner) }
-    let!(:doc3) { create(:document, title: "Document 3", space: space, user: owner) }
+    let!(:doc2) { create(:document, title: "Document 2", space: space, uploaded_by: owner) }
+    let!(:doc3) { create(:document, title: "Document 3", space: space, uploaded_by: owner) }
     
     it "shares multiple documents at once" do
       visit ged_space_path(space)

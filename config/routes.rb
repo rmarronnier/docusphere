@@ -18,73 +18,22 @@ Rails.application.routes.draw do
     post '/folders', to: 'ged#create_folder', as: 'create_folder'
     post '/documents', to: 'ged#upload_document', as: 'upload_document'
     
-    # Document status check
+    # Document operations
+    get '/documents/:id/download', to: 'ged#download_document', as: 'download_document'
+    get '/documents/:id/preview', to: 'ged#preview_document', as: 'preview_document'
     get '/documents/:id/status', to: 'ged#document_status', as: 'document_status'
+    
+    # Permissions management
+    get '/spaces/:id/permissions', to: 'ged#space_permissions', as: 'space_permissions'
+    patch '/spaces/:id/permissions', to: 'ged#update_space_permissions', as: 'update_space_permissions'
+    get '/folders/:id/permissions', to: 'ged#folder_permissions', as: 'folder_permissions' 
+    patch '/folders/:id/permissions', to: 'ged#update_folder_permissions', as: 'update_folder_permissions'
+    get '/documents/:id/permissions', to: 'ged#document_permissions', as: 'document_permissions'
+    patch '/documents/:id/permissions', to: 'ged#update_document_permissions', as: 'update_document_permissions'
   end
   
-  # Immo Promo Routes
-  namespace :immo do
-    namespace :promo do
-      get '/', to: 'projects#dashboard', as: 'dashboard'
-      
-      resources :projects do
-        member do
-          patch :complete
-          get :dashboard
-        end
-        
-        resources :phases do
-          member do
-            patch :complete
-          end
-          
-          resources :tasks do
-            member do
-              patch :complete
-              patch :assign
-            end
-            
-            collection do
-              get :my_tasks
-            end
-            
-            resources :time_logs, only: [:create, :destroy]
-          end
-        end
-        
-        resources :stakeholders do
-          resources :certifications, only: [:create, :update, :destroy]
-          resources :contracts, only: [:create, :update, :destroy]
-        end
-        
-        resources :permits do
-          resources :permit_conditions, only: [:create, :update, :destroy]
-        end
-        
-        resources :lots do
-          resources :reservations, only: [:create, :update, :destroy]
-          resources :lot_specifications, only: [:create, :update, :destroy]
-        end
-        
-        resources :budgets do
-          resources :budget_lines, only: [:create, :update, :destroy]
-        end
-        
-        resources :milestones
-        resources :risks
-        resources :progress_reports
-      end
-      
-      # Standalone resources
-      resources :user_groups do
-        member do
-          patch :add_member
-          patch :remove_member
-          patch :make_admin
-        end
-      end
-    end
-  end
+  # Mount Immo Promo Engine
+  mount ImmoPromo::Engine => "/immo/promo"
   
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   get "up" => "rails/health#show", as: :rails_health_check

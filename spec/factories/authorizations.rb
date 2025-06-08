@@ -3,20 +3,20 @@ FactoryBot.define do
     user { association :user }
     user_group { nil }
     authorizable { association :document }
-    permission_type { 'read' }
+    permission_level { 'read' }
     granted_by { association :user, :admin }
     granted_at { Time.current }
     
     trait :write_permission do
-      permission_type { 'write' }
+      permission_level { 'write' }
     end
     
     trait :admin_permission do
-      permission_type { 'admin' }
+      permission_level { 'admin' }
     end
     
     trait :validate_permission do
-      permission_type { 'validate' }
+      permission_level { 'validate' }
     end
     
     trait :for_group do
@@ -25,8 +25,8 @@ FactoryBot.define do
     end
     
     trait :expired do
-      expired_at { 1.day.from_now }
-      after(:create) { |auth| auth.update_column(:expired_at, 1.day.ago) }
+      expires_at { 1.day.from_now }
+      after(:create) { |auth| auth.update_column(:expires_at, 1.day.ago) }
     end
     
     trait :revoked do
@@ -36,7 +36,7 @@ FactoryBot.define do
     end
     
     trait :with_expiry do
-      expired_at { 1.month.from_now }
+      expires_at { 1.month.from_now }
     end
   end
 end

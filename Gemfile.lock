@@ -1,3 +1,13 @@
+PATH
+  remote: engines/immo_promo
+  specs:
+    immo_promo (0.1.0)
+      aasm
+      audited
+      money-rails
+      pg
+      rails (>= 7.0.0)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -544,6 +554,7 @@ DEPENDENCIES
   geocoder (~> 1.8)
   ice_cube (~> 0.16)
   image_processing (~> 1.12)
+  immo_promo!
   importmap-rails
   jbuilder
   kaminari (~> 1.2)

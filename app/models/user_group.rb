@@ -5,6 +5,9 @@ class UserGroup < ApplicationRecord
   has_many :authorizations, dependent: :destroy
   
   validates :name, presence: true, uniqueness: { scope: :organization_id }
+  validates :slug, presence: true, uniqueness: { scope: :organization_id }
+  
+  before_validation :generate_slug
   
   scope :for_organization, ->(organization) { where(organization: organization) }
   scope :active, -> { where(is_active: true) }
@@ -32,5 +35,11 @@ class UserGroup < ApplicationRecord
   
   def member_count
     users.count
+  end
+  
+  private
+  
+  def generate_slug
+    self.slug = name.parameterize if name.present? && slug.blank?
   end
 end

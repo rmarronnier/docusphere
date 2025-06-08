@@ -64,13 +64,10 @@ RSpec.describe Ui::CardComponent, type: :component do
       render_inline(described_class.new(title: "User Profile")) do |card|
         card.with_subtitle { "Account Information" }
         card.with_actions do
-          render Ui::ButtonComponent.new(text: "Edit", size: :sm)
+          '<button class="btn btn-sm">Edit</button>'.html_safe
         end
         
-        content_tag :div, class: "user-info" do
-          concat content_tag(:p, "Name: John Doe")
-          concat content_tag(:p, "Email: john@example.com")
-        end
+        '<div class="user-info"><p>Name: John Doe</p><p>Email: john@example.com</p></div>'.html_safe
       end
       
       expect(page).to have_css('.card-header h3', text: "User Profile")

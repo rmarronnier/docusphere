@@ -6,13 +6,7 @@ RSpec.describe Documents::DocumentFormComponent, type: :component do
   let(:document) { build(:document, space: space) }
   
   before do
-    allow_any_instance_of(described_class).to receive(:helpers).and_return(
-      double(
-        current_user: user,
-        policy: double(create?: true, update?: true),
-        spaces_for_select: [[space.name, space.id]]
-      )
-    )
+    mock_view_component_helpers(user: user)
   end
   
   describe "new document form" do

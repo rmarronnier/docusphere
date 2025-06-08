@@ -68,7 +68,7 @@ module FactoryHelpers
       title: title,
       space: space,
       folder: folder,
-      user: user,
+      uploaded_by: user,
       processing_status: 'completed'
     )
     
@@ -119,7 +119,7 @@ module FactoryHelpers
   
   # Create a shared document setup
   def create_shared_document(owner:, recipients:, permission: 'read')
-    document = create(:document, user: owner, space: owner.spaces.first)
+    document = create(:document, uploaded_by: owner, space: owner.spaces.first)
     
     shares = recipients.map do |recipient|
       create(:document_share,

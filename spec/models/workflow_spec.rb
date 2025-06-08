@@ -2,10 +2,10 @@ require 'rails_helper'
 
 RSpec.describe Workflow, type: :model do
   describe 'associations' do
-    it { should belong_to(:user) }
+    it { should belong_to(:organization) }
     it { should have_many(:workflow_steps).dependent(:destroy) }
     it { should have_many(:workflow_submissions).dependent(:destroy) }
-    it { should have_many(:documents).through(:workflow_submissions) }
+    # Workflow submissions are not directly linked to documents
   end
 
   describe 'validations' do

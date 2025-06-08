@@ -7,6 +7,9 @@ class DocumentValidation < ApplicationRecord
   validates :comment, presence: true, if: :rejected?
   validates :validator_id, uniqueness: { scope: [:document_id, :validation_request_id] }
   
+  # Declare attribute type for enum
+  attribute :status, :string
+  
   enum status: {
     pending: 'pending',
     approved: 'approved', 
@@ -51,6 +54,7 @@ class DocumentValidation < ApplicationRecord
   end
   
   def check_validation_completion
+    Rails.logger.info "DocumentValidation#check_validation_completion called for validation #{id}, status: #{status}"
     validation_request&.reload&.check_completion!
   end
 end

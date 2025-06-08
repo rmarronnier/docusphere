@@ -18,7 +18,7 @@ RSpec.describe "API V1 Documents", type: :request do
         create(:document, 
           title: "Document #{i}",
           space: space,
-          user: user
+          uploaded_by: user
         )
       end
     }
@@ -73,7 +73,7 @@ RSpec.describe "API V1 Documents", type: :request do
   end
   
   describe "GET /api/v1/documents/:id" do
-    let(:document) { create(:document, space: space, user: user) }
+    let(:document) { create(:document, space: space, uploaded_by: user) }
     
     it "returns document details" do
       get "/api/v1/documents/#{document.id}", headers: valid_headers
@@ -186,7 +186,7 @@ RSpec.describe "API V1 Documents", type: :request do
   end
   
   describe "PATCH /api/v1/documents/:id" do
-    let(:document) { create(:document, space: space, user: user) }
+    let(:document) { create(:document, space: space, uploaded_by: user) }
     let(:update_params) {
       {
         document: {
@@ -232,7 +232,7 @@ RSpec.describe "API V1 Documents", type: :request do
   end
   
   describe "DELETE /api/v1/documents/:id" do
-    let!(:document) { create(:document, space: space, user: user) }
+    let!(:document) { create(:document, space: space, uploaded_by: user) }
     
     it "deletes the document" do
       expect {
@@ -253,7 +253,7 @@ RSpec.describe "API V1 Documents", type: :request do
   end
   
   describe "POST /api/v1/documents/:id/share" do
-    let(:document) { create(:document, space: space, user: user) }
+    let(:document) { create(:document, space: space, uploaded_by: user) }
     let(:recipient) { create(:user, organization: organization) }
     let(:share_params) {
       {
@@ -309,7 +309,7 @@ RSpec.describe "API V1 Documents", type: :request do
   end
   
   describe "GET /api/v1/documents/:id/download" do
-    let(:document) { create(:document, space: space, user: user) }
+    let(:document) { create(:document, space: space, uploaded_by: user) }
     
     before do
       document.file.attach(
@@ -348,7 +348,7 @@ RSpec.describe "API V1 Documents", type: :request do
   end
   
   describe "POST /api/v1/documents/:id/versions" do
-    let(:document) { create(:document, space: space, user: user) }
+    let(:document) { create(:document, space: space, uploaded_by: user) }
     let(:version_params) {
       {
         version: {

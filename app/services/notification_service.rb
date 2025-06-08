@@ -101,7 +101,7 @@ class NotificationService
     
     def notify_document_processing_completed(document)
       Notification.notify_user(
-        document.user,
+        document.uploaded_by,
         :document_processing_completed,
         "Traitement terminé",
         "Le traitement du document '#{document.title}' est terminé",
@@ -115,7 +115,7 @@ class NotificationService
     
     def notify_document_processing_failed(document, error)
       Notification.notify_user(
-        document.user,
+        document.uploaded_by,
         :document_processing_failed,
         "Échec du traitement",
         "Le traitement du document '#{document.title}' a échoué: #{error}",

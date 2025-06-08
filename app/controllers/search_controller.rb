@@ -10,7 +10,7 @@ class SearchController < ApplicationController
       @documents = policy_scope(Document)
         .where("documents.title ILIKE ? OR documents.description ILIKE ? OR documents.content ILIKE ?", 
                "%#{@query}%", "%#{@query}%", "%#{@query}%")
-        .includes(:tags, :metadata, :user, :space)
+        .includes(:tags, :metadata, :uploaded_by, :space)
         .order(updated_at: :desc)
         .page(params[:page])
     else

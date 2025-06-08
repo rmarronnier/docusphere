@@ -1,15 +1,38 @@
-<div class="<%= classes %>">
-  <% if with_header? %>
-    <div class="card-header">
-      <% if content_for?(:header) %>
-        <%= content_for(:header) %>
-      <% elsif title %>
-        <h3 class="text-lg font-medium text-gray-900"><%= title %></h3>
-      <% end %>
+<% wrapper_tag = (href && clickable) ? :a : :div %>
+<% wrapper_attrs = card_attributes %>
+<% wrapper_attrs[:href] = href if href && clickable %>
+
+<%= content_tag wrapper_tag, wrapper_attrs do %>
+  <% if loading %>
+    <div class="skeleton-loader">
+      <div class="animate-pulse">
+        <div class="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+        <div class="h-4 bg-gray-200 rounded w-1/2"></div>
+      </div>
     </div>
+  <% else %>
+    <% if with_header? %>
+      <div class="card-header" <%= collapsible ? 'data-action="click->collapse#toggle"'.html_safe : '' %>>
+        <h3 class="text-lg font-medium text-gray-900"><%= title %></h3>
+        <% if subtitle? %>
+          <div class="card-subtitle text-sm text-gray-500"><%= subtitle %></div>
+        <% end %>
+        <% if actions? %>
+          <div class="card-actions">
+            <%= actions %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+    
+    <div <%= tag.attributes(content_attributes) %>>
+      <%= content %>
+    </div>
+    
+    <% if footer? %>
+      <div class="card-footer">
+        <%= footer %>
+      </div>
+    <% end %>
   <% end %>
-  
-  <div class="card-body">
-    <%= content %>
-  </div>
-</div>
+<% end %>

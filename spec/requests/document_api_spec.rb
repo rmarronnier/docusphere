@@ -104,7 +104,7 @@ RSpec.describe "Document API", type: :request do
   end
   
   describe "GET /ged/documents/:id/status (Polling status)" do
-    let(:document) { create(:document, space: space, user: user, processing_status: 'processing') }
+    let(:document) { create(:document, space: space, uploaded_by: user, processing_status: 'processing') }
     
     it "returns current processing status" do
       get ged_document_status_path(document), headers: valid_headers
@@ -133,7 +133,7 @@ RSpec.describe "Document API", type: :request do
   end
   
   describe "DELETE /ged/documents/:id" do
-    let!(:document) { create(:document, space: space, user: user) }
+    let!(:document) { create(:document, space: space, uploaded_by: user) }
     
     context "as document owner" do
       it "deletes the document" do

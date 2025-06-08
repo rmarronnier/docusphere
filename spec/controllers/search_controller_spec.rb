@@ -10,9 +10,9 @@ RSpec.describe SearchController, type: :controller do
   end
 
   describe "GET #index" do
-    let!(:document1) { create(:document, title: "Important Contract", space: space, user: user) }
-    let!(:document2) { create(:document, title: "Meeting Notes", description: "Contract review meeting", space: space, user: user) }
-    let!(:document3) { create(:document, title: "Invoice", space: space, user: user) }
+    let!(:document1) { create(:document, title: "Important Contract", space: space, uploaded_by: user) }
+    let!(:document2) { create(:document, title: "Meeting Notes", description: "Contract review meeting", space: space, uploaded_by: user) }
+    let!(:document3) { create(:document, title: "Invoice", space: space, uploaded_by: user) }
     let!(:other_org_doc) { create(:document, title: "Contract Other Org") }
     
     it "returns http success" do
@@ -49,10 +49,10 @@ RSpec.describe SearchController, type: :controller do
   end
 
   describe "GET #suggestions" do
-    let!(:document1) { create(:document, title: "Project Alpha Report", space: space, user: user) }
-    let!(:document2) { create(:document, title: "Project Beta Analysis", space: space, user: user) }
+    let!(:document1) { create(:document, title: "Project Alpha Report", space: space, uploaded_by: user) }
+    let!(:document2) { create(:document, title: "Project Beta Analysis", space: space, uploaded_by: user) }
     let!(:tag) { create(:tag, name: "project-management") }
-    let!(:document3) { create(:document, title: "Budget Document", space: space, user: user, tags: [tag]) }
+    let!(:document3) { create(:document, title: "Budget Document", space: space, uploaded_by: user, tags: [tag]) }
     
     before do
       # Create metadata
@@ -94,7 +94,7 @@ RSpec.describe SearchController, type: :controller do
     
     it "limits suggestions to 10" do
       15.times do |i|
-        create(:document, title: "Test Document #{i}", space: space, user: user)
+        create(:document, title: "Test Document #{i}", space: space, uploaded_by: user)
       end
       
       get :suggestions, params: { q: "Test" }, format: :json

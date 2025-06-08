@@ -7,7 +7,7 @@ class GedController < ApplicationController
   def dashboard
     skip_authorization
     @favorite_spaces = current_user.organization.spaces.limit(6)
-    @recent_documents = Document.where(user: current_user)
+    @recent_documents = Document.where(uploaded_by: current_user)
                                .includes(:space, :folder)
                                .order(updated_at: :desc)
                                .limit(10)
@@ -18,7 +18,7 @@ class GedController < ApplicationController
   def show_space
     skip_authorization
     @folders = @space.folders.roots.includes(:children)
-    @documents = @space.documents.where(folder: nil).includes(:user)
+    @documents = @space.documents.where(folder: nil).includes(:uploaded_by)
     @breadcrumbs = [{ name: 'GED', path: ged_dashboard_path }, { name: @space.name, path: ged_space_path(@space) }]
   end
 
@@ -26,7 +26,7 @@ class GedController < ApplicationController
     skip_authorization
     @space = @folder.space
     @subfolders = @folder.children.includes(:children)
-    @documents = @folder.documents.includes(:user)
+    @documents = @folder.documents.includes(:uploaded_by)
     @breadcrumbs = build_folder_breadcrumbs(@folder)
   end
 
@@ -64,7 +64,7 @@ class GedController < ApplicationController
   def upload_document
     skip_authorization
     @document = Document.new(document_params)
-    @document.user = current_user
+    @document.uploaded_by = current_user
     
     if @document.save
       redirect_path = @document.folder ? ged_folder_path(@document.folder) : ged_space_path(@document.space)
@@ -101,6 +101,112 @@ class GedController < ApplicationController
       metadata_count: @document.metadata.count,
       processing_error: @document.processing_error
     }
+  end
+
+  def download_document
+    skip_authorization
+    @document = Document.find(params[:id])
+    
+    # Vérifier les permissions de lecture
+    unless @document.can_read?(current_user)
+      redirect_to ged_dashboard_path, alert: 'Vous n\'avez pas les droits pour télécharger ce document'
+      return
+    end
+    
+    redirect_to rails_blob_path(@document.file, disposition: "attachment")
+  end
+  
+  def preview_document
+    skip_authorization
+    @document = Document.find(params[:id])
+    
+    # Vérifier les permissions de lecture
+    unless @document.can_read?(current_user)
+      redirect_to ged_dashboard_path, alert: 'Vous n\'avez pas les droits pour visualiser ce document'
+      return
+    end
+    
+    if @document.preview.attached?
+      redirect_to rails_blob_path(@document.preview, disposition: "inline")
+    elsif @document.file.content_type.start_with?('image/')
+      redirect_to rails_blob_path(@document.file, disposition: "inline")
+    else
+      redirect_to rails_blob_path(@document.file, disposition: "inline")
+    end
+  end
+
+  # Permissions management actions
+  def space_permissions
+    skip_authorization
+    @space = current_user.organization.spaces.find(params[:id])
+    @authorizations = @space.authorizations.includes(:user, :user_group, :granted_by)
+    @users = current_user.organization.users
+    @user_groups = current_user.organization.user_groups
+  end
+
+  def update_space_permissions
+    skip_authorization
+    @space = current_user.organization.spaces.find(params[:id])
+    
+    # Vérifier que l'utilisateur a les droits admin sur l'espace
+    unless @space.can_admin?(current_user)
+      redirect_to ged_space_path(@space), alert: 'Vous n\'avez pas les droits pour modifier les permissions'
+      return
+    end
+    
+    if process_permissions_update(@space)
+      redirect_to ged_space_path(@space), notice: 'Permissions mises à jour avec succès'
+    else
+      redirect_to ged_space_permissions_path(@space), alert: 'Erreur lors de la mise à jour des permissions'
+    end
+  end
+
+  def folder_permissions
+    skip_authorization
+    @folder = Folder.find(params[:id])
+    @authorizations = @folder.authorizations.includes(:user, :user_group, :granted_by)
+    @users = current_user.organization.users
+    @user_groups = current_user.organization.user_groups
+  end
+
+  def update_folder_permissions
+    skip_authorization
+    @folder = Folder.find(params[:id])
+    
+    unless @folder.can_admin?(current_user)
+      redirect_to ged_folder_path(@folder), alert: 'Vous n\'avez pas les droits pour modifier les permissions'
+      return
+    end
+    
+    if process_permissions_update(@folder)
+      redirect_to ged_folder_path(@folder), notice: 'Permissions mises à jour avec succès'
+    else
+      redirect_to ged_folder_permissions_path(@folder), alert: 'Erreur lors de la mise à jour des permissions'
+    end
+  end
+
+  def document_permissions
+    skip_authorization
+    @document = Document.find(params[:id])
+    @authorizations = @document.authorizations.includes(:user, :user_group, :granted_by)
+    @users = current_user.organization.users
+    @user_groups = current_user.organization.user_groups
+  end
+
+  def update_document_permissions
+    skip_authorization
+    @document = Document.find(params[:id])
+    
+    unless @document.can_admin?(current_user)
+      redirect_to ged_document_path(@document), alert: 'Vous n\'avez pas les droits pour modifier les permissions'
+      return
+    end
+    
+    if process_permissions_update(@document)
+      redirect_to ged_document_path(@document), notice: 'Permissions mises à jour avec succès'
+    else
+      redirect_to ged_document_permissions_path(@document), alert: 'Erreur lors de la mise à jour des permissions'
+    end
   end
 
   private
@@ -162,5 +268,40 @@ class GedController < ApplicationController
     
     breadcrumbs << { name: document.title, path: ged_document_path(document) }
     breadcrumbs
+  end
+
+  def process_permissions_update(resource)
+    begin
+      # Traiter les nouvelles permissions
+      if params[:permissions].present?
+        params[:permissions].each do |permission_data|
+          next unless permission_data[:user_id].present? || permission_data[:user_group_id].present?
+          
+          subject = permission_data[:user_id].present? ? 
+                   User.find(permission_data[:user_id]) : 
+                   UserGroup.find(permission_data[:user_group_id])
+          
+          resource.authorize_user(subject, permission_data[:permission_type], 
+                                 granted_by: current_user,
+                                 comment: permission_data[:comment])
+        end
+      end
+      
+      # Traiter les révocations
+      if params[:revoke_permissions].present?
+        params[:revoke_permissions].each do |auth_id|
+          auth = resource.authorizations.find(auth_id)
+          subject = auth.user || auth.user_group
+          resource.revoke_authorization(subject, auth.permission_type, 
+                                       revoked_by: current_user, 
+                                       comment: "Révoqué via interface")
+        end
+      end
+      
+      true
+    rescue => e
+      Rails.logger.error "Erreur lors de la mise à jour des permissions: #{e.message}"
+      false
+    end
   end
 end

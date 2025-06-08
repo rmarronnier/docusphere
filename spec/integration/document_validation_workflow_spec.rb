@@ -7,7 +7,7 @@ RSpec.describe 'Document Validation Workflow', type: :integration do
   let(:validator2) { create(:user, organization: organization) }
   let(:validator3) { create(:user, organization: organization) }
   let(:space) { create(:space, organization: organization) }
-  let(:document) { create(:document, user: requester, space: space) }
+  let(:document) { create(:document, uploaded_by: requester, space: space) }
   
   describe 'complete validation workflow' do
     context 'with successful validation (2 out of 3 required)' do
@@ -163,6 +163,7 @@ RSpec.describe 'Document Validation Workflow', type: :integration do
     end
     
     it 'creates actual notification records' do
+      validation_request = nil
       expect {
         validation_request = document.request_validation(
           requester: requester,

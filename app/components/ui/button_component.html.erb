@@ -1,3 +1,27 @@
-<%= button_tag(**html_options) do %>
-  <%= content %>
+<% wrapper_tag = href.present? ? :a : :button %>
+<% wrapper_options = href.present? ? html_options.merge(href: href) : html_options %>
+
+<% if dropdown %>
+  <div <%= tag.attributes(html_options) %>>
+    <%= content_tag wrapper_tag, wrapper_options.except("data-controller", "data-action") do %>
+      <%= render_spinner if loading %>
+      <%= render_icon if icon && icon_position == :left && !loading %>
+      <%= content_text %>
+      <%= render_icon if icon && icon_position == :right && !loading %>
+    <% end %>
+    <% if dropdown_items? %>
+      <div class="dropdown-menu">
+        <% dropdown_items.each do |item| %>
+          <%= item %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+<% else %>
+  <%= content_tag wrapper_tag, wrapper_options do %>
+    <%= render_spinner if loading %>
+    <%= render_icon if icon && icon_position == :left && !loading %>
+    <%= content_text %>
+    <%= render_icon if icon && icon_position == :right && !loading %>
+  <% end %>
 <% end %>

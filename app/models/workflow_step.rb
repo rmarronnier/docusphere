@@ -2,7 +2,8 @@ class WorkflowStep < ApplicationRecord
   include AASM
   
   belongs_to :workflow
-  belongs_to :assignee, class_name: 'User'
+  belongs_to :assigned_to, class_name: 'User', optional: true
+  belongs_to :assigned_to_group, class_name: 'UserGroup', optional: true
   belongs_to :completed_by, class_name: 'User', optional: true
   
   validates :name, presence: true

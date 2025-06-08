@@ -9,35 +9,39 @@ puts "🌱 Starting comprehensive seed process..."
 if Rails.env.development?
   puts "🧹 Cleaning up existing data..."
   
-  # Immo::Promo models
-  Immo::Promo::TimeLog.destroy_all
-  Immo::Promo::TaskDependency.destroy_all
-  Immo::Promo::Task.destroy_all
-  Immo::Promo::Milestone.destroy_all
-  Immo::Promo::PhaseDependency.destroy_all
-  Immo::Promo::Phase.destroy_all
-  Immo::Promo::PermitCondition.destroy_all
-  Immo::Promo::Permit.destroy_all
-  Immo::Promo::ProgressReport.destroy_all
-  Immo::Promo::Risk.destroy_all
-  Immo::Promo::Reservation.destroy_all
-  Immo::Promo::LotSpecification.destroy_all
-  Immo::Promo::Lot.destroy_all
-  Immo::Promo::BudgetLine.destroy_all
-  Immo::Promo::Budget.destroy_all
-  Immo::Promo::Contract.destroy_all
-  Immo::Promo::Certification.destroy_all
-  Immo::Promo::Stakeholder.destroy_all
-  Immo::Promo::Project.destroy_all
+  # Immo::Promo models - delete in reverse order of dependencies
+  # First, delete all records using delete_all to avoid callbacks
+  Immo::Promo::TimeLog.delete_all
+  Immo::Promo::TaskDependency.delete_all
+  Immo::Promo::Task.delete_all
+  Immo::Promo::Milestone.delete_all
+  Immo::Promo::PhaseDependency.delete_all
+  Immo::Promo::Phase.delete_all
+  Immo::Promo::PermitCondition.delete_all
+  Immo::Promo::Permit.delete_all
+  Immo::Promo::ProgressReport.delete_all
+  Immo::Promo::Risk.delete_all
+  Immo::Promo::Reservation.delete_all
+  Immo::Promo::LotSpecification.delete_all
+  Immo::Promo::Lot.delete_all
+  Immo::Promo::BudgetLine.delete_all
+  Immo::Promo::Budget.delete_all
+  Immo::Promo::Contract.delete_all
+  Immo::Promo::Certification.delete_all
+  Immo::Promo::Stakeholder.delete_all
+  Immo::Promo::Project.delete_all
   
   # Core models
   WorkflowSubmission.destroy_all
   WorkflowStep.destroy_all
   Workflow.destroy_all
+  # Skip ProjectWorkflowStep for now - model mismatch
+  # ProjectWorkflowStep.destroy_all
+  # ProjectWorkflowTransition.destroy_all
   BasketItem.destroy_all
   Basket.destroy_all
   Authorization.destroy_all
-  DocumentVersion.destroy_all
+  # DocumentVersion.destroy_all # Using paper_trail instead
   DocumentTag.destroy_all
   Link.destroy_all
   Share.destroy_all
@@ -52,8 +56,8 @@ if Rails.env.development?
   User.destroy_all
   MetadataField.destroy_all
   MetadataTemplate.destroy_all
-  Organization.destroy_all
   Tag.destroy_all
+  Organization.destroy_all
 end
 
 # Helper method to generate file content
@@ -211,7 +215,7 @@ metadata_templates.each do |template|
     field = MetadataField.create!(
       name: field_data[:name],
       field_type: field_data[:field_type],
-      is_required: field_data[:required],
+      required: field_data[:required],
       options: field_data[:options],
       metadata_template: template
     )
@@ -257,23 +261,41 @@ tag_categories = {
 tags = []
 tag_categories.each do |category, names|
   names.each do |name|
-    tag = Tag.create!(name: name)
-    tags << tag
+    organizations.each do |org|
+      tag = Tag.create!(name: name, organization: org)
+      tags << tag
+    end
   end
 end
 
 # Create spaces
 puts "📁 Creating spaces..."
 spaces = []
+# Define standard spaces for each organization
+standard_spaces = [
+  { name: "RH", description: "Ressources Humaines - Documents RH, contrats, formations", required: true },
+  { name: "Juridique", description: "Documents juridiques, contrats, conformité", required: false },
+  { name: "Technique", description: "Documentation technique, guides, procédures", required: false },
+  { name: "Commercial", description: "Propositions, contrats clients, marketing", required: false },
+  { name: "Documents Généraux", description: "Documents généraux de l'organisation", required: false },
+  { name: "Archives", description: "Documents archivés", required: false }
+]
+
 organizations.each do |org|
-  ["Documents Généraux", "Projets", "Archives", "Templates", "Ressources"].each do |space_name|
+  standard_spaces.each do |space_data|
     space = Space.create!(
-      name: "#{space_name} - #{org.name}",
-      description: "Espace #{space_name} pour #{org.name}",
-      slug: "#{space_name.parameterize}-#{org.slug}",
+      name: "#{space_data[:name]} - #{org.name}",
+      description: space_data[:description],
       organization: org
     )
     spaces << space
+    
+    # Tous les utilisateurs ont accès à l'espace RH
+    if space_data[:name] == "RH"
+      org.users.each do |user|
+        space.authorize_user(user, 'read', granted_by: admin, comment: "Accès RH automatique")
+      end
+    end
   end
 end
 
@@ -348,8 +370,7 @@ organizations.each do |org|
       name: workflow_name,
       description: "#{workflow_name} workflow for #{org.name}",
       organization: org,
-      user: org.users.where(role: ["admin", "manager"]).sample || org.users.first,
-      is_active: true
+      workflow_type: ["approval", "review", "validation"].sample
     )
     workflows << workflow
     
@@ -361,17 +382,18 @@ organizations.each do |org|
         name: step_name,
         description: "Step #{index + 1}: #{step_name}",
         position: index + 1,
-        assignee: org.users.sample,
+        assigned_to: org.users.sample,
         step_type: ["review", "approval", "notification"].sample,
-        conditions: { min_reviewers: rand(1..3) },
-        actions: { send_email: true, update_status: true }
+        validation_rules: { min_reviewers: rand(1..3) },
+        requires_approval: ["approval"].include?(step_name.downcase),
+        priority: ["low", "medium", "high"].sample
       )
     end
   end
 end
 
 # Create documents
-puts "📄 Creating 5000 documents..."
+puts "📄 Creating 300 documents..."
 document_types = {
   'application/pdf' => { extensions: ['pdf'], weight: 25 },
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => { extensions: ['docx'], weight: 20 },
@@ -394,7 +416,7 @@ total_weight = document_types.values.sum { |v| v[:weight] }
 
 documents = []
 # Generate documents
-5000.times do |i|
+300.times do |i|
   # Weighted random selection of document type
   random_weight = rand * total_weight
   current_weight = 0
@@ -417,7 +439,7 @@ documents = []
   document = Document.new(
     title: document_title,
     description: [Faker::Lorem.sentence, nil, nil].sample, # Some documents don't have descriptions
-    user: users.sample,
+    uploaded_by: users.sample,
     space: spaces.sample,
     folder: [nil, *folders].sample, # Some documents are not in folders
     status: ["draft", "published", "locked", "archived"].sample
@@ -455,7 +477,7 @@ documents = []
     if rand < 0.3 # 30% of documents have structured metadata
       template = metadata_templates.sample
       template.metadata_fields.each do |field|
-        next if !field.is_required && rand < 0.5 # Skip optional fields sometimes
+        next if !field.required && rand < 0.5 # Skip optional fields sometimes
         
         value = case field.field_type
                 when 'string' then Faker::Lorem.word
@@ -493,36 +515,17 @@ documents = []
       )
     end
     
-    # Create some versions for important documents
-    if rand < 0.1 # 10% of documents have versions
-      rand(1..3).times do |v|
-        version = DocumentVersion.new(
-          document: document,
-          version_number: "#{v + 2}.0",
-          created_by: users.sample,
-          comment: ["Minor updates", "Major revision", "Typo fixes", "Content update", "Format changes"].sample
-        )
-        
-        # Attach version file
-        version.file.attach(
-          io: StringIO.new(file_content),
-          filename: "v#{v + 2}_#{document_title.parameterize}.#{extension}",
-          content_type: selected_type
-        )
-        
-        version.save!
-      end
-    end
+    # Paper_trail will handle document versioning automatically
     
     # Create shares for some documents
     if rand < 0.15 # 15% of documents are shared
       rand(1..3).times do
         share_user = users.sample
         Share.create!(
-          document: document,
-          user: share_user,
-          shared_by: document.user,
-          permission: ["read", "read", "write", "admin"].sample,
+          shareable: document,
+          shared_with: share_user,
+          shared_by: document.uploaded_by,
+          access_level: ["read", "read", "write", "admin"].sample,
           expires_at: [nil, nil, nil, rand(1..90).days.from_now].sample
         )
         
@@ -532,33 +535,49 @@ documents = []
     # Create document links
     if rand < 0.05 && documents.count > 10 # 5% of documents have links
       Link.create!(
-        document: document,
-        linked_document: documents.sample,
+        source: document,
+        target: documents.sample,
         link_type: ["reference", "related", "parent", "child", "version"].sample
       )
     end
     
     # Add to workflows
-    if rand < 0.1 # 10% of documents in workflows
-      workflow = workflows.sample
-      WorkflowSubmission.create!(
-        workflow: workflow,
-        submittable: document,
-        submitted_by: document.user,
-        current_step: workflow.workflow_steps.first,
-        status: ["pending", "in_progress", "completed", "rejected"].sample
-      )
-    end
+    # if rand < 0.1 # 10% of documents in workflows
+    #   workflow = workflows.sample
+    #   WorkflowSubmission.create!(
+    #     workflow: workflow,
+    #     submittable: document,
+    #     submitted_by: document.uploaded_by,
+    #     current_step: workflow.workflow_steps.first,
+    #     status: ["pending", "in_progress", "completed", "rejected"].sample
+    #   )
+    # end
     
     # Create authorizations
     if rand < 0.2 # 20% of documents have specific authorizations
       rand(1..3).times do
-        Authorization.create!(
-          authorizable: document,
-          user: users.sample,
-          user_group: user_groups.sample,
-          permission_type: ["read", "write", "admin"].sample
-        )
+        # Choisir soit un utilisateur soit un groupe, pas les deux
+        if rand < 0.7 # 70% des autorisations pour les utilisateurs
+          selected_user = users.sample
+          Authorization.find_or_create_by!(
+            authorizable: document,
+            user: selected_user,
+            user_group: nil
+          ) do |auth|
+            auth.permission_level = ["read", "write", "admin"].sample
+            auth.granted_by = users.sample
+          end
+        else # 30% pour les groupes
+          selected_group = user_groups.sample
+          Authorization.find_or_create_by!(
+            authorizable: document,
+            user: nil,
+            user_group: selected_group
+          ) do |auth|
+            auth.permission_level = ["read", "write", "admin"].sample
+            auth.granted_by = users.sample
+          end
+        end
       end
     end
   end
@@ -577,15 +596,16 @@ users.sample(20).each do |user|
     name: ["Mes documents", "À traiter", "En cours", "Archives", "Favoris"].sample,
     description: Faker::Lorem.sentence,
     user: user,
-    is_public: [true, false, false].sample # Most baskets are private
+    is_shared: [true, false, false].sample # Most baskets are private
   )
   
   # Add items to basket
-  rand(3..15).times do
+  basket_documents = documents.sample(rand(3..15))
+  basket_documents.each_with_index do |doc, index|
     BasketItem.create!(
       basket: basket,
-      document: documents.sample,
-      position: BasketItem.where(basket: basket).count + 1,
+      item: doc,
+      position: index + 1,
       notes: rand < 0.3 ? Faker::Lorem.sentence : nil
     )
   end
@@ -595,15 +615,27 @@ end
 puts "🔔 Creating notifications..."
 users.each do |user|
   rand(0..10).times do
+    notification_types = ["document_shared", "document_validation_requested", "authorization_granted", "document_processing_completed", "system_announcement"]
+    notification_type = notification_types.sample
+    
+    title = case notification_type
+            when "document_shared" then "Document partagé"
+            when "document_validation_requested" then "Validation demandée"
+            when "authorization_granted" then "Autorisation accordée"
+            when "document_processing_completed" then "Traitement terminé"
+            when "system_announcement" then "Annonce système"
+            end
+    
     Notification.create!(
       user: user,
-      notification_type: ["document_shared", "workflow_updated", "comment_added", "document_approved", "task_assigned"].sample,
-      title: ["Document partagé", "Workflow mis à jour", "Nouveau commentaire", "Document approuvé", "Tâche assignée"].sample,
+      notification_type: notification_type,
+      title: title,
       message: Faker::Lorem.sentence,
-      read: [true, false, false].sample, # Most notifications unread
+      read_at: [nil, nil, Time.current].sample, # Most notifications unread
+      notifiable: documents.sample,
       data: {
         document_id: documents.sample.id,
-        from_user: users.sample.full_name
+        from_user: users.sample.email
       }
     )
   end
@@ -615,9 +647,17 @@ users.sample(30).each do |user|
   rand(1..5).times do
     SearchQuery.create!(
       user: user,
-      query: Faker::Lorem.words(number: rand(1..3)).join(' '),
-      results_count: rand(0..100),
-      clicked_result_id: rand < 0.5 ? documents.sample.id : nil
+      name: Faker::Lorem.words(number: rand(1..3)).join(' '),
+      query_params: {
+        q: Faker::Lorem.words(number: rand(1..3)).join(' '),
+        filters: {
+          document_type: ["pdf", "docx", "xlsx", nil].sample,
+          date_range: ["last_week", "last_month", "last_year", nil].sample
+        }
+      },
+      usage_count: rand(0..50),
+      last_used_at: rand < 0.7 ? Faker::Time.backward(days: 30) : nil,
+      is_favorite: rand < 0.2
     )
   end
 end
@@ -646,8 +686,8 @@ organizations.each do |org|
       project_manager: org.users.where(role: ["admin", "manager"]).sample || org.users.first,
       land_area: rand(500..10000),
       building_permit_number: "PC-#{Date.current.year}-#{rand(1000..9999)}",
-      total_budget: rand(1_000_000..50_000_000),
-      current_budget: rand(100_000..5_000_000)
+      total_budget_cents: rand(100_000_00..200_000_000), # 100k to 2M euros in cents  
+      current_budget_cents: rand(10_000_00..50_000_000) # 10k to 500k euros in cents
     )
     projects << project
     
@@ -671,6 +711,7 @@ organizations.each do |org|
         Immo::Promo::Certification.create!(
           stakeholder: stakeholder,
           name: ["ISO 9001", "ISO 14001", "LEED", "HQE", "BREEAM", "Qualibat"].sample,
+          certification_type: ["insurance", "qualification", "rge", "environmental"].sample,
           issuing_body: Faker::Company.name,
           issue_date: Faker::Date.backward(days: 730),
           expiry_date: Faker::Date.forward(days: 365),
@@ -680,12 +721,12 @@ organizations.each do |org|
     end
     
     # Create permits
-    ["building", "demolition", "environmental", "safety"].sample(rand(1..3)).each do |permit_type|
+    ["construction", "demolition", "environmental", "urban_planning"].sample(rand(1..3)).each do |permit_type|
       permit = Immo::Promo::Permit.create!(
         project: project,
         permit_type: permit_type,
         permit_number: "#{permit_type.upcase}-#{Date.current.year}-#{rand(1000..9999)}",
-        status: ["pending", "submitted", "approved", "rejected", "expired"].sample,
+        status: ["draft", "submitted", "approved", "denied", "under_review"].sample,
         submitted_date: Faker::Date.backward(days: 180),
         approved_date: ["approved", "expired"].include?(Immo::Promo::Permit.last&.status) ? Faker::Date.backward(days: 90) : nil,
         expiry_date: Faker::Date.forward(days: 365),
@@ -699,6 +740,7 @@ organizations.each do |org|
           Immo::Promo::PermitCondition.create!(
             permit: permit,
             description: Faker::Lorem.sentence,
+            condition_type: ["suspensive", "prescriptive", "information", "technical", "environmental"].sample,
             compliance_status: ["pending", "in_progress", "compliant", "non_compliant"].sample,
             due_date: Faker::Date.forward(days: 90)
           )
@@ -707,7 +749,7 @@ organizations.each do |org|
     end
     
     # Create phases
-    phase_types = ["studies", "permits", "construction", "finishing", "delivery"]
+    phase_types = ["studies", "permits", "construction", "reception", "delivery"]
     phase_types.each_with_index do |phase_type, index|
       phase = Immo::Promo::Phase.create!(
         project: project,
@@ -723,11 +765,14 @@ organizations.each do |org|
       
       # Create phase dependencies
       if index > 0
-        Immo::Promo::PhaseDependency.create!(
-          dependent_phase: phase,
-          prerequisite_phase: project.phases[index - 1],
-          dependency_type: "finish_to_start"
-        )
+        previous_phases = project.phases.reload.to_a
+        if previous_phases.size >= index
+          Immo::Promo::PhaseDependency.create!(
+            dependent_phase: phase,
+            prerequisite_phase: previous_phases[index - 1],
+            dependency_type: "finish_to_start"
+          )
+        end
       end
       
       # Create milestones
@@ -736,6 +781,7 @@ organizations.each do |org|
           phase: phase,
           name: "#{phase_type.capitalize} Milestone #{m_index + 1}",
           description: Faker::Lorem.sentence,
+          milestone_type: ["permit_submission", "permit_approval", "construction_start", "construction_completion", "delivery", "legal_deadline"].sample,
           target_date: phase.start_date + rand(10..80).days,
           actual_date: phase.status == "completed" ? phase.start_date + rand(10..80).days : nil,
           status: phase.status == "completed" ? "completed" : ["pending", "in_progress"].sample,
@@ -762,11 +808,14 @@ organizations.each do |org|
         
         # Create task dependencies
         if t_index > 0 && rand < 0.3
-          Immo::Promo::TaskDependency.create!(
-            dependent_task: task,
-            prerequisite_task: phase.tasks[rand(0..(t_index-1))],
-            dependency_type: "finish_to_start"
-          )
+          existing_tasks = phase.tasks.reload.to_a
+          if existing_tasks.size > 1
+            Immo::Promo::TaskDependency.create!(
+              dependent_task: task,
+              prerequisite_task: existing_tasks[rand(0..(existing_tasks.size-2))],
+              dependency_type: "finish_to_start"
+            )
+          end
         end
         
         # Create time logs
@@ -776,7 +825,7 @@ organizations.each do |org|
               task: task,
               user: task.assigned_to,
               hours: rand(1..8),
-              date: Faker::Date.between(from: task.start_date, to: Date.current),
+              log_date: Faker::Date.between(from: task.start_date, to: Date.current),
               description: Faker::Lorem.sentence
             )
           end
@@ -788,6 +837,8 @@ organizations.each do |org|
     budget = Immo::Promo::Budget.create!(
       project: project,
       name: "Budget #{project.name}",
+      version: "v1.0",
+      budget_type: "initial",
       fiscal_year: Date.current.year,
       total_amount: project.total_budget,
       status: "active"
@@ -799,9 +850,9 @@ organizations.each do |org|
         budget: budget,
         category: category,
         description: "#{category} costs for #{project.name}",
-        planned_amount: rand(50_000..2_000_000),
-        actual_amount: project.status == "construction" ? rand(30_000..1_500_000) : 0,
-        committed_amount: rand(20_000..1_000_000)
+        planned_amount_cents: rand(5_000_000..200_000_000),
+        actual_amount_cents: project.status == "construction" ? rand(3_000_000..150_000_000) : 0,
+        committed_amount_cents: rand(2_000_000..100_000_000)
       )
     end
     
@@ -820,7 +871,7 @@ organizations.each do |org|
                         when "commercial" then rand(50..300)
                         else rand(20..100)
                         end,
-          price: rand(100_000..1_000_000),
+          price_cents: rand(10_000_00..10_000_000), # 10k to 100k euros
           status: ["available", "reserved", "sold", "blocked"].sample,
           orientation: ["north", "south", "east", "west", "north-east", "north-west", "south-east", "south-west"].sample
         )
@@ -850,7 +901,7 @@ organizations.each do |org|
             client_phone: Faker::PhoneNumber.phone_number,
             reservation_date: Faker::Date.backward(days: 90),
             expiry_date: lot.status == "reserved" ? Faker::Date.forward(days: 30) : nil,
-            deposit_amount: lot.price * 0.1,
+            deposit_amount_cents: lot.price_cents * 0.1,
             status: lot.status == "sold" ? "converted" : "active",
             notes: Faker::Lorem.sentence
           )
@@ -900,7 +951,7 @@ organizations.each do |org|
         description: "Contract for #{stakeholder.role} services",
         start_date: project.start_date,
         end_date: project.expected_completion_date,
-        amount: rand(50_000..2_000_000),
+        amount_cents: rand(500_000..20_000_000), # 5k to 200k euros
         currency: "EUR",
         payment_terms: ["30_days", "60_days", "milestone_based", "monthly"].sample,
         status: ["draft", "active", "completed", "terminated"].sample,
@@ -920,7 +971,7 @@ puts "  - User Group Memberships: #{UserGroupMembership.count}"
 puts "  - Spaces: #{Space.count}"
 puts "  - Folders: #{Folder.count}"
 puts "  - Documents: #{Document.count}"
-puts "  - Document Versions: #{DocumentVersion.count}"
+puts "  - Document Versions (Paper Trail): #{PaperTrail::Version.where(item_type: 'Document').count}"
 puts "  - Metadata (structured): #{Metadatum.structured.count}"
 puts "  - Metadata (flexible): #{Metadatum.flexible.count}"
 puts "  - Metadata (total): #{Metadatum.count}"
@@ -928,8 +979,8 @@ puts "  - Tags: #{Tag.count}"
 puts "  - Document Tags: #{DocumentTag.count}"
 puts "  - Shares: #{Share.count}"
 puts "  - Links: #{Link.count}"
-puts "  - Project Workflow Steps: #{ProjectWorkflowStep.count}"
-puts "  - Project Workflow Transitions: #{ProjectWorkflowTransition.count}"
+# puts "  - Project Workflow Steps: #{ProjectWorkflowStep.count}"
+# puts "  - Project Workflow Transitions: #{ProjectWorkflowTransition.count}"
 puts "  - Workflows: #{Workflow.count}"
 puts "  - Workflow Steps: #{WorkflowStep.count}"
 puts "  - Workflow Submissions: #{WorkflowSubmission.count}"

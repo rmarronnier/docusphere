@@ -5,7 +5,7 @@ RSpec.describe GedController, type: :controller do
   let(:organization) { create(:organization) }
   let(:space) { create(:space, organization: organization) }
   let(:folder) { create(:folder, space: space) }
-  let(:document) { create(:document, user: user, space: space) }
+  let(:document) { create(:document, uploaded_by: user, space: space) }
   
   before do
     sign_in user
@@ -24,14 +24,14 @@ RSpec.describe GedController, type: :controller do
     end
     
     it 'assigns recent documents' do
-      docs = create_list(:document, 3, user: user, space: space)
+      docs = create_list(:document, 3, uploaded_by: user, space: space)
       get :dashboard
       expect(assigns(:recent_documents)).to include(*docs)
     end
     
     it 'assigns counts' do
       create_list(:space, 3, organization: organization)
-      create_list(:document, 5, user: user, space: space)
+      create_list(:document, 5, uploaded_by: user, space: space)
       get :dashboard
       expect(assigns(:spaces_count)).to eq(4) # 3 + 1 already created
       expect(assigns(:documents_count)).to eq(5) # 5 created (document is lazy loaded, not created until accessed)
@@ -58,8 +58,8 @@ RSpec.describe GedController, type: :controller do
     end
     
     it 'assigns documents without folder' do
-      doc_without_folder = create(:document, user: user, space: space, folder: nil)
-      doc_with_folder = create(:document, user: user, space: space, folder: folder)
+      doc_without_folder = create(:document, uploaded_by: user, space: space, folder: nil)
+      doc_with_folder = create(:document, uploaded_by: user, space: space, folder: folder)
       get :show_space, params: { id: space.id }
       expect(assigns(:documents)).to include(doc_without_folder)
       expect(assigns(:documents)).not_to include(doc_with_folder)
@@ -91,7 +91,7 @@ RSpec.describe GedController, type: :controller do
     end
     
     it 'assigns documents in folder' do
-      docs = create_list(:document, 3, user: user, space: space, folder: folder)
+      docs = create_list(:document, 3, uploaded_by: user, space: space, folder: folder)
       get :show_folder, params: { id: folder.id }
       expect(assigns(:documents)).to include(*docs)
     end
@@ -116,7 +116,7 @@ RSpec.describe GedController, type: :controller do
     end
     
     it 'denies access to documents from other organizations' do
-      other_doc = create(:document, user: create(:user), space: create(:space, organization: create(:organization)))
+      other_doc = create(:document, uploaded_by: create(:user), space: create(:space, organization: create(:organization)))
       get :show_document, params: { id: other_doc.id }
       expect(response).to redirect_to(ged_dashboard_path)
       expect(flash[:alert]).to eq('Accès non autorisé')
@@ -221,7 +221,7 @@ RSpec.describe GedController, type: :controller do
       
       it 'assigns the current user as document owner' do
         post :upload_document, params: { document: valid_attributes }, format: :json
-        expect(Document.last.user).to eq(user)
+        expect(Document.last.uploaded_by).to eq(user)
       end
       
       it 'returns success JSON' do

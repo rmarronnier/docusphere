@@ -22,7 +22,7 @@ FactoryBot.define do
 
     trait :with_documents do
       after(:create) do |user|
-        create_list(:document, 5, user: user)
+        create_list(:document, 5, uploaded_by: user)
       end
     end
   end

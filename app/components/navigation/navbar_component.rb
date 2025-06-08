@@ -6,9 +6,14 @@ class Navigation::NavbarComponent < ApplicationComponent
   private
 
   attr_reader :current_page
+  
+  def unread_notifications_count
+    return 0 unless helpers.current_user
+    helpers.current_user.notifications.where(read_at: nil).count
+  end
 
   def navigation_items
-    [
+    items = [
       { name: 'Tableau de bord', path: root_path, icon: 'home' },
       { name: 'Documents', path: '#', icon: 'document' },
       { name: 'Espaces', path: '#', icon: 'folder' },
@@ -16,6 +21,14 @@ class Navigation::NavbarComponent < ApplicationComponent
       { name: 'Bannettes', path: '#', icon: 'inbox' },
       { name: 'Recherche', path: '#', icon: 'search' }
     ]
+    
+    if helpers.current_user&.role == 'admin'
+      items << { name: 'Administration', path: '#', icon: 'cog' }
+      items << { name: 'Utilisateurs', path: '#', icon: 'users' }
+      items << { name: 'Paramètres', path: '#', icon: 'settings' }
+    end
+    
+    items
   end
 
   def admin_items

@@ -2,8 +2,6 @@ class Workflow < ApplicationRecord
   include AASM
   
   belongs_to :organization
-  belongs_to :user
-  belongs_to :workflow_template, optional: true
   
   has_many :workflow_steps, dependent: :destroy
   has_many :workflow_submissions, dependent: :destroy

@@ -1,38 +1,89 @@
 class Ui::ButtonComponent < ApplicationComponent
-  def initialize(variant: :primary, size: :md, **options)
+  renders_many :dropdown_items, lambda { |text:, href:, method: :get, **options|
+    link_to text, href, method: method, class: "dropdown-item", **options
+  }
+  
+  def initialize(text: nil, variant: :primary, size: :md, icon: nil, icon_position: :left, 
+                 loading: false, disabled: false, href: nil, group_item: false, group: false,
+                 tooltip: nil, aria_label: nil, dropdown: false, **options)
+    @text = text
     @variant = variant
     @size = size
+    @icon = icon
+    @icon_position = icon_position
+    @loading = loading
+    @disabled = disabled || loading
+    @href = href
+    @group_item = group_item || group
+    @tooltip = tooltip
+    @aria_label = aria_label
+    @dropdown = dropdown
     @options = options
+    
+    # Validate icon-only buttons have aria-label
+    if icon && !text && !aria_label
+      raise ArgumentError, "aria_label is required for icon-only buttons"
+    end
   end
 
   private
 
-  attr_reader :variant, :size, :options
+  attr_reader :text, :variant, :size, :icon, :icon_position, :loading, :disabled, 
+              :href, :group_item, :tooltip, :aria_label, :dropdown, :options
 
   def classes
-    base_classes = "btn"
-    variant_classes = {
-      primary: "btn-primary",
-      secondary: "btn-secondary",
-      danger: "btn-danger",
-      outline: "border border-gray-300 text-gray-700 hover:bg-gray-50"
-    }
+    base_classes = ["btn"]
     
-    size_classes = {
-      sm: "px-3 py-1 text-sm",
-      md: "px-4 py-2 text-sm",
-      lg: "px-6 py-3 text-base"
-    }
-
-    [
-      base_classes,
-      variant_classes[variant],
-      size_classes[size],
-      options[:class]
-    ].compact.join(" ")
+    # Variant classes
+    base_classes << "btn-#{variant}"
+    
+    # Size classes
+    base_classes << "btn-#{size}"
+    
+    # State classes
+    base_classes << "btn-loading" if loading
+    base_classes << "btn-disabled" if disabled
+    base_classes << "btn-icon-only" if icon && !text
+    base_classes << "btn-group-item" if group_item
+    
+    # Custom classes
+    base_classes << options[:class] if options[:class]
+    
+    base_classes.compact.join(" ")
   end
 
   def html_options
-    options.except(:class).merge(class: classes)
+    opts = options.except(:class).merge(
+      class: classes,
+      disabled: disabled
+    )
+    
+    opts["aria-label"] = aria_label if aria_label
+    opts["aria-busy"] = "true" if loading
+    opts["aria-disabled"] = "true" if disabled
+    opts["data-tooltip"] = tooltip if tooltip
+    opts["data-tooltip-position"] = "top" if tooltip
+    
+    if dropdown
+      opts["data-controller"] = "dropdown"
+      opts["data-action"] = "click->dropdown#toggle"
+    end
+    
+    opts
+  end
+
+  def render_icon
+    return unless icon
+    
+    # Simple icon representation for testing
+    content_tag(:i, "", class: "icon-#{icon} btn-icon")
+  end
+  
+  def render_spinner
+    content_tag(:span, "", class: "spinner")
+  end
+
+  def content_text
+    text || content
   end
 end

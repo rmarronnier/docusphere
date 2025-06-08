@@ -13,17 +13,72 @@
           </p>
           
           <% if user_signed_in? %>
-            <div class="bg-white shadow rounded-lg p-6 max-w-md mx-auto">
-              <h2 class="text-xl font-semibold text-gray-900 mb-4">
+            <div class="max-w-4xl mx-auto">
+              <h2 class="text-2xl font-semibold text-gray-900 mb-6 text-center">
                 Bonjour <%= current_user.display_name %> !
               </h2>
-              <p class="text-gray-600 mb-4">
-                Vous êtes connecté en tant que <%= current_user.role&.humanize || 'utilisateur' %>
+              <p class="text-gray-600 mb-8 text-center">
+                Choisissez votre espace de travail :
               </p>
-              <div class="space-y-3">
-                <%= link_to "Accéder à la GED", ged_dashboard_path, class: "block w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700" %>
-                <%= link_to "Mes Documents", ged_dashboard_path, class: "block w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" %>
-                <%= link_to "Recherche", "#", class: "block w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" %>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- GED Module -->
+                <div class="bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                  <div class="p-6">
+                    <div class="flex items-center mb-4">
+                      <div class="flex-shrink-0">
+                        <svg class="h-8 w-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                      </div>
+                      <div class="ml-4">
+                        <h3 class="text-lg font-medium text-gray-900">Gestion Électronique de Documents</h3>
+                      </div>
+                    </div>
+                    <p class="text-gray-600 mb-6">
+                      Gérez vos documents, espaces de travail et collaborez avec votre équipe.
+                    </p>
+                    <div class="space-y-3">
+                      <%= link_to ged_dashboard_path, class: "block w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg text-center transition-colors duration-200" do %>
+                        <span class="flex items-center justify-center">
+                          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                          </svg>
+                          Accéder à la GED
+                        </span>
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Immo Promo Module -->
+                <div class="bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                  <div class="p-6">
+                    <div class="flex items-center mb-4">
+                      <div class="flex-shrink-0">
+                        <svg class="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                        </svg>
+                      </div>
+                      <div class="ml-4">
+                        <h3 class="text-lg font-medium text-gray-900">Promotion Immobilière</h3>
+                      </div>
+                    </div>
+                    <p class="text-gray-600 mb-6">
+                      Gérez vos projets immobiliers, phases, tâches et suivez l'avancement.
+                    </p>
+                    <div class="space-y-3">
+                      <%= link_to immo_promo_dashboard_path, class: "block w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg text-center transition-colors duration-200" do %>
+                        <span class="flex items-center justify-center">
+                          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                          </svg>
+                          Accéder aux Projets
+                        </span>
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           <% else %>

@@ -3,18 +3,18 @@ require 'rails_helper'
 RSpec.describe Authorization, type: :model do
   let(:user) { create(:user) }
   let(:user_group) { create(:user_group, organization: user.organization) }
-  let(:document) { create(:document, user: user) }
+  let(:document) { create(:document, uploaded_by: user) }
   let(:granted_by) { create(:user, :admin, organization: user.organization) }
   
   describe 'validations' do
-    it 'validates presence of permission_type' do
-      authorization = build(:authorization, permission_type: nil)
+    it 'validates presence of permission_level' do
+      authorization = build(:authorization, permission_level: nil)
       expect(authorization).not_to be_valid
-      expect(authorization.errors[:permission_type]).to include("ne peut pas être vide")
+      expect(authorization.errors[:permission_level]).to include("ne peut pas être vide")
     end
     
-    it 'validates inclusion of permission_type' do
-      authorization = build(:authorization, permission_type: 'invalid')
+    it 'validates inclusion of permission_level' do
+      authorization = build(:authorization, permission_level: 'invalid')
       expect(authorization).not_to be_valid
     end
     
@@ -25,15 +25,15 @@ RSpec.describe Authorization, type: :model do
     end
     
     it 'validates uniqueness of user_id scoped to authorizable and permission' do
-      create(:authorization, user: user, authorizable: document, permission_type: 'read')
-      duplicate = build(:authorization, user: user, authorizable: document, permission_type: 'read')
+      create(:authorization, user: user, authorizable: document, permission_level: 'read')
+      duplicate = build(:authorization, user: user, authorizable: document, permission_level: 'read')
       expect(duplicate).not_to be_valid
     end
     
     it 'validates expiry date in future' do
-      authorization = build(:authorization, expired_at: 1.day.ago)
+      authorization = build(:authorization, expires_at: 1.day.ago)
       expect(authorization).not_to be_valid
-      expect(authorization.errors[:expired_at]).to include('must be in the future')
+      expect(authorization.errors[:expires_at]).to include('must be in the future')
     end
   end
   
@@ -76,8 +76,8 @@ RSpec.describe Authorization, type: :model do
     end
     
     it 'returns false for expired authorization' do
-      auth = create(:authorization, expired_at: 1.day.from_now)
-      auth.update_column(:expired_at, 1.day.ago)  # Bypass validation for testing
+      auth = create(:authorization, expires_at: 1.day.from_now)
+      auth.update_column(:expires_at, 1.day.ago)  # Bypass validation for testing
       expect(auth.reload).not_to be_active
     end
     
@@ -102,14 +102,14 @@ RSpec.describe Authorization, type: :model do
   end
   
   describe '#extend_expiry!' do
-    let(:authorization) { create(:authorization, expired_at: 1.week.from_now) }
+    let(:authorization) { create(:authorization, expires_at: 1.week.from_now) }
     let(:extender) { create(:user, :admin) }
     
     it 'extends the expiry date' do
       new_expiry = 1.month.from_now
       authorization.extend_expiry!(new_expiry, extender, comment: 'Extended')
       
-      expect(authorization.reload.expired_at).to be_within(1.second).of(new_expiry)
+      expect(authorization.reload.expires_at).to be_within(1.second).of(new_expiry)
       expect(authorization.comment).to include('Extended')
     end
   end

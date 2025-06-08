@@ -1,6 +1,7 @@
 FactoryBot.define do
   factory :tag do
     name { Faker::Lorem.unique.word.downcase }
+    organization
 
     trait :urgent do
       name { "urgent" }

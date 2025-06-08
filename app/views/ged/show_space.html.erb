@@ -36,6 +36,15 @@
           <% end %>
         </div>
         <div class="mt-4 flex md:ml-4 md:mt-0">
+          <% if @space.can_admin?(current_user) %>
+            <%= link_to ged_space_permissions_path(@space), 
+                class: "inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" do %>
+              <svg class="-ml-0.5 mr-1.5 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+              </svg>
+              Gérer les droits
+            <% end %>
+          <% end %>
           <button type="button" 
                   onclick="openModal('createFolderModal'); setSpaceContext(<%= @space.id %>)" 
                   class="ml-3 inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
@@ -61,25 +70,39 @@
           <h2 class="text-lg font-medium text-gray-900 mb-4">Dossiers</h2>
           <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             <% @folders.each do |folder| %>
-              <div class="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm hover:border-gray-400 cursor-pointer">
+              <div class="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm hover:border-gray-400 cursor-pointer group">
                 <%= link_to ged_folder_path(folder), class: "absolute inset-0" do %>
                   <span class="sr-only">Ouvrir <%= folder.name %></span>
                 <% end %>
-                <div class="flex items-center space-x-3">
-                  <div class="flex-shrink-0">
-                    <svg class="h-8 w-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-5l-2-2H5a2 2 0 00-2 2z"/>
-                    </svg>
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center space-x-3 min-w-0 flex-1">
+                    <div class="flex-shrink-0">
+                      <svg class="h-8 w-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-5l-2-2H5a2 2 0 00-2 2z"/>
+                      </svg>
+                    </div>
+                    <div class="min-w-0 flex-1">
+                      <p class="text-sm font-medium text-gray-900 truncate"><%= folder.name %></p>
+                      <p class="text-sm text-gray-500">
+                        <%= pluralize(folder.documents.count, 'document') %>
+                        <% if folder.children.any? %>
+                          • <%= pluralize(folder.children.count, 'sous-dossier') %>
+                        <% end %>
+                      </p>
+                    </div>
                   </div>
-                  <div class="min-w-0 flex-1">
-                    <p class="text-sm font-medium text-gray-900 truncate"><%= folder.name %></p>
-                    <p class="text-sm text-gray-500">
-                      <%= pluralize(folder.documents.count, 'document') %>
-                      <% if folder.children.any? %>
-                        • <%= pluralize(folder.children.count, 'sous-dossier') %>
+                  <% if folder.can_admin?(current_user) %>
+                    <div class="relative z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <%= link_to ged_folder_permissions_path(folder), 
+                          class: "p-1 text-gray-400 hover:text-gray-600 rounded-md hover:bg-gray-100",
+                          title: "Gérer les droits",
+                          onclick: "event.stopPropagation()" do %>
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                        </svg>
                       <% end %>
-                    </p>
-                  </div>
+                    </div>
+                  <% end %>
                 </div>
               </div>
             <% end %>
@@ -114,11 +137,42 @@
                             </p>
                           </div>
                         </div>
-                        <div class="flex flex-shrink-0 items-center">
+                        <div class="flex flex-shrink-0 items-center space-x-2">
+                          <!-- Actions rapides -->
+                          <div class="flex space-x-1">
+                            <% if document.can_read?(current_user) %>
+                              <%= link_to ged_preview_document_path(document), 
+                                  class: "p-2 text-gray-400 hover:text-gray-600 rounded-md hover:bg-gray-100",
+                                  title: "Prévisualiser",
+                                  target: "_blank" do %>
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                </svg>
+                              <% end %>
+                              <%= link_to ged_download_document_path(document), 
+                                  class: "p-2 text-gray-400 hover:text-gray-600 rounded-md hover:bg-gray-100",
+                                  title: "Télécharger" do %>
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m-5 3.5V4a1 1 0 011-1h4a1 1 0 011 1v7"/>
+                                </svg>
+                              <% end %>
+                            <% end %>
+                            <% if document.can_admin?(current_user) %>
+                              <%= link_to ged_document_permissions_path(document), 
+                                  class: "p-2 text-gray-400 hover:text-gray-600 rounded-md hover:bg-gray-100",
+                                  title: "Gérer les droits" do %>
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                </svg>
+                              <% end %>
+                            <% end %>
+                          </div>
+                          
                           <span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 capitalize">
                             <%= document.status.humanize %>
                           </span>
-                          <p class="ml-4 text-sm text-gray-500">
+                          <p class="ml-2 text-sm text-gray-500">
                             <%= l(document.updated_at, format: :short) %>
                           </p>
                         </div>

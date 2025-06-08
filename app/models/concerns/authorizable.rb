@@ -9,13 +9,13 @@ module Authorizable
       joins(:active_authorizations).where(
         authorizations: { 
           user: user, 
-          permission_type: ['read', 'write', 'admin'] 
+          permission_level: ['read', 'write', 'admin'] 
         }
       ).or(
         joins(:active_authorizations).joins('JOIN user_group_memberships ON authorizations.user_group_id = user_group_memberships.user_group_id')
                                .where(
                                  user_group_memberships: { user: user },
-                                 authorizations: { permission_type: ['read', 'write', 'admin'] }
+                                 authorizations: { permission_level: ['read', 'write', 'admin'] }
                                )
       )
     }
@@ -24,43 +24,43 @@ module Authorizable
       joins(:active_authorizations).where(
         authorizations: { 
           user: user, 
-          permission_type: ['write', 'admin'] 
+          permission_level: ['write', 'admin'] 
         }
       ).or(
         joins(:active_authorizations).joins('JOIN user_group_memberships ON authorizations.user_group_id = user_group_memberships.user_group_id')
                                .where(
                                  user_group_memberships: { user: user },
-                                 authorizations: { permission_type: ['write', 'admin'] }
+                                 authorizations: { permission_level: ['write', 'admin'] }
                                )
       )
     }
   end
 
-  def authorize_user(user, permission_type, granted_by: nil, expired_at: nil, comment: nil)
+  def authorize_user(user, permission_level, granted_by: nil, expires_at: nil, comment: nil)
     active_authorizations.create!(
       user: user, 
-      permission_type: permission_type,
+      permission_level: permission_level,
       granted_by: granted_by,
-      expired_at: expired_at,
+      expires_at: expires_at,
       comment: comment
     )
   end
   
-  def authorize_group(user_group, permission_type, granted_by: nil, expired_at: nil, comment: nil)
+  def authorize_group(user_group, permission_level, granted_by: nil, expires_at: nil, comment: nil)
     active_authorizations.create!(
       user_group: user_group, 
-      permission_type: permission_type,
+      permission_level: permission_level,
       granted_by: granted_by,
-      expired_at: expired_at,
+      expires_at: expires_at,
       comment: comment
     )
   end
   
-  def revoke_authorization(user_or_group, permission_type, revoked_by:, comment: nil)
+  def revoke_authorization(user_or_group, permission_level, revoked_by:, comment: nil)
     auth = if user_or_group.is_a?(User)
-      active_authorizations.for_user(user_or_group).with_permission(permission_type).first
+      active_authorizations.for_user(user_or_group).with_permission(permission_level).first
     else
-      active_authorizations.for_group(user_or_group).with_permission(permission_type).first
+      active_authorizations.for_group(user_or_group).with_permission(permission_level).first
     end
     
     auth&.revoke!(revoked_by, comment: comment)
@@ -106,13 +106,13 @@ module Authorizable
     admin_by?(user)
   end
   
-  def authorized_for?(user, permission_type)
+  def authorized_for?(user, permission_level)
     return false unless user
     
     # Check direct user permissions (active only)
     user_authorized = active_authorizations
                        .for_user(user)
-                       .with_permission(permission_type)
+                       .with_permission(permission_level)
                        .exists?
     return true if user_authorized
     
@@ -122,53 +122,53 @@ module Authorizable
     
     group_authorized = active_authorizations
                         .where(user_group_id: user_group_ids)
-                        .with_permission(permission_type)
+                        .with_permission(permission_level)
                         .exists?
     group_authorized
   end
 
-  def grant_permission(subject, permission_type, granted_by: nil, expired_at: nil, comment: nil)
+  def grant_permission(subject, permission_level, granted_by: nil, expires_at: nil, comment: nil)
     case subject
     when User
-      authorize_user(subject, permission_type, granted_by: granted_by, expired_at: expired_at, comment: comment)
+      authorize_user(subject, permission_level, granted_by: granted_by, expires_at: expires_at, comment: comment)
     when UserGroup
-      authorize_group(subject, permission_type, granted_by: granted_by, expired_at: expired_at, comment: comment)
+      authorize_group(subject, permission_level, granted_by: granted_by, expires_at: expires_at, comment: comment)
     else
       raise ArgumentError, "Subject must be a User or UserGroup"
     end
   end
 
-  def revoke_permission(subject, permission_type, revoked_by:, comment: nil)
-    revoke_authorization(subject, permission_type, revoked_by: revoked_by, comment: comment)
+  def revoke_permission(subject, permission_level, revoked_by:, comment: nil)
+    revoke_authorization(subject, permission_level, revoked_by: revoked_by, comment: comment)
   end
 
   def permissions_for(user)
     # Direct user permissions
-    direct_permissions = authorizations.where(user: user).pluck(:permission_type)
+    direct_permissions = authorizations.where(user: user).pluck(:permission_level)
     
     # Group permissions
     group_permissions = authorizations.joins(:user_group)
                                      .joins('JOIN user_group_memberships ON user_groups.id = user_group_memberships.user_group_id')
                                      .where(user_group_memberships: { user: user })
-                                     .pluck(:permission_type)
+                                     .pluck(:permission_level)
     
     (direct_permissions + group_permissions).uniq
   end
 
-  def authorized_users(permission_type = nil)
+  def authorized_users(permission_level = nil)
     scope = User.joins(:authorizations)
                 .where(authorizations: { authorizable: self })
     
-    scope = scope.where(authorizations: { permission_type: permission_type }) if permission_type
+    scope = scope.where(authorizations: { permission_level: permission_level }) if permission_level
     
     scope.distinct
   end
 
-  def authorized_groups(permission_type = nil)
+  def authorized_groups(permission_level = nil)
     scope = UserGroup.joins(:authorizations)
                      .where(authorizations: { authorizable: self })
     
-    scope = scope.where(authorizations: { permission_type: permission_type }) if permission_type
+    scope = scope.where(authorizations: { permission_level: permission_level }) if permission_level
     
     scope.distinct
   end

@@ -151,6 +151,7 @@ jobs:
         run: |
           bin/rails db:create
           bin/rails db:schema:load
+          bin/rails db:migrate
 
       - name: Run Ruby tests
         env:
@@ -159,6 +160,14 @@ jobs:
           REDIS_URL: redis://localhost:6379/0
         run: |
           bundle exec rspec spec/ --format progress
+
+      - name: Run Immo::Promo engine tests
+        env:
+          RAILS_ENV: test
+          DATABASE_HOST: localhost
+          REDIS_URL: redis://localhost:6379/0
+        run: |
+          cd engines/immo_promo && bundle exec rspec spec/ --format progress
 
       - name: Run JavaScript tests with Bun
         run: bun test

@@ -5,17 +5,17 @@ class Authorization < ApplicationRecord
   belongs_to :granted_by, class_name: 'User', optional: true
   belongs_to :revoked_by, class_name: 'User', optional: true
   
-  validates :permission_type, presence: true, inclusion: { in: %w[read write admin validate] }
+  validates :permission_level, presence: true, inclusion: { in: %w[read write admin validate] }
   validate :user_or_group_present
-  validates :user_id, uniqueness: { scope: [:authorizable_type, :authorizable_id, :permission_type] }, if: :user_id?
-  validates :user_group_id, uniqueness: { scope: [:authorizable_type, :authorizable_id, :permission_type] }, if: :user_group_id?
-  validate :expiry_date_in_future, if: :expired_at?
+  validates :user_id, uniqueness: { scope: [:authorizable_type, :authorizable_id, :permission_level] }, if: :user_id?
+  validates :user_group_id, uniqueness: { scope: [:authorizable_type, :authorizable_id, :permission_level] }, if: :user_group_id?
+  validate :expiry_date_in_future, if: :expires_at?
   
   scope :for_user, ->(user) { where(user: user) }
   scope :for_group, ->(group) { where(user_group: group) }
-  scope :with_permission, ->(permission) { where(permission_type: permission) }
-  scope :active, -> { where(revoked_at: nil).where('expired_at IS NULL OR expired_at > ?', Time.current) }
-  scope :expired, -> { where('expired_at IS NOT NULL AND expired_at <= ?', Time.current) }
+  scope :with_permission, ->(permission) { where(permission_level: permission) }
+  scope :active, -> { where(revoked_at: nil).where('expires_at IS NULL OR expires_at > ?', Time.current) }
+  scope :expired, -> { where('expires_at IS NOT NULL AND expires_at <= ?', Time.current) }
   scope :revoked, -> { where.not(revoked_at: nil) }
   scope :granted_by_user, ->(user) { where(granted_by: user) }
   
@@ -26,7 +26,7 @@ class Authorization < ApplicationRecord
   end
   
   def expired?
-    expired_at.present? && expired_at <= Time.current
+    expires_at.present? && expires_at <= Time.current
   end
   
   def revoked?
@@ -43,7 +43,7 @@ class Authorization < ApplicationRecord
   
   def extend_expiry!(new_expiry_date, extended_by_user, comment: nil)
     update!(
-      expired_at: new_expiry_date,
+      expires_at: new_expiry_date,
       comment: [self.comment, comment].compact.join("\n")
     )
     
@@ -60,10 +60,10 @@ class Authorization < ApplicationRecord
   
   def status_info
     return "Révoqué le #{I18n.l(revoked_at, format: :short)}" if revoked?
-    return "Expiré le #{I18n.l(expired_at, format: :short)}" if expired?
+    return "Expiré le #{I18n.l(expires_at, format: :short)}" if expired?
     
-    if expired_at.present?
-      "Actif jusqu'au #{I18n.l(expired_at, format: :short)}"
+    if expires_at.present?
+      "Actif jusqu'au #{I18n.l(expires_at, format: :short)}"
     else
       "Actif (permanent)"
     end
@@ -76,9 +76,9 @@ class Authorization < ApplicationRecord
   end
   
   def expiry_date_in_future
-    return unless expired_at.present?
+    return unless expires_at.present?
     
-    errors.add(:expired_at, 'must be in the future') if expired_at <= Time.current
+    errors.add(:expires_at, 'must be in the future') if expires_at <= Time.current
   end
   
   def set_granted_at

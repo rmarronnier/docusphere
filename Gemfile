@@ -72,6 +72,9 @@ gem "money-rails", "~> 1.15" # Money management
 gem "state_machines-activerecord", "~> 0.9" # State machines
 gem "geocoder", "~> 1.8" # Geocoding for addresses
 
+# Rails Engine for real estate project management
+gem 'immo_promo', path: 'engines/immo_promo'
+
 group :development, :test do
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
   gem "brakeman", require: false

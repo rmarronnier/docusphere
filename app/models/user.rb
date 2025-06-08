@@ -6,19 +6,19 @@ class User < ApplicationRecord
   # Devise modules will be added after devise:install
   
   belongs_to :organization
-  has_many :documents, dependent: :destroy
+  has_many :documents, foreign_key: 'uploaded_by_id', dependent: :destroy
   has_many :baskets, dependent: :destroy
-  has_many :workflows, dependent: :destroy
   has_many :user_group_memberships, dependent: :destroy
   has_many :user_groups, through: :user_group_memberships
   has_many :notifications, dependent: :destroy
   has_many :search_queries, dependent: :destroy
+  has_many :workflow_submissions, foreign_key: 'submitted_by_id', dependent: :destroy
+  has_many :validation_requests, foreign_key: 'requester_id', dependent: :destroy
+  has_many :document_validations, foreign_key: 'validator_id', dependent: :destroy
 
   validates :email, presence: true, uniqueness: true
   validates :first_name, :last_name, presence: true
   validates :role, inclusion: { in: %w[user manager admin super_admin] }
-  
-  serialize :permissions, coder: JSON
   
   enum role: { user: 'user', manager: 'manager', admin: 'admin', super_admin: 'super_admin' }
   

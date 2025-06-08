@@ -3,9 +3,8 @@ FactoryBot.define do
     title { Faker::Lorem.words(number: 3).join(' ').capitalize }
     description { Faker::Lorem.paragraph }
     content { Faker::Lorem.paragraphs(number: 3).join("\n\n") }
-    extracted_content { content }
     status { "draft" }
-    user
+    association :uploaded_by, factory: :user
     space
 
     after(:build) do |document|
@@ -34,13 +33,15 @@ FactoryBot.define do
 
     trait :with_tags do
       after(:create) do |document|
-        document.tags << create_list(:tag, 3)
+        document.tags << create_list(:tag, 3, organization: document.space.organization)
       end
     end
 
     trait :with_versions do
+      # Paper Trail is used for versioning
       after(:create) do |document|
-        create_list(:document_version, 2, document: document, created_by: document.user)
+        document.update!(title: "#{document.title} - Version 2")
+        document.update!(title: "#{document.title} - Version 3")
       end
     end
 

@@ -20,7 +20,7 @@ FactoryBot.define do
   
   factory :basket_item do
     basket
-    document
+    association :item, factory: :document
     position { 1 }
     notes { "Notes sur le document" }
   end

@@ -1,0 +1,97 @@
+#!/usr/bin/env bash
+
+# Script pour lancer les tests en parallèle avec des options flexibles
+# Usage: ./bin/parallel_test [options] [files/directories]
+#
+# Exemples:
+#   ./bin/parallel_test                          # Lance tous les tests
+#   ./bin/parallel_test spec/models              # Lance les tests des modèles
+#   ./bin/parallel_test spec/models/user_spec.rb # Lance un fichier spécifique
+#   ./bin/parallel_test --fail-fast              # Arrête au premier échec
+#   ./bin/parallel_test -n 2                     # Utilise 2 processeurs
+#   ./bin/parallel_test --single                 # Lance en mode séquentiel (non parallèle)
+
+# Valeurs par défaut
+PROCESSORS=${PARALLEL_TEST_PROCESSORS:-4}
+FAIL_FAST=""
+SINGLE_MODE=""
+EXTRA_ARGS=""
+TEST_FILES=""
+
+# Fonction d'aide
+show_help() {
+    echo "Usage: $0 [options] [files/directories]"
+    echo ""
+    echo "Options:"
+    echo "  -n, --processors NUM    Nombre de processeurs (défaut: 4)"
+    echo "  --fail-fast             Arrêter au premier échec"
+    echo "  --single                Mode séquentiel (non parallèle)"
+    echo "  -h, --help              Afficher cette aide"
+    echo ""
+    echo "Exemples:"
+    echo "  $0                                # Tous les tests"
+    echo "  $0 spec/models                    # Tests des modèles"
+    echo "  $0 --fail-fast spec/controllers  # Tests des contrôleurs avec fail-fast"
+    echo "  $0 -n 2 spec/models/user_spec.rb # Un fichier avec 2 processeurs"
+    echo "  $0 --single spec/models           # Tests des modèles en séquentiel"
+}
+
+# Parser les arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -n|--processors)
+            PROCESSORS="$2"
+            shift 2
+            ;;
+        --fail-fast)
+            FAIL_FAST="--fail-fast"
+            shift
+            ;;
+        --single)
+            SINGLE_MODE="1"
+            shift
+            ;;
+        -h|--help)
+            show_help
+            exit 0
+            ;;
+        -*)
+            echo "Option inconnue: $1"
+            show_help
+            exit 1
+            ;;
+        *)
+            TEST_FILES="$TEST_FILES $1"
+            shift
+            ;;
+    esac
+done
+
+# Si aucun fichier spécifié, utiliser spec/
+if [ -z "$TEST_FILES" ]; then
+    TEST_FILES="spec/"
+fi
+
+# Construire la commande
+if [ -n "$SINGLE_MODE" ]; then
+    # Mode séquentiel avec rspec normal
+    CMD="docker-compose run --rm web bundle exec rspec"
+    if [ -n "$FAIL_FAST" ]; then
+        CMD="$CMD $FAIL_FAST"
+    fi
+else
+    # Mode parallèle
+    CMD="docker-compose run --rm -e PARALLEL_TEST_PROCESSORS=$PROCESSORS web bundle exec parallel_rspec"
+    if [ -n "$FAIL_FAST" ]; then
+        CMD="$CMD $FAIL_FAST"
+    fi
+fi
+
+CMD="$CMD $TEST_FILES"
+
+# Afficher la commande exécutée
+echo "Exécution: $CMD"
+echo ""
+
+# Exécuter la commande
+$CMD

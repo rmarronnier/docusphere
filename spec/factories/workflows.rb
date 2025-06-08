@@ -2,7 +2,6 @@ FactoryBot.define do
   factory :workflow do
     sequence(:name) { |n| "Workflow #{n}" }
     description { "Description du workflow" }
-    user
     organization
     
     trait :active do
@@ -34,8 +33,7 @@ FactoryBot.define do
     description { "Description de l'étape" }
     step_type { "approval" }
     sequence(:position) { |n| n }
-    association :assignee, factory: :user
-    conditions { {} }
-    actions { {} }
+    association :assigned_to, factory: :user
+    validation_rules { {} }
   end
 end
