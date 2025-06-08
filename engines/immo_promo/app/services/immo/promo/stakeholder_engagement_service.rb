@@ -64,18 +64,23 @@ module Immo
         {
           total: project.stakeholders.count,
           by_type: project.stakeholders.group_by(&:stakeholder_type).transform_values(&:count),
-          by_status: project.stakeholders.group_by(&:status).transform_values(&:count)
+          by_status: project.stakeholders.group_by { |s| s.is_active ? 'active' : 'inactive' }.transform_values(&:count)
         }
       end
       
       def performance_metrics
         stakeholders = project.stakeholders
         
+        # Calculate performance ratings for all stakeholders
+        ratings = stakeholders.map(&:performance_rating)
+        top_performers = ratings.count { |r| ['excellent', 'good'].include?(r.to_s) }
+        under_performers = ratings.count { |r| ['below_average', 'poor'].include?(r.to_s) }
+        
         {
           average_performance: calculate_average_performance(stakeholders),
-          top_performers: stakeholders.where(performance_rating: ['excellent', 'good']).count,
-          under_performers: stakeholders.where(performance_rating: ['below_average', 'poor']).count,
-          performance_distribution: stakeholders.group_by(&:performance_rating).transform_values(&:count)
+          top_performers: top_performers,
+          under_performers: under_performers,
+          performance_distribution: ratings.group_by(&:to_s).transform_values(&:count)
         }
       end
 

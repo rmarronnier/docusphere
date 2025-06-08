@@ -21,7 +21,7 @@ RSpec.describe 'Permit Workflow', type: :system do
     let!(:permits) do
       [
         create(:immo_promo_permit, project: project, permit_type: 'demolition', status: 'approved'),
-        create(:immo_promo_permit, project: project, permit_type: 'building', status: 'draft'),
+        create(:immo_promo_permit, project: project, permit_type: 'construction', status: 'draft'),
         create(:immo_promo_permit, project: project, permit_type: 'environmental', status: 'submitted')
       ]
     end

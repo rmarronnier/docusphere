@@ -1,10 +1,10 @@
 require 'rails_helper'
 
 RSpec.describe "Budgets Management", type: :system do
-  let(:user) { create(:user) }
+  let(:user) { create(:user, :admin) }
   let(:organization) { user.organization }
-  let(:project) { create(:project, organization: organization) }
-  let(:phase) { create(:phase, project: project, name: 'Gros œuvre') }
+  let(:project) { create(:immo_promo_project, organization: organization) }
+  let(:phase) { create(:immo_promo_phase, project: project, name: 'Gros œuvre') }
   
   before do
     login_as(user, scope: :user)
@@ -12,7 +12,7 @@ RSpec.describe "Budgets Management", type: :system do
 
   describe "viewing budgets index" do
     let!(:construction_budget) { 
-      create(:budget, 
+      create(:immo_promo_budget, 
         project: project, 
         name: 'Budget construction',
         total_amount: 500000,
@@ -20,7 +20,7 @@ RSpec.describe "Budgets Management", type: :system do
       ) 
     }
     let!(:finishing_budget) { 
-      create(:budget, 
+      create(:immo_promo_budget, 
         project: project, 
         name: 'Budget finitions',
         total_amount: 200000,
@@ -122,7 +122,7 @@ RSpec.describe "Budgets Management", type: :system do
 
   describe "viewing budget details" do
     let!(:budget) { 
-      create(:budget, 
+      create(:immo_promo_budget, 
         project: project, 
         name: 'Budget détaillé',
         total_amount: 300000,
@@ -130,7 +130,7 @@ RSpec.describe "Budgets Management", type: :system do
       ) 
     }
     let!(:budget_line) { 
-      create(:budget_line, 
+      create(:immo_promo_budget_line, 
         budget: budget,
         phase: phase,
         category: 'Main d\'œuvre',
@@ -178,8 +178,8 @@ RSpec.describe "Budgets Management", type: :system do
   end
 
   describe "budget approval workflow" do
-    let!(:draft_budget) { create(:budget, project: project, status: 'draft') }
-    let!(:pending_budget) { create(:budget, project: project, status: 'pending_approval') }
+    let!(:draft_budget) { create(:immo_promo_budget, project: project, status: 'draft') }
+    let!(:pending_budget) { create(:immo_promo_budget, project: project, status: 'pending_approval') }
 
     it "allows submitting a draft budget for approval", js: true do
       visit "/immo/promo/projects/#{project.id}/budgets/#{draft_budget.id}"
@@ -207,7 +207,7 @@ RSpec.describe "Budgets Management", type: :system do
   end
 
   describe "editing budget" do
-    let!(:budget) { create(:budget, project: project, name: 'Budget original') }
+    let!(:budget) { create(:immo_promo_budget, project: project, name: 'Budget original') }
 
     it "successfully updates budget information", js: true do
       visit "/immo/promo/projects/#{project.id}/budgets/#{budget.id}/edit"
@@ -245,7 +245,7 @@ RSpec.describe "Budgets Management", type: :system do
   end
 
   describe "budget duplication" do
-    let!(:budget) { create(:budget, project: project, name: 'Budget à dupliquer') }
+    let!(:budget) { create(:immo_promo_budget, project: project, name: 'Budget à dupliquer') }
 
     it "allows duplicating a budget for revision", js: true do
       visit "/immo/promo/projects/#{project.id}/budgets/#{budget.id}"
@@ -258,16 +258,16 @@ RSpec.describe "Budgets Management", type: :system do
   end
 
   describe "budget lines management" do
-    let!(:budget) { create(:budget, project: project) }
+    let!(:budget) { create(:immo_promo_budget, project: project) }
     let!(:budget_line1) { 
-      create(:budget_line, 
+      create(:immo_promo_budget_line, 
         budget: budget, 
         category: 'Matériaux', 
         description: 'Ciment'
       ) 
     }
     let!(:budget_line2) { 
-      create(:budget_line, 
+      create(:immo_promo_budget_line, 
         budget: budget, 
         category: 'Main d\'œuvre', 
         description: 'Maçonnerie'
@@ -298,7 +298,7 @@ RSpec.describe "Budgets Management", type: :system do
   end
 
   describe "budget deletion" do
-    let!(:budget) { create(:budget, project: project, status: 'draft') }
+    let!(:budget) { create(:immo_promo_budget, project: project, status: 'draft') }
 
     it "allows deleting a draft budget without expenses", js: true do
       visit "/immo/promo/projects/#{project.id}/budgets/#{budget.id}/edit"
@@ -313,7 +313,7 @@ RSpec.describe "Budgets Management", type: :system do
   end
 
   describe "budget reports and exports" do
-    let!(:budget) { create(:budget, project: project, name: 'Budget rapport') }
+    let!(:budget) { create(:immo_promo_budget, project: project, name: 'Budget rapport') }
 
     it "allows generating budget reports", js: true do
       visit "/immo/promo/projects/#{project.id}/budgets/#{budget.id}"
@@ -340,7 +340,7 @@ RSpec.describe "Budgets Management", type: :system do
 
   describe "budget notifications and alerts" do
     let!(:budget) { 
-      create(:budget, 
+      create(:immo_promo_budget, 
         project: project, 
         total_amount: 100000,
         status: 'approved'

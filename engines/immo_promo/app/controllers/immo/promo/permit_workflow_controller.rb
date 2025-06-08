@@ -1,6 +1,6 @@
 module Immo
   module Promo
-    class PermitWorkflowController < ApplicationController
+    class PermitWorkflowController < Immo::Promo::ApplicationController
       before_action :set_project
       before_action :authorize_permit_access
 

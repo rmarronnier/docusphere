@@ -8,7 +8,7 @@
         <div class="mt-2">
           <%= render Ui::StatusBadgeComponent.new(
               status: @project.project_type,
-              preset: 'info'
+              color: :blue
           ) %>
           <span class="ml-2 text-sm text-gray-600">
             <%= @lots_summary[:total] %> lots • 
@@ -83,7 +83,7 @@
         <% @lots_summary[:by_status].each do |status, count| %>
           <div class="flex items-center justify-between">
             <div class="flex items-center">
-              <%= render Ui::StatusBadgeComponent.new(status: status, preset: 'lot') %>
+              <%= render Ui::StatusBadgeComponent.new(status: status) %>
               <span class="ml-2 text-sm text-gray-600">
                 <%= {
                   'available' => 'Disponibles',

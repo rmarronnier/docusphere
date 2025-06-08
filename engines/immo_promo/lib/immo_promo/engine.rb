@@ -42,9 +42,12 @@ module ImmoPromo
       require 'immo/promo'
     end
     
-    # Load models after initialization
+    # Load models and controllers after initialization
     config.after_initialize do
       Dir[File.join(__dir__, '../../app/models/immo/promo/**/*.rb')].each do |file|
+        require_dependency file
+      end
+      Dir[File.join(__dir__, '../../app/controllers/immo/promo/**/*.rb')].each do |file|
         require_dependency file
       end
     end

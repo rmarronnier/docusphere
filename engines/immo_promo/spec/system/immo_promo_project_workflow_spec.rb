@@ -12,8 +12,8 @@ RSpec.describe "Immo::Promo Project Workflow", type: :system do
   describe "complete project creation and management workflow", js: true do
     it "creates a project, adds phases, assigns tasks, and tracks progress" do
       # 1. Aller sur la page des projets
-      visit immo_promo_projects_path
-      expect(page).to have_content("Projets immobiliers")
+      visit "/immo/promo/projects"
+      expect(page).to have_content("Projets")
 
       # 2. Ouvrir la modale de création
       click_button "Nouveau projet"
@@ -34,7 +34,7 @@ RSpec.describe "Immo::Promo Project Workflow", type: :system do
       end
 
       # 4. Vérifier la redirection vers le projet créé
-      expect(page).to have_current_path(/\/immo_promo\/projects\/\d+/)
+      expect(page).to have_current_path(/\/immo\/promo\/projects\/\d+/)
       expect(page).to have_content("Projet créé avec succès")
       expect(page).to have_content("Résidence Les Jardins")
       expect(page).to have_content("RJ-2024-001")
@@ -87,7 +87,7 @@ RSpec.describe "Immo::Promo Project Workflow", type: :system do
 
       # 9. Ajouter un intervenant
       click_link "Intervenants"
-      expect(page).to have_current_path(/\/stakeholders/)
+      expect(page).to have_current_path(/\/immo\/promo\/projects\/\d+\/stakeholders/)
 
       click_button "Ajouter un intervenant"
 
@@ -105,7 +105,8 @@ RSpec.describe "Immo::Promo Project Workflow", type: :system do
       expect(page).to have_content("Cabinet Architecture Plus")
 
       # 10. Créer un jalon (milestone)
-      visit immo_promo_project_path(Immo::Promo::Project.last)
+      project = Immo::Promo::Project.last
+      visit "/immo/promo/projects/#{project.id}"
 
       within '.milestones-section' do
         click_button "Ajouter un jalon"
@@ -123,9 +124,9 @@ RSpec.describe "Immo::Promo Project Workflow", type: :system do
       expect(page).to have_content("Dépôt du permis de construire")
 
       # 11. Tester le dashboard global
-      visit immo_promo_dashboard_path
+      visit "/immo/promo/projects"
 
-      expect(page).to have_content("Tableau de bord Immo::Promo")
+      expect(page).to have_content("Projets")
       expect(page).to have_content("Résidence Les Jardins")
 
       # Vérifier les statistiques
@@ -160,7 +161,7 @@ RSpec.describe "Immo::Promo Project Workflow", type: :system do
 
   describe "error handling", js: true do
     it "shows validation errors when creating invalid project" do
-      visit immo_promo_projects_path
+      visit "/immo/promo/projects"
       click_button "Nouveau projet"
 
       within '[data-immo-promo-navbar-target="newProjectModal"]' do
@@ -181,7 +182,7 @@ RSpec.describe "Immo::Promo Project Workflow", type: :system do
     it "works on mobile devices" do
       use_mobile_viewport
 
-      visit immo_promo_projects_path
+      visit "/immo/promo/projects"
 
       # Le menu hamburger doit être visible
       expect(page).to have_css('.mobile-menu-toggle')

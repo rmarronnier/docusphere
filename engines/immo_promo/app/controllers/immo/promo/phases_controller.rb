@@ -1,6 +1,6 @@
 module Immo
   module Promo
-    class PhasesController < ApplicationController
+    class PhasesController < Immo::Promo::ApplicationController
       before_action :set_project
       before_action :set_phase, only: [ :show, :edit, :update, :destroy, :complete ]
 

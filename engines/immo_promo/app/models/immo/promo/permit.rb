@@ -29,6 +29,8 @@ module Immo
       }
       validates :permit_number, presence: true, uniqueness: { scope: :project_id }
       validates :issuing_authority, presence: true
+      validates :name, presence: true
+      validates :cost, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
 
       # Aliases for compatibility
       alias_attribute :reference_number, :permit_number

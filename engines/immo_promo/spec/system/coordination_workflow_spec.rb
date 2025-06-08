@@ -121,7 +121,7 @@ RSpec.describe 'Coordination Workflow', type: :system do
     let!(:certification) do
       create(:immo_promo_certification,
         stakeholder: stakeholder,
-        certification_type: 'electrical_license',
+        certification_type: 'qualification',
         expiry_date: 2.weeks.from_now
       )
     end

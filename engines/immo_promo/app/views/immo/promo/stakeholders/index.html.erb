@@ -114,8 +114,7 @@
               
               <div class="flex items-center justify-between">
                 <%= render Ui::StatusBadgeComponent.new(
-                  status: stakeholder.status,
-                  variant: stakeholder_status_variant(stakeholder.status)
+                  status: stakeholder.status
                 ) %>
                 
                 <% if stakeholder.qualification_level.present? %>

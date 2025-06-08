@@ -79,7 +79,7 @@ RSpec.describe Immo::Promo::ResourceOptimizationService do
       stakeholder = create(:immo_promo_stakeholder, project: project, stakeholder_type: 'architect')
       create(:immo_promo_certification,
         stakeholder: stakeholder,
-        certification_type: 'architect_license',
+        certification_type: 'qualification',
         is_valid: true
       )
       stakeholder
@@ -108,7 +108,7 @@ RSpec.describe Immo::Promo::ResourceOptimizationService do
     
     context 'with skill requirements' do
       before do
-        task.update(required_skills: ['architect_license'])
+        task.update(required_skills: ['qualification'])
       end
       
       it 'only considers stakeholders with required skills' do
@@ -127,6 +127,9 @@ RSpec.describe Immo::Promo::ResourceOptimizationService do
     let!(:phase) { create(:immo_promo_phase, project: project) }
     
     before do
+      # Set project end date to ensure proper calculation
+      project.update!(end_date: 12.weeks.from_now)
+      
       # Create uneven task distribution
       create_list(:immo_promo_task, 5,
         phase: phase,
@@ -172,7 +175,7 @@ RSpec.describe Immo::Promo::ResourceOptimizationService do
         create(:immo_promo_task,
           phase: phase,
           stakeholder: stakeholder,
-          required_skills: ['architect_license', 'project_management']
+          required_skills: ['qualification', 'environmental']
         )
       end
       

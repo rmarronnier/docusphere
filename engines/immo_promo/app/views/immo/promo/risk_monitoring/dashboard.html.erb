@@ -8,8 +8,7 @@
         <div class="mt-2">
           <% overall_risk_level = determine_overall_risk_level %>
           <%= render Ui::StatusBadgeComponent.new(
-              status: overall_risk_level,
-              preset: 'risk'
+              status: overall_risk_level
           ) %>
           <span class="ml-2 text-sm text-gray-600">
             <%= @risk_overview[:total_risks] %> risques identifiés
@@ -253,11 +252,11 @@
               render: ->(risk, value) {
                 case value
                 when 'mitigated'
-                  render Ui::StatusBadgeComponent.new(status: 'completed', preset: 'success')
+                  render Ui::StatusBadgeComponent.new(status: 'completed', color: :green)
                 when 'mitigation_in_progress'
-                  render Ui::StatusBadgeComponent.new(status: 'in_progress', preset: 'info')
+                  render Ui::StatusBadgeComponent.new(status: 'in_progress', color: :blue)
                 else
-                  render Ui::StatusBadgeComponent.new(status: 'pending', preset: 'warning')
+                  render Ui::StatusBadgeComponent.new(status: 'pending', color: :yellow)
                 end
               }
             }

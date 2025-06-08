@@ -1,11 +1,14 @@
 FactoryBot.define do
   factory :immo_promo_permit, class: 'Immo::Promo::Permit' do
     sequence(:permit_number) { |n| "PC-2024-#{n.to_s.rjust(4, '0')}" }
+    sequence(:name) { |n| "Permis test #{n}" }
     permit_type { 'construction' }
     status { 'submitted' }
     issuing_authority { 'Mairie de Paris' }
     submitted_date { Date.current }
     expiry_date { Date.current + 2.years }
+    expected_approval_date { Date.current + 3.months }
+    cost { 1500.00 }
     association :project, factory: :immo_promo_project
 
     trait :construction do

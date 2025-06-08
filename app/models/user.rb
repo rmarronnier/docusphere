@@ -74,6 +74,21 @@ class User < ApplicationRecord
     user_groups.include?(group)
   end
   
+  # Méthodes pour le module ImmoPromo
+  def accessible_projects
+    return organization.immo_promo_projects if admin? || super_admin?
+    # Pour les utilisateurs standards, filtrer selon leurs permissions
+    organization.immo_promo_projects
+  end
+  
+  def can_access_immo_promo?
+    has_permission?('immo_promo:access') || admin? || super_admin?
+  end
+  
+  def can_manage_project?(project)
+    admin? || super_admin? || project.organization == organization
+  end
+  
   private
   
   def set_default_role

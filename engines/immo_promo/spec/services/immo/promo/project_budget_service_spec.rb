@@ -19,14 +19,14 @@ RSpec.describe Immo::Promo::ProjectBudgetService do
       [
         create(:immo_promo_budget_line,
           budget: budget,
-          category: 'construction',
+          category: 'construction_work',
           planned_amount_cents: 500_000_00,
           actual_amount_cents: 150_000_00,
           committed_amount_cents: 100_000_00
         ),
         create(:immo_promo_budget_line,
           budget: budget,
-          category: 'design',
+          category: 'studies',
           planned_amount_cents: 200_000_00,
           actual_amount_cents: 180_000_00,
           committed_amount_cents: 20_000_00
@@ -114,7 +114,7 @@ RSpec.describe Immo::Promo::ProjectBudgetService do
       # Create overrun
       create(:immo_promo_budget_line,
         budget: budget,
-        category: 'permits',
+        category: 'administrative',
         planned_amount_cents: 50_000_00,
         actual_amount_cents: 75_000_00
       )
@@ -123,7 +123,7 @@ RSpec.describe Immo::Promo::ProjectBudgetService do
       
       expect(report[:cost_overruns]).not_to be_empty
       overrun = report[:cost_overruns].first
-      expect(overrun[:category]).to eq('permits')
+      expect(overrun[:category]).to eq('administrative')
       expect(overrun[:overrun_percentage]).to eq(50.0)
     end
   end
@@ -169,7 +169,7 @@ RSpec.describe Immo::Promo::ProjectBudgetService do
       before do
         create(:immo_promo_budget_line,
           budget: budget,
-          category: 'materials',
+          category: 'equipment',
           planned_amount_cents: 200_000_00,
           actual_amount_cents: 50_000_00
         )
@@ -189,7 +189,7 @@ RSpec.describe Immo::Promo::ProjectBudgetService do
       before do
         create(:immo_promo_budget_line,
           budget: budget,
-          category: 'labor',
+          category: 'construction_work',
           planned_amount_cents: 100_000_00,
           actual_amount_cents: 150_000_00
         )

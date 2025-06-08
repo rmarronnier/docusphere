@@ -274,7 +274,7 @@ RSpec.describe Immo::Promo::ProjectResourceService do
         create(:immo_promo_task,
           phase: phase,
           stakeholder: stakeholder,
-          required_skills: ['architect_license']
+          required_skills: ['qualification']
         )
       end
       

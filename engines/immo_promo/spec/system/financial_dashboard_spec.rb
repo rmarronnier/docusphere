@@ -20,19 +20,19 @@ RSpec.describe 'Financial Dashboard', type: :system do
     @budget_lines = [
       create(:immo_promo_budget_line, 
         budget: @budget, 
-        category: 'land',
+        category: 'land_acquisition',
         planned_amount_cents: 2_000_000_00,
         actual_amount_cents: 2_100_000_00
       ),
       create(:immo_promo_budget_line,
         budget: @budget,
-        category: 'construction', 
+        category: 'construction_work', 
         planned_amount_cents: 6_000_000_00,
         actual_amount_cents: 5_800_000_00
       ),
       create(:immo_promo_budget_line,
         budget: @budget,
-        category: 'fees',
+        category: 'legal',
         planned_amount_cents: 1_000_000_00,
         actual_amount_cents: 1_050_000_00
       ),
@@ -95,7 +95,7 @@ RSpec.describe 'Financial Dashboard', type: :system do
       # Variance table
       within('.variance-table') do
         # Land: +5% variance
-        within('tr', text: 'Foncier') do
+        within('tr', text: 'Acquisition terrain') do
           expect(page).to have_content('2 000 000 €') # Planned
           expect(page).to have_content('2 100 000 €') # Actual
           expect(page).to have_content('+100 000 €') # Variance
@@ -104,7 +104,7 @@ RSpec.describe 'Financial Dashboard', type: :system do
         end
         
         # Construction: -3.33% variance
-        within('tr', text: 'Construction') do
+        within('tr', text: 'Travaux de construction') do
           expect(page).to have_content('6 000 000 €')
           expect(page).to have_content('5 800 000 €')
           expect(page).to have_content('-200 000 €')
@@ -116,7 +116,7 @@ RSpec.describe 'Financial Dashboard', type: :system do
       # Top variances
       within('.top-variances') do
         expect(page).to have_content('Écarts significatifs')
-        expect(page).to have_content('Construction: -200 000 €')
+        expect(page).to have_content('Travaux de construction: -200 000 €')
       end
     end
 
@@ -128,7 +128,7 @@ RSpec.describe 'Financial Dashboard', type: :system do
       end
       
       within('#variance-modal') do
-        expect(page).to have_content('Analyse de l\'écart - Foncier')
+        expect(page).to have_content('Analyse de l\'écart - Acquisition terrain')
         
         fill_in 'explanation', with: 'Coûts de dépollution supplémentaires non prévus'
         select 'Externe - Réglementation', from: 'cause'
@@ -329,8 +329,8 @@ RSpec.describe 'Financial Dashboard', type: :system do
       click_button 'Réallocation budgétaire'
       
       within('#reallocation-modal') do
-        select 'Contingence', from: 'source_category'
-        select 'Construction', from: 'target_category'
+        select 'Contingency', from: 'source_category'
+        select 'Construction work', from: 'target_category'
         fill_in 'amount', with: '200000'
         fill_in 'justification', with: 'Coûts supplémentaires structure béton'
         
@@ -342,11 +342,11 @@ RSpec.describe 'Financial Dashboard', type: :system do
       # Check updated values
       visit immo_promo_engine.project_financial_variance_analysis_path(project)
       
-      within('tr', text: 'Contingence') do
+      within('tr', text: 'Contingency') do
         expect(page).to have_content('800 000 €') # 1M - 200K
       end
       
-      within('tr', text: 'Construction') do
+      within('tr', text: 'Construction work') do
         expect(page).to have_content('6 200 000 €') # 6M + 200K
       end
     end
@@ -357,7 +357,7 @@ RSpec.describe 'Financial Dashboard', type: :system do
       click_button 'Ajustement budgétaire'
       
       within('#adjustment-modal') do
-        select 'Construction', from: 'category'
+        select 'Construction work', from: 'category'
         fill_in 'amount', with: '2000000' # 20% of total budget
         fill_in 'reason', with: 'Modification majeure du programme'
         

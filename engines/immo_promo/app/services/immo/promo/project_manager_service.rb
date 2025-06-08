@@ -134,7 +134,21 @@ module Immo
       end
 
       def track_budget_usage
-        budget_service.budget_summary
+        summary = budget_service.budget_summary
+        
+        # Calculate totals from budget lines
+        all_lines = project.budgets.includes(:budget_lines).flat_map(&:budget_lines)
+        total_planned = all_lines.sum { |line| line.planned_amount_cents || 0 }
+        total_actual = all_lines.sum { |line| line.actual_amount_cents || 0 }
+        variance = total_planned - total_actual
+        usage_percentage = total_planned.zero? ? 0 : (total_actual.to_f / total_planned * 100).round(2)
+        
+        {
+          total_planned: Money.new(total_planned, 'EUR'),
+          total_actual: Money.new(total_actual, 'EUR'),
+          variance: Money.new(variance, 'EUR'),
+          usage_percentage: usage_percentage
+        }
       end
 
       def critical_path_analysis

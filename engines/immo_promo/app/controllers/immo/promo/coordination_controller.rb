@@ -1,6 +1,6 @@
 module Immo
   module Promo
-    class CoordinationController < ApplicationController
+    class CoordinationController < Immo::Promo::ApplicationController
       before_action :set_project
       before_action :authorize_coordination_access
 

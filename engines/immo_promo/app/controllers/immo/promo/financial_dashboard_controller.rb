@@ -1,6 +1,6 @@
 module Immo
   module Promo
-    class FinancialDashboardController < ApplicationController
+    class FinancialDashboardController < Immo::Promo::ApplicationController
       before_action :set_project
       before_action :authorize_financial_access
 

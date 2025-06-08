@@ -1,6 +1,6 @@
 module Immo
   module Promo
-    class CommercialDashboardController < ApplicationController
+    class CommercialDashboardController < Immo::Promo::ApplicationController
       before_action :set_project
       before_action :authorize_commercial_access
 

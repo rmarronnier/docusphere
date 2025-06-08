@@ -1,6 +1,6 @@
 module Immo
   module Promo
-    class ProjectsController < ApplicationController
+    class ProjectsController < Immo::Promo::ApplicationController
       before_action :set_project, only: [ :show, :edit, :update, :destroy ]
 
   def index

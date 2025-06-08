@@ -182,12 +182,19 @@ module Immo
         }
       end
 
-      def calculate_stakeholder_workload(stakeholder)
-        active_tasks = stakeholder.tasks.where(status: ['in_progress', 'pending'])
-        completed_tasks = stakeholder.tasks.where(status: 'completed')
+      def calculate_stakeholder_workload(assignee)
+        # Handle both stakeholders and users
+        if assignee.is_a?(Immo::Promo::Stakeholder)
+          active_tasks = assignee.tasks.where(status: ['in_progress', 'pending'])
+          completed_tasks = assignee.tasks.where(status: 'completed')
+        else
+          # For users, find tasks in this project
+          active_tasks = @project.tasks.where(assigned_to: assignee, status: ['in_progress', 'pending'])
+          completed_tasks = @project.tasks.where(assigned_to: assignee, status: 'completed')
+        end
         
         total_hours = active_tasks.sum(:estimated_hours)
-        utilization = calculate_utilization_percentage(stakeholder)
+        utilization = assignee.is_a?(Immo::Promo::Stakeholder) ? calculate_utilization_percentage(assignee) : 0
         
         {
           active_tasks: active_tasks.count,
@@ -603,6 +610,25 @@ module Immo
         end
         
         resolutions
+      end
+
+      private
+
+      def can_handle_task?(assignee, task)
+        return false unless assignee
+
+        # Check if assignee has required skills
+        required_skills = task.required_skills || []
+        return true if required_skills.empty?
+
+        # For stakeholders, check certifications
+        if assignee.is_a?(Immo::Promo::Stakeholder)
+          stakeholder_skills = assignee.certifications.valid.pluck(:certification_type)
+          return required_skills.all? { |skill| stakeholder_skills.include?(skill) }
+        end
+
+        # For users, assume they can handle basic tasks
+        true
       end
     end
   end

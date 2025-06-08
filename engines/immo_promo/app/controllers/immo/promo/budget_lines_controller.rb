@@ -1,6 +1,6 @@
 module Immo
   module Promo
-    class BudgetLinesController < ApplicationController
+    class BudgetLinesController < Immo::Promo::ApplicationController
       before_action :set_project
       before_action :set_budget
       before_action :set_budget_line, only: [:show, :edit, :update, :destroy]

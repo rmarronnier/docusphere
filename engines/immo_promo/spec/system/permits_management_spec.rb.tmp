@@ -13,7 +13,6 @@ RSpec.describe "Permits Management", type: :system do
     let!(:building_permit) { 
       create(:immo_promo_permit, 
         project: project, 
-        name: 'Permis de construire résidence',
         permit_number: 'PC-RES-001',
         permit_type: 'construction',
         status: 'approved'
@@ -23,7 +22,6 @@ RSpec.describe "Permits Management", type: :system do
       create(:immo_promo_permit, 
         project: project, 
         name: 'Autorisation travaux voirie',
-        permit_number: 'PC',
         permit_type: 'modification',
         status: 'submitted'
       ) 
@@ -124,7 +122,7 @@ RSpec.describe "Permits Management", type: :system do
     let!(:permit) { 
       create(:immo_promo_permit, 
         project: project, 
-        permit_number: 'PC',
+        name: 'Permis test',
         permit_type: 'construction',
         status: 'approved',
         reference_number: 'PC123456',
@@ -195,7 +193,7 @@ RSpec.describe "Permits Management", type: :system do
   end
 
   describe "editing permit" do
-    let!(:permit) { create(:immo_promo_permit, project: project, permit_number: 'PC') }
+    let!(:permit) { create(:immo_promo_permit, project: project, name: 'Original Permit') }
 
     it "successfully updates permit information", js: true do
       visit "/immo/promo/projects/#{project.id}/permits/#{permit.id}/edit"
@@ -257,7 +255,7 @@ RSpec.describe "Permits Management", type: :system do
     let!(:expiring_permit) { 
       create(:immo_promo_permit, 
         project: project, 
-        permit_number: 'PC',
+        name: 'Permis expirant',
         expiry_date: 15.days.from_now,
         status: 'approved'
       ) 

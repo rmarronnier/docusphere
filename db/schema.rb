@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_06_08_125814) do
+ActiveRecord::Schema[7.1].define(version: 2025_06_08_211529) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -428,6 +428,9 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_08_125814) do
     t.string "reference"
     t.integer "fee_amount_cents"
     t.text "description"
+    t.string "name"
+    t.decimal "cost", precision: 10, scale: 2
+    t.date "expected_approval_date"
     t.index ["approved_by_id"], name: "index_immo_promo_permits_on_approved_by_id"
     t.index ["permit_number"], name: "index_immo_promo_permits_on_permit_number"
     t.index ["permit_type"], name: "index_immo_promo_permits_on_permit_type"

@@ -1,6 +1,6 @@
 module Immo
   module Promo
-    class TasksController < ApplicationController
+    class TasksController < Immo::Promo::ApplicationController
       before_action :set_project_and_phase
       before_action :set_task, only: [ :show, :edit, :update, :destroy, :complete, :assign ]
 

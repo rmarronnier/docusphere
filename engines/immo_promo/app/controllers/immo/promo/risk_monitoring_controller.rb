@@ -1,6 +1,6 @@
 module Immo
   module Promo
-    class RiskMonitoringController < ApplicationController
+    class RiskMonitoringController < Immo::Promo::ApplicationController
       before_action :set_project
       before_action :authorize_risk_management
 

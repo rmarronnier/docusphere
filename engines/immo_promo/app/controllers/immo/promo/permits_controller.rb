@@ -1,12 +1,12 @@
 module Immo
   module Promo
-    class PermitsController < ApplicationController
+    class PermitsController < Immo::Promo::ApplicationController
       before_action :set_project
       before_action :set_permit, only: [:show, :edit, :update, :destroy, :submit_for_approval, :approve, :reject]
       
       def index
-        @permits = @project.permits.includes(:conditions)
-                                  .order(:submission_date)
+        @permits = policy_scope(@project.permits).includes(:permit_conditions)
+                                                .order(:submitted_date)
         
         # Filtrage par statut
         if params[:status].present?
@@ -148,7 +148,7 @@ module Immo
         
         # Ajout des événements du permis
         events << {
-          date: @permit.submission_date,
+          date: @permit.submitted_date,
           type: 'submission',
           title: 'Soumission du permis',
           description: "Permis soumis à #{@permit.issuing_authority}",

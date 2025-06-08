@@ -258,7 +258,7 @@
               <%= check_box_tag 'stakeholder_ids[]', stakeholder.id, false, class: 'rounded border-gray-300 text-blue-600 shadow-sm' %>
               <span class="ml-2 text-sm text-gray-900">
                 <%= stakeholder.name %> 
-                <%= render Ui::StatusBadgeComponent.new(status: stakeholder.stakeholder_type, preset: 'role', size: 'small') %>
+                <%= render Ui::StatusBadgeComponent.new(status: stakeholder.stakeholder_type, size: :small) %>
               </span>
             </label>
           <% end %>

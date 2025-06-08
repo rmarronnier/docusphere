@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe "Stakeholders Management", type: :system do
-  let(:user) { create(:user) }
+  let(:user) { create(:user, :admin) }
   let(:organization) { user.organization }
   let(:project) { create(:immo_promo_project, organization: organization) }
   

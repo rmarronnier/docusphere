@@ -61,8 +61,7 @@
           
           <div class="mt-2 flex items-center space-x-4">
             <%= render Ui::StatusBadgeComponent.new(
-              status: @stakeholder.status,
-              variant: stakeholder_status_variant(@stakeholder.status)
+              status: @stakeholder.status
             ) %>
             
             <% if @stakeholder.qualification_level.present? %>

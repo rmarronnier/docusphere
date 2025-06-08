@@ -1,6 +1,6 @@
 module Immo
   module Promo
-    class StakeholdersController < ApplicationController
+    class StakeholdersController < Immo::Promo::ApplicationController
       before_action :set_project
       before_action :set_stakeholder, only: [:show, :edit, :update, :destroy, :approve, :reject]
       

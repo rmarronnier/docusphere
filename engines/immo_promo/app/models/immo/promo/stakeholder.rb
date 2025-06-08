@@ -120,7 +120,7 @@ module Immo
       def performance_rating
         return :not_rated if completed_tasks.empty?
         
-        on_time = completed_tasks.where('completed_at <= end_date').count
+        on_time = completed_tasks.where('actual_end_date <= end_date').count
         on_time_ratio = on_time.to_f / completed_tasks.count
         
         case on_time_ratio
@@ -170,7 +170,7 @@ module Immo
         {
           id: id,
           name: name,
-          type: stakeholder_type,
+          stakeholder_type: stakeholder_type,
           company: company_name,
           role: role,
           contact_person: contact_person,

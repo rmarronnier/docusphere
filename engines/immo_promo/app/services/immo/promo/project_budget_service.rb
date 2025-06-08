@@ -50,7 +50,7 @@ module Immo
         {
           current_burn_rate: current_burn_rate,
           projected_total_cost: project_total_cost(current_burn_rate, months_remaining),
-          projected_completion_budget: project.current_budget + (current_burn_rate * months_remaining),
+          projected_completion_budget: (project.current_budget || Money.new(0, 'EUR')) + (current_burn_rate * months_remaining),
           confidence_level: calculate_forecast_confidence,
           scenarios: {
             optimistic: forecast_scenario(0.8),
@@ -227,7 +227,7 @@ module Immo
             description: line.description,
             category: line.category,
             amount: Money.new(line.actual_amount_cents || 0, 'EUR'),
-            budget: line.budget.category,
+            budget: line.budget.budget_type || line.budget.name,
             variance: calculate_line_variance_percentage(line)
           }
         end
@@ -245,7 +245,7 @@ module Immo
             overrun_percentage = (overrun_amount.to_f / line.planned_amount_cents * 100).round(2)
             
             overruns << {
-              budget: budget.category,
+              budget: budget.budget_type || budget.name,
               line: line.description,
               category: line.category,
               overrun_amount: Money.new(overrun_amount, 'EUR'),
@@ -285,7 +285,8 @@ module Immo
       end
 
       def project_total_cost(burn_rate, months_remaining)
-        project.current_budget + (burn_rate * months_remaining)
+        current = project.current_budget || Money.new(0, 'EUR')
+        current + (burn_rate * months_remaining)
       end
 
       def calculate_forecast_confidence
@@ -379,7 +380,7 @@ module Immo
         costs_by_category.each do |category, costs|
           next if costs[:planned].zero?
           
-          variance_percentage = ((costs[:actual] - costs[:planned]).to_f / costs[:planned] * 100).round(2)
+          variance_percentage = ((costs[:actual] - costs[:planned]).to_f / costs[:planned].to_f * 100).round(2)
           if variance_percentage > 15
             overruns << {
               category: category,
@@ -400,7 +401,7 @@ module Immo
           if variance[:status] == 'critical'
             suggestions << {
               type: 'high_variance',
-              budget: budget.category,
+              budget: budget.budget_type || budget.name,
               variance: variance[:amount],
               recommendation: 'Review and adjust budget allocation or implement cost control measures'
             }
@@ -415,7 +416,7 @@ module Immo
         
         # Identify categories with low utilization
         costs_by_category.each do |category, costs|
-          utilization = costs[:planned].zero? ? 0 : (costs[:actual].to_f / costs[:planned] * 100)
+          utilization = costs[:planned].zero? ? 0 : (costs[:actual].to_f / costs[:planned].to_f * 100)
           if utilization < 50 && costs[:planned] > Money.new(100000, 'EUR')
             suggestions << {
               type: 'underutilized_budget',
@@ -511,7 +512,7 @@ module Immo
           cumulative << {
             month: month,
             amount: total,
-            percentage_of_budget: project.total_budget ? (total.to_f / project.total_budget * 100).round(2) : 0
+            percentage_of_budget: project.total_budget ? (total.to_f / project.total_budget.to_f * 100).round(2) : 0
           }
         end
         

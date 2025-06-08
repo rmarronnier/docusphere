@@ -123,7 +123,7 @@ RSpec.describe Immo::Promo::StakeholderQualificationService do
     it 'identifies expired contracts' do
       compliance = service.check_contract_compliance
       
-      expect(compliance[:expired_contracts]).to have(1).item
+      expect(compliance[:expired_contracts].size).to eq(1)
       expect(compliance[:expired_contracts].first).to eq(expired_contract)
     end
     
@@ -195,6 +195,7 @@ RSpec.describe Immo::Promo::StakeholderQualificationService do
           project: project,
           stakeholder: stakeholder,
           status: 'active',
+          start_date: 3.months.ago,
           end_date: 1.month.ago
         )
       end
@@ -229,7 +230,7 @@ RSpec.describe Immo::Promo::StakeholderQualificationService do
       stakeholder = create(:immo_promo_stakeholder, project: project, stakeholder_type: 'architect')
       create(:immo_promo_certification,
         stakeholder: stakeholder,
-        certification_type: 'architect_license',
+        certification_type: 'qualification',
         is_valid: true
       )
       stakeholder
@@ -239,7 +240,7 @@ RSpec.describe Immo::Promo::StakeholderQualificationService do
       missing = service.missing_certifications_for(architect)
       
       expect(missing).to include('professional_insurance')
-      expect(missing).not_to include('architect_license')
+      expect(missing).not_to include('qualification')
     end
   end
   

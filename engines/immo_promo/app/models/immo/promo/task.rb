@@ -11,9 +11,9 @@ module Immo
       belongs_to :assigned_to, class_name: 'User', optional: true
       belongs_to :stakeholder, class_name: 'Immo::Promo::Stakeholder', optional: true
       has_many :task_dependencies, class_name: 'Immo::Promo::TaskDependency', foreign_key: 'dependent_task_id', dependent: :destroy
-      has_many :dependent_tasks, through: :task_dependencies, source: :prerequisite_task
+      has_many :prerequisite_tasks, through: :task_dependencies, source: :prerequisite_task
       has_many :inverse_task_dependencies, class_name: 'Immo::Promo::TaskDependency', foreign_key: 'prerequisite_task_id', dependent: :destroy
-      has_many :prerequisite_tasks, through: :inverse_task_dependencies, source: :dependent_task
+      has_many :dependent_tasks, through: :inverse_task_dependencies, source: :dependent_task
       has_many :time_logs, class_name: 'Immo::Promo::TimeLog', dependent: :destroy
 
       has_many_attached :deliverables
@@ -23,6 +23,7 @@ module Immo
       validates :task_type, inclusion: { in: %w[planning execution review approval milestone administrative technical other] }
       validates :status, inclusion: { in: %w[pending in_progress completed blocked cancelled] }
       validates :priority, inclusion: { in: %w[low medium high critical] }
+      validates :estimated_hours, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
 
       monetize :estimated_cost_cents, allow_nil: true
       monetize :actual_cost_cents, allow_nil: true

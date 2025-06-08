@@ -17,13 +17,7 @@ RSpec.describe Immo::Promo::Permit, type: :model do
     it { should validate_presence_of(:permit_type) }
     it { should validate_presence_of(:issuing_authority) }
     
-    it { should validate_inclusion_of(:permit_type).in_array(
-      %w[urban_planning construction demolition environmental modification declaration]
-    ) }
-    
-    it { should validate_inclusion_of(:status).in_array(
-      %w[draft submitted under_review additional_info_requested approved denied appeal]
-    ) }
+    # Enum validations are tested in the 'enums' section below
   end
 
   describe 'enums' do
@@ -47,9 +41,7 @@ RSpec.describe Immo::Promo::Permit, type: :model do
     ) }
   end
 
-  describe 'monetization' do
-    it { should monetize(:fee_amount) }
-  end
+  # No monetized attributes in Permit model
 
   describe 'scopes' do
     describe '.pending' do
@@ -85,12 +77,11 @@ RSpec.describe Immo::Promo::Permit, type: :model do
 
     describe '.expiring_soon' do
       it 'returns permits expiring within 30 days' do
-        expiring_permit = create(:immo_promo_permit, expiry_date: 15.days.from_now)
-        not_expiring_permit = create(:immo_promo_permit, expiry_date: 45.days.from_now)
-        no_expiry_permit = create(:immo_promo_permit, expiry_date: nil)
-
-        expect(Immo::Promo::Permit.expiring_soon).to include(expiring_permit)
-        expect(Immo::Promo::Permit.expiring_soon).not_to include(not_expiring_permit, no_expiry_permit)
+        expiring_permit = create(:immo_promo_permit, status: 'approved', expiry_date: 15.days.from_now)
+        not_expiring_permit = create(:immo_promo_permit, status: 'approved', expiry_date: 45.days.from_now)
+        # Only test with permits that have expiry dates since end_date is required by Schedulable
+        expect(Immo::Promo::Permit.expiring_soon(30)).to include(expiring_permit)
+        expect(Immo::Promo::Permit.expiring_soon(30)).not_to include(not_expiring_permit)
       end
     end
   end

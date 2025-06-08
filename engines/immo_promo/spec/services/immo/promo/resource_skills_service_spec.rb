@@ -10,7 +10,7 @@ RSpec.describe Immo::Promo::ResourceSkillsService do
       stakeholder = create(:immo_promo_stakeholder, project: project, stakeholder_type: 'architect')
       create(:immo_promo_certification,
         stakeholder: stakeholder,
-        certification_type: 'architect_license',
+        certification_type: 'qualification',
         is_valid: true,
         expiry_date: 1.year.from_now
       )
@@ -21,7 +21,7 @@ RSpec.describe Immo::Promo::ResourceSkillsService do
       stakeholder = create(:immo_promo_stakeholder, project: project, stakeholder_type: 'engineer')
       create(:immo_promo_certification,
         stakeholder: stakeholder,
-        certification_type: 'engineering_certification',
+        certification_type: 'environmental',
         is_valid: true,
         expiry_date: 2.months.from_now
       )
@@ -32,7 +32,7 @@ RSpec.describe Immo::Promo::ResourceSkillsService do
     let!(:task) do
       create(:immo_promo_task,
         phase: phase,
-        required_skills: ['architect_license', 'safety_certification']
+        required_skills: ['qualification', 'rge']
       )
     end
     
@@ -40,7 +40,7 @@ RSpec.describe Immo::Promo::ResourceSkillsService do
       result = service.analyze_skills_matrix
       
       expect(result[:available_skills]).to be_a(Hash)
-      expect(result[:available_skills]['architect_license']).to include(
+      expect(result[:available_skills]['qualification']).to include(
         :total_holders,
         :active_holders,
         :stakeholders,
@@ -52,14 +52,14 @@ RSpec.describe Immo::Promo::ResourceSkillsService do
       result = service.analyze_skills_matrix
       
       expect(result[:required_skills]).to be_a(Hash)
-      expect(result[:required_skills]).to have_key('architect_license')
+      expect(result[:required_skills]).to have_key('qualification')
     end
     
     it 'identifies skill gaps' do
       result = service.analyze_skills_matrix
       
       expect(result[:skill_gaps]).to be_an(Array)
-      safety_gap = result[:skill_gaps].find { |g| g[:skill] == 'safety_certification' }
+      safety_gap = result[:skill_gaps].find { |g| g[:skill] == 'rge' }
       expect(safety_gap).to be_present
       expect(safety_gap[:severity]).to eq('critical')
     end
@@ -104,7 +104,7 @@ RSpec.describe Immo::Promo::ResourceSkillsService do
         stakeholder = create(:immo_promo_stakeholder, project: project)
         create(:immo_promo_certification,
           stakeholder: stakeholder,
-          certification_type: 'professional_insurance',
+          certification_type: 'insurance',
           is_valid: true,
           expiry_date: 2.weeks.from_now
         )
@@ -115,14 +115,14 @@ RSpec.describe Immo::Promo::ResourceSkillsService do
       let!(:task) do
         create(:immo_promo_task,
           phase: phase,
-          required_skills: ['professional_insurance']
+          required_skills: ['insurance']
         )
       end
       
       it 'identifies expiring certifications as medium severity' do
         gaps = service.identify_skill_gaps
         
-        expiring_gap = gaps.find { |g| g[:skill] == 'professional_insurance' }
+        expiring_gap = gaps.find { |g| g[:skill] == 'insurance' }
         expect(expiring_gap).to be_present
         expect(expiring_gap[:severity]).to eq('medium')
       end
@@ -136,16 +136,17 @@ RSpec.describe Immo::Promo::ResourceSkillsService do
     let!(:task1) do
       create(:immo_promo_task,
         phase: phase1,
-        required_skills: ['architect_license']
+        required_skills: ['qualification']
       )
     end
     
     let!(:task2) do
-      create(:immo_promo_task,
+      task = create(:immo_promo_task,
         phase: phase2,
-        required_skills: ['construction_license'],
-        prerequisite_tasks: [task1]
+        required_skills: ['insurance']
       )
+      create(:immo_promo_task_dependency, prerequisite_task: task1, dependent_task: task)
+      task
     end
     
     it 'identifies skill dependencies between tasks' do
@@ -163,7 +164,7 @@ RSpec.describe Immo::Promo::ResourceSkillsService do
         stakeholder = create(:immo_promo_stakeholder, project: project, stakeholder_type: 'architect')
         create(:immo_promo_certification,
           stakeholder: stakeholder,
-          certification_type: 'architect_license',
+          certification_type: 'qualification',
           is_valid: true
         )
         stakeholder
@@ -172,7 +173,7 @@ RSpec.describe Immo::Promo::ResourceSkillsService do
       it 'identifies low redundancy risks' do
         analysis = service.analyze_skill_redundancy
         
-        architect_redundancy = analysis['architect_license']
+        architect_redundancy = analysis['qualification']
         expect(architect_redundancy[:redundancy_level]).to eq('low')
         expect(architect_redundancy[:risk_assessment]).to eq('high')
       end
@@ -184,7 +185,7 @@ RSpec.describe Immo::Promo::ResourceSkillsService do
           stakeholder = create(:immo_promo_stakeholder, project: project)
           create(:immo_promo_certification,
             stakeholder: stakeholder,
-            certification_type: 'safety_certification',
+            certification_type: 'rge',
             is_valid: true
           )
           stakeholder
@@ -194,7 +195,7 @@ RSpec.describe Immo::Promo::ResourceSkillsService do
       it 'identifies moderate redundancy' do
         analysis = service.analyze_skill_redundancy
         
-        safety_redundancy = analysis['safety_certification']
+        safety_redundancy = analysis['rge']
         expect(safety_redundancy[:redundancy_level]).to eq('moderate')
       end
     end
@@ -225,7 +226,7 @@ RSpec.describe Immo::Promo::ResourceSkillsService do
         stakeholder = create(:immo_promo_stakeholder, project: project)
         create(:immo_promo_certification,
           stakeholder: stakeholder,
-          certification_type: 'professional_insurance',
+          certification_type: 'insurance',
           is_valid: true,
           expiry_date: 3.weeks.from_now
         )
