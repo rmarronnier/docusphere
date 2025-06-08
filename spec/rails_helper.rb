@@ -61,7 +61,13 @@ RSpec.configure do |config|
   # Devise test helpers
   config.include Devise::Test::ControllerHelpers, type: :controller
   config.include Devise::Test::IntegrationHelpers, type: :request
+  config.include Devise::Test::IntegrationHelpers, type: :system
   config.include Warden::Test::Helpers, type: :system
+  
+  # Clean up Warden after system tests
+  config.after(:each, type: :system) do
+    Warden.test_reset!
+  end
   
   # ActiveJob test helpers
   config.include ActiveJob::TestHelper, type: :service

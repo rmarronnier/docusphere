@@ -1,0 +1,409 @@
+<div class="risk-monitoring-dashboard">
+  <!-- En-tête du projet -->
+  <%= render Ui::CardComponent.new(classes: 'mb-8') do %>
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">Monitoring des Risques</h1>
+        <p class="text-gray-600"><%= @project.name %> • <%= @project.reference_number %></p>
+        <div class="mt-2">
+          <% overall_risk_level = determine_overall_risk_level %>
+          <%= render Ui::StatusBadgeComponent.new(
+              status: overall_risk_level,
+              preset: 'risk'
+          ) %>
+          <span class="ml-2 text-sm text-gray-600">
+            <%= @risk_overview[:total_risks] %> risques identifiés
+          </span>
+        </div>
+      </div>
+      <div class="flex items-center space-x-4">
+        <%= render Ui::ButtonComponent.new(
+            text: 'Nouveau risque',
+            path: '#new-risk-modal',
+            icon: 'plus',
+            variant: 'primary',
+            data: { bs_toggle: 'modal' }
+        ) %>
+        <%= render Ui::ButtonComponent.new(
+            text: 'Exporter',
+            path: immo_promo_engine.risk_project_risk_monitoring_report_path(@project, format: :pdf),
+            icon: 'document-arrow-down',
+            variant: 'secondary'
+        ) %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Alertes critiques -->
+  <% if @alerts.any? %>
+    <div class="mb-8">
+      <%= render Immo::Promo::Shared::AlertBannerComponent.new(
+          alerts: @alerts.map { |alert| {
+            title: alert[:title],
+            description: alert[:description],
+            severity: alert[:severity],
+            action: {
+              text: 'Voir détails',
+              path: immo_promo_engine.project_risk_monitoring_risk_register_path(@project)
+            }
+          }},
+          type: @alerts.any? { |a| a[:severity] == 'critical' } ? 'danger' : 'warning',
+          title: 'Alertes Risques'
+      ) %>
+    </div>
+  <% end %>
+
+  <!-- Métriques principales -->
+  <div class="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
+    <% [
+      { label: 'Risques critiques', value: @risk_overview[:by_severity]['critical'] || 0, icon: 'exclamation-circle', color: 'red' },
+      { label: 'Risques élevés', value: @risk_overview[:by_severity]['high'] || 0, icon: 'exclamation-triangle', color: 'orange' },
+      { label: 'Risques moyens', value: @risk_overview[:by_severity]['medium'] || 0, icon: 'exclamation', color: 'yellow' },
+      { label: 'Actions en retard', value: @mitigation_status[:overdue] || 0, icon: 'clock', color: 'red' },
+      { label: 'Atténuation', value: "#{calculate_mitigation_percentage}%", icon: 'shield-check', color: 'green' }
+    ].each do |metric| %>
+      <%= render Immo::Promo::Shared::MetricCardComponent.new(
+          title: metric[:label],
+          value: metric[:value],
+          icon: metric[:icon],
+          icon_color: "text-#{metric[:color]}-600",
+          bg_color: metric[:value].to_s == '0' ? 'bg-gray-50' : 'bg-white'
+      ) %>
+    <% end %>
+  </div>
+
+  <!-- Matrice des risques -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+    <!-- Matrice visuelle -->
+    <%= render Ui::CardComponent.new(
+        header: {
+          title: 'Matrice des Risques',
+          icon: 'view-grid'
+        }
+    ) do %>
+      <div class="overflow-x-auto">
+        <table class="min-w-full">
+          <thead>
+            <tr>
+              <th class="px-2 py-2 text-xs font-medium text-gray-500 uppercase">Impact →</th>
+              <% %w[negligible minor moderate major catastrophic].each do |impact| %>
+                <th class="px-2 py-2 text-xs font-medium text-gray-500 uppercase text-center">
+                  <%= impact.humanize %>
+                </th>
+              <% end %>
+            </tr>
+          </thead>
+          <tbody>
+            <% %w[very_high high medium low very_low].each_with_index do |probability, idx| %>
+              <tr>
+                <td class="px-2 py-2 text-xs font-medium text-gray-500">
+                  <%= probability.humanize.gsub('_', ' ') %>
+                  <%= idx == 0 ? '↑' : '' %>
+                </td>
+                <% %w[negligible minor moderate major catastrophic].each do |impact| %>
+                  <% risk_count = @risk_matrix[probability][impact] %>
+                  <% cell_color = matrix_cell_color(probability, impact) %>
+                  <td class="px-2 py-2 text-center <%= cell_color %> border border-gray-300">
+                    <% if risk_count > 0 %>
+                      <%= link_to risk_count, 
+                          immo_promo_engine.project_risk_monitoring_risk_register_path(@project, 
+                            filters: { probability: probability, impact: impact }),
+                          class: 'font-bold text-white hover:underline' %>
+                    <% else %>
+                      <span class="text-gray-400">-</span>
+                    <% end %>
+                  </td>
+                <% end %>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+        <div class="mt-2 text-xs text-gray-500">Probabilité ↑</div>
+      </div>
+      
+      <div class="mt-4 flex items-center justify-center space-x-4 text-xs">
+        <div class="flex items-center">
+          <div class="w-4 h-4 bg-green-500 mr-1"></div>
+          <span>Faible</span>
+        </div>
+        <div class="flex items-center">
+          <div class="w-4 h-4 bg-yellow-500 mr-1"></div>
+          <span>Moyen</span>
+        </div>
+        <div class="flex items-center">
+          <div class="w-4 h-4 bg-orange-500 mr-1"></div>
+          <span>Élevé</span>
+        </div>
+        <div class="flex items-center">
+          <div class="w-4 h-4 bg-red-600 mr-1"></div>
+          <span>Critique</span>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- État des atténuations -->
+    <%= render Ui::CardComponent.new(
+        header: {
+          title: 'État des Atténuations',
+          icon: 'shield-check'
+        }
+    ) do %>
+      <div class="space-y-4">
+        <!-- Graphique circulaire simplifié -->
+        <div class="flex items-center justify-center">
+          <div class="relative w-48 h-48">
+            <svg class="w-48 h-48 transform -rotate-90">
+              <circle cx="96" cy="96" r="88" fill="none" stroke="#e5e7eb" stroke-width="16"></circle>
+              <circle cx="96" cy="96" r="88" fill="none" stroke="#10b981" stroke-width="16"
+                      stroke-dasharray="<%= 552 * calculate_mitigation_percentage / 100 %> 552"
+                      stroke-linecap="round"></circle>
+            </svg>
+            <div class="absolute inset-0 flex items-center justify-center">
+              <div class="text-center">
+                <p class="text-3xl font-bold text-gray-900"><%= calculate_mitigation_percentage %>%</p>
+                <p class="text-sm text-gray-600">Atténué</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Détails -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-sm text-gray-600">Actions complétées</span>
+            <span class="text-sm font-medium text-green-600">
+              <%= @mitigation_status[:completed] %>
+            </span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-sm text-gray-600">En cours</span>
+            <span class="text-sm font-medium text-blue-600">
+              <%= @mitigation_status[:in_progress] %>
+            </span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-sm text-gray-600">En retard</span>
+            <span class="text-sm font-medium text-red-600">
+              <%= @mitigation_status[:overdue] %>
+            </span>
+          </div>
+        </div>
+        
+        <div class="pt-4 border-t">
+          <%= link_to 'Voir toutes les actions', 
+              immo_promo_engine.project_risk_monitoring_risk_register_path(@project),
+              class: 'text-blue-600 hover:text-blue-700 text-sm font-medium' %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Navigation par catégorie -->
+  <%= render Ui::CardComponent.new(classes: 'mb-8') do %>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <% @risk_overview[:by_category].each do |category, count| %>
+        <%= link_to immo_promo_engine.project_risk_monitoring_risk_register_path(@project, filters: { category: category }),
+            class: 'p-4 bg-gray-50 hover:bg-gray-100 rounded-lg text-center transition-colors' do %>
+          <%= render Ui::IconComponent.new(
+              name: risk_category_icon(category),
+              classes: "h-8 w-8 text-#{risk_category_color(category)}-600 mx-auto mb-2"
+          ) %>
+          <p class="text-sm font-medium text-gray-900"><%= category.humanize %></p>
+          <p class="text-xs text-gray-600"><%= count %> risques</p>
+        <% end %>
+      <% end %>
+    </div>
+  <% end %>
+
+  <!-- Risques actifs les plus critiques -->
+  <% critical_risks = @active_risks.where(severity: ['critical', 'high']).limit(5) %>
+  <% if critical_risks.any? %>
+    <%= render Ui::CardComponent.new(
+        header: {
+          title: 'Risques Prioritaires',
+          icon: 'exclamation-triangle',
+          icon_color: 'text-red-600'
+        }
+    ) do %>
+      <%= render Immo::Promo::Shared::DataTableComponent.new(
+          items: critical_risks,
+          columns: [
+            { 
+              key: :title, 
+              label: 'Risque',
+              type: :custom,
+              render: ->(risk, value) {
+                content_tag(:div) do
+                  content_tag(:p, value, class: 'font-medium text-gray-900') +
+                  content_tag(:p, risk.description.truncate(100), class: 'text-sm text-gray-600 mt-1')
+                end
+              }
+            },
+            { key: :severity, label: 'Sévérité', type: :status },
+            { key: :probability, label: 'Probabilité', type: :status },
+            { key: :impact, label: 'Impact', type: :status },
+            { 
+              key: ->(risk) { risk.risk_owner&.name || 'Non assigné' }, 
+              label: 'Responsable' 
+            },
+            {
+              key: :mitigation_status,
+              label: 'Atténuation',
+              type: :custom,
+              render: ->(risk, value) {
+                case value
+                when 'mitigated'
+                  render Ui::StatusBadgeComponent.new(status: 'completed', preset: 'success')
+                when 'mitigation_in_progress'
+                  render Ui::StatusBadgeComponent.new(status: 'in_progress', preset: 'info')
+                else
+                  render Ui::StatusBadgeComponent.new(status: 'pending', preset: 'warning')
+                end
+              }
+            }
+          ],
+          actions: ->(risk) {
+            [
+              {
+                type: 'button',
+                text: 'Détails',
+                path: immo_promo_engine.project_risk_path(@project, risk),
+                icon: 'eye',
+                variant: 'outline-primary',
+                size: 'small'
+              }
+            ]
+          }
+      ) %>
+    <% end %>
+  <% end %>
+
+  <!-- Actions rapides -->
+  <%= render Ui::CardComponent.new(header: { title: 'Actions Rapides' }) do %>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <% [
+        { path: immo_promo_engine.project_risk_monitoring_risk_register_path(@project), icon: 'clipboard-document-list', color: 'blue', title: 'Registre', subtitle: 'Tous les risques' },
+        { path: immo_promo_engine.project_risk_monitoring_alert_center_path(@project), icon: 'bell', color: 'yellow', title: 'Alertes', subtitle: 'Centre d\'alertes' },
+        { path: immo_promo_engine.project_risk_monitoring_early_warning_system_path(@project), icon: 'radar', color: 'purple', title: 'Early Warning', subtitle: 'Détection précoce' },
+        { path: immo_promo_engine.risk_matrix_project_risk_monitoring_export_path(@project, format: :svg), icon: 'view-grid', color: 'green', title: 'Matrice', subtitle: 'Export SVG' }
+      ].each do |action| %>
+        <%= link_to action[:path],
+            class: "bg-white hover:bg-gray-50 border border-gray-200 rounded-lg p-4 text-center transition-colors" do %>
+          <%= render Ui::IconComponent.new(name: action[:icon], classes: "h-8 w-8 text-#{action[:color]}-600 mx-auto mb-2") %>
+          <p class="text-sm font-medium text-gray-900"><%= action[:title] %></p>
+          <p class="text-xs text-gray-600"><%= action[:subtitle] %></p>
+        <% end %>
+      <% end %>
+    </div>
+  <% end %>
+</div>
+
+<!-- Modal nouveau risque -->
+<%= render Ui::ModalComponent.new(id: 'new-risk-modal', title: 'Identifier un Nouveau Risque', size: 'large') do %>
+  <%= form_with url: immo_promo_engine.create_project_risk_monitoring_risk_path(@project), method: :post, local: true do |form| %>
+    <div class="space-y-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <%= form.label :title, 'Titre du risque', class: 'block text-sm font-medium text-gray-700 mb-2' %>
+          <%= form.text_field :title, 
+              placeholder: 'Ex: Retard livraison matériaux',
+              class: 'block w-full rounded-md border-gray-300 shadow-sm',
+              required: true %>
+        </div>
+        
+        <div>
+          <%= form.label :category, 'Catégorie', class: 'block text-sm font-medium text-gray-700 mb-2' %>
+          <%= form.select :category,
+              options_for_select([
+                ['Technique', 'technical'],
+                ['Financier', 'financial'],
+                ['Planning', 'schedule'],
+                ['Réglementaire', 'regulatory'],
+                ['Environnemental', 'environmental'],
+                ['Contractuel', 'contractual'],
+                ['Organisationnel', 'organizational']
+              ]),
+              { prompt: 'Sélectionner une catégorie' },
+              { class: 'block w-full rounded-md border-gray-300 shadow-sm' } %>
+        </div>
+      </div>
+      
+      <div>
+        <%= form.label :description, 'Description', class: 'block text-sm font-medium text-gray-700 mb-2' %>
+        <%= form.text_area :description,
+            placeholder: 'Description détaillée du risque...',
+            class: 'block w-full rounded-md border-gray-300 shadow-sm',
+            rows: 3 %>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <%= form.label :probability, 'Probabilité', class: 'block text-sm font-medium text-gray-700 mb-2' %>
+          <%= form.select :probability,
+              options_for_select([
+                ['Très faible', 'very_low'],
+                ['Faible', 'low'],
+                ['Moyenne', 'medium'],
+                ['Élevée', 'high'],
+                ['Très élevée', 'very_high']
+              ]),
+              { prompt: 'Sélectionner' },
+              { class: 'block w-full rounded-md border-gray-300 shadow-sm' } %>
+        </div>
+        
+        <div>
+          <%= form.label :impact, 'Impact', class: 'block text-sm font-medium text-gray-700 mb-2' %>
+          <%= form.select :impact,
+              options_for_select([
+                ['Négligeable', 'negligible'],
+                ['Mineur', 'minor'],
+                ['Modéré', 'moderate'],
+                ['Majeur', 'major'],
+                ['Catastrophique', 'catastrophic']
+              ]),
+              { prompt: 'Sélectionner' },
+              { class: 'block w-full rounded-md border-gray-300 shadow-sm' } %>
+        </div>
+        
+        <div>
+          <%= form.label :risk_owner_id, 'Responsable', class: 'block text-sm font-medium text-gray-700 mb-2' %>
+          <%= form.collection_select :risk_owner_id,
+              @project.stakeholders,
+              :id,
+              :name,
+              { prompt: 'Assigner un responsable' },
+              { class: 'block w-full rounded-md border-gray-300 shadow-sm' } %>
+        </div>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <%= form.label :detection_date, 'Date de détection', class: 'block text-sm font-medium text-gray-700 mb-2' %>
+          <%= form.date_field :detection_date,
+              value: Date.current,
+              class: 'block w-full rounded-md border-gray-300 shadow-sm' %>
+        </div>
+        
+        <div>
+          <%= form.label :target_resolution_date, 'Date cible résolution', class: 'block text-sm font-medium text-gray-700 mb-2' %>
+          <%= form.date_field :target_resolution_date,
+              class: 'block w-full rounded-md border-gray-300 shadow-sm' %>
+        </div>
+      </div>
+    </div>
+    
+    <div class="mt-6 flex justify-end space-x-3">
+      <%= render Ui::ButtonComponent.new(
+          text: 'Annuler',
+          variant: 'secondary',
+          data: { bs_dismiss: 'modal' }
+      ) %>
+      <%= render Ui::ButtonComponent.new(
+          text: 'Enregistrer le risque',
+          variant: 'primary',
+          type: 'submit',
+          icon: 'plus'
+      ) %>
+    </div>
+  <% end %>
+<% end %>

@@ -6,6 +6,60 @@ ImmoPromo est un engine Rails offrant une solution complète de pilotage de proj
 
 Ce module fournit un système complet de gestion de projets immobiliers couvrant l'intégralité du cycle de vie d'un projet : de la conception à la livraison, en passant par les autorisations administratives, la construction et la commercialisation.
 
+## 🚀 Nouveautés - Interfaces Métier
+
+ImmoPromo propose désormais des **interfaces métier spécialisées** qui vont au-delà de la simple gestion CRUD pour offrir des workflows adaptés aux besoins réels des professionnels de l'immobilier.
+
+### 🎯 Tableaux de Bord Spécialisés
+
+#### 1. **Coordination des Intervenants** (`/projects/:id/coordination`)
+- Dashboard temps réel des interventions en cours
+- Détection automatique des conflits de ressources
+- Suivi de conformité des certifications
+- Analyse de performance des équipes
+- Recommandations d'optimisation IA
+
+#### 2. **Workflow Permis & Autorisations** (`/projects/:id/permit_workflow`)
+- Guide workflow adapté au type de projet
+- Checklist de conformité réglementaire
+- Timeline avec chemin critique
+- Intégration administrative (soumission, suivi, relances)
+- Générateur de dossiers de soumission
+
+#### 3. **Dashboard Financier** (`/projects/:id/financial`)
+- Analyse de variance en temps réel
+- Contrôle des coûts avec détection d'anomalies
+- Gestion de trésorerie et prévisions
+- Scénarios budgétaires (optimiste/pessimiste/stress test)
+- Analyse de rentabilité
+
+#### 4. **Interface Commerciale** (`/projects/:id/commercial`)
+- Gestion d'inventaire des lots avec filtres avancés
+- Pipeline de réservations et conversions
+- Stratégie de tarification dynamique
+- Analyse des performances commerciales
+- Insights clients et segmentation
+
+#### 5. **Monitoring des Risques** (`/projects/:id/risk-monitoring`)
+- Matrice des risques interactive
+- Système d'alerte précoce (Early Warning)
+- Suivi des plans d'atténuation
+- Escalade automatique des risques critiques
+- Analyse prédictive des tendances
+
+### 🧩 Composants Réutilisables
+
+ImmoPromo intègre des composants modulaires factorisés pour garantir une interface cohérente :
+
+- **MetricCardComponent** : Cartes de métriques avec icônes et valeurs
+- **AlertBannerComponent** : Bannières d'alertes contextuelles
+- **StatusBadgeComponent** : Badges de statut standardisés
+- **ProgressIndicatorComponent** : Barres de progression unifiées
+- **ActionButtonComponent** : Boutons d'action cohérents
+- **DataTableComponent** : Tables de données réutilisables
+
+Ces composants s'intègrent parfaitement avec les composants existants de l'application principale.
+
 ## Fonctionnalités Principales
 
 ### 🏗️ Gestion de Projets

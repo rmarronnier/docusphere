@@ -15,22 +15,6 @@ module Immo
         @phase_based_progress ||= project.calculate_phase_based_progress
       end
 
-      def detailed_progress_report
-        {
-          overall: {
-            percentage: overall_progress,
-            type: 'task_based'
-          },
-          weighted: {
-            percentage: phase_based_progress,
-            type: 'phase_weighted'
-          },
-          phases: phase_progress_details,
-          tasks: task_progress_summary,
-          milestones: milestone_progress_summary,
-          timeline: timeline_progress
-        }
-      end
 
       def phase_progress_details
         project.phases.includes(:tasks).map do |phase|
@@ -135,6 +119,92 @@ module Immo
           'delayed'
         end
       end
+      
+      def phase_progress(phase)
+        tasks = phase.tasks
+        completed_count = tasks.where(status: 'completed').count
+        total_count = tasks.count
+        
+        {
+          phase: phase.name,
+          completion_percentage: total_count > 0 ? (completed_count.to_f / total_count * 100).round(2) : 0.0,
+          tasks_completed: completed_count,
+          tasks_total: total_count,
+          tasks_by_status: tasks.group(:status).count
+        }
+      end
+      
+      def detailed_progress_report
+        {
+          overall_progress: overall_progress,
+          phase_based_progress: phase_based_progress,
+          phases: phase_progress_details,
+          critical_path_status: analyze_critical_path_status,
+          milestone_status: milestone_progress_summary,
+          risk_impact_on_progress: assess_risk_impact
+        }
+      end
+      
+      def milestone_progress
+        milestones = project.milestones
+        completed = milestones.where(status: 'completed').count
+        total = milestones.count
+        overdue = milestones.where('target_date < ?', Date.current).where.not(status: 'completed').count
+        
+        {
+          total: total,
+          completed: completed,
+          completion_rate: total > 0 ? (completed.to_f / total * 100).round(2) : 0.0,
+          overdue: overdue
+        }
+      end
+      
+      def progress_trend_analysis
+        {
+          current_velocity: calculate_velocity(1.week.ago),
+          average_velocity: calculate_average_velocity,
+          trend_direction: determine_trend_direction,
+          projected_completion: projected_completion_date,
+          confidence_level: calculate_confidence_level
+        }
+      end
+      
+      def identify_progress_blockers
+        blockers = []
+        
+        # Task dependency blockers
+        blocked_tasks = find_blocked_tasks
+        if blocked_tasks.any?
+          blockers << {
+            type: 'task_dependency',
+            severity: 'high',
+            count: blocked_tasks.count,
+            description: "#{blocked_tasks.count} tasks blocked by dependencies"
+          }
+        end
+        
+        # Resource availability blockers
+        unassigned_critical = project.tasks.where(stakeholder_id: nil, priority: ['critical', 'high'])
+        if unassigned_critical.any?
+          blockers << {
+            type: 'resource_availability',
+            severity: 'high',
+            count: unassigned_critical.count,
+            description: "#{unassigned_critical.count} critical tasks without assigned resources"
+          }
+        end
+        
+        # Permit approval blockers
+        if project.status == 'construction' && !project.can_start_construction?
+          blockers << {
+            type: 'permit_approval',
+            severity: 'critical',
+            description: 'Construction permit not approved'
+          }
+        end
+        
+        blockers
+      end
 
       private
 
@@ -214,13 +284,94 @@ module Immo
         recent_completions = Immo::Promo::Task.joins(:phase)
                                               .where(phase: project.phases)
                                               .where(status: 'completed')
-                                              .where('actual_end_date >= ?', since_date)
+                                              .where('immo_promo_tasks.actual_end_date >= ?', since_date)
                                               .count
         
         total_tasks = project.phases.joins(:tasks).count
         return 0 if total_tasks.zero?
         
         (recent_completions.to_f / total_tasks * 100).round(2)
+      end
+      
+      def analyze_critical_path_status
+        critical_tasks = project.tasks.where(priority: 'critical')
+        delayed_critical = critical_tasks.where('immo_promo_tasks.end_date < ?', Date.current)
+                                       .where.not(status: 'completed')
+        
+        {
+          total_critical_tasks: critical_tasks.count,
+          delayed_critical_tasks: delayed_critical.count,
+          critical_path_health: delayed_critical.empty? ? 'healthy' : 'at_risk'
+        }
+      end
+      
+      def assess_risk_impact
+        high_risks = project.risks.active.high_priority
+        
+        impact_score = high_risks.sum do |risk|
+          case risk.category
+          when 'timeline' then 3
+          when 'financial' then 2
+          when 'quality' then 1
+          else 1
+          end
+        end
+        
+        {
+          active_high_risks: high_risks.count,
+          risk_impact_score: impact_score,
+          risk_level: impact_score > 5 ? 'high' : impact_score > 2 ? 'medium' : 'low'
+        }
+      end
+      
+      def find_blocked_tasks
+        # Trouver les tâches bloquées par des dépendances non complétées
+        blocked_tasks = []
+        
+        project.tasks.includes(:prerequisite_tasks).each do |task|
+          if task.prerequisite_tasks.any? && !task.can_start?
+            blocked_tasks << task
+          end
+        end
+        
+        blocked_tasks
+      end
+      
+      def calculate_average_velocity
+        velocities = []
+        [1.week, 2.weeks, 3.weeks, 4.weeks].each do |period|
+          velocities << calculate_velocity(period.ago)
+        end
+        
+        velocities.sum / velocities.size.to_f
+      end
+      
+      def determine_trend_direction
+        recent_velocity = calculate_velocity(1.week.ago)
+        older_velocity = calculate_velocity(2.weeks.ago)
+        
+        if recent_velocity > older_velocity
+          'improving'
+        elsif recent_velocity < older_velocity
+          'declining'
+        else
+          'stable'
+        end
+      end
+      
+      def calculate_confidence_level
+        spi = calculate_schedule_performance_index
+        risk_assessment = assess_risk_impact
+        
+        confidence_score = 100
+        confidence_score -= (1 - spi) * 50 if spi < 1
+        confidence_score -= risk_assessment[:risk_impact_score] * 5
+        
+        case confidence_score
+        when 80..100 then 'high'
+        when 60..79 then 'medium'
+        else 'low'
+        end
       end
     end
   end

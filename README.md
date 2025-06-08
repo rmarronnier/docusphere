@@ -44,14 +44,30 @@ Docusphere est une application collaborative de gestion documentaire développé
 ## Modules Métiers
 
 ### ImmoPromo - Gestion de Projets Immobiliers
-Module complet de pilotage de projets immobiliers offrant :
+
+Docusphere intègre **ImmoPromo**, un module complet de pilotage de projets immobiliers développé comme un Rails Engine. Ce module transforme Docusphere en une plateforme complète pour les professionnels de l'immobilier.
+
+#### Fonctionnalités principales :
 - **Gestion de projets** : Planification par phases, suivi des jalons et timeline interactive
-- **Gestion des tâches** : Assignations, dépendances et suivi d'avancement
+- **Gestion des tâches** : Assignations, dépendances et suivi d'avancement  
 - **Coordination des intervenants** : Gestion des parties prenantes, contrats et certifications
 - **Autorisations** : Workflow de permis de construire avec suivi des conditions
 - **Suivi financier** : Budgets détaillés avec analyse des écarts
 - **Gestion des lots** : Définition des logements et suivi des réservations
 - **Gestion des risques** : Identification, évaluation et plans d'atténuation
+
+#### Interfaces métier spécialisées :
+- **Coordination des Intervenants** : Dashboard temps réel avec détection de conflits
+- **Workflow Permis & Autorisations** : Guide adapté avec checklist de conformité
+- **Dashboard Financier** : Analyse de variance et scénarios budgétaires
+- **Interface Commerciale** : Gestion d'inventaire et pipeline de ventes
+- **Monitoring des Risques** : Matrice interactive et système d'alerte précoce
+
+#### Technologies :
+- Intégré comme Rails Engine modulaire
+- Composants ViewComponent réutilisables
+- API REST complète pour intégrations tierces
+- Sécurité avec isolation par organisation
 
 Accès : `/immo/promo/` (authentification et permissions requises)
 
@@ -142,6 +158,11 @@ docusphere/
 │   └── database.yml    # Configuration DB
 ├── db/
 │   └── migrate/        # Migrations
+├── engines/
+│   └── immo_promo/     # Module ImmoPromo (Rails Engine)
+│       ├── app/        # MVC du module
+│       ├── config/     # Configuration du module
+│       └── spec/       # Tests du module
 └── docker-compose.yml  # Configuration Docker
 ```
 

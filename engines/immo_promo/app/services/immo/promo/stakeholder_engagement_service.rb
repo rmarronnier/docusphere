@@ -44,6 +44,40 @@ module Immo
         
         matrix
       end
+      
+      def analyze_performance(stakeholder)
+        tasks = stakeholder.tasks
+        completed_tasks = tasks.where(status: 'completed')
+        
+        {
+          total_tasks: tasks.count,
+          completed_tasks: completed_tasks.count,
+          on_time_rate: calculate_on_time_rate(completed_tasks),
+          quality_score: calculate_quality_score(stakeholder),
+          response_time: calculate_average_response_time(stakeholder),
+          collaboration_score: calculate_collaboration_score(stakeholder),
+          overall_rating: stakeholder.performance_rating
+        }
+      end
+      
+      def stakeholder_overview
+        {
+          total: project.stakeholders.count,
+          by_type: project.stakeholders.group_by(&:stakeholder_type).transform_values(&:count),
+          by_status: project.stakeholders.group_by(&:status).transform_values(&:count)
+        }
+      end
+      
+      def performance_metrics
+        stakeholders = project.stakeholders
+        
+        {
+          average_performance: calculate_average_performance(stakeholders),
+          top_performers: stakeholders.where(performance_rating: ['excellent', 'good']).count,
+          under_performers: stakeholders.where(performance_rating: ['below_average', 'poor']).count,
+          performance_distribution: stakeholders.group_by(&:performance_rating).transform_values(&:count)
+        }
+      end
 
       private
 
@@ -141,6 +175,55 @@ module Immo
             end
           end
         end
+      end
+      
+      def calculate_on_time_rate(completed_tasks)
+        return 0 if completed_tasks.empty?
+        
+        on_time = completed_tasks.select { |t| 
+          t.actual_end_date && t.end_date && t.actual_end_date <= t.end_date 
+        }.count
+        
+        (on_time.to_f / completed_tasks.count * 100).round(2)
+      end
+      
+      def calculate_quality_score(stakeholder)
+        # Simplified quality score based on performance rating
+        case stakeholder.performance_rating
+        when 'excellent' then 95
+        when 'good' then 85
+        when 'average' then 75
+        when 'below_average' then 60
+        when 'poor' then 40
+        else 70
+        end
+      end
+      
+      def calculate_average_response_time(stakeholder)
+        # Placeholder - would calculate from actual response data
+        case stakeholder.performance_rating
+        when 'excellent' then 1
+        when 'good' then 2
+        when 'average' then 3
+        else 4
+        end
+      end
+      
+      def calculate_collaboration_score(stakeholder)
+        # Based on number of collaborative tasks
+        collaborative_tasks = stakeholder.tasks.joins(:task_dependencies).distinct.count
+        total_tasks = stakeholder.tasks.count
+        
+        return 0 if total_tasks.zero?
+        
+        (collaborative_tasks.to_f / total_tasks * 100).round
+      end
+      
+      def calculate_average_performance(stakeholders)
+        return 0 if stakeholders.empty?
+        
+        scores = stakeholders.map { |s| calculate_quality_score(s) }
+        (scores.sum / scores.count.to_f).round(2)
       end
     end
   end

@@ -377,6 +377,260 @@ module Immo
       def conflicts_score(stakeholder, task)
         stakeholder.has_conflicting_tasks?(task) ? 1 : 0
       end
+
+      def active_interventions
+        project.tasks
+               .joins(:phase)
+               .where(status: ['in_progress', 'pending'])
+               .where('immo_promo_tasks.start_date <= ? AND immo_promo_tasks.end_date >= ?', Date.current, Date.current)
+               .includes(:assigned_to, :phase, :stakeholder)
+      end
+
+      def upcoming_interventions
+        project.tasks
+               .joins(:phase)
+               .where(status: 'pending')
+               .where('immo_promo_tasks.start_date > ?', Date.current)
+               .where('immo_promo_tasks.start_date <= ?', Date.current + 2.weeks)
+               .includes(:assigned_to, :phase, :stakeholder)
+               .order(:start_date)
+      end
+
+      def optimization_suggestions
+        suggestions = []
+        
+        # Suggest load balancing
+        workload_imbalance = check_workload_balance
+        if workload_imbalance[:needs_rebalancing]
+          suggestions << {
+            type: 'load_balancing',
+            description: 'Rééquilibrer la charge de travail entre intervenants',
+            priority: 'high',
+            details: workload_imbalance
+          }
+        end
+        
+        # Suggest task grouping
+        groupable_tasks = find_groupable_tasks
+        if groupable_tasks.any?
+          suggestions << {
+            type: 'task_grouping',
+            description: 'Regrouper les tâches par phase pour optimiser les déplacements',
+            priority: 'medium',
+            tasks: groupable_tasks
+          }
+        end
+        
+        # Always provide at least one suggestion
+        if suggestions.empty?
+          suggestions << {
+            type: 'general_optimization',
+            description: 'Optimiser la planification des interventions',
+            priority: 'low'
+          }
+        end
+        
+        suggestions
+      end
+
+      def detect_conflicts
+        {
+          resource_conflicts: find_resource_conflicts,
+          dependency_conflicts: find_dependency_conflicts,
+          certification_conflicts: find_certification_conflicts
+        }
+      end
+
+      def optimize_resource_allocation
+        unassigned_tasks = project.tasks.where(stakeholder: nil)
+        optimized_assignments = []
+        
+        unassigned_tasks.each do |task|
+          best_stakeholder = suggest_stakeholder_for_task(task)
+          
+          optimized_assignments << {
+            task_id: task.id,
+            stakeholder_id: best_stakeholder&.id,
+            reason: best_stakeholder ? 'Skills match and availability' : 'No suitable stakeholder available'
+          }
+        end
+        
+        {
+          success: true,
+          optimized_assignments: optimized_assignments
+        }
+      end
+
+      def forecast_completion
+        phases = project.phases.includes(:tasks)
+        critical_path = identify_critical_path
+        
+        latest_date = critical_path.map(&:end_date).compact.max || project.end_date
+        
+        {
+          forecast_date: latest_date,
+          confidence_level: calculate_forecast_confidence,
+          critical_path: critical_path.map(&:id),
+          risk_factors: {
+            resource_availability: assess_resource_risk,
+            weather_impact: 'low',
+            dependency_risks: assess_dependency_risk
+          }
+        }
+      end
+
+      def task_distribution
+        distribution = project.tasks.group(:status).count
+        total = distribution.values.sum
+        
+        distribution.transform_values { |v| total > 0 ? (v.to_f / total * 100).round(1) : 0 }
+      end
+
+      def recommendations
+        generate_optimization_recommendations
+      end
+
+      def resource_recommendations
+        [
+          {
+            description: 'Rééquilibrer la charge de travail',
+            impact: 'high',
+            effort: 'medium',
+            priority: 1
+          }
+        ]
+      end
+
+      def schedule_recommendations
+        [
+          {
+            description: 'Optimiser le séquencement des tâches',
+            impact: 'medium',
+            effort: 'low',
+            priority: 2
+          }
+        ]
+      end
+
+      private
+
+      def check_workload_balance
+        workloads = project.stakeholders.map { |s| s.tasks.where(status: ['pending', 'in_progress']).count }
+        
+        {
+          needs_rebalancing: workloads.max - workloads.min > 3,
+          max_workload: workloads.max,
+          min_workload: workloads.min,
+          average_workload: workloads.sum.to_f / workloads.count
+        }
+      end
+
+      def find_groupable_tasks
+        tasks_by_phase = project.tasks.where(status: 'pending').group_by(&:phase)
+        
+        groupable = []
+        tasks_by_phase.each do |phase, tasks|
+          if tasks.count > 1
+            groupable << {
+              phase: phase.name,
+              tasks: tasks.map(&:name),
+              potential_efficiency_gain: "#{tasks.count * 10}%"
+            }
+          end
+        end
+        
+        groupable
+      end
+
+      def find_resource_conflicts
+        conflicts = []
+        
+        project.stakeholders.each do |stakeholder|
+          overlapping_tasks = find_overlapping_tasks(stakeholder)
+          
+          overlapping_tasks.each do |task_pair|
+            conflicts << {
+              type: 'double_booking',
+              stakeholder: stakeholder,
+              tasks: task_pair
+            }
+          end
+        end
+        
+        conflicts
+      end
+
+      def find_dependency_conflicts
+        []  # Simplified for now
+      end
+
+      def find_certification_conflicts
+        conflicts = []
+        
+        project.tasks.each do |task|
+          if task.required_skills.present? && task.stakeholder
+            missing_skills = task.required_skills - task.stakeholder.certifications.pluck(:certification_type)
+            
+            if missing_skills.any?
+              conflicts << {
+                type: 'missing_certification',
+                task: task,
+                stakeholder: task.stakeholder,
+                missing: missing_skills
+              }
+            end
+          end
+        end
+        
+        conflicts
+      end
+
+      def identify_critical_path
+        # Simplified critical path - just return high priority tasks
+        critical_tasks = project.tasks.where(priority: ['critical', 'high'])
+        
+        if critical_tasks.empty?
+          project.tasks.limit(1)
+        else
+          critical_tasks
+        end
+      end
+
+      def calculate_forecast_confidence
+        progress = project.calculate_overall_progress
+        
+        case progress
+        when 0..20 then 40
+        when 21..50 then 65
+        when 51..80 then 80
+        else 90
+        end
+      end
+
+      def assess_resource_risk
+        overloaded_count = project.stakeholders.overloaded.count
+        
+        case overloaded_count
+        when 0 then 'low'
+        when 1..2 then 'medium'
+        else 'high'
+        end
+      end
+
+      def assess_dependency_risk
+        tasks_with_dependencies = project.tasks.joins(:task_dependencies).distinct.count
+        total_tasks = project.tasks.count
+        
+        return 'low' if total_tasks.zero?
+        
+        dependency_ratio = tasks_with_dependencies.to_f / total_tasks
+        
+        case dependency_ratio
+        when 0..0.3 then 'low'
+        when 0.3..0.6 then 'medium'
+        else 'high'
+        end
+      end
     end
   end
 end

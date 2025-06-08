@@ -55,6 +55,29 @@ For every new feature or functionality added to the codebase, you MUST:
 4. Follow existing test patterns and conventions in the codebase
 5. Update GitHub Actions workflows (.github/workflows/) if new dependencies or test configurations are needed
 
+### System Tests (Selenium Setup)
+
+System tests use Chromium with Selenium WebDriver in headless mode. The configuration is set up in `spec/support/capybara.rb`:
+
+- **Driver**: Chromium in headless mode (`:chrome_headless`)
+- **Browser options**: Configured for Docker environment with `--no-sandbox`, `--disable-dev-shm-usage`
+- **Screenshots**: Automatically saved to `tmp/screenshots/` when tests fail
+- **Engine support**: Both main app and engine system tests are configured
+
+**Running System Tests**:
+```bash
+# Run all system tests
+docker-compose run --rm web bundle exec rspec spec/system/
+
+# Run specific system test
+docker-compose run --rm web bundle exec rspec spec/system/document_upload_workflow_spec.rb
+
+# Run engine system tests
+docker-compose run --rm web bundle exec rspec engines/immo_promo/spec/system/
+```
+
+**Note**: The Dockerfile.dev includes Chromium and chromium-driver for system test support.
+
 ## Running Ruby Commands
 
 All Ruby-dependent commands (such as `rspec`, `bundle`, `rails`, etc.) should be run inside a Docker container. Use the following patterns:

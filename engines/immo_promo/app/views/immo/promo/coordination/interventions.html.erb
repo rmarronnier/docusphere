@@ -1,0 +1,282 @@
+<div class="interventions-page">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Interventions en Cours</h1>
+      <p class="text-gray-600"><%= @project.name %> • <%= @project.reference_number %></p>
+    </div>
+    <%= link_to 'Retour au dashboard', 
+        immo_promo_engine.project_coordination_dashboard_path(@project),
+        class: 'btn btn-secondary' %>
+  </div>
+
+  <!-- Résumé des interventions -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="bg-green-50 rounded-lg p-6">
+      <div class="flex items-center">
+        <%= render Ui::IconComponent.new(name: 'play', classes: 'h-8 w-8 text-green-600') %>
+        <div class="ml-4">
+          <h3 class="text-2xl font-bold text-green-900"><%= @current_interventions.count %></h3>
+          <p class="text-green-700">En cours</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-blue-50 rounded-lg p-6">
+      <div class="flex items-center">
+        <%= render Ui::IconComponent.new(name: 'clock', classes: 'h-8 w-8 text-blue-600') %>
+        <div class="ml-4">
+          <h3 class="text-2xl font-bold text-blue-900"><%= @upcoming_interventions.count %></h3>
+          <p class="text-blue-700">À venir (2 semaines)</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-red-50 rounded-lg p-6">
+      <div class="flex items-center">
+        <%= render Ui::IconComponent.new(name: 'exclamation-triangle', classes: 'h-8 w-8 text-red-600') %>
+        <div class="ml-4">
+          <h3 class="text-2xl font-bold text-red-900"><%= @conflicts.count %></h3>
+          <p class="text-red-700">Conflits détectés</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alertes de conflits -->
+  <% if @conflicts.any? %>
+    <div class="bg-red-50 border border-red-200 rounded-lg p-6 mb-8">
+      <h2 class="text-lg font-semibold text-red-800 mb-4">
+        <%= render Ui::IconComponent.new(name: 'exclamation-triangle', classes: 'h-5 w-5 inline mr-2') %>
+        Conflits de Planning Détectés
+      </h2>
+      
+      <div class="space-y-4">
+        <% @conflicts.each do |conflict| %>
+          <div class="bg-white rounded-lg p-4 border border-red-200">
+            <div class="flex items-start justify-between">
+              <div>
+                <h3 class="font-medium text-red-900"><%= conflict[:description] %></h3>
+                <p class="text-sm text-red-700 mt-1">
+                  Intervenant: <%= conflict[:stakeholder].name %>
+                  • Sévérité: <%= conflict[:severity].humanize %>
+                </p>
+                <div class="mt-2">
+                  <p class="text-sm text-gray-700 font-medium">Tâches concernées:</p>
+                  <ul class="text-sm text-gray-600 ml-4">
+                    <% conflict[:tasks].each do |task| %>
+                      <li>• <%= task.name %> (<%= task.phase.name %>)</li>
+                    <% end %>
+                  </ul>
+                </div>
+              </div>
+              <%= link_to 'Résoudre', 
+                  immo_promo_engine.project_coordination_conflicts_resolution_path(@project),
+                  class: 'btn btn-sm btn-danger' %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Interventions en cours -->
+  <div class="bg-white shadow rounded-lg mb-8">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h2 class="text-lg font-semibold text-gray-900">
+        <%= render Ui::IconComponent.new(name: 'play', classes: 'h-5 w-5 inline mr-2 text-green-600') %>
+        Interventions Actives
+      </h2>
+    </div>
+    
+    <div class="p-6">
+      <% if @current_interventions.any? %>
+        <div class="space-y-4">
+          <% @current_interventions.each do |intervention| %>
+            <div class="border rounded-lg p-4 hover:bg-gray-50">
+              <div class="flex items-start justify-between">
+                <div class="flex-1">
+                  <div class="flex items-center">
+                    <%= render Ui::IconComponent.new(name: stakeholder_role_icon(intervention.assigned_to.stakeholder_type), 
+                        classes: 'h-5 w-5 text-gray-500 mr-2') %>
+                    <h3 class="font-medium text-gray-900"><%= intervention.name %></h3>
+                    <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      En cours
+                    </span>
+                  </div>
+                  
+                  <div class="mt-2 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
+                    <div>
+                      <p><strong>Intervenant:</strong> <%= intervention.assigned_to.name %></p>
+                      <p><strong>Rôle:</strong> <%= intervention.assigned_to.stakeholder_type.humanize %></p>
+                    </div>
+                    <div>
+                      <p><strong>Phase:</strong> <%= intervention.phase.name %></p>
+                      <p><strong>Priorité:</strong> 
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium 
+                                     <%= task_priority_badge(intervention.priority)[:color] == 'red' ? 'bg-red-100 text-red-800' : 
+                                         task_priority_badge(intervention.priority)[:color] == 'yellow' ? 'bg-yellow-100 text-yellow-800' : 
+                                         'bg-gray-100 text-gray-800' %>">
+                          <%= task_priority_badge(intervention.priority)[:text] %>
+                        </span>
+                      </p>
+                    </div>
+                    <div>
+                      <p><strong>Début:</strong> <%= l(intervention.start_date, format: :short) %></p>
+                      <p class="<%= deadline_urgency_class(intervention.due_date) %>">
+                        <strong>Échéance:</strong> <%= l(intervention.due_date, format: :short) %>
+                        <% if days_until_deadline(intervention.due_date) <= 3 %>
+                          <span class="ml-1 text-xs">(<%= days_until_deadline(intervention.due_date) %> jours)</span>
+                        <% end %>
+                      </p>
+                    </div>
+                  </div>
+
+                  <!-- Barre de progression -->
+                  <% if intervention.completion_percentage.present? %>
+                    <div class="mt-3">
+                      <div class="flex items-center justify-between text-sm">
+                        <span class="text-gray-600">Progression</span>
+                        <span class="font-medium text-gray-900"><%= intervention.completion_percentage %>%</span>
+                      </div>
+                      <div class="mt-1 bg-gray-200 rounded-full h-2">
+                        <div class="bg-green-600 h-2 rounded-full" 
+                             style="width: <%= intervention.completion_percentage %>%"></div>
+                      </div>
+                    </div>
+                  <% end %>
+
+                  <!-- Description -->
+                  <% if intervention.description.present? %>
+                    <div class="mt-3">
+                      <p class="text-sm text-gray-700"><%= truncate(intervention.description, length: 150) %></p>
+                    </div>
+                  <% end %>
+                </div>
+
+                <div class="ml-4 flex flex-col space-y-2">
+                  <%= link_to immo_promo_engine.project_phase_task_path(@project, intervention.phase, intervention),
+                      class: 'btn btn-sm btn-outline-primary' do %>
+                    <%= render Ui::IconComponent.new(name: 'eye', classes: 'h-4 w-4 mr-1') %>
+                    Voir
+                  <% end %>
+                  
+                  <% if policy(intervention).update? %>
+                    <%= link_to immo_promo_engine.edit_project_phase_task_path(@project, intervention.phase, intervention),
+                        class: 'btn btn-sm btn-outline-secondary' do %>
+                      <%= render Ui::IconComponent.new(name: 'pencil', classes: 'h-4 w-4 mr-1') %>
+                      Modifier
+                    <% end %>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="text-center py-12">
+          <%= render Ui::IconComponent.new(name: 'calendar-x', classes: 'h-12 w-12 text-gray-400 mx-auto mb-4') %>
+          <h3 class="text-lg font-medium text-gray-900 mb-2">Aucune intervention en cours</h3>
+          <p class="text-gray-600">Toutes les tâches sont en attente ou terminées.</p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Prochaines interventions -->
+  <div class="bg-white shadow rounded-lg">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h2 class="text-lg font-semibold text-gray-900">
+        <%= render Ui::IconComponent.new(name: 'clock', classes: 'h-5 w-5 inline mr-2 text-blue-600') %>
+        Prochaines Interventions (2 semaines)
+      </h2>
+    </div>
+    
+    <div class="p-6">
+      <% if @upcoming_interventions.any? %>
+        <div class="space-y-4">
+          <% @upcoming_interventions.group_by { |i| i.start_date.beginning_of_week }.each do |week_start, interventions| %>
+            <div>
+              <h3 class="text-sm font-medium text-gray-700 mb-3">
+                Semaine du <%= l(week_start, format: '%d %B %Y') %>
+              </h3>
+              
+              <div class="space-y-3 ml-4">
+                <% interventions.each do |intervention| %>
+                  <div class="border-l-4 border-blue-500 pl-4 py-2">
+                    <div class="flex items-center justify-between">
+                      <div>
+                        <h4 class="font-medium text-gray-900"><%= intervention.name %></h4>
+                        <p class="text-sm text-gray-600">
+                          <%= intervention.assigned_to.name %> • 
+                          <%= intervention.phase.name %> • 
+                          Début: <%= l(intervention.start_date, format: :short) %>
+                        </p>
+                        <% if intervention.estimated_hours.present? %>
+                          <p class="text-xs text-gray-500">
+                            Durée estimée: <%= format_duration(intervention.estimated_hours) %>
+                          </p>
+                        <% end %>
+                      </div>
+                      
+                      <div class="text-right">
+                        <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                          <%= days_until_deadline(intervention.start_date) %> jours
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="text-center py-12">
+          <%= render Ui::IconComponent.new(name: 'calendar', classes: 'h-12 w-12 text-gray-400 mx-auto mb-4') %>
+          <h3 class="text-lg font-medium text-gray-900 mb-2">Aucune intervention planifiée</h3>
+          <p class="text-gray-600">Aucune tâche n'est prévue dans les 2 prochaines semaines.</p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Recommandations -->
+  <% if @recommendations.any? %>
+    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mt-8">
+      <h2 class="text-lg font-semibold text-yellow-800 mb-4">
+        <%= render Ui::IconComponent.new(name: 'light-bulb', classes: 'h-5 w-5 inline mr-2') %>
+        Recommandations d'Optimisation
+      </h2>
+      
+      <div class="space-y-3">
+        <% @recommendations.each do |recommendation| %>
+          <div class="bg-white rounded p-4">
+            <h3 class="font-medium text-gray-900 mb-1"><%= recommendation[:type].humanize %></h3>
+            <p class="text-sm text-gray-700 mb-2"><%= recommendation[:description] %></p>
+            
+            <% if recommendation[:actions].present? %>
+              <div class="mt-2">
+                <p class="text-xs font-medium text-gray-700 mb-1">Actions suggérées:</p>
+                <% recommendation[:actions].each do |action| %>
+                  <div class="text-xs text-gray-600 bg-gray-50 rounded p-2 mb-1">
+                    Tâche: <%= action[:task].name %> → 
+                    <% if action[:suggested_assignee] %>
+                      Réaffecter à <%= action[:suggested_assignee].name %>
+                    <% else %>
+                      <%= action[:reason] %>
+                    <% end %>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+            
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mt-2
+                         <%= recommendation[:priority] == 'high' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800' %>">
+              Priorité <%= recommendation[:priority].humanize %>
+            </span>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>

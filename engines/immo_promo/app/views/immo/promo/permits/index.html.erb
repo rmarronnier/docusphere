@@ -1,0 +1,279 @@
+<div class="space-y-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900 flex items-center">
+        <%= render Ui::IconComponent.new(name: :clipboard, size: 8, css_class: "text-green-600 mr-3") %>
+        Permis et Autorisations
+      </h1>
+      <p class="mt-1 text-sm text-gray-600">
+        <%= pluralize(@permits.count, 'permis') %> 
+        pour le projet <%= @project.name %>
+      </p>
+    </div>
+    
+    <div class="flex items-center space-x-3">
+      <%= render Ui::ButtonComponent.new(
+        text: "Nouveau permis",
+        variant: :primary,
+        icon: :plus,
+        href: immo_promo_engine.new_project_permit_path(@project)
+      ) %>
+    </div>
+  </div>
+
+  <!-- Filtres et statistiques -->
+  <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+    <!-- Statistiques -->
+    <div class="lg:col-span-1">
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-sm font-medium text-gray-900 mb-4">Aperçu</h3>
+        
+        <div class="space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-sm text-gray-600">Total</span>
+            <span class="text-sm font-medium text-gray-900">
+              <%= @project.permits.count %>
+            </span>
+          </div>
+          
+          <div class="flex items-center justify-between">
+            <span class="text-sm text-gray-600">En cours</span>
+            <span class="text-sm font-medium text-blue-600">
+              <%= @project.permits.where(status: ['draft', 'submitted', 'under_review']).count %>
+            </span>
+          </div>
+          
+          <div class="flex items-center justify-between">
+            <span class="text-sm text-gray-600">Approuvés</span>
+            <span class="text-sm font-medium text-green-600">
+              <%= @project.permits.where(status: 'approved').count %>
+            </span>
+          </div>
+          
+          <div class="flex items-center justify-between">
+            <span class="text-sm text-gray-600">Expirant bientôt</span>
+            <span class="text-sm font-medium text-orange-600">
+              <%= @project.permits.where('expiry_date < ?', 30.days.from_now).count %>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filtres -->
+    <div class="lg:col-span-3">
+      <div class="bg-white rounded-lg shadow p-6">
+        <%= form_with url: immo_promo_engine.project_permits_path(@project), 
+                      method: :get, 
+                      local: true, 
+                      class: "flex flex-wrap gap-4 items-end" do |form| %>
+          <div>
+            <%= form.label :status, "Statut", class: "block text-sm font-medium text-gray-700 mb-1" %>
+            <%= form.select :status, 
+                            options_for_select([
+                              ['Tous les statuts', ''],
+                              ['Brouillon', 'draft'],
+                              ['Soumis', 'submitted'],
+                              ['En cours d\'examen', 'under_review'],
+                              ['Approuvé', 'approved'],
+                              ['Rejeté', 'rejected'],
+                              ['Expiré', 'expired']
+                            ], params[:status]),
+                            { class: "mt-1 block w-48 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" } %>
+          </div>
+
+          <div>
+            <%= form.label :permit_type, "Type", class: "block text-sm font-medium text-gray-700 mb-1" %>
+            <%= form.select :permit_type, 
+                            options_for_select([
+                              ['Tous les types', ''],
+                              ['Permis de construire', 'building_permit'],
+                              ['Déclaration préalable', 'prior_declaration'],
+                              ['Permis de démolir', 'demolition_permit'],
+                              ['Permis d\'aménager', 'development_permit'],
+                              ['Autorisation travaux', 'work_authorization'],
+                              ['Certificat d\'urbanisme', 'urban_certificate']
+                            ], params[:permit_type]),
+                            { class: "mt-1 block w-48 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" } %>
+          </div>
+
+          <div>
+            <%= render Ui::ButtonComponent.new(
+              text: "Filtrer",
+              variant: :secondary,
+              icon: :adjustments
+            ) %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Liste des permis -->
+  <div class="bg-white rounded-lg shadow overflow-hidden">
+    <% if @permits.any? %>
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Permis
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Type
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Statut
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Autorité
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Échéances
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Coût
+              </th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% @permits.each do |permit| %>
+              <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <%= render Ui::IconComponent.new(
+                      name: permit_type_icon(permit.permit_type), 
+                      size: 5, 
+                      css_class: "text-gray-400 mr-3 flex-shrink-0"
+                    ) %>
+                    <div>
+                      <div class="text-sm font-medium text-gray-900">
+                        <%= link_to permit.name, 
+                                   immo_promo_engine.project_permit_path(@project, permit),
+                                   class: "hover:text-blue-600" %>
+                      </div>
+                      <% if permit.reference_number.present? %>
+                        <div class="text-sm text-gray-500">
+                          Réf. <%= permit.reference_number %>
+                        </div>
+                      <% end %>
+                    </div>
+                  </div>
+                </td>
+                
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <%= permit_type_label(permit.permit_type) %>
+                </td>
+                
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <%= render Ui::StatusBadgeComponent.new(
+                    status: permit.status,
+                    variant: permit_status_variant(permit.status)
+                  ) %>
+                </td>
+                
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <%= permit.issuing_authority %>
+                </td>
+                
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <% if permit.expected_approval_date.present? %>
+                    <div class="flex items-center">
+                      <%= render Ui::IconComponent.new(name: :clock, size: 4, css_class: "text-gray-400 mr-1") %>
+                      <%= l(permit.expected_approval_date, format: :short) %>
+                    </div>
+                  <% end %>
+                  
+                  <% if permit.expiry_date.present? %>
+                    <div class="flex items-center mt-1">
+                      <%= render Ui::IconComponent.new(
+                        name: :exclamation_triangle, 
+                        size: 4, 
+                        css_class: permit_expiry_warning_class(permit.expiry_date)
+                      ) %>
+                      <span class="<%= permit_expiry_text_class(permit.expiry_date) %>">
+                        Expire le <%= l(permit.expiry_date, format: :short) %>
+                      </span>
+                    </div>
+                  <% end %>
+                </td>
+                
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <% if permit.cost.present? %>
+                    <%= number_to_currency(permit.cost, unit: '€', separator: ',', delimiter: ' ') %>
+                  <% else %>
+                    <span class="text-gray-400">-</span>
+                  <% end %>
+                </td>
+                
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  <div class="flex items-center justify-end space-x-2">
+                    <%= link_to immo_promo_engine.project_permit_path(@project, permit),
+                               class: "text-blue-600 hover:text-blue-900" do %>
+                      <%= render Ui::IconComponent.new(name: :eye, size: 4) %>
+                    <% end %>
+                    
+                    <%= link_to immo_promo_engine.edit_project_permit_path(@project, permit),
+                               class: "text-gray-600 hover:text-gray-900" do %>
+                      <%= render Ui::IconComponent.new(name: :pencil, size: 4) %>
+                    <% end %>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <% if respond_to?(:pagy_nav) %>
+        <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+          <%== pagy_nav(@pagy) if @pagy.pages > 1 %>
+        </div>
+      <% end %>
+    <% else %>
+      <!-- État vide -->
+      <div class="text-center py-12">
+        <%= render Ui::IconComponent.new(name: :clipboard, size: 16, css_class: "mx-auto text-gray-400 mb-4") %>
+        <h3 class="text-lg font-medium text-gray-900 mb-2">Aucun permis</h3>
+        <p class="text-gray-600 mb-6">
+          <% if params[:status].present? || params[:permit_type].present? %>
+            Aucun permis ne correspond aux filtres sélectionnés.
+          <% else %>
+            Commencez par ajouter vos premiers permis et autorisations.
+          <% end %>
+        </p>
+        
+        <% unless params[:status].present? || params[:permit_type].present? %>
+          <%= render Ui::ButtonComponent.new(
+            text: "Ajouter un permis",
+            variant: :primary,
+            icon: :plus,
+            href: immo_promo_engine.new_project_permit_path(@project)
+          ) %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<%= content_for :page_scripts do %>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Auto-submit des filtres
+      const statusSelect = document.querySelector('select[name="status"]');
+      const typeSelect = document.querySelector('select[name="permit_type"]');
+      
+      [statusSelect, typeSelect].forEach(select => {
+        if (select) {
+          select.addEventListener('change', function() {
+            this.form.submit();
+          });
+        }
+      });
+    });
+  </script>
+<% end %>

@@ -75,8 +75,28 @@ class Ui::ButtonComponent < ApplicationComponent
   def render_icon
     return unless icon
     
-    # Simple icon representation for testing
-    content_tag(:i, "", class: "icon-#{icon} btn-icon")
+    render(Ui::IconComponent.new(
+      name: icon,
+      size: icon_size,
+      css_class: "btn-icon #{icon_classes}"
+    ))
+  end
+  
+  def icon_size
+    case size
+    when :xs, :sm then 4
+    when :md then 5
+    when :lg then 6
+    when :xl then 7
+    else 5
+    end
+  end
+  
+  def icon_classes
+    classes = []
+    classes << "mr-2" if icon_position == :left && text.present?
+    classes << "ml-2" if icon_position == :right && text.present?
+    classes.join(" ")
   end
   
   def render_spinner

@@ -1,0 +1,290 @@
+<div class="coordination-dashboard">
+  <!-- En-tête du projet -->
+  <%= render Ui::CardComponent.new(classes: 'mb-8') do %>
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">Coordination des Intervenants</h1>
+        <p class="text-gray-600"><%= @project.name %> • <%= @project.reference_number %></p>
+      </div>
+      <div class="flex items-center space-x-4">
+        <%= render Immo::Promo::Shared::ProgressIndicatorComponent.new(
+            progress: @coordination_report[:project_overview][:progress],
+            status: @coordination_report[:project_overview][:status]
+        ) %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Métriques clés -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <%= render Immo::Promo::Shared::MetricCardComponent.new(
+        title: 'Intervenants actifs',
+        value: @coordination_report[:project_overview][:stakeholders_count],
+        icon: 'users',
+        icon_color: 'text-blue-600'
+    ) %>
+
+    <%= render Immo::Promo::Shared::MetricCardComponent.new(
+        title: 'Tâches en cours',
+        value: @coordination_report[:project_overview][:active_tasks],
+        icon: 'clipboard-document-list',
+        icon_color: 'text-green-600'
+    ) %>
+
+    <%= render Immo::Promo::Shared::MetricCardComponent.new(
+        title: 'Conflits détectés',
+        value: @coordination_data[:conflicts].count,
+        icon: 'exclamation-triangle',
+        icon_color: @coordination_data[:conflicts].any? ? 'text-red-600' : 'text-gray-400'
+    ) %>
+
+    <%= render Immo::Promo::Shared::MetricCardComponent.new(
+        title: 'Conformes',
+        value: "#{compliant_stakeholders_count(@certifications_status)}/#{@certifications_status.count}",
+        icon: 'shield-check',
+        icon_color: certification_status_color(@certifications_status)
+    ) %>
+  </div>
+
+  <!-- Alertes critiques -->
+  <% if @coordination_data[:conflicts].any? || critical_certifications?(@certifications_status) %>
+    <% alerts = [] %>
+    
+    <% @coordination_data[:conflicts].each do |conflict| %>
+      <% alerts << {
+        title: conflict[:type].to_s.humanize,
+        description: conflict[:description],
+        severity: conflict[:severity],
+        action: {
+          text: 'Résoudre les conflits',
+          path: immo_promo_engine.project_coordination_conflicts_resolution_path(@project)
+        }
+      } %>
+    <% end %>
+    
+    <% @certifications_status.select { |cs| cs[:status] == 'critical' }.each do |stakeholder_cert| %>
+      <% alerts << {
+        title: stakeholder_cert[:stakeholder].name,
+        description: "#{pluralize(stakeholder_cert[:expired].count, 'certification expirée')}, #{pluralize(stakeholder_cert[:missing].count, 'certification manquante')}",
+        severity: 'critical',
+        action: {
+          text: 'Gérer les certifications',
+          path: immo_promo_engine.project_coordination_certifications_path(@project)
+        }
+      } %>
+    <% end %>
+    
+    <div class="mb-8">
+      <%= render Immo::Promo::Shared::AlertBannerComponent.new(
+          alerts: alerts,
+          type: 'danger',
+          title: 'Alertes Critiques'
+      ) %>
+    </div>
+  <% end %>
+
+  <!-- Navigation par onglets -->
+  <%= render Ui::CardComponent.new(classes: 'mb-8') do %>
+    <div class="border-b border-gray-200">
+      <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+        <% [
+          { path: immo_promo_engine.project_coordination_interventions_path(@project), icon: 'calendar', label: 'Interventions en cours', action: 'interventions' },
+          { path: immo_promo_engine.project_coordination_timeline_path(@project), icon: 'clock', label: 'Timeline Générale', action: 'timeline' },
+          { path: immo_promo_engine.project_coordination_performance_path(@project), icon: 'chart-bar', label: 'Performances', action: 'performance' },
+          { path: immo_promo_engine.project_coordination_certifications_path(@project), icon: 'shield-check', label: 'Certifications', action: 'certifications' }
+        ].each do |tab| %>
+          <%= link_to tab[:path],
+              class: "whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm #{params[:action] == tab[:action] ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}" do %>
+            <%= render Ui::IconComponent.new(name: tab[:icon], classes: 'h-5 w-5 inline mr-2') %>
+            <%= tab[:label] %>
+          <% end %>
+        <% end %>
+      </nav>
+    </div>
+  <% end %>
+
+  <!-- Vue d'ensemble des interventions actuelles -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+    <!-- Interventions en cours -->
+    <%= render Ui::CardComponent.new(
+        header: {
+          title: 'Interventions en Cours',
+          icon: 'play',
+          icon_color: 'text-green-600'
+        }
+    ) do %>
+      <% if @coordination_data[:current_interventions].any? %>
+        <div class="space-y-3">
+          <% @coordination_data[:current_interventions].limit(5).each do |intervention| %>
+            <div class="border rounded-lg p-3">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h3 class="font-medium text-gray-900"><%= intervention.name %></h3>
+                  <p class="text-sm text-gray-600"><%= intervention.assigned_to.name %></p>
+                </div>
+                <div class="text-right">
+                  <p class="text-sm text-gray-900">Phase: <%= intervention.phase.name %></p>
+                  <p class="text-xs text-gray-600">Échéance: <%= l(intervention.due_date, format: :short) %></p>
+                </div>
+              </div>
+              
+              <% if intervention.completion_percentage.present? %>
+                <div class="mt-2">
+                  <%= render Immo::Promo::Shared::ProgressIndicatorComponent.new(
+                      progress: intervention.completion_percentage,
+                      show_label: false,
+                      size: 'small',
+                      color_scheme: 'green'
+                  ) %>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+        
+        <% if @coordination_data[:current_interventions].count > 5 %>
+          <p class="text-sm text-gray-600 mt-4">
+            Et <%= @coordination_data[:current_interventions].count - 5 %> autres interventions...
+          </p>
+        <% end %>
+      <% else %>
+        <p class="text-gray-600">Aucune intervention en cours</p>
+      <% end %>
+      
+      <div class="mt-4">
+        <%= link_to 'Voir toutes les interventions', 
+            immo_promo_engine.project_coordination_interventions_path(@project),
+            class: 'text-blue-600 hover:text-blue-700 text-sm font-medium' %>
+      </div>
+    <% end %>
+
+    <!-- Prochaines interventions -->
+    <%= render Ui::CardComponent.new(
+        header: {
+          title: 'Prochaines Interventions',
+          icon: 'clock',
+          icon_color: 'text-blue-600'
+        }
+    ) do %>
+      <% if @coordination_data[:upcoming_interventions].any? %>
+        <div class="space-y-3">
+          <% @coordination_data[:upcoming_interventions].limit(5).each do |intervention| %>
+            <div class="border rounded-lg p-3">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h3 class="font-medium text-gray-900"><%= intervention.name %></h3>
+                  <p class="text-sm text-gray-600"><%= intervention.assigned_to.name %></p>
+                </div>
+                <div class="text-right">
+                  <p class="text-sm text-gray-900">Début: <%= l(intervention.start_date, format: :short) %></p>
+                  <p class="text-xs text-gray-600"><%= intervention.phase.name %></p>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+        
+        <% if @coordination_data[:upcoming_interventions].count > 5 %>
+          <p class="text-sm text-gray-600 mt-4">
+            Et <%= @coordination_data[:upcoming_interventions].count - 5 %> autres interventions...
+          </p>
+        <% end %>
+      <% else %>
+        <p class="text-gray-600">Aucune intervention planifiée dans les 2 prochaines semaines</p>
+      <% end %>
+    <% end %>
+  </div>
+
+  <!-- Recommandations -->
+  <% if @coordination_data[:recommendations].any? %>
+    <div class="mb-8">
+      <%= render Immo::Promo::Shared::AlertBannerComponent.new(
+          alerts: @coordination_data[:recommendations].map { |r| {
+            title: r[:type].humanize,
+            description: r[:description],
+            severity: r[:priority]
+          }},
+          type: 'warning',
+          title: 'Recommandations',
+          icon: 'light-bulb'
+      ) %>
+    </div>
+  <% end %>
+
+  <!-- Actions rapides -->
+  <%= render Ui::CardComponent.new(header: { title: 'Actions Rapides' }) do %>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <% [
+        { path: immo_promo_engine.project_coordination_conflicts_resolution_path(@project), icon: 'exclamation-triangle', color: 'red', title: 'Résoudre les conflits', subtitle: "#{@coordination_data[:conflicts].count} conflits" },
+        { path: '#send-alert-modal', icon: 'megaphone', color: 'blue', title: 'Envoyer une alerte', subtitle: 'Notifier les intervenants', modal: true },
+        { path: immo_promo_engine.export_project_coordination_report_path(@project, format: :pdf), icon: 'document-arrow-down', color: 'green', title: 'Exporter rapport', subtitle: 'PDF / Excel' },
+        { path: immo_promo_engine.project_stakeholders_path(@project), icon: 'users', color: 'gray', title: 'Gérer intervenants', subtitle: 'Ajouter / Modifier' }
+      ].each do |action| %>
+        <%= link_to action[:path],
+            class: "bg-#{action[:color]}-50 hover:bg-#{action[:color]}-100 rounded-lg p-4 text-center transition-colors",
+            data: action[:modal] ? { bs_toggle: 'modal' } : {} do %>
+          <%= render Ui::IconComponent.new(name: action[:icon], classes: "h-8 w-8 text-#{action[:color]}-600 mx-auto mb-2") %>
+          <p class="text-sm font-medium text-<%= action[:color] %>-800"><%= action[:title] %></p>
+          <p class="text-xs text-<%= action[:color] %>-600"><%= action[:subtitle] %></p>
+        <% end %>
+      <% end %>
+    </div>
+  <% end %>
+</div>
+
+<!-- Modal d'envoi d'alerte -->
+<%= render Ui::ModalComponent.new(id: 'send-alert-modal', title: 'Envoyer une Alerte de Coordination') do %>
+  <%= form_with url: immo_promo_engine.send_project_coordination_alert_path(@project), method: :post, local: true do |form| %>
+    <div class="space-y-4">
+      <div>
+        <%= form.label :alert_type, 'Type d\'alerte', class: 'block text-sm font-medium text-gray-700 mb-2' %>
+        <%= form.select :alert_type, 
+            options_for_select([
+              ['Urgence', 'urgent'],
+              ['Planning modifié', 'schedule_change'],
+              ['Certification requise', 'certification_required'],
+              ['Réunion de coordination', 'coordination_meeting'],
+              ['Information générale', 'general']
+            ]), 
+            { prompt: 'Sélectionner un type' },
+            { class: 'block w-full rounded-md border-gray-300 shadow-sm' } %>
+      </div>
+      
+      <div>
+        <%= form.label :stakeholder_ids, 'Destinataires', class: 'block text-sm font-medium text-gray-700 mb-2' %>
+        <div class="space-y-2 max-h-40 overflow-y-auto border rounded-md p-3">
+          <% @project.stakeholders.each do |stakeholder| %>
+            <label class="flex items-center">
+              <%= check_box_tag 'stakeholder_ids[]', stakeholder.id, false, class: 'rounded border-gray-300 text-blue-600 shadow-sm' %>
+              <span class="ml-2 text-sm text-gray-900">
+                <%= stakeholder.name %> 
+                <%= render Ui::StatusBadgeComponent.new(status: stakeholder.stakeholder_type, preset: 'role', size: 'small') %>
+              </span>
+            </label>
+          <% end %>
+        </div>
+      </div>
+      
+      <div>
+        <%= form.label :message, 'Message', class: 'block text-sm font-medium text-gray-700 mb-2' %>
+        <%= form.text_area :message, 
+            placeholder: 'Votre message...',
+            class: 'block w-full rounded-md border-gray-300 shadow-sm',
+            rows: 4 %>
+      </div>
+    </div>
+    
+    <div class="mt-6 flex justify-end space-x-3">
+      <%= render Ui::ButtonComponent.new(
+          text: 'Annuler',
+          variant: 'secondary',
+          data: { bs_dismiss: 'modal' }
+      ) %>
+      <%= render Ui::ButtonComponent.new(
+          text: 'Envoyer l\'alerte',
+          variant: 'primary',
+          type: 'submit'
+      ) %>
+    </div>
+  <% end %>
+<% end %>

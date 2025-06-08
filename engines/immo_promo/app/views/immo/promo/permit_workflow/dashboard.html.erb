@@ -1,0 +1,544 @@
+<div class="permit-workflow-dashboard">
+  <!-- En-tête du projet -->
+  <div class="bg-white shadow rounded-lg p-6 mb-8">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">Workflow Permis & Autorisations</h1>
+        <p class="text-gray-600"><%= @project.name %> • <%= @project.reference_number %></p>
+        <div class="mt-2">
+          <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
+                       <%= project_status_badge(@project.status)[:color] == 'green' ? 'bg-green-100 text-green-800' :
+                           project_status_badge(@project.status)[:color] == 'blue' ? 'bg-blue-100 text-blue-800' :
+                           project_status_badge(@project.status)[:color] == 'yellow' ? 'bg-yellow-100 text-yellow-800' :
+                           'bg-gray-100 text-gray-800' %>">
+            <%= project_status_badge(@project.status)[:text] %>
+          </span>
+          <span class="ml-2 text-sm text-gray-600">
+            Type: <%= @project.project_type.humanize %>
+          </span>
+        </div>
+      </div>
+      <div class="flex items-center space-x-4">
+        <%= link_to 'Guide workflow', 
+            immo_promo_engine.project_permit_workflow_guide_path(@project),
+            class: 'btn btn-outline-primary' %>
+        <%= link_to 'Export rapport', 
+            immo_promo_engine.export_project_permit_workflow_report_path(@project, format: :pdf),
+            class: 'btn btn-outline-secondary' %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Métriques clés -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div class="bg-white rounded-lg shadow p-6">
+      <div class="flex items-center">
+        <%= render Ui::IconComponent.new(name: 'document-text', classes: 'h-8 w-8 text-blue-600') %>
+        <div class="ml-4">
+          <h3 class="text-lg font-semibold text-gray-900"><%= @permit_status[:total] %></h3>
+          <p class="text-sm text-gray-600">Permis total</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-6">
+      <div class="flex items-center">
+        <%= render Ui::IconComponent.new(name: 'check-circle', classes: 'h-8 w-8 text-green-600') %>
+        <div class="ml-4">
+          <h3 class="text-lg font-semibold text-gray-900"><%= @permit_status[:by_status][:approved] || 0 %></h3>
+          <p class="text-sm text-gray-600">Approuvés</p>
+          <p class="text-xs text-gray-500"><%= @permit_status[:approval_rate] %>% taux d'approbation</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-6">
+      <div class="flex items-center">
+        <%= render Ui::IconComponent.new(name: 'clock', classes: 'h-8 w-8 text-yellow-600') %>
+        <div class="ml-4">
+          <h3 class="text-lg font-semibold text-gray-900"><%= @permit_status[:by_status][:submitted] || 0 %></h3>
+          <p class="text-sm text-gray-600">En cours</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-6">
+      <div class="flex items-center">
+        <%= render Ui::IconComponent.new(name: 'building-office-2', 
+            classes: @critical_permits[:ready_for_construction] ? 'h-8 w-8 text-green-600' : 'h-8 w-8 text-red-600') %>
+        <div class="ml-4">
+          <h3 class="text-lg font-semibold text-gray-900">
+            <%= @critical_permits[:ready_for_construction] ? 'Prêt' : 'Non prêt' %>
+          </h3>
+          <p class="text-sm text-gray-600">Construction</p>
+          <p class="text-xs text-gray-500">
+            <%= @critical_permits[:approved_count] %>/<%= @critical_permits[:total_count] %> permis critiques
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alertes critiques -->
+  <% if @bottlenecks.any? || !@compliance_check[:compliant] %>
+    <div class="bg-red-50 border border-red-200 rounded-lg p-6 mb-8">
+      <h2 class="text-lg font-semibold text-red-800 mb-4">
+        <%= render Ui::IconComponent.new(name: 'exclamation-triangle', classes: 'h-5 w-5 inline mr-2') %>
+        Alertes Critiques
+      </h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Goulots d'étranglement -->
+        <% if @bottlenecks.any? %>
+          <div>
+            <h3 class="font-medium text-red-800 mb-3">Goulots d'Étranglement</h3>
+            <% @bottlenecks.each do |bottleneck| %>
+              <div class="bg-white rounded p-3 mb-2">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-sm font-medium text-gray-900"><%= bottleneck[:message] %></p>
+                    <p class="text-xs text-gray-600">Type: <%= bottleneck[:type].to_s.humanize %></p>
+                  </div>
+                  <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium
+                               <%= bottleneck[:severity] == :critical ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800' %>">
+                    <%= bottleneck[:severity].to_s.humanize %>
+                  </span>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+
+        <!-- Problèmes de conformité -->
+        <% unless @compliance_check[:compliant] %>
+          <div>
+            <h3 class="font-medium text-red-800 mb-3">Non-Conformités</h3>
+            <% @compliance_check[:issues].each do |issue| %>
+              <div class="bg-white rounded p-3 mb-2">
+                <p class="text-sm font-medium text-gray-900">
+                  <%= issue[:permit].permit_type.humanize %> 
+                  <span class="text-gray-600">(#<%= issue[:permit].permit_number %>)</span>
+                </p>
+                <% if issue[:issue_type] == 'expired' %>
+                  <p class="text-xs text-red-600">Permis expiré</p>
+                <% else %>
+                  <p class="text-xs text-gray-600">
+                    <%= pluralize(issue[:unmet_conditions].count, 'condition non remplie') %>
+                  </p>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Navigation par onglets -->
+  <div class="bg-white shadow rounded-lg mb-8">
+    <div class="border-b border-gray-200">
+      <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+        <%= link_to immo_promo_engine.project_permit_workflow_guide_path(@project),
+            class: "whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300" do %>
+          <%= render Ui::IconComponent.new(name: 'map', classes: 'h-5 w-5 inline mr-2') %>
+          Guide Workflow
+        <% end %>
+
+        <%= link_to immo_promo_engine.project_permit_workflow_compliance_checklist_path(@project),
+            class: "whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300" do %>
+          <%= render Ui::IconComponent.new(name: 'clipboard-document-check', classes: 'h-5 w-5 inline mr-2') %>
+          Checklist Conformité
+        <% end %>
+
+        <%= link_to immo_promo_engine.project_permit_workflow_timeline_tracker_path(@project),
+            class: "whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300" do %>
+          <%= render Ui::IconComponent.new(name: 'calendar-days', classes: 'h-5 w-5 inline mr-2') %>
+          Timeline & Délais
+        <% end %>
+
+        <%= link_to immo_promo_engine.project_permit_workflow_critical_path_path(@project),
+            class: "whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300" do %>
+          <%= render Ui::IconComponent.new(name: 'bolt', classes: 'h-5 w-5 inline mr-2') %>
+          Chemin Critique
+        <% end %>
+      </nav>
+    </div>
+  </div>
+
+  <!-- Actions prioritaires -->
+  <% if @next_actions.any? %>
+    <div class="bg-white shadow rounded-lg p-6 mb-8">
+      <h2 class="text-lg font-semibold text-gray-900 mb-4">
+        <%= render Ui::IconComponent.new(name: 'list-bullet', classes: 'h-5 w-5 inline mr-2 text-blue-600') %>
+        Actions Prioritaires
+      </h2>
+      
+      <div class="space-y-3">
+        <% @next_actions.first(5).each do |action| %>
+          <div class="border rounded-lg p-4 <%= action[:urgency] == :critical ? 'border-red-200 bg-red-50' : 
+                                                  action[:urgency] == :high ? 'border-yellow-200 bg-yellow-50' : 
+                                                  'border-gray-200' %>">
+            <div class="flex items-center justify-between">
+              <div class="flex-1">
+                <h3 class="font-medium text-gray-900"><%= action[:action] %></h3>
+                <p class="text-sm text-gray-600 mt-1">
+                  Permis: <%= action[:permit].permit_type.humanize %>
+                  <% if action[:permit].permit_number.present? %>
+                    (#<%= action[:permit].permit_number %>)
+                  <% end %>
+                </p>
+                
+                <% case action[:type] %>
+                <% when :submit_permit %>
+                  <p class="text-xs text-gray-500 mt-1">
+                    Délai recommandé: <%= l(action[:deadline], format: :short) if action[:deadline] %>
+                  </p>
+                <% when :follow_up %>
+                  <p class="text-xs text-gray-500 mt-1">
+                    En retard de <%= action[:overdue_days] %> jours
+                  </p>
+                <% when :use_or_extend %>
+                  <p class="text-xs text-gray-500 mt-1">
+                    <%= action[:days_remaining] %> jours restants
+                  </p>
+                <% end %>
+              </div>
+              
+              <div class="ml-4 flex items-center space-x-2">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                             <%= action[:urgency] == :critical ? 'bg-red-100 text-red-800' :
+                                 action[:urgency] == :high ? 'bg-yellow-100 text-yellow-800' :
+                                 'bg-blue-100 text-blue-800' %>">
+                  <%= action[:urgency].to_s.humanize %>
+                </span>
+                
+                <% case action[:type] %>
+                <% when :submit_permit %>
+                  <%= link_to 'Soumettre', 
+                      immo_promo_engine.submit_project_permit_workflow_permit_path(@project, action[:permit]),
+                      method: :post,
+                      class: 'btn btn-sm btn-primary',
+                      data: { confirm: 'Confirmer la soumission de ce permis ?' } %>
+                <% when :follow_up %>
+                  <%= link_to 'Relancer', 
+                      immo_promo_engine.track_project_permit_workflow_response_path(@project, action[:permit]),
+                      method: :post,
+                      class: 'btn btn-sm btn-warning' %>
+                <% when :use_or_extend %>
+                  <%= link_to 'Prolonger', 
+                      '#extend-permit-modal',
+                      class: 'btn btn-sm btn-secondary',
+                      data: { 
+                        bs_toggle: 'modal',
+                        permit_id: action[:permit].id,
+                        permit_type: action[:permit].permit_type.humanize
+                      } %>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+      
+      <% if @next_actions.count > 5 %>
+        <div class="mt-4 text-center">
+          <p class="text-sm text-gray-600">Et <%= @next_actions.count - 5 %> autres actions à traiter...</p>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <!-- État des permis par catégorie -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+    <!-- Permis critiques -->
+    <div class="bg-white shadow rounded-lg p-6">
+      <h2 class="text-lg font-semibold text-gray-900 mb-4">
+        <%= render Ui::IconComponent.new(name: 'star', classes: 'h-5 w-5 inline mr-2 text-yellow-600') %>
+        Permis Critiques
+      </h2>
+      
+      <% if @critical_permits[:critical_permits].any? %>
+        <div class="space-y-3">
+          <% @critical_permits[:critical_permits].each do |permit| %>
+            <div class="border rounded-lg p-3">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h3 class="font-medium text-gray-900"><%= permit.permit_type.humanize %></h3>
+                  <% if permit.permit_number.present? %>
+                    <p class="text-sm text-gray-600">#<%= permit.permit_number %></p>
+                  <% end %>
+                </div>
+                <div class="text-right">
+                  <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium
+                               <%= permit.status == 'approved' ? 'bg-green-100 text-green-800' :
+                                   permit.status == 'submitted' ? 'bg-blue-100 text-blue-800' :
+                                   permit.status == 'denied' ? 'bg-red-100 text-red-800' :
+                                   'bg-gray-100 text-gray-800' %>">
+                    <%= permit.status.humanize %>
+                  </span>
+                  <% if permit.submission_date %>
+                    <p class="text-xs text-gray-500 mt-1">
+                      Soumis: <%= l(permit.submission_date, format: :short) %>
+                    </p>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+        
+        <div class="mt-4 p-3 rounded-lg <%= @critical_permits[:ready_for_construction] ? 'bg-green-50' : 'bg-yellow-50' %>">
+          <p class="text-sm font-medium <%= @critical_permits[:ready_for_construction] ? 'text-green-800' : 'text-yellow-800' %>">
+            <% if @critical_permits[:ready_for_construction] %>
+              <%= render Ui::IconComponent.new(name: 'check-circle', classes: 'h-4 w-4 inline mr-1') %>
+              Construction autorisée
+            <% else %>
+              <%= render Ui::IconComponent.new(name: 'clock', classes: 'h-4 w-4 inline mr-1') %>
+              Construction en attente
+              <% if @critical_permits[:missing_permits].any? %>
+                <br><span class="text-xs">Manquants: <%= @critical_permits[:missing_permits].join(', ').humanize %></span>
+              <% end %>
+            <% end %>
+          </p>
+        </div>
+      <% else %>
+        <div class="text-center py-8">
+          <%= render Ui::IconComponent.new(name: 'document-plus', classes: 'h-12 w-12 text-gray-400 mx-auto mb-4') %>
+          <h3 class="text-lg font-medium text-gray-900 mb-2">Aucun permis critique</h3>
+          <p class="text-gray-600">Commencez par créer les permis essentiels pour votre projet.</p>
+          <%= link_to 'Créer un permis', 
+              immo_promo_engine.new_project_permit_path(@project),
+              class: 'btn btn-primary mt-3' %>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Tous les permis -->
+    <div class="bg-white shadow rounded-lg p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-semibold text-gray-900">
+          <%= render Ui::IconComponent.new(name: 'document-text', classes: 'h-5 w-5 inline mr-2 text-blue-600') %>
+          Tous les Permis
+        </h2>
+        <%= link_to 'Voir tous', 
+            immo_promo_engine.project_permits_path(@project),
+            class: 'text-blue-600 hover:text-blue-700 text-sm font-medium' %>
+      </div>
+      
+      <% if @project.permits.any? %>
+        <!-- Graphique de répartition par statut -->
+        <div class="mb-4">
+          <div class="flex items-center justify-between text-sm text-gray-600 mb-2">
+            <span>Progression globale</span>
+            <span><%= @permit_status[:approval_rate] %>%</span>
+          </div>
+          <div class="bg-gray-200 rounded-full h-2">
+            <div class="bg-green-600 h-2 rounded-full" 
+                 style="width: <%= @permit_status[:approval_rate] %>%"></div>
+          </div>
+        </div>
+        
+        <!-- Répartition par statut -->
+        <div class="space-y-2">
+          <% @permit_status[:by_status].each do |status, count| %>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center">
+                <div class="w-3 h-3 rounded-full mr-2
+                           <%= status.to_s == 'approved' ? 'bg-green-500' :
+                               status.to_s == 'submitted' ? 'bg-blue-500' :
+                               status.to_s == 'denied' ? 'bg-red-500' :
+                               'bg-gray-500' %>"></div>
+                <span class="text-sm text-gray-700"><%= status.to_s.humanize %></span>
+              </div>
+              <span class="text-sm font-medium text-gray-900"><%= count %></span>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="text-center py-8">
+          <%= render Ui::IconComponent.new(name: 'document-plus', classes: 'h-12 w-12 text-gray-400 mx-auto mb-4') %>
+          <h3 class="text-lg font-medium text-gray-900 mb-2">Aucun permis créé</h3>
+          <p class="text-gray-600">Commencez par créer vos premiers permis.</p>
+          <%= link_to 'Créer un permis', 
+              immo_promo_engine.new_project_permit_path(@project),
+              class: 'btn btn-primary mt-3' %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Actions rapides -->
+  <div class="bg-white shadow rounded-lg p-6">
+    <h2 class="text-lg font-semibold text-gray-900 mb-4">Actions Rapides</h2>
+    
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <%= link_to immo_promo_engine.new_project_permit_path(@project),
+          class: "bg-blue-50 hover:bg-blue-100 rounded-lg p-4 text-center transition-colors" do %>
+        <%= render Ui::IconComponent.new(name: 'document-plus', classes: 'h-8 w-8 text-blue-600 mx-auto mb-2') %>
+        <p class="text-sm font-medium text-blue-800">Nouveau permis</p>
+        <p class="text-xs text-blue-600">Créer une demande</p>
+      <% end %>
+
+      <%= link_to immo_promo_engine.project_permit_workflow_compliance_checklist_path(@project),
+          class: "bg-green-50 hover:bg-green-100 rounded-lg p-4 text-center transition-colors" do %>
+        <%= render Ui::IconComponent.new(name: 'clipboard-document-check', classes: 'h-8 w-8 text-green-600 mx-auto mb-2') %>
+        <p class="text-sm font-medium text-green-800">Vérifier conformité</p>
+        <p class="text-xs text-green-600">Checklist réglementaire</p>
+      <% end %>
+
+      <%= link_to '#alert-administration-modal',
+          class: "bg-yellow-50 hover:bg-yellow-100 rounded-lg p-4 text-center transition-colors",
+          data: { bs_toggle: 'modal' } do %>
+        <%= render Ui::IconComponent.new(name: 'megaphone', classes: 'h-8 w-8 text-yellow-600 mx-auto mb-2') %>
+        <p class="text-sm font-medium text-yellow-800">Alerter administration</p>
+        <p class="text-xs text-yellow-600">Suivi de délai</p>
+      <% end %>
+
+      <%= link_to immo_promo_engine.export_project_permit_workflow_report_path(@project, format: :pdf),
+          class: "bg-gray-50 hover:bg-gray-100 rounded-lg p-4 text-center transition-colors" do %>
+        <%= render Ui::IconComponent.new(name: 'document-arrow-down', classes: 'h-8 w-8 text-gray-600 mx-auto mb-2') %>
+        <p class="text-sm font-medium text-gray-800">Exporter rapport</p>
+        <p class="text-xs text-gray-600">PDF / Excel</p>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de prolongation de permis -->
+<div class="modal fade" id="extend-permit-modal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <%= form_with url: immo_promo_engine.extend_project_permit_workflow_permit_path(@project, 'PERMIT_ID'), method: :post, local: true, id: 'extend-permit-form' do |form| %>
+        <div class="modal-header">
+          <h5 class="modal-title">Demander une Prolongation</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        
+        <div class="modal-body space-y-4">
+          <div>
+            <p class="text-sm text-gray-700 mb-3">
+              Permis: <span id="permit-type-display" class="font-medium"></span>
+            </p>
+          </div>
+          
+          <div>
+            <%= form.label :extension_months, 'Durée de prolongation', class: 'block text-sm font-medium text-gray-700 mb-2' %>
+            <%= form.select :extension_months, 
+                options_for_select([
+                  ['6 mois', 6],
+                  ['12 mois', 12],
+                  ['18 mois', 18],
+                  ['24 mois', 24]
+                ]), 
+                { selected: 12 },
+                { class: 'block w-full rounded-md border-gray-300 shadow-sm' } %>
+          </div>
+          
+          <div>
+            <%= form.label :justification, 'Justification', class: 'block text-sm font-medium text-gray-700 mb-2' %>
+            <%= form.text_area :justification, 
+                placeholder: 'Motif de la demande de prolongation...',
+                class: 'block w-full rounded-md border-gray-300 shadow-sm',
+                rows: 4 %>
+          </div>
+        </div>
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          <%= form.submit 'Demander la prolongation', class: 'btn btn-primary' %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<!-- Modal d'alerte administration -->
+<div class="modal fade" id="alert-administration-modal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <%= form_with url: immo_promo_engine.alert_project_permit_workflow_administration_path(@project), method: :post, local: true do |form| %>
+        <div class="modal-header">
+          <h5 class="modal-title">Alerter l'Administration</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        
+        <div class="modal-body space-y-4">
+          <div>
+            <%= form.label :permit_id, 'Permis concerné', class: 'block text-sm font-medium text-gray-700 mb-2' %>
+            <%= form.collection_select :permit_id, 
+                @project.permits.submitted, 
+                :id, 
+                :display_name,
+                { prompt: 'Sélectionner un permis' },
+                { class: 'block w-full rounded-md border-gray-300 shadow-sm' } %>
+          </div>
+          
+          <div>
+            <%= form.label :alert_type, 'Type d\'alerte', class: 'block text-sm font-medium text-gray-700 mb-2' %>
+            <%= form.select :alert_type, 
+                options_for_select([
+                  ['Demande de suivi de délai', 'delay_inquiry'],
+                  ['Demande urgente', 'urgent_request'],
+                  ['Demande de recours', 'appeal_request']
+                ]), 
+                { prompt: 'Sélectionner un type' },
+                { class: 'block w-full rounded-md border-gray-300 shadow-sm' } %>
+          </div>
+          
+          <div id="urgency-justification" style="display: none;">
+            <%= form.label :urgency_justification, 'Justification urgence', class: 'block text-sm font-medium text-gray-700 mb-2' %>
+            <%= form.text_area :urgency_justification, 
+                placeholder: 'Motif de l\'urgence...',
+                class: 'block w-full rounded-md border-gray-300 shadow-sm',
+                rows: 3 %>
+          </div>
+          
+          <div id="appeal-grounds" style="display: none;">
+            <%= form.label :appeal_grounds, 'Motifs du recours', class: 'block text-sm font-medium text-gray-700 mb-2' %>
+            <%= form.text_area :appeal_grounds, 
+                placeholder: 'Motifs légaux du recours...',
+                class: 'block w-full rounded-md border-gray-300 shadow-sm',
+                rows: 3 %>
+          </div>
+        </div>
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          <%= form.submit 'Envoyer l\'alerte', class: 'btn btn-primary' %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<script>
+// Gestion dynamique du modal de prolongation
+document.addEventListener('DOMContentLoaded', function() {
+  const extendModal = document.getElementById('extend-permit-modal');
+  const extendForm = document.getElementById('extend-permit-form');
+  const permitTypeDisplay = document.getElementById('permit-type-display');
+  
+  // Gestion des boutons de prolongation
+  document.querySelectorAll('[data-permit-id]').forEach(button => {
+    button.addEventListener('click', function() {
+      const permitId = this.getAttribute('data-permit-id');
+      const permitType = this.getAttribute('data-permit-type');
+      
+      permitTypeDisplay.textContent = permitType;
+      extendForm.action = extendForm.action.replace('PERMIT_ID', permitId);
+    });
+  });
+  
+  // Gestion du type d'alerte administration
+  const alertTypeSelect = document.querySelector('#alert_type');
+  const urgencyDiv = document.getElementById('urgency-justification');
+  const appealDiv = document.getElementById('appeal-grounds');
+  
+  if (alertTypeSelect) {
+    alertTypeSelect.addEventListener('change', function() {
+      urgencyDiv.style.display = this.value === 'urgent_request' ? 'block' : 'none';
+      appealDiv.style.display = this.value === 'appeal_request' ? 'block' : 'none';
+    });
+  }
+});
+</script>

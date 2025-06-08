@@ -1,0 +1,192 @@
+<div class="space-y-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900 flex items-center">
+        <%= render Ui::IconComponent.new(name: :users, size: 8, css_class: "text-blue-600 mr-3") %>
+        Intervenants
+      </h1>
+      <p class="mt-1 text-sm text-gray-600">
+        <%= pluralize(@stakeholders.count, 'intervenant', 'intervenants') %> 
+        sur le projet <%= @project.name %>
+      </p>
+    </div>
+    
+    <div class="flex items-center space-x-3">
+      <%= render Ui::ButtonComponent.new(
+        text: "Nouvel intervenant",
+        variant: :primary,
+        icon: :plus,
+        href: immo_promo_engine.new_project_stakeholder_path(@project)
+      ) %>
+    </div>
+  </div>
+
+  <!-- Filtres -->
+  <div class="bg-white rounded-lg shadow p-6">
+    <%= form_with url: immo_promo_engine.project_stakeholders_path(@project), 
+                  method: :get, 
+                  local: true, 
+                  class: "flex flex-wrap gap-4 items-end" do |form| %>
+      <div>
+        <%= form.label :role, "Rôle", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= form.select :role, 
+                        options_for_select([
+                          ['Tous les rôles', ''],
+                          ['Architecte', 'architect'],
+                          ['Ingénieur', 'engineer'],
+                          ['Entrepreneur', 'contractor'],
+                          ['Maître d\'œuvre', 'project_manager'],
+                          ['Contrôleur technique', 'technical_controller'],
+                          ['Coordinateur sécurité', 'safety_coordinator'],
+                          ['Bureau d\'études', 'design_office']
+                        ], params[:role]),
+                        { class: "mt-1 block w-48 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" } %>
+      </div>
+
+      <div>
+        <%= form.label :status, "Statut", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= form.select :status, 
+                        options_for_select([
+                          ['Tous les statuts', ''],
+                          ['En attente', 'pending'],
+                          ['Approuvé', 'approved'],
+                          ['Actif', 'active'],
+                          ['Suspendu', 'suspended'],
+                          ['Terminé', 'completed']
+                        ], params[:status]),
+                        { class: "mt-1 block w-48 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" } %>
+      </div>
+
+      <div>
+        <%= render Ui::ButtonComponent.new(
+          text: "Filtrer",
+          variant: :secondary,
+          icon: :adjustments
+        ) %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Grille des intervenants -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <% @stakeholders.each do |stakeholder| %>
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+        <div class="p-6">
+          <div class="flex items-start justify-between">
+            <div class="flex-1">
+              <div class="flex items-center space-x-2 mb-2">
+                <%= render Ui::IconComponent.new(
+                  name: stakeholder_role_icon(stakeholder.role), 
+                  size: 5, 
+                  css_class: "text-gray-600"
+                ) %>
+                <h3 class="text-lg font-medium text-gray-900">
+                  <%= link_to stakeholder.name, 
+                             immo_promo_engine.project_stakeholder_path(@project, stakeholder),
+                             class: "hover:text-blue-600" %>
+                </h3>
+              </div>
+              
+              <p class="text-sm text-gray-600 mb-1">
+                <%= stakeholder.role&.humanize %>
+              </p>
+              
+              <% if stakeholder.company_name.present? %>
+                <p class="text-sm text-gray-500 mb-2">
+                  <%= render Ui::IconComponent.new(name: :building, size: 4, css_class: "inline mr-1") %>
+                  <%= stakeholder.company_name %>
+                </p>
+              <% end %>
+              
+              <div class="flex items-center space-x-4 text-sm text-gray-500 mb-3">
+                <span class="flex items-center">
+                  <%= render Ui::IconComponent.new(name: :mail, size: 4, css_class: "mr-1") %>
+                  <%= stakeholder.email %>
+                </span>
+                
+                <% if stakeholder.phone.present? %>
+                  <span class="flex items-center">
+                    <%= render Ui::IconComponent.new(name: :phone, size: 4, css_class: "mr-1") %>
+                    <%= stakeholder.phone %>
+                  </span>
+                <% end %>
+              </div>
+              
+              <div class="flex items-center justify-between">
+                <%= render Ui::StatusBadgeComponent.new(
+                  status: stakeholder.status,
+                  variant: stakeholder_status_variant(stakeholder.status)
+                ) %>
+                
+                <% if stakeholder.qualification_level.present? %>
+                  <span class="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded-full">
+                    Niveau <%= stakeholder.qualification_level %>
+                  </span>
+                <% end %>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Actions rapides -->
+          <div class="mt-4 pt-4 border-t border-gray-200 flex justify-between items-center">
+            <div class="flex space-x-2">
+              <%= link_to immo_promo_engine.project_stakeholder_path(@project, stakeholder),
+                         class: "text-blue-600 hover:text-blue-800" do %>
+                <%= render Ui::IconComponent.new(name: :eye, size: 4) %>
+              <% end %>
+              
+              <%= link_to immo_promo_engine.edit_project_stakeholder_path(@project, stakeholder),
+                         class: "text-gray-600 hover:text-gray-800" do %>
+                <%= render Ui::IconComponent.new(name: :pencil, size: 4) %>
+              <% end %>
+            </div>
+            
+            <div class="text-xs text-gray-500">
+              <%= stakeholder.certifications.count %> certification(s)
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Pagination -->
+  <% if respond_to?(:pagy_nav) %>
+    <div class="flex justify-center">
+      <%== pagy_nav(@pagy) if @pagy.pages > 1 %>
+    </div>
+  <% end %>
+
+  <!-- État vide -->
+  <% if @stakeholders.empty? %>
+    <div class="text-center py-12">
+      <%= render Ui::IconComponent.new(name: :users, size: 16, css_class: "mx-auto text-gray-400 mb-4") %>
+      <h3 class="text-lg font-medium text-gray-900 mb-2">Aucun intervenant</h3>
+      <p class="text-gray-600 mb-6">Commencez par ajouter vos premiers intervenants au projet.</p>
+      <%= render Ui::ButtonComponent.new(
+        text: "Ajouter un intervenant",
+        variant: :primary,
+        icon: :plus,
+        href: immo_promo_engine.new_project_stakeholder_path(@project)
+      ) %>
+    </div>
+  <% end %>
+</div>
+
+<%= content_for :page_scripts do %>
+  <script>
+    // Auto-submit des filtres
+    document.addEventListener('DOMContentLoaded', function() {
+      const roleSelect = document.querySelector('select[name="role"]');
+      const statusSelect = document.querySelector('select[name="status"]');
+      
+      [roleSelect, statusSelect].forEach(select => {
+        if (select) {
+          select.addEventListener('change', function() {
+            this.form.submit();
+          });
+        }
+      });
+    });
+  </script>
+<% end %>

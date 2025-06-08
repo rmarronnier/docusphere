@@ -1,6 +1,6 @@
 FROM ruby:3.3.0
 
-# Install dependencies
+# Install dependencies including Chromium for system tests
 RUN apt-get update -qq && apt-get install -y \
     build-essential \
     libpq-dev \
@@ -13,6 +13,8 @@ RUN apt-get update -qq && apt-get install -y \
     tesseract-ocr \
     tesseract-ocr-fra \
     tesseract-ocr-eng \
+    chromium \
+    chromium-driver \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Bun
@@ -24,8 +26,9 @@ WORKDIR /app
 # Install bundler
 RUN gem install bundler
 
-# Copy Gemfile
-COPY Gemfile ./
+# Copy Gemfile and engine structure for bundle install
+COPY Gemfile Gemfile.lock* ./
+COPY engines/ ./engines/
 
 # Install gems (this will create Gemfile.lock)
 RUN bundle install

@@ -12,6 +12,7 @@ module Immo
       belongs_to :organization
       belongs_to :project_manager, class_name: 'User', optional: true
       has_many :phases, class_name: 'Immo::Promo::Phase', dependent: :destroy
+      has_many :tasks, through: :phases, class_name: 'Immo::Promo::Task'
       has_many :lots, class_name: 'Immo::Promo::Lot', dependent: :destroy
       has_many :stakeholders, class_name: 'Immo::Promo::Stakeholder', dependent: :destroy
       has_many :permits, class_name: 'Immo::Promo::Permit', dependent: :destroy

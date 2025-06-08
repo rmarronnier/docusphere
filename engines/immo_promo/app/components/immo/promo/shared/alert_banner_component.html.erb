@@ -1,0 +1,41 @@
+<% if alerts.any? %>
+  <div class="<%= styles[:bg] %> border <%= styles[:border] %> rounded-lg p-6">
+    <h2 class="text-lg font-semibold <%= styles[:title_color] %> mb-4">
+      <%= render Ui::IconComponent.new(name: icon, classes: "h-5 w-5 inline mr-2 #{styles[:icon_color]}") %>
+      <%= title %>
+    </h2>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <% alerts.each do |alert| %>
+        <div class="<%= styles[:item_bg] %> rounded p-3">
+          <% if alert[:title].present? %>
+            <h3 class="font-medium <%= styles[:text_color] %>"><%= alert[:title] %></h3>
+          <% end %>
+          
+          <% if alert[:description] || alert[:message] %>
+            <p class="text-sm <%= styles[:subtitle_color] %> <%= 'mt-1' if alert[:title].present? %>">
+              <%= alert[:description] || alert[:message] %>
+            </p>
+          <% end %>
+          
+          <% if alert[:severity].present? %>
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium mt-2
+                         <%= alert[:severity] == 'critical' || alert[:severity] == 'high' ? 'bg-red-100 text-red-800' :
+                             alert[:severity] == 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                             'bg-gray-100 text-gray-800' %>">
+              <%= alert[:severity].to_s.humanize %>
+            </span>
+          <% end %>
+          
+          <% if alert[:action].present? %>
+            <div class="mt-2">
+              <%= link_to alert[:action][:text], 
+                  alert[:action][:path],
+                  class: "text-sm font-medium #{styles[:icon_color]} hover:underline" %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>

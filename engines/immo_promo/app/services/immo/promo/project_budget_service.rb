@@ -121,7 +121,7 @@ module Immo
       def variance_analysis(budget)
         totals = calculate_budget_totals(budget)
         variance = totals[:planned] - totals[:actual]
-        variance_percentage = totals[:planned].zero? ? 0 : (variance.to_f / totals[:planned] * 100).round(2)
+        variance_percentage = totals[:planned].zero? ? 0 : (variance.to_f / totals[:planned].to_f * 100).round(2)
         
         {
           amount: variance,

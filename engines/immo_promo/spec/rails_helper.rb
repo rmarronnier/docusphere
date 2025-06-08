@@ -32,10 +32,32 @@ RSpec.configure do |config|
   config.include FactoryBot::Syntax::Methods
   config.include Devise::Test::ControllerHelpers, type: :controller
   config.include Devise::Test::IntegrationHelpers, type: :request
-  config.include Warden::Test::Helpers
+  config.include Devise::Test::IntegrationHelpers, type: :system
+  config.include Warden::Test::Helpers, type: :system
+  
+  # Clean up Warden after system tests
+  config.after(:each, type: :system) do
+    Warden.test_reset!
+  end
   
   # Configuration pour les contrôleurs de l'engine
   config.before(:each, type: :controller) do
     @routes = Immo::Promo::Engine.routes
   end
+  
+  # Configuration pour les tests système de l'engine
+  config.before(:each, type: :system) do
+    # Utilise les routes principales pour les tests système
+    @routes = Rails.application.routes
+  end
+  
+  # Configure ActiveJob to run inline for email tests
+  config.around(:each, type: :service) do |example|
+    perform_enqueued_jobs do
+      example.run
+    end
+  end
+  
+  # Include ActionMailer test helpers
+  config.include ActiveJob::TestHelper
 end

@@ -18,14 +18,84 @@ module Immo
         
         meeting_notification = build_meeting_notification(meeting_details, stakeholders)
         
-        notifications = []
+        # Créer une seule notification globale pour la réunion
+        notification = Notification.create!(
+          user: notification_user,
+          title: "Réunion planifiée: #{meeting_notification[:title]}",
+          message: format_meeting_message(meeting_notification),
+          notifiable: project,
+          notification_type: 'system_announcement',
+          data: meeting_notification
+        )
+        
+        # Envoyer des emails individuels à chaque stakeholder
         stakeholders.each do |stakeholder|
-          notification = create_meeting_notification(stakeholder, meeting_notification)
-          notifications << notification
           send_email_notification(stakeholder, notification)
         end
         
-        { meeting: meeting_notification, notifications: notifications }
+        { meeting: meeting_notification, notifications: [notification] }
+      end
+      
+      def send_status_update(status_info)
+        message = format_status_message(status_info)
+        notify_stakeholders(message, type: :update)
+      end
+      
+      def send_deadline_reminder(task, stakeholder)
+        days_until_deadline = (task.end_date - Date.current).to_i
+        message = "Rappel: La tâche '#{task.name}' est due dans #{days_until_deadline} jours"
+        
+        notification = Notification.create!(
+          user: notification_user,
+          title: "Rappel échéance",
+          message: message,
+          notifiable: stakeholder,
+          notification_type: 'system_announcement',
+          data: {
+            task_id: task.id,
+            task_name: task.name,
+            due_date: task.end_date
+          }
+        )
+        
+        send_email_notification(stakeholder, notification)
+        notification
+      end
+      
+      def send_coordination_alerts
+        alerts_sent = []
+        
+        # Alertes pour tâches à venir
+        upcoming_tasks = project.tasks
+                               .joins(:stakeholder)
+                               .where('immo_promo_tasks.start_date BETWEEN ? AND ?', Date.current, 3.days.from_now)
+                               .where(status: 'pending')
+        
+        upcoming_tasks.each do |task|
+          message = "Tâche à commencer: '#{task.name}' démarre le #{task.start_date}"
+          notification = notify_stakeholders(message, 
+            stakeholder_types: [task.stakeholder.stakeholder_type],
+            type: :alert
+          )
+          alerts_sent.concat(notification)
+        end
+        
+        # Alertes pour tâches en retard
+        overdue_tasks = project.tasks
+                              .joins(:stakeholder)
+                              .where('immo_promo_tasks.end_date < ?', Date.current)
+                              .where(status: ['pending', 'in_progress'])
+        
+        overdue_tasks.each do |task|
+          message = "Tâche en retard: '#{task.name}' devait être terminée le #{task.end_date}"
+          notification = notify_stakeholders(message,
+            stakeholder_types: [task.stakeholder.stakeholder_type],
+            type: :alert
+          )
+          alerts_sent.concat(notification)
+        end
+        
+        alerts_sent
       end
 
       private
@@ -38,7 +108,9 @@ module Immo
         end
         
         if options[:roles]
-          scope = scope.where(role: options[:roles])
+          if options[:roles].include?('primary')
+            scope = scope.where(is_primary: true)
+          end
         end
         
         scope
@@ -55,11 +127,11 @@ module Immo
             title: "Project Update",
             message: message,
             notifiable: stakeholder,
-            notification_type: 'system_announcement',
+            notification_type: map_notification_type(options[:type]),
             data: { 
               project_id: project.id,
               project_name: project.name
-            }
+            }.merge(options[:metadata] || {})
           )
           
           notifications << notification
@@ -111,6 +183,24 @@ module Immo
 
       def notification_user
         current_user || project.project_manager || User.first
+      end
+      
+      def format_status_message(status_info)
+        message = []
+        message << "Phase: #{status_info[:phase]}" if status_info[:phase]
+        message << "Progression: #{status_info[:progress]}%" if status_info[:progress]
+        message << "Jalons complétés: #{status_info[:milestones_completed]}" if status_info[:milestones_completed]
+        message << "Prochain jalon: #{status_info[:next_milestone]}" if status_info[:next_milestone]
+        message.join(" | ")
+      end
+      
+      def map_notification_type(type)
+        case type&.to_s
+        when 'update', 'info', 'meeting', 'alert', 'reminder'
+          'system_announcement'
+        else
+          'system_announcement'
+        end
       end
     end
   end

@@ -6,7 +6,12 @@ FactoryBot.define do
     phone { '+33 1 23 45 67 89' }
     company_name { 'Entreprise Test' }
     contact_person { 'Jean Dupont' }
+    is_active { true }
     association :project, factory: :immo_promo_project
+
+    trait :inactive do
+      is_active { false }
+    end
 
     trait :architect do
       stakeholder_type { 'architect' }

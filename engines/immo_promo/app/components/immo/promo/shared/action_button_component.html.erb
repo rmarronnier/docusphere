@@ -1,0 +1,8 @@
+<%= link_to path, class: button_classes, data: link_data, method: method do %>
+  <% if icon.present? %>
+    <%= render Ui::IconComponent.new(name: icon, classes: "#{icon_classes} #{text.present? ? 'mr-2' : ''}") %>
+  <% end %>
+  <% if text.present? %>
+    <%= text %>
+  <% end %>
+<% end %>

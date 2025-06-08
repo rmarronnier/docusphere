@@ -4,7 +4,7 @@ FactoryBot.define do
     association :phase, factory: :immo_promo_phase
     sequence(:name) { |n| "Jalon #{n}" }
     milestone_type { 'delivery' }
-    due_date { 1.month.from_now }
+    target_date { 1.month.from_now }
     status { 'pending' }
     is_critical { false }
     description { 'Description du jalon' }

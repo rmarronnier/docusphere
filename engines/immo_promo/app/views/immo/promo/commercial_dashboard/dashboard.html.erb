@@ -1,0 +1,298 @@
+<div class="commercial-dashboard">
+  <!-- En-tête du projet -->
+  <%= render Ui::CardComponent.new(classes: 'mb-8') do %>
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">Tableau de Bord Commercial</h1>
+        <p class="text-gray-600"><%= @project.name %> • <%= @project.reference_number %></p>
+        <div class="mt-2">
+          <%= render Ui::StatusBadgeComponent.new(
+              status: @project.project_type,
+              preset: 'info'
+          ) %>
+          <span class="ml-2 text-sm text-gray-600">
+            <%= @lots_summary[:total] %> lots • 
+            <%= @lots_summary[:availability_rate] %>% disponibles
+          </span>
+        </div>
+      </div>
+      <div class="flex items-center space-x-4">
+        <%= render Ui::ButtonComponent.new(
+            text: 'Inventaire',
+            path: immo_promo_engine.project_commercial_dashboard_lot_inventory_path(@project),
+            icon: 'building-office',
+            variant: 'secondary'
+        ) %>
+        <%= render Ui::ButtonComponent.new(
+            text: 'Export',
+            path: immo_promo_engine.export_project_commercial_dashboard_inventory_path(@project, format: :xlsx),
+            icon: 'document-arrow-down',
+            variant: 'outline-secondary'
+        ) %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Métriques principales -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <%= render Immo::Promo::Shared::MetricCardComponent.new(
+        title: 'Chiffre d\'affaires',
+        value: @sales_metrics[:total_revenue],
+        subtitle: "#{@sales_metrics[:units_sold]} unités vendues",
+        icon: 'currency-euro',
+        icon_color: 'text-green-600',
+        trend: :up,
+        trend_value: '+12%'
+    ) %>
+
+    <%= render Immo::Promo::Shared::MetricCardComponent.new(
+        title: 'Valeur réservée',
+        value: @sales_metrics[:reserved_value],
+        subtitle: "#{@sales_metrics[:units_reserved]} unités",
+        icon: 'clock',
+        icon_color: 'text-yellow-600'
+    ) %>
+
+    <%= render Immo::Promo::Shared::MetricCardComponent.new(
+        title: 'Prix moyen',
+        value: @sales_metrics[:average_price],
+        subtitle: "Par unité vendue",
+        icon: 'calculator',
+        icon_color: 'text-blue-600'
+    ) %>
+
+    <%= render Immo::Promo::Shared::MetricCardComponent.new(
+        title: 'Taux de conversion',
+        value: "#{@sales_metrics[:conversion_rate]}%",
+        subtitle: "Réservations → Ventes",
+        icon: 'chart-line',
+        icon_color: @sales_metrics[:conversion_rate] >= 70 ? 'text-green-600' : 'text-yellow-600'
+    ) %>
+  </div>
+
+  <!-- État de l'inventaire -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+    <!-- Graphique de répartition -->
+    <%= render Ui::CardComponent.new(
+        header: {
+          title: 'Répartition des Lots',
+          icon: 'chart-pie'
+        }
+    ) do %>
+      <div class="space-y-4">
+        <% @lots_summary[:by_status].each do |status, count| %>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center">
+              <%= render Ui::StatusBadgeComponent.new(status: status, preset: 'lot') %>
+              <span class="ml-2 text-sm text-gray-600">
+                <%= {
+                  'available' => 'Disponibles',
+                  'reserved' => 'Réservés',
+                  'sold' => 'Vendus',
+                  'blocked' => 'Bloqués'
+                }[status] || status.humanize %>
+              </span>
+            </div>
+            <div class="flex items-center">
+              <span class="text-sm font-medium text-gray-900 mr-2"><%= count %></span>
+              <div class="w-24 bg-gray-200 rounded-full h-2">
+                <div class="h-2 rounded-full <%= status == 'available' ? 'bg-green-600' :
+                                                   status == 'reserved' ? 'bg-yellow-600' :
+                                                   status == 'sold' ? 'bg-blue-600' :
+                                                   'bg-gray-600' %>"
+                     style="width: <%= @lots_summary[:total] > 0 ? (count.to_f / @lots_summary[:total] * 100).round : 0 %>%">
+                </div>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+      
+      <div class="mt-6 pt-6 border-t border-gray-200">
+        <h4 class="text-sm font-medium text-gray-700 mb-3">Par Type</h4>
+        <div class="space-y-2">
+          <% @lots_summary[:by_type].each do |type, count| %>
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-gray-600"><%= type.humanize %></span>
+              <span class="font-medium text-gray-900"><%= count %></span>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Réservations actives -->
+    <%= render Ui::CardComponent.new(
+        header: {
+          title: 'Réservations Actives',
+          icon: 'document-check'
+        }
+    ) do %>
+      <div class="space-y-4">
+        <div class="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+          <div>
+            <p class="text-2xl font-bold text-blue-900"><%= @reservations_data[:active_count] %></p>
+            <p class="text-sm text-blue-700">Réservations actives</p>
+          </div>
+          <%= render Ui::IconComponent.new(name: 'document-text', classes: 'h-10 w-10 text-blue-500') %>
+        </div>
+        
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-sm text-gray-600">Valeur totale</span>
+            <span class="text-sm font-medium text-gray-900"><%= @reservations_data[:active_value].format %></span>
+          </div>
+          
+          <% if @reservations_data[:expiring_soon] > 0 %>
+            <div class="flex items-center justify-between p-2 bg-yellow-50 rounded">
+              <span class="text-sm text-yellow-800">
+                <%= render Ui::IconComponent.new(name: 'exclamation-triangle', classes: 'h-4 w-4 inline mr-1') %>
+                Expirent bientôt
+              </span>
+              <span class="text-sm font-medium text-yellow-900"><%= @reservations_data[:expiring_soon] %></span>
+            </div>
+          <% end %>
+          
+          <% if @reservations_data[:conversion_pending] > 0 %>
+            <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
+              <span class="text-sm text-gray-700">En attente > 30j</span>
+              <span class="text-sm font-medium text-gray-900"><%= @reservations_data[:conversion_pending] %></span>
+            </div>
+          <% end %>
+        </div>
+        
+        <div class="pt-4">
+          <%= link_to 'Gérer les réservations', 
+              immo_promo_engine.project_commercial_dashboard_reservation_management_path(@project),
+              class: 'text-blue-600 hover:text-blue-700 text-sm font-medium' %>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Projections de revenus -->
+    <%= render Ui::CardComponent.new(
+        header: {
+          title: 'Projections de Revenus',
+          icon: 'banknotes'
+        }
+    ) do %>
+      <div class="space-y-4">
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm text-gray-600">Réalisé</span>
+            <span class="text-sm font-medium text-gray-900"><%= @revenue_projections[:realized].format %></span>
+          </div>
+          <%= render Immo::Promo::Shared::ProgressIndicatorComponent.new(
+              progress: @revenue_projections[:realization_rate],
+              show_label: false,
+              size: 'small',
+              color_scheme: 'green'
+          ) %>
+        </div>
+        
+        <div class="space-y-3 pt-3">
+          <div class="flex items-center justify-between">
+            <span class="text-sm text-gray-600">Engagé (réservé)</span>
+            <span class="text-sm font-medium text-yellow-600"><%= @revenue_projections[:committed].format %></span>
+          </div>
+          
+          <div class="flex items-center justify-between">
+            <span class="text-sm text-gray-600">Potentiel (disponible)</span>
+            <span class="text-sm font-medium text-gray-500"><%= @revenue_projections[:potential].format %></span>
+          </div>
+          
+          <div class="pt-3 border-t border-gray-200">
+            <div class="flex items-center justify-between">
+              <span class="text-sm font-medium text-gray-700">Valeur totale projet</span>
+              <span class="text-base font-bold text-gray-900"><%= @revenue_projections[:total_project_value].format %></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Performance commerciale -->
+  <% if @commercial_performance[:sales_efficiency] %>
+    <div class="mb-8">
+      <%= render Ui::CardComponent.new(
+          header: {
+            title: 'Performance Commerciale',
+            icon: 'trophy'
+          }
+      ) do %>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div>
+            <h4 class="text-sm font-medium text-gray-700 mb-3">Efficacité des ventes</h4>
+            <div class="space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-sm text-gray-600">Unités/mois</span>
+                <span class="text-sm font-medium text-gray-900">
+                  <%= @commercial_performance[:sales_efficiency][:units_per_month] %>
+                </span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-sm text-gray-600">Objectif atteint</span>
+                <span class="text-sm font-medium <%= @commercial_performance[:sales_efficiency][:target_achievement] >= 80 ? 'text-green-600' : 'text-yellow-600' %>">
+                  <%= @commercial_performance[:sales_efficiency][:target_achievement] %>%
+                </span>
+              </div>
+            </div>
+          </div>
+          
+          <div>
+            <h4 class="text-sm font-medium text-gray-700 mb-3">Types les plus vendus</h4>
+            <div class="space-y-2">
+              <% @commercial_performance[:top_selling_types].first(3).each do |item| %>
+                <div class="flex items-center justify-between text-sm">
+                  <span class="text-gray-600"><%= item[:type].humanize %></span>
+                  <span class="font-medium text-gray-900"><%= item[:count] %> ventes</span>
+                </div>
+              <% end %>
+            </div>
+          </div>
+          
+          <div>
+            <h4 class="text-sm font-medium text-gray-700 mb-3">Performance prix</h4>
+            <div class="space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-sm text-gray-600">Remise moyenne</span>
+                <span class="text-sm font-medium text-gray-900">
+                  <%= @commercial_performance[:price_performance][:average_discount] %>%
+                </span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-sm text-gray-600">Stabilité prix</span>
+                <%= render Ui::StatusBadgeComponent.new(
+                    status: @commercial_performance[:price_performance][:price_stability],
+                    preset: 'info',
+                    size: 'small'
+                ) %>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <!-- Actions rapides -->
+  <%= render Ui::CardComponent.new(header: { title: 'Actions Rapides' }) do %>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+      <% [
+        { path: immo_promo_engine.project_commercial_dashboard_lot_inventory_path(@project), icon: 'building-office', color: 'blue', title: 'Inventaire', subtitle: 'Gérer les lots' },
+        { path: immo_promo_engine.project_commercial_dashboard_reservation_management_path(@project), icon: 'document-check', color: 'green', title: 'Réservations', subtitle: 'Suivi et conversion' },
+        { path: immo_promo_engine.project_commercial_dashboard_pricing_strategy_path(@project), icon: 'currency-euro', color: 'yellow', title: 'Tarification', subtitle: 'Stratégie prix' },
+        { path: immo_promo_engine.project_commercial_dashboard_sales_pipeline_path(@project), icon: 'funnel', color: 'purple', title: 'Pipeline', subtitle: 'Suivi des ventes' },
+        { path: immo_promo_engine.sales_project_commercial_dashboard_report_path(@project, format: :pdf), icon: 'document-chart-bar', color: 'gray', title: 'Rapport', subtitle: 'Export PDF' }
+      ].each do |action| %>
+        <%= link_to action[:path],
+            class: "bg-white hover:bg-gray-50 border border-gray-200 rounded-lg p-4 text-center transition-colors" do %>
+          <%= render Ui::IconComponent.new(name: action[:icon], classes: "h-8 w-8 text-#{action[:color]}-600 mx-auto mb-2") %>
+          <p class="text-sm font-medium text-gray-900"><%= action[:title] %></p>
+          <p class="text-xs text-gray-600"><%= action[:subtitle] %></p>
+        <% end %>
+      <% end %>
+    </div>
+  <% end %>
+</div>

@@ -88,6 +88,67 @@ module Immo
         
         missing_competencies
       end
+      
+      def coordination_risks
+        risks = []
+        
+        # Qualification risks
+        qualification_issues = check_all_qualifications[:issues]
+        if qualification_issues.any? { |i| i[:severity] == :critical }
+          risks << {
+            type: 'qualification',
+            severity: 'high',
+            description: 'Critical qualification issues found',
+            count: qualification_issues.count { |i| i[:severity] == :critical }
+          }
+        end
+        
+        # Contract risks
+        contract_compliance = check_contract_compliance
+        if contract_compliance[:expired_contracts].any?
+          risks << {
+            type: 'contract',
+            severity: 'high',
+            description: 'Expired contracts detected',
+            count: contract_compliance[:expired_contracts].count
+          }
+        end
+        
+        risks
+      end
+      
+      def risk_recommendations
+        recommendations = []
+        
+        qualification_issues = check_all_qualifications[:issues]
+        qualification_issues.each do |issue|
+          recommendations << {
+            type: 'qualification',
+            priority: issue[:severity],
+            action: issue[:action_required],
+            stakeholder: issue[:stakeholder]
+          }
+        end
+        
+        recommendations
+      end
+      
+      def missing_certifications_for(stakeholder)
+        required_certs = required_certifications_for_type(stakeholder.stakeholder_type)
+        existing_certs = stakeholder.certifications.pluck(:certification_type)
+        
+        required_certs - existing_certs
+      end
+      
+      def stakeholder_status(stakeholder)
+        if stakeholder.qualification_issues.empty?
+          'compliant'
+        elsif stakeholder.qualification_issues.any? { |i| severity_for(i) == :critical }
+          'critical'
+        else
+          'warning'
+        end
+      end
 
       private
 
@@ -194,6 +255,21 @@ module Immo
       def format_qualification_issues(stakeholder, issues)
         issue_messages = issues.map { |issue| message_for(stakeholder, issue) }
         issue_messages.join(", ")
+      end
+      
+      def required_certifications_for_type(stakeholder_type)
+        case stakeholder_type
+        when 'architect'
+          ['architect_license', 'professional_insurance']
+        when 'engineer'
+          ['engineering_certification', 'professional_insurance']
+        when 'contractor'
+          ['construction_license', 'safety_certification', 'professional_insurance']
+        when 'control_office'
+          ['control_certification', 'professional_insurance']
+        else
+          ['professional_insurance']
+        end
       end
     end
   end

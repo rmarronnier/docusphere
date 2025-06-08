@@ -1,0 +1,354 @@
+<div class="space-y-6">
+  <!-- Header -->
+  <div class="flex items-center justify-between">
+    <div class="flex items-center space-x-4">
+      <%= link_to immo_promo_engine.project_stakeholders_path(@project),
+                 class: "flex items-center text-gray-600 hover:text-gray-900" do %>
+        <%= render Ui::IconComponent.new(name: :arrow_left, size: 5, css_class: "mr-2") %>
+        Retour aux intervenants
+      <% end %>
+    </div>
+    
+    <div class="flex items-center space-x-3">
+      <% if @stakeholder.status == 'pending' %>
+        <%= render Ui::ButtonComponent.new(
+          text: "Approuver",
+          variant: :success,
+          icon: :check,
+          href: immo_promo_engine.approve_project_stakeholder_path(@project, @stakeholder),
+          method: :patch
+        ) %>
+        
+        <%= render Ui::ButtonComponent.new(
+          text: "Rejeter",
+          variant: :danger,
+          icon: :x_circle,
+          href: immo_promo_engine.reject_project_stakeholder_path(@project, @stakeholder),
+          method: :patch
+        ) %>
+      <% end %>
+      
+      <%= render Ui::ButtonComponent.new(
+        text: "Modifier",
+        variant: :secondary,
+        icon: :pencil,
+        href: immo_promo_engine.edit_project_stakeholder_path(@project, @stakeholder)
+      ) %>
+    </div>
+  </div>
+
+  <!-- Profil de l'intervenant -->
+  <div class="bg-white rounded-lg shadow overflow-hidden">
+    <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+      <div class="flex items-center space-x-4">
+        <div class="flex-shrink-0">
+          <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
+            <%= render Ui::IconComponent.new(
+              name: stakeholder_role_icon(@stakeholder.role), 
+              size: 8, 
+              css_class: "text-blue-600"
+            ) %>
+          </div>
+        </div>
+        
+        <div class="flex-1">
+          <h1 class="text-2xl font-bold text-gray-900">
+            <%= @stakeholder.name %>
+          </h1>
+          <p class="text-lg text-gray-600">
+            <%= @stakeholder.role&.humanize %>
+          </p>
+          
+          <div class="mt-2 flex items-center space-x-4">
+            <%= render Ui::StatusBadgeComponent.new(
+              status: @stakeholder.status,
+              variant: stakeholder_status_variant(@stakeholder.status)
+            ) %>
+            
+            <% if @stakeholder.qualification_level.present? %>
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <%= qualification_level_badge_class(@stakeholder.qualification_level) %>">
+                <%= render Ui::IconComponent.new(name: :academic_cap, size: 3, css_class: "mr-1") %>
+                Niveau <%= @stakeholder.qualification_level %>
+              </span>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="p-6">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Informations de contact -->
+        <div>
+          <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
+            <%= render Ui::IconComponent.new(name: :mail, size: 5, css_class: "text-gray-600 mr-2") %>
+            Contact
+          </h3>
+          
+          <dl class="space-y-3">
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Email</dt>
+              <dd class="text-sm text-gray-900">
+                <%= link_to @stakeholder.email, "mailto:#{@stakeholder.email}", 
+                           class: "text-blue-600 hover:text-blue-800" %>
+              </dd>
+            </div>
+            
+            <% if @stakeholder.phone.present? %>
+              <div>
+                <dt class="text-sm font-medium text-gray-500">Téléphone</dt>
+                <dd class="text-sm text-gray-900">
+                  <%= link_to @stakeholder.phone, "tel:#{@stakeholder.phone}",
+                             class: "text-blue-600 hover:text-blue-800" %>
+                </dd>
+              </div>
+            <% end %>
+            
+            <% if @stakeholder.address.present? %>
+              <div>
+                <dt class="text-sm font-medium text-gray-500">Adresse</dt>
+                <dd class="text-sm text-gray-900">
+                  <%= simple_format(@stakeholder.address) %>
+                </dd>
+              </div>
+            <% end %>
+          </dl>
+        </div>
+
+        <!-- Informations professionnelles -->
+        <div>
+          <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
+            <%= render Ui::IconComponent.new(name: :building, size: 5, css_class: "text-gray-600 mr-2") %>
+            Informations professionnelles
+          </h3>
+          
+          <dl class="space-y-3">
+            <% if @stakeholder.company_name.present? %>
+              <div>
+                <dt class="text-sm font-medium text-gray-500">Entreprise</dt>
+                <dd class="text-sm text-gray-900"><%= @stakeholder.company_name %></dd>
+              </div>
+            <% end %>
+            
+            <% if @stakeholder.siret.present? %>
+              <div>
+                <dt class="text-sm font-medium text-gray-500">SIRET</dt>
+                <dd class="text-sm text-gray-900"><%= @stakeholder.siret %></dd>
+              </div>
+            <% end %>
+            
+            <% if @stakeholder.hourly_rate.present? %>
+              <div>
+                <dt class="text-sm font-medium text-gray-500">Tarif horaire</dt>
+                <dd class="text-sm text-gray-900"><%= format_hourly_rate(@stakeholder.hourly_rate) %></dd>
+              </div>
+            <% end %>
+            
+            <% if @stakeholder.daily_rate.present? %>
+              <div>
+                <dt class="text-sm font-medium text-gray-500">Tarif journalier</dt>
+                <dd class="text-sm text-gray-900"><%= format_daily_rate(@stakeholder.daily_rate) %></dd>
+              </div>
+            <% end %>
+            
+            <% if @stakeholder.insurance_number.present? %>
+              <div>
+                <dt class="text-sm font-medium text-gray-500">Assurance</dt>
+                <dd class="text-sm text-gray-900"><%= @stakeholder.insurance_number %></dd>
+              </div>
+            <% end %>
+          </dl>
+        </div>
+      </div>
+      
+      <% if @stakeholder.notes.present? %>
+        <div class="mt-6 pt-6 border-t border-gray-200">
+          <h3 class="text-lg font-medium text-gray-900 mb-2">Notes</h3>
+          <div class="text-sm text-gray-600 prose max-w-none">
+            <%= simple_format(@stakeholder.notes) %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Onglets -->
+  <div class="bg-white rounded-lg shadow">
+    <div class="border-b border-gray-200">
+      <nav class="-mb-px flex space-x-8 px-6" aria-label="Tabs">
+        <button class="stakeholder-tab active border-blue-500 text-blue-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+                data-tab="certifications">
+          <%= render Ui::IconComponent.new(name: :badge_check, size: 4, css_class: "mr-2 inline") %>
+          Certifications (<%= @certifications.count %>)
+        </button>
+        
+        <button class="stakeholder-tab border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+                data-tab="contracts">
+          <%= render Ui::IconComponent.new(name: :document, size: 4, css_class: "mr-2 inline") %>
+          Contrats (<%= @contracts.count %>)
+        </button>
+        
+        <button class="stakeholder-tab border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+                data-tab="activity">
+          <%= render Ui::IconComponent.new(name: :clock, size: 4, css_class: "mr-2 inline") %>
+          Activité récente
+        </button>
+      </nav>
+    </div>
+
+    <!-- Contenu des onglets -->
+    <div class="p-6">
+      <!-- Onglet Certifications -->
+      <div id="certifications-content" class="tab-content">
+        <% if @certifications.any? %>
+          <div class="space-y-4">
+            <% @certifications.each do |certification| %>
+              <div class="border border-gray-200 rounded-lg p-4">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <h4 class="font-medium text-gray-900"><%= certification.name %></h4>
+                    <p class="text-sm text-gray-600"><%= certification.issuing_authority %></p>
+                  </div>
+                  
+                  <div class="text-right">
+                    <% if certification.valid? %>
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        <%= render Ui::IconComponent.new(name: :check_circle, size: 3, css_class: "mr-1") %>
+                        Valide
+                      </span>
+                    <% else %>
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                        <%= render Ui::IconComponent.new(name: :x_circle, size: 3, css_class: "mr-1") %>
+                        Expirée
+                      </span>
+                    <% end %>
+                    
+                    <div class="text-xs text-gray-500 mt-1">
+                      Obtenue le <%= l(certification.obtained_at, format: :short) %>
+                      <% if certification.expires_at %>
+                        <br>Expire le <%= l(certification.expires_at, format: :short) %>
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <div class="text-center py-8">
+            <%= render Ui::IconComponent.new(name: :badge_check, size: 12, css_class: "mx-auto text-gray-400 mb-3") %>
+            <p class="text-gray-600">Aucune certification enregistrée.</p>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- Onglet Contrats -->
+      <div id="contracts-content" class="tab-content hidden">
+        <% if @contracts.any? %>
+          <div class="space-y-4">
+            <% @contracts.each do |contract| %>
+              <div class="border border-gray-200 rounded-lg p-4">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <h4 class="font-medium text-gray-900"><%= contract.title %></h4>
+                    <p class="text-sm text-gray-600">
+                      Du <%= l(contract.start_date, format: :short) %>
+                      <% if contract.end_date %>
+                        au <%= l(contract.end_date, format: :short) %>
+                      <% end %>
+                    </p>
+                  </div>
+                  
+                  <div class="text-right">
+                    <div class="text-lg font-semibold text-gray-900">
+                      <%= number_to_currency(contract.amount, unit: '€', separator: ',', delimiter: ' ') %>
+                    </div>
+                    <% if contract.paid_amount && contract.paid_amount > 0 %>
+                      <div class="text-sm text-green-600">
+                        <%= number_to_currency(contract.paid_amount, unit: '€', separator: ',', delimiter: ' ') %> payé
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <div class="text-center py-8">
+            <%= render Ui::IconComponent.new(name: :document, size: 12, css_class: "mx-auto text-gray-400 mb-3") %>
+            <p class="text-gray-600">Aucun contrat enregistré.</p>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- Onglet Activité -->
+      <div id="activity-content" class="tab-content hidden">
+        <% if @recent_activity.any? %>
+          <div class="space-y-4">
+            <% @recent_activity.each do |time_log| %>
+              <div class="flex items-center space-x-4 p-3 border border-gray-200 rounded-lg">
+                <%= render Ui::IconComponent.new(name: :clock, size: 5, css_class: "text-gray-400 flex-shrink-0") %>
+                
+                <div class="flex-1">
+                  <p class="text-sm font-medium text-gray-900">
+                    <%= time_log.task.title %>
+                  </p>
+                  <p class="text-xs text-gray-500">
+                    <%= l(time_log.created_at, format: :short) %> - 
+                    <%= time_log.duration %> heures
+                  </p>
+                </div>
+                
+                <div class="text-sm text-gray-600">
+                  <%= number_to_currency(time_log.amount || 0, unit: '€', separator: ',', delimiter: ' ') %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <div class="text-center py-8">
+            <%= render Ui::IconComponent.new(name: :clock, size: 12, css_class: "mx-auto text-gray-400 mb-3") %>
+            <p class="text-gray-600">Aucune activité récente.</p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%= content_for :page_scripts do %>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Gestion des onglets
+      const tabs = document.querySelectorAll('.stakeholder-tab');
+      const contents = document.querySelectorAll('.tab-content');
+      
+      tabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+          const targetTab = this.dataset.tab;
+          
+          // Désactiver tous les onglets
+          tabs.forEach(t => {
+            t.classList.remove('active', 'border-blue-500', 'text-blue-600');
+            t.classList.add('border-transparent', 'text-gray-500');
+          });
+          
+          // Activer l'onglet cliqué
+          this.classList.add('active', 'border-blue-500', 'text-blue-600');
+          this.classList.remove('border-transparent', 'text-gray-500');
+          
+          // Masquer tous les contenus
+          contents.forEach(content => {
+            content.classList.add('hidden');
+          });
+          
+          // Afficher le contenu correspondant
+          const targetContent = document.getElementById(targetTab + '-content');
+          if (targetContent) {
+            targetContent.classList.remove('hidden');
+          }
+        });
+      });
+    });
+  </script>
+<% end %>

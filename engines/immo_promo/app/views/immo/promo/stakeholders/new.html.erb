@@ -1,0 +1,234 @@
+<div class="space-y-6">
+  <div class="flex items-center space-x-4">
+    <%= link_to immo_promo_engine.project_stakeholders_path(@project),
+               class: "flex items-center text-gray-600 hover:text-gray-900" do %>
+      <%= render Ui::IconComponent.new(name: :arrow_left, size: 5, css_class: "mr-2") %>
+      Retour aux intervenants
+    <% end %>
+  </div>
+
+  <div class="bg-white rounded-lg shadow">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h1 class="text-xl font-semibold text-gray-900 flex items-center">
+        <%= render Ui::IconComponent.new(name: :plus, size: 6, css_class: "text-blue-600 mr-2") %>
+        Nouvel intervenant
+      </h1>
+      <p class="mt-1 text-sm text-gray-600">
+        Ajouter un nouvel intervenant au projet <%= @project.name %>
+      </p>
+    </div>
+
+    <div class="p-6">
+      <%= form_with model: [@project, @stakeholder], 
+                    url: immo_promo_engine.project_stakeholders_path(@project),
+                    local: true,
+                    class: "space-y-6" do |form| %>
+        
+        <% if @stakeholder.errors.any? %>
+          <div class="bg-red-50 border border-red-200 rounded-md p-4">
+            <div class="flex">
+              <%= render Ui::IconComponent.new(name: :exclamation_triangle, size: 5, css_class: "text-red-400 flex-shrink-0") %>
+              <div class="ml-3">
+                <h3 class="text-sm font-medium text-red-800">
+                  <%= pluralize(@stakeholder.errors.count, "erreur", "erreurs") %> 
+                  <%= @stakeholder.errors.count == 1 ? "empêche" : "empêchent" %> 
+                  l'enregistrement :
+                </h3>
+                <ul class="mt-2 text-sm text-red-700 list-disc list-inside">
+                  <% @stakeholder.errors.full_messages.each do |message| %>
+                    <li><%= message %></li>
+                  <% end %>
+                </ul>
+              </div>
+            </div>
+          </div>
+        <% end %>
+
+        <!-- Sélection utilisateur existant -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <h3 class="text-sm font-medium text-blue-900 mb-3 flex items-center">
+            <%= render Ui::IconComponent.new(name: :users, size: 4, css_class: "mr-2") %>
+            Utilisateur existant (optionnel)
+          </h3>
+          
+          <div class="grid grid-cols-1 gap-4">
+            <div>
+              <%= form.label :user_id, "Sélectionner un utilisateur existant", 
+                            class: "block text-sm font-medium text-gray-700" %>
+              <%= form.select :user_id,
+                             options_from_collection_for_select(@available_users, :id, :email, @stakeholder.user_id),
+                             { prompt: "Aucun utilisateur sélectionné" },
+                             { class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500",
+                               id: "user_select" } %>
+              <p class="mt-1 text-xs text-gray-500">
+                Si vous sélectionnez un utilisateur, certains champs seront pré-remplis.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Informations personnelles -->
+        <div>
+          <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
+            <%= render Ui::IconComponent.new(name: :identification, size: 5, css_class: "text-gray-600 mr-2") %>
+            Informations personnelles
+          </h3>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <%= form.label :name, "Nom complet *", class: "block text-sm font-medium text-gray-700" %>
+              <%= form.text_field :name, 
+                                 class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500",
+                                 required: true %>
+            </div>
+
+            <div>
+              <%= form.label :email, "Email *", class: "block text-sm font-medium text-gray-700" %>
+              <%= form.email_field :email, 
+                                  class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500",
+                                  required: true %>
+            </div>
+
+            <div>
+              <%= form.label :phone, "Téléphone", class: "block text-sm font-medium text-gray-700" %>
+              <%= form.telephone_field :phone, 
+                                      class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+            </div>
+
+            <div>
+              <%= form.label :role, "Rôle *", class: "block text-sm font-medium text-gray-700" %>
+              <%= form.select :role, 
+                             stakeholder_role_options,
+                             { prompt: "Sélectionner un rôle" },
+                             { class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500",
+                               required: true } %>
+            </div>
+          </div>
+
+          <div class="mt-6">
+            <%= form.label :address, "Adresse", class: "block text-sm font-medium text-gray-700" %>
+            <%= form.text_area :address, 
+                              rows: 3,
+                              class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+          </div>
+        </div>
+
+        <!-- Informations professionnelles -->
+        <div>
+          <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
+            <%= render Ui::IconComponent.new(name: :building, size: 5, css_class: "text-gray-600 mr-2") %>
+            Informations professionnelles
+          </h3>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <%= form.label :company_name, "Nom de l'entreprise", class: "block text-sm font-medium text-gray-700" %>
+              <%= form.text_field :company_name, 
+                                 class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+            </div>
+
+            <div>
+              <%= form.label :siret, "SIRET", class: "block text-sm font-medium text-gray-700" %>
+              <%= form.text_field :siret, 
+                                 class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+            </div>
+
+            <div>
+              <%= form.label :qualification_level, "Niveau de qualification", class: "block text-sm font-medium text-gray-700" %>
+              <%= form.select :qualification_level, 
+                             qualification_level_options,
+                             { prompt: "Sélectionner un niveau" },
+                             { class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" } %>
+            </div>
+
+            <div>
+              <%= form.label :insurance_number, "Numéro d'assurance", class: "block text-sm font-medium text-gray-700" %>
+              <%= form.text_field :insurance_number, 
+                                 class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tarification -->
+        <div>
+          <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
+            <%= render Ui::IconComponent.new(name: :currency_euro, size: 5, css_class: "text-gray-600 mr-2") %>
+            Tarification
+          </h3>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <%= form.label :hourly_rate, "Tarif horaire (€)", class: "block text-sm font-medium text-gray-700" %>
+              <%= form.number_field :hourly_rate, 
+                                   step: 0.01,
+                                   min: 0,
+                                   class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+            </div>
+
+            <div>
+              <%= form.label :daily_rate, "Tarif journalier (€)", class: "block text-sm font-medium text-gray-700" %>
+              <%= form.number_field :daily_rate, 
+                                   step: 0.01,
+                                   min: 0,
+                                   class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notes -->
+        <div>
+          <%= form.label :notes, "Notes", class: "block text-sm font-medium text-gray-700" %>
+          <%= form.text_area :notes, 
+                            rows: 4,
+                            class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500",
+                            placeholder: "Notes, commentaires ou informations supplémentaires..." %>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+          <%= link_to "Annuler", 
+                     immo_promo_engine.project_stakeholders_path(@project),
+                     class: "px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+          
+          <%= render Ui::ButtonComponent.new(
+            text: "Ajouter l'intervenant",
+            variant: :primary,
+            icon: :plus
+          ) %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<%= content_for :page_scripts do %>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const userSelect = document.getElementById('user_select');
+      const nameField = document.querySelector('input[name="stakeholder[name]"]');
+      const emailField = document.querySelector('input[name="stakeholder[email]"]');
+      
+      // Données des utilisateurs (à passer depuis le contrôleur)
+      const usersData = <%= @available_users.map { |u| { id: u.id, name: "#{u.first_name} #{u.last_name}".strip, email: u.email } }.to_json.html_safe %>;
+      
+      userSelect.addEventListener('change', function() {
+        const selectedUserId = this.value;
+        
+        if (selectedUserId) {
+          const selectedUser = usersData.find(user => user.id.toString() === selectedUserId);
+          
+          if (selectedUser) {
+            if (selectedUser.name && selectedUser.name.trim() !== '') {
+              nameField.value = selectedUser.name;
+            }
+            emailField.value = selectedUser.email;
+          }
+        } else {
+          // Réinitialiser les champs si aucun utilisateur n'est sélectionné
+          nameField.value = '';
+          emailField.value = '';
+        }
+      });
+    });
+  </script>
+<% end %>
