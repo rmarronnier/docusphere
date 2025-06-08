@@ -65,7 +65,7 @@ gem "kaminari", "~> 1.2"
 gem "audited", "~> 5.4"
 gem "ancestry", "~> 4.3"
 gem "acts-as-taggable-on", "~> 10.0"
-gem "paper_trail", "~> 15.1"
+gem "paper_trail", "~> 16.0"
 gem "chronic", "~> 0.10" # Natural language date parsing
 gem "ice_cube", "~> 0.16" # Recurring events
 gem "money-rails", "~> 1.15" # Money management
