@@ -1,0 +1,20 @@
+<li>
+  <div class="relative pb-8">
+    <!-- Connector line (except for last item) -->
+    <% unless is_last %>
+      <span class="absolute left-4 top-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
+    <% end %>
+    
+    <div class="relative flex space-x-3">
+      <!-- Phase icon -->
+      <div>
+        <%= render Immo::Promo::Timeline::PhaseIconComponent.new(phase: phase) %>
+      </div>
+      
+      <!-- Phase content -->
+      <div class="flex-1 min-w-0">
+        <%= render Immo::Promo::Timeline::PhaseContentComponent.new(phase: phase, current_phase: current_phase) %>
+      </div>
+    </div>
+  </div>
+</li>

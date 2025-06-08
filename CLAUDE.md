@@ -1,5 +1,16 @@
 # CLAUDE.md - AI Assistant Instructions
 
+## Important Rules
+
+**NEVER run git commands directly**. Always let the user handle git operations.
+
+## GitHub Actions Compatibility
+
+When running on GitHub Actions (x86_64-linux), you may need to add the platform to Gemfile.lock:
+```bash
+docker-compose run --rm web bundle lock --add-platform x86_64-linux
+```
+
 ## Recent Changes (January 2025)
 
 ### 1. Database Consolidation
@@ -106,6 +117,35 @@ docker-compose run --rm web rake db:setup
 - Test setup requires `require 'pundit/rspec'` in rails_helper.rb
 - ViewComponent tests need `helpers.policy` instead of direct `policy` calls
 - Test environment needs `config.hosts.clear` to avoid host blocking issues
+
+## Rails Engine Routing
+
+The ImmoPromo engine is mounted at `/immo/promo` and uses the `Immo::Promo` namespace for models and controllers.
+
+### Route Helpers in Engine
+
+When using route helpers within the engine's views and controllers, use the `immo_promo_engine` prefix:
+
+```ruby
+# In views and controllers within the engine:
+immo_promo_engine.projects_path
+immo_promo_engine.project_path(@project)
+immo_promo_engine.edit_project_path(@project)
+immo_promo_engine.project_phases_path(@project)
+immo_promo_engine.project_phase_task_path(@project, @phase, @task)
+
+# In ViewComponents, access through helpers:
+helpers.immo_promo_engine.projects_path
+helpers.immo_promo_engine.project_path(@project)
+```
+
+### From Main Application
+
+When linking to engine routes from the main application:
+```ruby
+# Use the engine mount path directly:
+link_to "Projets", "/immo/promo/projects"
+```
 
 ## Database Migration Consolidation Plan
 

@@ -1,36 +1,40 @@
-class Immo::Promo::PermitCondition < ApplicationRecord
-  self.table_name = 'immo_promo_permit_conditions'
-  
-  belongs_to :permit, class_name: 'Immo::Promo::Permit'
-  has_one_attached :compliance_document
+module Immo
+  module Promo
+    class PermitCondition < ApplicationRecord
+      self.table_name = 'immo_promo_permit_conditions'
 
-  validates :description, presence: true
-  
-  # Declare attribute type for enum
-  attribute :condition_type, :string
-  
-  enum condition_type: {
-    suspensive: 'suspensive',
-    prescriptive: 'prescriptive',
-    information: 'information',
-    technical: 'technical',
-    environmental: 'environmental'
-  }
+      belongs_to :permit, class_name: 'Immo::Promo::Permit'
+      has_one_attached :compliance_document
 
-  scope :fulfilled, -> { where(is_fulfilled: true) }
-  scope :outstanding, -> { where(is_fulfilled: false) }
-  scope :by_type, ->(type) { where(condition_type: type) }
+      validates :description, presence: true
 
-  def is_overdue?
-    due_date && Date.current > due_date && !is_fulfilled
-  end
+      # Declare attribute type for enum
+      attribute :condition_type, :string
 
-  def days_until_due
-    return nil unless due_date
-    (due_date.to_date - Date.current).to_i
-  end
+      enum condition_type: {
+        suspensive: 'suspensive',
+        prescriptive: 'prescriptive',
+        information: 'information',
+        technical: 'technical',
+        environmental: 'environmental'
+      }
 
-  def project
-    permit.project
+      scope :fulfilled, -> { where(is_fulfilled: true) }
+      scope :outstanding, -> { where(is_fulfilled: false) }
+      scope :by_type, ->(type) { where(condition_type: type) }
+
+      def is_overdue?
+        due_date && Date.current > due_date && !is_fulfilled
+      end
+
+      def days_until_due
+        return nil unless due_date
+        (due_date.to_date - Date.current).to_i
+      end
+
+      def project
+        permit.project
+      end
+    end
   end
 end

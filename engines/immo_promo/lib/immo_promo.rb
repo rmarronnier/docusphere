@@ -1,5 +1,7 @@
+require "immo"
+require "immo/promo"
 require "immo_promo/engine"
 
 module ImmoPromo
-  # Your code goes here...
+  # Engine module that bridges to Immo::Promo
 end

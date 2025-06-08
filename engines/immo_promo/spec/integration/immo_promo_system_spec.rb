@@ -45,7 +45,7 @@ RSpec.describe 'Immo::Promo System Integration', type: :request do
 
       expect(phase).to be_persisted
       expect(phase.name).to eq('Études préliminaires')
-      
+
       # Tester les services
       project_service = Immo::Promo::ProjectManagerService.new(project, user)
       expect(project_service).to respond_to(:calculate_overall_progress)
@@ -73,7 +73,7 @@ RSpec.describe 'Immo::Promo System Integration', type: :request do
       project = Immo::Promo::Project.new
       expect(project).not_to be_valid
       expect(project.errors[:name]).to be_present
-      expect(project.errors[:reference_number]).to be_present
+      expect(project.errors[:organization]).to be_present  # organization is required for reference generation
 
       # Test enum validations
       expect {
@@ -106,7 +106,7 @@ RSpec.describe 'Immo::Promo System Integration', type: :request do
 
       component = Immo::Promo::ProjectCardComponent.new(project: project)
       expect(component).to be_present
-      
+
       # Tester que le composant peut être instancié sans erreur
       expect { component }.not_to raise_error
     end

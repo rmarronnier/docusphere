@@ -1,0 +1,24 @@
+<div class="w-full">
+  <% if @show_label && @label_position == :top %>
+    <div class="flex items-center justify-between text-sm mb-1">
+      <span class="text-gray-500"><%= label_text %></span>
+      <span class="text-gray-900 font-medium"><%= @percentage %>%</span>
+    </div>
+  <% end %>
+  
+  <div class="flex items-center">
+    <div class="flex-1 <%= bar_container_classes %>">
+      <div class="<%= bar_fill_classes %> transition-all duration-300" 
+           style="width: <%= @percentage %>%"
+           aria-valuenow="<%= @value %>"
+           aria-valuemin="0"
+           aria-valuemax="<%= @max %>"
+           role="progressbar">
+      </div>
+    </div>
+    
+    <% if @show_label && @label_position == :right %>
+      <span class="ml-3 text-sm font-medium text-gray-900"><%= @percentage %>%</span>
+    <% end %>
+  </div>
+</div>

@@ -1,6 +1,8 @@
-class Immo::Promo::ProjectsController < Immo::Promo::ApplicationController
-  before_action :set_project, only: [:show, :edit, :update, :destroy]
-  
+module Immo
+  module Promo
+    class ProjectsController < ApplicationController
+      before_action :set_project, only: [ :show, :edit, :update, :destroy ]
+
   def index
     @projects = policy_scope(Immo::Promo::Project).includes(:project_manager, :organization)
     @projects = @projects.where(project_type: params[:type]) if params[:type].present?
@@ -28,8 +30,8 @@ class Immo::Promo::ProjectsController < Immo::Promo::ApplicationController
     respond_to do |format|
       if @project.save
         create_default_phases
-        format.html { redirect_to immo_promo_project_path(@project), notice: 'Projet créé avec succès.' }
-        format.json { render json: { success: true, redirect_url: immo_promo_project_path(@project) } }
+        format.html { redirect_to immo_promo_engine.project_path(@project), notice: 'Projet créé avec succès.' }
+        format.json { render json: { success: true, redirect_url: immo_promo_engine.project_path(@project) } }
       else
         format.html { render :new, status: :unprocessable_entity }
         format.json { render json: { success: false, errors: @project.errors.full_messages }, status: :unprocessable_entity }
@@ -43,9 +45,9 @@ class Immo::Promo::ProjectsController < Immo::Promo::ApplicationController
 
   def update
     authorize @project
-    
+
     if @project.update(project_params)
-      redirect_to immo_promo_project_path(@project), notice: 'Projet mis à jour avec succès.'
+      redirect_to immo_promo_engine.project_path(@project), notice: 'Projet mis à jour avec succès.'
     else
       render :edit, status: :unprocessable_entity
     end
@@ -53,11 +55,11 @@ class Immo::Promo::ProjectsController < Immo::Promo::ApplicationController
 
   def destroy
     authorize @project
-    
+
     if @project.destroy
-      redirect_to immo_promo_projects_path, notice: 'Projet supprimé avec succès.'
+      redirect_to immo_promo_engine.projects_path, notice: 'Projet supprimé avec succès.'
     else
-      redirect_to immo_promo_project_path(@project), alert: 'Impossible de supprimer le projet.'
+      redirect_to immo_promo_engine.project_path(@project), alert: 'Impossible de supprimer le projet.'
     end
   end
 
@@ -67,27 +69,44 @@ class Immo::Promo::ProjectsController < Immo::Promo::ApplicationController
       # Dashboard spécifique à un projet
       @project = policy_scope(Immo::Promo::Project).find(params[:id])
       authorize @project
-      @projects = [@project]  # Make sure @projects is always defined
-      project_ids = [@project.id]
+      @projects = [ @project ]  # Make sure @projects is always defined
+      project_ids = [ @project.id ]
     else
       # Dashboard global - autoriser avec la classe Project
       authorize Immo::Promo::Project
       @projects = policy_scope(Immo::Promo::Project).active
       project_ids = @projects.pluck(:id)
     end
-    
-    @upcoming_milestones = Immo::Promo::Milestone.joins(:project)
-                                                 .where(project_id: project_ids)
+
+    @upcoming_milestones = Immo::Promo::Milestone.joins(phase: :project)
+                                                 .where(immo_promo_phases: { project_id: project_ids })
                                                  .upcoming
                                                  .limit(10)
     @overdue_tasks = Immo::Promo::Task.joins(phase: :project)
                                       .where(immo_promo_phases: { project_id: project_ids })
                                       .overdue
                                       .limit(10)
-    @recent_reports = Immo::Promo::ProgressReport.joins(:project)
-                                                 .where(project_id: project_ids)
+    @recent_reports = Immo::Promo::ProgressReport.where(project_id: project_ids)
                                                  .recent
                                                  .limit(5)
+                                                 
+    # Generate statistics
+    @stats = {
+      total_projects: @project ? 1 : @projects.count,
+      active_projects: @project ? (@project.active? ? 1 : 0) : @projects.active.count,
+      total_budget: @project ? @project.total_budget : @projects.sum(:total_budget_cents) / 100.0,
+      completion_rate: calculate_completion_rate(@project || @projects)
+    }
+  end
+  
+  def calculate_completion_rate(projects)
+    if projects.is_a?(Immo::Promo::Project)
+      projects.completion_percentage || 0
+    else
+      completed = projects.where(status: 'completed').count
+      total = projects.count
+      total > 0 ? (completed.to_f / total * 100).round(2) : 0
+    end
   end
 
   private
@@ -98,16 +117,16 @@ class Immo::Promo::ProjectsController < Immo::Promo::ApplicationController
 
   def project_params
     params.require(:immo_promo_project).permit(
-      :name, :reference, :description, :project_type, :status,
+      :name, :reference_number, :description, :project_type, :status,
       :address, :city, :postal_code, :country,
-      :start_date, :end_date, :total_budget_cents, :total_units,
+      :start_date, :expected_completion_date, :total_budget_cents, :total_units,
       :total_surface_area, :notes, :project_manager_id
     )
   end
 
   def create_default_phases
     start_date = Date.today
-    
+
     default_phases = [
       { name: 'Études préliminaires', phase_type: 'studies', position: 1, duration_months: 3 },
       { name: 'Obtention des permis', phase_type: 'permits', position: 2, duration_months: 6 },
@@ -119,15 +138,17 @@ class Immo::Promo::ProjectsController < Immo::Promo::ApplicationController
     default_phases.each do |phase_attrs|
       duration = phase_attrs.delete(:duration_months)
       end_date = start_date + duration.months
-      
+
       @project.phases.create!(
         phase_attrs.merge(
           start_date: start_date,
           end_date: end_date
         )
       )
-      
+
       start_date = end_date + 1.day
+    end
+      end
     end
   end
 end

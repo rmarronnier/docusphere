@@ -1,0 +1,23 @@
+<div class="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition-shadow duration-200">
+  <div class="p-6">
+    <!-- Project Header -->
+    <%= render Immo::Promo::ProjectCard::HeaderComponent.new(project: project) %>
+
+    <!-- Project Info -->
+    <%= render Immo::Promo::ProjectCard::InfoComponent.new(project: project) %>
+
+    <!-- Progress Bar -->
+    <%= render Immo::Promo::ProjectCard::ProgressComponent.new(project: project) %>
+
+    <!-- Dates -->
+    <%= render Immo::Promo::ProjectCard::DatesComponent.new(project: project) %>
+
+    <!-- Actions -->
+    <% if show_actions %>
+      <%= render Immo::Promo::ProjectCard::ActionsComponent.new(project: project) %>
+    <% end %>
+  </div>
+
+  <!-- Alerts if any -->
+  <%= render Immo::Promo::ProjectCard::AlertComponent.new(project: project) %>
+</div>

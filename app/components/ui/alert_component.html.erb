@@ -1,19 +1,48 @@
-<div class="<%= alert_classes %>" role="alert">
-  <% if icon %>
-    <%= icon_svg %>
-  <% end %>
-  
-  <div class="flex-1">
-    <%= message.html_safe if message.respond_to?(:html_safe) %>
-    <%= message unless message.respond_to?(:html_safe) %>
+<div class="<%= container_classes %>" <%= tag.attributes(dismissible_data) %>>
+  <div class="flex">
+    <% if show_icon? %>
+      <div class="flex-shrink-0">
+        <% if @type == :error && type_config[:icon] == :x_circle_filled %>
+          <svg class="h-5 w-5 <%= type_config[:icon_color] %>" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+          </svg>
+        <% else %>
+          <%= render Ui::IconComponent.new(
+                name: type_config[:icon],
+                size: 5,
+                css_class: type_config[:icon_color]
+              ) %>
+        <% end %>
+      </div>
+    <% end %>
+    
+    <div class="ml-3 flex-1">
+      <% if @title.present? %>
+        <h3 class="text-sm font-medium <%= type_config[:text_color] %>">
+          <%= @title %>
+        </h3>
+      <% end %>
+      <% if @message.present? %>
+        <div class="<%= @title.present? ? 'mt-2' : '' %> text-sm <%= type_config[:text_color] %>">
+          <p><%= @message %></p>
+        </div>
+      <% end %>
+      <% if content.present? %>
+        <div class="<%= @title.present? || @message.present? ? 'mt-2' : '' %> text-sm <%= type_config[:text_color] %>">
+          <%= content %>
+        </div>
+      <% end %>
+    </div>
+    
+    <% if @dismissible %>
+      <div class="ml-3">
+        <button type="button" 
+                class="-mx-1.5 -my-1.5 p-1.5 inline-flex rounded-md <%= type_config[:text_color] %> hover:bg-opacity-10 hover:bg-black focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-<%= @type %>-50 focus:ring-<%= @type %>-600"
+                data-action="click->alert#dismiss">
+          <span class="sr-only">Dismiss</span>
+          <%= render Ui::IconComponent.new(name: :x, size: 5) %>
+        </button>
+      </div>
+    <% end %>
   </div>
-  
-  <% if dismissible %>
-    <button type="button" class="ml-auto -mx-1.5 -my-1.5 rounded-lg p-1.5 inline-flex h-8 w-8 hover:bg-gray-200" data-dismiss-target="#alert-<%= object_id %>" aria-label="Fermer">
-      <span class="sr-only">Fermer</span>
-      <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
-      </svg>
-    </button>
-  <% end %>
 </div>

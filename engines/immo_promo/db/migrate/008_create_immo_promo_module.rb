@@ -29,12 +29,12 @@ class CreateImmoPromoModule < ActiveRecord::Migration[7.1]
       t.jsonb :metadata, default: {}
       t.timestamps
     end
-    
+
     add_index :immo_promo_projects, :reference_number, unique: true
     add_index :immo_promo_projects, :project_type
     add_index :immo_promo_projects, :status
-    add_index :immo_promo_projects, [:organization_id, :slug], unique: true
-    
+    add_index :immo_promo_projects, [ :organization_id, :slug ], unique: true
+
     # Create phases table
     create_table :immo_promo_phases do |t|
       t.references :project, null: false, foreign_key: { to_table: :immo_promo_projects }
@@ -53,11 +53,11 @@ class CreateImmoPromoModule < ActiveRecord::Migration[7.1]
       t.jsonb :deliverables, default: {}
       t.timestamps
     end
-    
-    add_index :immo_promo_phases, [:project_id, :position], unique: true
+
+    add_index :immo_promo_phases, [ :project_id, :position ], unique: true
     add_index :immo_promo_phases, :status
     add_index :immo_promo_phases, :phase_type
-    
+
     # Create phase_dependencies table
     create_table :immo_promo_phase_dependencies do |t|
       t.references :dependent_phase, null: false, foreign_key: { to_table: :immo_promo_phases }
@@ -66,9 +66,9 @@ class CreateImmoPromoModule < ActiveRecord::Migration[7.1]
       t.integer :lag_days, default: 0
       t.timestamps
     end
-    
-    add_index :immo_promo_phase_dependencies, [:dependent_phase_id, :prerequisite_phase_id], unique: true, name: 'idx_phase_dependencies_unique'
-    
+
+    add_index :immo_promo_phase_dependencies, [ :dependent_phase_id, :prerequisite_phase_id ], unique: true, name: 'idx_phase_dependencies_unique'
+
     # Create stakeholders table (must be before tasks as tasks references stakeholders)
     create_table :immo_promo_stakeholders do |t|
       t.references :project, null: false, foreign_key: { to_table: :immo_promo_projects }
@@ -87,10 +87,10 @@ class CreateImmoPromoModule < ActiveRecord::Migration[7.1]
       t.boolean :is_primary, default: false
       t.timestamps
     end
-    
+
     add_index :immo_promo_stakeholders, :role
     # add_index :immo_promo_stakeholders, :stakeholder_type
-    
+
     # Create tasks table
     create_table :immo_promo_tasks do |t|
       t.references :phase, null: false, foreign_key: { to_table: :immo_promo_phases }
@@ -112,12 +112,12 @@ class CreateImmoPromoModule < ActiveRecord::Migration[7.1]
       t.jsonb :checklist, default: {}
       t.timestamps
     end
-    
+
     add_index :immo_promo_tasks, :status
     add_index :immo_promo_tasks, :priority
     add_index :immo_promo_tasks, :end_date
     add_index :immo_promo_tasks, :task_type
-    
+
     # Create task_dependencies table
     create_table :immo_promo_task_dependencies do |t|
       t.references :dependent_task, null: false, foreign_key: { to_table: :immo_promo_tasks }
@@ -126,9 +126,9 @@ class CreateImmoPromoModule < ActiveRecord::Migration[7.1]
       t.integer :lag_days, default: 0
       t.timestamps
     end
-    
-    add_index :immo_promo_task_dependencies, [:dependent_task_id, :prerequisite_task_id], unique: true, name: 'idx_task_dependencies_unique'
-    
+
+    add_index :immo_promo_task_dependencies, [ :dependent_task_id, :prerequisite_task_id ], unique: true, name: 'idx_task_dependencies_unique'
+
     # Create lots table
     create_table :immo_promo_lots do |t|
       t.references :project, null: false, foreign_key: { to_table: :immo_promo_projects }
@@ -144,11 +144,11 @@ class CreateImmoPromoModule < ActiveRecord::Migration[7.1]
       t.jsonb :features, default: {}
       t.timestamps
     end
-    
-    add_index :immo_promo_lots, [:project_id, :lot_number], unique: true
+
+    add_index :immo_promo_lots, [ :project_id, :lot_number ], unique: true
     add_index :immo_promo_lots, :lot_type
     add_index :immo_promo_lots, :status
-    
+
     # Create lot_specifications table
     create_table :immo_promo_lot_specifications do |t|
       t.references :lot, null: false, foreign_key: { to_table: :immo_promo_lots }
@@ -163,9 +163,9 @@ class CreateImmoPromoModule < ActiveRecord::Migration[7.1]
       t.boolean :accessibility_features, default: false
       t.timestamps
     end
-    
+
     # Indexes removed as fields changed
-    
+
     # Create reservations table
     create_table :immo_promo_reservations do |t|
       t.references :lot, null: false, foreign_key: { to_table: :immo_promo_lots }
@@ -179,10 +179,10 @@ class CreateImmoPromoModule < ActiveRecord::Migration[7.1]
       t.text :notes
       t.timestamps
     end
-    
+
     add_index :immo_promo_reservations, :status
     add_index :immo_promo_reservations, :reservation_date
-    
+
     # Create budgets table
     create_table :immo_promo_budgets do |t|
       t.references :project, null: false, foreign_key: { to_table: :immo_promo_projects }
@@ -194,9 +194,9 @@ class CreateImmoPromoModule < ActiveRecord::Migration[7.1]
       t.references :approved_by, foreign_key: { to_table: :users }
       t.timestamps
     end
-    
+
     add_index :immo_promo_budgets, :status
-    
+
     # Create budget_lines table
     create_table :immo_promo_budget_lines do |t|
       t.references :budget, null: false, foreign_key: { to_table: :immo_promo_budgets }
@@ -209,10 +209,10 @@ class CreateImmoPromoModule < ActiveRecord::Migration[7.1]
       t.text :notes
       t.timestamps
     end
-    
+
     add_index :immo_promo_budget_lines, :category
     add_index :immo_promo_budget_lines, :subcategory
-    
+
     # Create permits table
     create_table :immo_promo_permits do |t|
       t.references :project, null: false, foreign_key: { to_table: :immo_promo_projects }
@@ -230,11 +230,11 @@ class CreateImmoPromoModule < ActiveRecord::Migration[7.1]
       t.jsonb :documents, default: {}
       t.timestamps
     end
-    
+
     add_index :immo_promo_permits, :permit_type
     add_index :immo_promo_permits, :status
     add_index :immo_promo_permits, :permit_number
-    
+
     # Create permit_conditions table
     create_table :immo_promo_permit_conditions do |t|
       t.references :permit, null: false, foreign_key: { to_table: :immo_promo_permits }
@@ -245,9 +245,9 @@ class CreateImmoPromoModule < ActiveRecord::Migration[7.1]
       t.text :compliance_notes
       t.timestamps
     end
-    
+
     # Index removed - field does not exist in this version
-    
+
     # Create contracts table
     create_table :immo_promo_contracts do |t|
       t.references :project, null: false, foreign_key: { to_table: :immo_promo_projects }
@@ -264,11 +264,11 @@ class CreateImmoPromoModule < ActiveRecord::Migration[7.1]
       t.date :signed_date
       t.timestamps
     end
-    
+
     add_index :immo_promo_contracts, :contract_type
     add_index :immo_promo_contracts, :status
     add_index :immo_promo_contracts, :contract_number
-    
+
     # Create milestones table
     create_table :immo_promo_milestones do |t|
       t.references :phase, null: false, foreign_key: { to_table: :immo_promo_phases }
@@ -280,10 +280,10 @@ class CreateImmoPromoModule < ActiveRecord::Migration[7.1]
       t.boolean :is_critical, default: false
       t.timestamps
     end
-    
+
     add_index :immo_promo_milestones, :status
     add_index :immo_promo_milestones, :target_date
-    
+
     # Create risks table
     create_table :immo_promo_risks do |t|
       t.references :project, null: false, foreign_key: { to_table: :immo_promo_projects }
@@ -300,11 +300,11 @@ class CreateImmoPromoModule < ActiveRecord::Migration[7.1]
       t.date :target_resolution_date
       t.timestamps
     end
-    
+
     add_index :immo_promo_risks, :category
     add_index :immo_promo_risks, :status
     add_index :immo_promo_risks, :risk_score
-    
+
     # Create progress_reports table
     create_table :immo_promo_progress_reports do |t|
       t.references :project, null: false, foreign_key: { to_table: :immo_promo_projects }
@@ -319,9 +319,9 @@ class CreateImmoPromoModule < ActiveRecord::Migration[7.1]
       t.text :next_period_goals
       t.timestamps
     end
-    
+
     add_index :immo_promo_progress_reports, :report_date
-    
+
     # Create time_logs table
     create_table :immo_promo_time_logs do |t|
       t.references :task, null: false, foreign_key: { to_table: :immo_promo_tasks }
@@ -331,9 +331,9 @@ class CreateImmoPromoModule < ActiveRecord::Migration[7.1]
       t.text :description
       t.timestamps
     end
-    
+
     add_index :immo_promo_time_logs, :date
-    
+
     # Create certifications table
     create_table :immo_promo_certifications do |t|
       t.references :stakeholder, null: false, foreign_key: { to_table: :immo_promo_stakeholders }
@@ -344,7 +344,7 @@ class CreateImmoPromoModule < ActiveRecord::Migration[7.1]
       t.boolean :is_verified, default: false
       t.timestamps
     end
-    
+
     # Indexes for certifications adjusted
   end
 end

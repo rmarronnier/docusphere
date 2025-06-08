@@ -1,14 +1,20 @@
 class Immo::Promo::ProjectPolicy < ApplicationPolicy
   def index?
-    true # All authenticated users can see the project list (filtered by scope)
+    # Only users from the same organization or with specific permissions
+    user_is_admin? || user_has_permission?('immo_promo:access') || user_has_permission?('immo_promo:read')
   end
 
   def dashboard?
-    true # All authenticated users can see the dashboard (filtered by scope)
+    # Only users from the same organization or with specific permissions
+    user_is_admin? || user_has_permission?('immo_promo:access') || user_has_permission?('immo_promo:read')
   end
 
   def show?
-    same_organization_or_admin? && user_can_read?(record)
+    same_organization_or_admin? && (
+      user_can_read?(record) ||
+      user_has_permission?('immo_promo:read') || 
+      user_has_permission?('immo_promo:access')
+    )
   end
 
   def create?
@@ -18,15 +24,15 @@ class Immo::Promo::ProjectPolicy < ApplicationPolicy
   def update?
     return true if user_is_admin?
     same_organization? && (
+      user_can_write?(record) ||
       user_has_permission?('immo_promo:projects:write') ||
-      record.project_manager == user ||
-      user_can_write?(record)
+      user_has_permission?('immo_promo:write')
     )
   end
 
   def destroy?
     user_is_admin? || (
-      same_organization? && 
+      same_organization? &&
       user_has_permission?('immo_promo:projects:delete') &&
       record.project_manager == user
     )
@@ -72,17 +78,17 @@ class Immo::Promo::ProjectPolicy < ApplicationPolicy
         projects_with_permissions = scope.joins(:authorizations)
                                         .where(organization: user.organization)
                                         .where(
-                                          authorizations: { 
-                                            user: user, 
-                                            permission_type: ['read', 'write', 'admin'] 
+                                          authorizations: {
+                                            user: user,
+                                            permission_type: [ 'read', 'write', 'admin' ]
                                           }
                                         )
-        
+
         projects_as_manager = scope.where(
-          organization: user.organization, 
+          organization: user.organization,
           project_manager: user
         )
-        
+
         scope.where(id: projects_with_permissions.select(:id))
              .or(scope.where(id: projects_as_manager.select(:id)))
              .distinct

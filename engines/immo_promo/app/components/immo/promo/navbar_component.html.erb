@@ -1,0 +1,31 @@
+<nav class="bg-white shadow-sm border-b border-gray-200" data-controller="immo-promo-navbar">
+  <div class="mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between h-16">
+      <!-- Left side - Navigation -->
+      <div class="flex">
+        <!-- Logo/Home -->
+        <%= render Immo::Promo::Navbar::LogoComponent.new %>
+        
+        <!-- Navigation Links -->
+        <%= render Immo::Promo::Navbar::NavigationComponent.new(current_project: current_project) %>
+      </div>
+
+      <!-- Right side - Actions -->
+      <div class="flex items-center space-x-4">
+        <% if on_project_view? %>
+          <!-- Project-specific actions -->
+          <%= render Immo::Promo::Navbar::ProjectActionsComponent.new(current_user: current_user, current_project: current_project) %>
+        <% end %>
+        
+        <!-- New Project Button -->
+        <%= render Immo::Promo::Navbar::NewProjectButtonComponent.new(current_user: current_user) %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile menu -->
+  <%= render Immo::Promo::Navbar::MobileMenuComponent.new %>
+</nav>
+
+<!-- New Project Modal -->
+<%= render Immo::Promo::Navbar::NewProjectModalComponent.new %>

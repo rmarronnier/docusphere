@@ -35,18 +35,35 @@ class User < ApplicationRecord
   
   def has_permission?(permission)
     return true if super_admin?
-    (permissions || []).include?(permission.to_s) || 
+    perms = permissions || {}
+    perms = perms.is_a?(Array) ? perms : perms.keys
+    perms.include?(permission.to_s) || 
       user_group_memberships.any? { |membership| membership.has_permission?(permission) }
   end
   
   def add_permission(permission)
-    current_permissions = permissions || []
-    self.permissions = (current_permissions + [permission.to_s]).uniq
+    current_permissions = permissions || {}
+    if current_permissions.is_a?(Array)
+      # Convert array to hash format
+      self.permissions = current_permissions.map { |p| [p, true] }.to_h
+      self.permissions[permission.to_s] = true
+    else
+      self.permissions = current_permissions.merge(permission.to_s => true)
+    end
+  end
+  
+  def add_permission!(permission)
+    add_permission(permission)
+    save!
   end
   
   def remove_permission(permission)
-    current_permissions = permissions || []
-    self.permissions = current_permissions - [permission.to_s]
+    current_permissions = permissions || {}
+    if current_permissions.is_a?(Array)
+      self.permissions = (current_permissions - [permission.to_s]).map { |p| [p, true] }.to_h
+    else
+      self.permissions = current_permissions.except(permission.to_s)
+    end
   end
   
   def admin_of_group?(group)
@@ -64,6 +81,6 @@ class User < ApplicationRecord
   end
   
   def set_default_permissions
-    self.permissions ||= []
+    self.permissions ||= {}
   end
 end

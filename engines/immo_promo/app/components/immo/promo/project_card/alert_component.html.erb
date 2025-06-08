@@ -1,0 +1,6 @@
+<% if is_delayed? %>
+  <%= render Ui::AlertComponent.new(
+        type: :error,
+        message: 'Projet en retard'
+      ) %>
+<% end %>

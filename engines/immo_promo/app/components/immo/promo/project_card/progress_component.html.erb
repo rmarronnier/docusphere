@@ -1,0 +1,11 @@
+<div class="mb-4">
+  <%= render Ui::ProgressBarComponent.new(
+        value: project.completion_percentage,
+        max: 100,
+        size: :medium,
+        color: :auto,
+        show_label: true,
+        label_position: :top,
+        label_text: 'Avancement'
+      ) %>
+</div>

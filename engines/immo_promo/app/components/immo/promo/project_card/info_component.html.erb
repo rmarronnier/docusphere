@@ -1,0 +1,24 @@
+<div class="space-y-2 mb-4">
+  <div class="flex justify-between text-sm">
+    <span class="text-gray-500">Type:</span>
+    <span class="text-gray-900"><%= project.project_type.humanize %></span>
+  </div>
+  <% if project.total_units %>
+    <div class="flex justify-between text-sm">
+      <span class="text-gray-500">Logements:</span>
+      <span class="text-gray-900"><%= project.total_units %></span>
+    </div>
+  <% end %>
+  <% if formatted_surface_area %>
+    <div class="flex justify-between text-sm">
+      <span class="text-gray-500">Surface:</span>
+      <span class="text-gray-900"><%= formatted_surface_area %> m²</span>
+    </div>
+  <% end %>
+  <% if project.project_manager %>
+    <div class="flex justify-between text-sm">
+      <span class="text-gray-500">Chef de projet:</span>
+      <span class="text-gray-900"><%= project.project_manager.display_name %></span>
+    </div>
+  <% end %>
+</div>

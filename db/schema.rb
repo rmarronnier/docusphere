@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_06_08_084520) do
+ActiveRecord::Schema[7.1].define(version: 2025_06_08_125814) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -327,6 +327,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_08_084520) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.text "terms"
+    t.integer "paid_amount_cents"
     t.index ["contract_number"], name: "index_immo_promo_contracts_on_contract_number"
     t.index ["contract_type"], name: "index_immo_promo_contracts_on_contract_type"
     t.index ["project_id"], name: "index_immo_promo_contracts_on_project_id"
@@ -401,6 +402,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_08_084520) do
     t.string "status", default: "pending"
     t.string "condition_type"
     t.boolean "is_fulfilled", default: false
+    t.date "met_date"
     t.index ["permit_id"], name: "index_immo_promo_permit_conditions_on_permit_id"
   end
 
@@ -420,10 +422,18 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_08_084520) do
     t.jsonb "documents", default: {}
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "submitted_by_id"
+    t.bigint "approved_by_id"
+    t.string "title"
+    t.string "reference"
+    t.integer "fee_amount_cents"
+    t.text "description"
+    t.index ["approved_by_id"], name: "index_immo_promo_permits_on_approved_by_id"
     t.index ["permit_number"], name: "index_immo_promo_permits_on_permit_number"
     t.index ["permit_type"], name: "index_immo_promo_permits_on_permit_type"
     t.index ["project_id"], name: "index_immo_promo_permits_on_project_id"
     t.index ["status"], name: "index_immo_promo_permits_on_status"
+    t.index ["submitted_by_id"], name: "index_immo_promo_permits_on_submitted_by_id"
   end
 
   create_table "immo_promo_phase_dependencies", force: :cascade do |t|
@@ -456,6 +466,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_08_084520) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "deliverables_count", default: 0
+    t.date "actual_start_date"
+    t.date "actual_end_date"
     t.index ["phase_type"], name: "index_immo_promo_phases_on_phase_type"
     t.index ["project_id", "position"], name: "index_immo_promo_phases_on_project_id_and_position", unique: true
     t.index ["project_id"], name: "index_immo_promo_phases_on_project_id"
@@ -609,6 +621,9 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_08_084520) do
     t.jsonb "checklist", default: {}
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.date "actual_start_date"
+    t.date "actual_end_date"
+    t.datetime "completed_at"
     t.index ["assigned_to_id"], name: "index_immo_promo_tasks_on_assigned_to_id"
     t.index ["end_date"], name: "index_immo_promo_tasks_on_end_date"
     t.index ["phase_id"], name: "index_immo_promo_tasks_on_phase_id"
@@ -621,12 +636,12 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_08_084520) do
   create_table "immo_promo_time_logs", force: :cascade do |t|
     t.bigint "task_id", null: false
     t.bigint "user_id", null: false
-    t.date "log_date"
+    t.date "logged_date"
     t.decimal "hours", precision: 5, scale: 2
     t.text "description"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["log_date"], name: "index_immo_promo_time_logs_on_log_date"
+    t.index ["logged_date"], name: "index_immo_promo_time_logs_on_logged_date"
     t.index ["task_id"], name: "index_immo_promo_time_logs_on_task_id"
     t.index ["user_id"], name: "index_immo_promo_time_logs_on_user_id"
   end
@@ -748,9 +763,12 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_08_084520) do
     t.bigint "organization_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "workflowable_type"
+    t.bigint "workflowable_id"
     t.index ["is_active"], name: "index_project_workflow_steps_on_is_active"
     t.index ["organization_id", "sequence_number"], name: "idx_on_organization_id_sequence_number_d640298ebc", unique: true
     t.index ["organization_id"], name: "index_project_workflow_steps_on_organization_id"
+    t.index ["workflowable_type", "workflowable_id"], name: "index_project_workflow_steps_on_workflowable"
   end
 
   create_table "project_workflow_transitions", force: :cascade do |t|
@@ -762,11 +780,14 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_08_084520) do
     t.datetime "transitioned_at", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "workflowable_type"
+    t.bigint "workflowable_id"
     t.index ["from_step_id"], name: "index_project_workflow_transitions_on_from_step_id"
     t.index ["project_id"], name: "index_project_workflow_transitions_on_project_id"
     t.index ["to_step_id"], name: "index_project_workflow_transitions_on_to_step_id"
     t.index ["transitioned_at"], name: "index_project_workflow_transitions_on_transitioned_at"
     t.index ["transitioned_by_id"], name: "index_project_workflow_transitions_on_transitioned_by_id"
+    t.index ["workflowable_type", "workflowable_id"], name: "index_project_workflow_transitions_on_workflowable"
   end
 
   create_table "search_queries", force: :cascade do |t|
@@ -1059,6 +1080,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_08_084520) do
   add_foreign_key "immo_promo_milestones", "immo_promo_phases", column: "phase_id"
   add_foreign_key "immo_promo_permit_conditions", "immo_promo_permits", column: "permit_id"
   add_foreign_key "immo_promo_permits", "immo_promo_projects", column: "project_id"
+  add_foreign_key "immo_promo_permits", "users", column: "approved_by_id"
+  add_foreign_key "immo_promo_permits", "users", column: "submitted_by_id"
   add_foreign_key "immo_promo_phase_dependencies", "immo_promo_phases", column: "dependent_phase_id"
   add_foreign_key "immo_promo_phase_dependencies", "immo_promo_phases", column: "prerequisite_phase_id"
   add_foreign_key "immo_promo_phases", "immo_promo_projects", column: "project_id"

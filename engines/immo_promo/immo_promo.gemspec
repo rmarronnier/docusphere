@@ -3,8 +3,8 @@ require_relative "lib/immo_promo/version"
 Gem::Specification.new do |spec|
   spec.name        = "immo_promo"
   spec.version     = ImmoPromo::VERSION
-  spec.authors     = ["Docusphere Team"]
-  spec.email       = ["contact@docusphere.fr"]
+  spec.authors     = [ "Docusphere Team" ]
+  spec.email       = [ "contact@docusphere.fr" ]
   spec.homepage    = "https://github.com/docusphere/immo_promo"
   spec.summary     = "Real estate project management engine for Docusphere"
   spec.description = "A Rails engine providing real estate development project management features"
@@ -21,7 +21,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "money-rails"
   spec.add_dependency "aasm"
   spec.add_dependency "audited"
-  
+
   spec.add_development_dependency "rspec-rails"
   spec.add_development_dependency "factory_bot_rails"
 end

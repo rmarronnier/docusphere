@@ -1,5 +1,8 @@
 # Shared examples for common test patterns
 
+# Load all shared examples from subdirectory
+Dir[Rails.root.join('spec/support/shared_examples/*.rb')].sort.each { |f| require f }
+
 RSpec.shared_examples "requires authentication" do
   it "redirects to login when not authenticated" do
     sign_out if respond_to?(:sign_out)

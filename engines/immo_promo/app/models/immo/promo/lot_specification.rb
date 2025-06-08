@@ -1,26 +1,30 @@
-class Immo::Promo::LotSpecification < ApplicationRecord
-  self.table_name = 'immo_promo_lot_specifications'
-  
-  belongs_to :lot, class_name: 'Immo::Promo::Lot'
+module Immo
+  module Promo
+    class LotSpecification < ApplicationRecord
+      self.table_name = 'immo_promo_lot_specifications'
 
-  validates :specification_type, inclusion: { 
-    in: %w[finishes equipment technical_requirements environmental accessibility] 
-  }
-  validates :name, presence: true
+      belongs_to :lot, class_name: 'Immo::Promo::Lot'
 
-  enum specification_type: {
-    finishes: 'finishes',
-    equipment: 'equipment',
-    technical_requirements: 'technical_requirements',
-    environmental: 'environmental',
-    accessibility: 'accessibility'
-  }
+      validates :specification_type, inclusion: {
+        in: %w[finishes equipment technical_requirements environmental accessibility]
+      }
+      validates :name, presence: true
 
-  scope :by_type, ->(type) { where(specification_type: type) }
-  scope :standard, -> { where(is_standard: true) }
-  scope :custom, -> { where(is_standard: false) }
+      enum specification_type: {
+        finishes: 'finishes',
+        equipment: 'equipment',
+        technical_requirements: 'technical_requirements',
+        environmental: 'environmental',
+        accessibility: 'accessibility'
+      }
 
-  def display_name
-    "#{specification_type.humanize}: #{name}"
+      scope :by_type, ->(type) { where(specification_type: type) }
+      scope :standard, -> { where(is_standard: true) }
+      scope :custom, -> { where(is_standard: false) }
+
+      def display_name
+        "#{specification_type.humanize}: #{name}"
+      end
+    end
   end
 end

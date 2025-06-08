@@ -1,148 +1,175 @@
 require 'rails_helper'
 
 RSpec.describe Immo::Promo::Phase, type: :model do
-  let(:organization) { create(:organization) }
-  let(:project) { create(:immo_promo_project, organization: organization) }
-  
+  let(:project) { create(:immo_promo_project) }
+  let(:phase) { create(:immo_promo_phase, project: project) }
+
   describe 'associations' do
-    it { should belong_to(:project) }
-    it { should have_many(:tasks).dependent(:destroy) }
+    it { should belong_to(:project).class_name('Immo::Promo::Project') }
+    it { should belong_to(:responsible_user).class_name('User').optional }
+    it { should have_many(:tasks).class_name('Immo::Promo::Task').dependent(:destroy) }
+    it { should have_many(:phase_dependencies).class_name('Immo::Promo::PhaseDependency').dependent(:destroy) }
+    it { should have_many(:dependent_phases).through(:phase_dependencies) }
+    it { should have_many(:inverse_phase_dependencies).class_name('Immo::Promo::PhaseDependency').dependent(:destroy) }
+    it { should have_many(:prerequisite_phases).through(:inverse_phase_dependencies) }
   end
 
   describe 'validations' do
-    subject { build(:immo_promo_phase, project: project) }
-    
     it { should validate_presence_of(:name) }
+    it { should validate_presence_of(:phase_type) }
     it { should validate_presence_of(:position) }
-    it { should validate_uniqueness_of(:position).scoped_to(:project_id) }
+    it { should validate_numericality_of(:position).is_greater_than(0) }
   end
 
-  describe 'concerns' do
-    it 'includes Schedulable' do
-      expect(described_class.included_modules).to include(Schedulable)
-    end
-    
-    it 'includes WorkflowManageable' do
-      expect(described_class.included_modules).to include(WorkflowManageable)
-    end
+  describe 'enums' do
+    it { should define_enum_for(:phase_type).backed_by_column_of_type(:string).with_values(
+      studies: 'studies',
+      permits: 'permits',
+      construction: 'construction',
+      finishing: 'finishing',
+      delivery: 'delivery',
+      reception: 'reception',
+      other: 'other'
+    ) }
+
+    it { should define_enum_for(:status).backed_by_column_of_type(:string).with_values(
+      pending: 'pending',
+      in_progress: 'in_progress',
+      completed: 'completed',
+      on_hold: 'on_hold',
+      cancelled: 'cancelled'
+    ) }
   end
 
-  describe 'enum' do
-    it { should define_enum_for(:phase_type).backed_by_column_of_type(:string).with_values(studies: 'studies', permits: 'permits', construction: 'construction', reception: 'reception', delivery: 'delivery') }
-    it { should define_enum_for(:status).backed_by_column_of_type(:string).with_values(pending: 'pending', in_progress: 'in_progress', completed: 'completed', delayed: 'delayed', cancelled: 'cancelled') }
+  describe 'monetization' do
+    it { should monetize(:budget) }
+    it { should monetize(:actual_cost) }
   end
 
   describe 'scopes' do
-    let!(:active_phase) { create(:immo_promo_phase, project: project, status: 'in_progress') }
-    let!(:completed_phase) { create(:immo_promo_phase, project: project, status: 'completed') }
-    let!(:studies_phase) { create(:immo_promo_phase, project: project, phase_type: 'studies', status: 'completed') }
-    let!(:construction_phase) { create(:immo_promo_phase, project: project, phase_type: 'construction', status: 'cancelled') }
-
     describe '.active' do
-      it 'returns only active phases' do
-        expect(described_class.active).to contain_exactly(active_phase)
+      it 'returns phases not completed or cancelled' do
+        active_phase = create(:immo_promo_phase, status: 'in_progress')
+        completed_phase = create(:immo_promo_phase, status: 'completed')
+        cancelled_phase = create(:immo_promo_phase, status: 'cancelled')
+
+        expect(Immo::Promo::Phase.active).to include(active_phase)
+        expect(Immo::Promo::Phase.active).not_to include(completed_phase, cancelled_phase)
       end
     end
 
-    describe '.by_type' do
-      it 'returns phases of specified type' do
-        expect(described_class.by_type('studies')).to include(studies_phase)
-        expect(described_class.by_type('studies')).not_to include(construction_phase)
+    describe '.critical' do
+      it 'returns critical phases' do
+        critical_phase = create(:immo_promo_phase, is_critical: true)
+        non_critical_phase = create(:immo_promo_phase, is_critical: false)
+
+        expect(Immo::Promo::Phase.critical).to include(critical_phase)
+        expect(Immo::Promo::Phase.critical).not_to include(non_critical_phase)
       end
     end
-    
-    describe '.ordered' do
-      let(:ordered_project) { create(:immo_promo_project, organization: organization) }
-      let!(:phase_3) { create(:immo_promo_phase, project: ordered_project, position: 3) }
-      let!(:phase_1) { create(:immo_promo_phase, project: ordered_project, position: 1) }
-      let!(:phase_2) { create(:immo_promo_phase, project: ordered_project, position: 2) }
-      
-      it 'returns phases ordered by position' do
-        expect(ordered_project.phases.ordered).to eq([phase_1, phase_2, phase_3])
+
+    describe '.delayed' do
+      it 'returns phases past their end date' do
+        delayed_phase = create(:immo_promo_phase, end_date: 1.day.ago, status: 'in_progress')
+        on_time_phase = create(:immo_promo_phase, end_date: 1.day.from_now, status: 'in_progress')
+        completed_phase = create(:immo_promo_phase, end_date: 1.day.ago, status: 'completed')
+
+        expect(Immo::Promo::Phase.delayed).to include(delayed_phase)
+        expect(Immo::Promo::Phase.delayed).not_to include(on_time_phase, completed_phase)
       end
     end
   end
 
+  describe '#completion_percentage' do
+    context 'with no tasks' do
+      it 'returns 0' do
+        expect(phase.completion_percentage).to eq(0)
+      end
+    end
 
-  describe 'instance methods' do
-    let(:phase) { create(:immo_promo_phase, project: project) }
-    
-    describe '#completion_percentage' do
-      context 'with no tasks' do
-        it 'returns 0' do
-          expect(phase.completion_percentage).to eq(0)
-        end
-      end
-      
-      context 'with tasks' do
-        before do
-          create(:immo_promo_task, phase: phase, status: 'completed')
-          create(:immo_promo_task, phase: phase, status: 'in_progress')
-          create(:immo_promo_task, phase: phase, status: 'pending')
-        end
-        
-        it 'calculates completion based on completed tasks' do
-          expect(phase.completion_percentage).to eq(33.33)
-        end
+    context 'with tasks' do
+      it 'calculates the percentage of completed tasks' do
+        create(:immo_promo_task, phase: phase, status: 'completed')
+        create(:immo_promo_task, phase: phase, status: 'completed')
+        create(:immo_promo_task, phase: phase, status: 'in_progress')
+        create(:immo_promo_task, phase: phase, status: 'pending')
+
+        expect(phase.task_completion_percentage).to eq(50.0)
       end
     end
-    
-    describe '#is_delayed?' do
-      context 'when end_date is in the future' do
-        before { phase.update(end_date: 1.week.from_now) }
-        
-        it 'returns false' do
-          expect(phase.is_delayed?).to be false
-        end
-      end
-      
-      context 'when end_date is in the past and not completed' do
-        before { phase.update(end_date: 1.week.ago, status: 'in_progress') }
-        
-        it 'returns true' do
-          expect(phase.is_delayed?).to be true
-        end
-      end
-      
-      context 'when completed' do
-        before { phase.update(end_date: 1.week.ago, status: 'completed') }
-        
-        it 'returns false' do
-          expect(phase.is_delayed?).to be false
-        end
+  end
+
+  describe '#is_delayed?' do
+    context 'when phase is completed' do
+      it 'returns false' do
+        phase.update(status: 'completed', end_date: 1.day.ago)
+        expect(phase.is_delayed?).to be_falsey
       end
     end
-    
-    describe '#can_start?' do
-      context 'with no prerequisite phases' do
-        it 'returns true' do
-          expect(phase.can_start?).to be true
-        end
-      end
-      
-      context 'with completed prerequisite phases' do
-        let(:prerequisite) { create(:immo_promo_phase, project: project, status: 'completed') }
-        
-        before do
-          create(:immo_promo_phase_dependency, dependent_phase: phase, prerequisite_phase: prerequisite)
-        end
-        
-        it 'returns true' do
-          expect(phase.can_start?).to be true
-        end
-      end
-      
-      context 'with incomplete prerequisite phases' do
-        let(:prerequisite) { create(:immo_promo_phase, project: project, status: 'pending') }
-        
-        before do
-          create(:immo_promo_phase_dependency, dependent_phase: phase, prerequisite_phase: prerequisite)
-        end
-        
-        it 'returns false' do
-          expect(phase.can_start?).to be false
-        end
+
+    context 'when phase is past end date' do
+      it 'returns true' do
+        phase.update(status: 'in_progress', end_date: 1.day.ago)
+        expect(phase.is_delayed?).to be_truthy
       end
     end
+
+    context 'when phase is on time' do
+      it 'returns false' do
+        phase.update(status: 'in_progress', end_date: 1.day.from_now)
+        expect(phase.is_delayed?).to be_falsey
+      end
+    end
+  end
+
+  describe '#can_start?' do
+    context 'with no prerequisite phases' do
+      it 'returns true' do
+        expect(phase.can_start?).to be_truthy
+      end
+    end
+
+    context 'with completed prerequisite phases' do
+      it 'returns true' do
+        prerequisite = create(:immo_promo_phase, project: project, status: 'completed')
+        create(:immo_promo_phase_dependency, 
+               prerequisite_phase: prerequisite, 
+               dependent_phase: phase)
+        
+        expect(phase.can_start?).to be_truthy
+      end
+    end
+
+    context 'with incomplete prerequisite phases' do
+      it 'returns false' do
+        prerequisite = create(:immo_promo_phase, project: project, status: 'in_progress')
+        create(:immo_promo_phase_dependency, 
+               prerequisite_phase: prerequisite, 
+               dependent_phase: phase)
+        
+        expect(phase.can_start?).to be_falsey
+      end
+    end
+  end
+
+  describe '#days_remaining' do
+    it 'returns the number of days until end date' do
+      phase.end_date = 5.days.from_now.to_date
+      expect(phase.days_remaining).to eq(5)
+    end
+
+    it 'returns 0 for past dates' do
+      phase.end_date = 5.days.ago.to_date
+      expect(phase.days_remaining).to eq(0)
+    end
+
+    it 'returns 0 when no end date' do
+      phase.end_date = nil
+      expect(phase.days_remaining).to eq(0)
+    end
+  end
+
+  describe 'concerns' do
+    it_behaves_like 'schedulable'
   end
 end

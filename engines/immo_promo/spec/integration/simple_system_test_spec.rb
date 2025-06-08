@@ -26,7 +26,7 @@ RSpec.describe 'Immo::Promo Simple System Test' do
       expect(project.organization).to eq(organization)
       expect(project.project_manager).to eq(user)
       expect(project.total_budget.cents).to eq(1_000_000_00)
-      
+
       # Test des méthodes de base
       expect(project.completion_percentage).to eq(0)
       expect(project.total_surface_area).to eq(0)
@@ -36,10 +36,10 @@ RSpec.describe 'Immo::Promo Simple System Test' do
     it 'validates enums correctly' do
       # Test enum project_type
       expect(Immo::Promo::Project.project_types.keys).to include('residential', 'commercial', 'mixed', 'industrial')
-      
-      # Test enum status  
-      expect(Immo::Promo::Project.statuses.keys).to include('planning', 'development', 'construction', 'delivery', 'completed', 'cancelled')
-      
+
+      # Test enum status
+      expect(Immo::Promo::Project.statuses.keys).to include('planning', 'pre_construction', 'construction', 'delivered', 'completed', 'cancelled')
+
       # Test validation
       expect {
         Immo::Promo::Project.new(project_type: 'invalid')
@@ -52,14 +52,14 @@ RSpec.describe 'Immo::Promo Simple System Test' do
         name: 'Active Project',
         reference_number: 'ACT-001',
         project_type: 'residential',
-        status: 'development',
+        status: 'pre_construction',
         organization: organization,
         start_date: Date.current,
         end_date: Date.current + 1.year
       )
 
       completed_project = Immo::Promo::Project.create!(
-        name: 'Completed Project', 
+        name: 'Completed Project',
         reference_number: 'COMP-001',
         project_type: 'commercial',
         status: 'completed',
@@ -82,7 +82,7 @@ RSpec.describe 'Immo::Promo Simple System Test' do
     it 'tests services initialization' do
       project = Immo::Promo::Project.create!(
         name: 'Service Test',
-        reference_number: 'SRV-001', 
+        reference_number: 'SRV-001',
         project_type: 'residential',
         status: 'planning',
         organization: organization,
@@ -95,7 +95,7 @@ RSpec.describe 'Immo::Promo Simple System Test' do
       expect(project_service).to be_present
       expect(project_service.calculate_overall_progress).to eq(0)
 
-      # Test PermitTrackerService  
+      # Test PermitTrackerService
       permit_service = Immo::Promo::PermitTrackerService.new(project, user)
       expect(permit_service).to be_present
       expect(permit_service.generate_permit_workflow).to be_an(Array)
@@ -110,7 +110,7 @@ RSpec.describe 'Immo::Promo Simple System Test' do
       project = Immo::Promo::Project.create!(
         name: 'Component Test',
         reference_number: 'COMP-001',
-        project_type: 'residential', 
+        project_type: 'residential',
         status: 'planning',
         organization: organization,
         start_date: Date.current,
@@ -120,7 +120,7 @@ RSpec.describe 'Immo::Promo Simple System Test' do
       # Test ProjectCardComponent
       component = Immo::Promo::ProjectCardComponent.new(project: project)
       expect(component).to be_present
-      
+
       # Le composant doit pouvoir être créé sans erreur
       expect { component }.not_to raise_error
     end
@@ -128,7 +128,7 @@ RSpec.describe 'Immo::Promo Simple System Test' do
     it 'tests authorization policy basic structure' do
       project = Immo::Promo::Project.create!(
         name: 'Policy Test',
-        reference_number: 'POL-001', 
+        reference_number: 'POL-001',
         project_type: 'residential',
         status: 'planning',
         organization: organization,
@@ -144,7 +144,7 @@ RSpec.describe 'Immo::Promo Simple System Test' do
       # Test de la policy
       policy = Immo::Promo::ProjectPolicy.new(user, project)
       expect(policy).to be_present
-      
+
       # Test méthodes de base
       expect(policy).to respond_to(:show?)
       expect(policy).to respond_to(:update?)
@@ -170,22 +170,24 @@ RSpec.describe 'Immo::Promo Simple System Test' do
 
       # Vérifier que les composants existent
       expect(defined?(Immo::Promo::ProjectCardComponent)).to be_truthy
-      
+
       # Vérifier que les contrôleurs existent
       expect(defined?(Immo::Promo::ProjectsController)).to be_truthy
     end
 
     it 'counts implemented files' do
       # Compter les fichiers créés
-      models_count = Dir.glob('app/models/immo/promo/*.rb').count
-      services_count = Dir.glob('app/services/immo/promo/*.rb').count
-      controllers_count = Dir.glob('app/controllers/immo/promo/*.rb').count
-      policies_count = Dir.glob('app/policies/immo/promo/*.rb').count
-      components_count = Dir.glob('app/components/immo/promo/*.rb').count
+      engine_root = Rails.root.join('engines/immo_promo')
+      models_count = Dir.glob(engine_root.join('app/models/immo/promo/*.rb')).count
+      services_count = Dir.glob(engine_root.join('app/services/immo/promo/*.rb')).count
+      controllers_count = Dir.glob(engine_root.join('app/controllers/immo/promo/*.rb')).count
+      policies_count = Dir.glob(engine_root.join('app/policies/immo/promo/*.rb')).count
+      # Components are in the main app directory
+      components_count = Dir.glob(Rails.root.join('app/components/immo/promo/*.rb')).count
 
       puts "\n=== SYSTÈME IMMO::PROMO - RÉSUMÉ ==="
       puts "✓ #{models_count} modèles créés"
-      puts "✓ #{services_count} services métier créés" 
+      puts "✓ #{services_count} services métier créés"
       puts "✓ #{controllers_count} contrôleurs créés"
       puts "✓ #{policies_count} policies d'autorisation créées"
       puts "✓ #{components_count} composants ViewComponent créés"
@@ -194,7 +196,7 @@ RSpec.describe 'Immo::Promo Simple System Test' do
       puts "✓ Tests et spécifications créés"
       puts "✓ Documentation complète dans IMMO_PROMO_README.md"
       puts "======================================"
-      
+
       # Le système doit avoir au moins les composants principaux
       expect(models_count).to be >= 10
       expect(services_count).to be >= 3

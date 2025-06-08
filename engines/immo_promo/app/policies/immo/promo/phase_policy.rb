@@ -15,7 +15,7 @@ class Immo::Promo::PhasePolicy < ApplicationPolicy
     return true if user_is_admin?
     project_policy = Immo::Promo::ProjectPolicy.new(user, record.project)
     project_policy.update? || (
-      same_organization? && 
+      same_organization? &&
       record.responsible_user == user
     )
   end
@@ -34,7 +34,7 @@ class Immo::Promo::PhasePolicy < ApplicationPolicy
   def complete_phase?
     update? && record.can_start?
   end
-  
+
   def complete?
     complete_phase?
   end

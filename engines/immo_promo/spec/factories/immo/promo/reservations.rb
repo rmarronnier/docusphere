@@ -11,18 +11,18 @@ FactoryBot.define do
     status { 'pending' }
     association :lot, factory: :immo_promo_lot
     association :sales_agent, factory: :user
-    
+
     trait :confirmed do
       status { 'confirmed' }
       confirmation_date { Date.current }
     end
-    
+
     trait :cancelled do
       status { 'cancelled' }
       cancellation_date { Date.current }
       cancellation_reason { 'Client désistement' }
     end
-    
+
     trait :converted do
       status { 'converted' }
       sale_date { Date.current }

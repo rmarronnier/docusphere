@@ -11,12 +11,10 @@ abort("The Rails environment is running in production mode!") if Rails.env.produ
 require 'rspec/rails'
 require 'factory_bot_rails'
 
-# Load engine factories
-Dir[Rails.root.join('engines/immo_promo/spec/factories/**/*.rb')].sort.each { |f| require f }
-
-# Load main app factories and support files
-Dir[Rails.root.join('spec/factories/**/*.rb')].sort.each { |f| require f unless f.include?('immo_promo') }
+# Load main app support files
 Dir[Rails.root.join('spec/support/**/*.rb')].sort.each { |f| require f }
+
+# Engine factories are loaded automatically by factory_bot_rails
 
 begin
   ActiveRecord::Migration.maintain_test_schema!
@@ -30,9 +28,14 @@ RSpec.configure do |config|
   config.use_transactional_fixtures = true
   config.infer_spec_type_from_file_location!
   config.filter_rails_from_backtrace!
-  
+
   config.include FactoryBot::Syntax::Methods
   config.include Devise::Test::ControllerHelpers, type: :controller
   config.include Devise::Test::IntegrationHelpers, type: :request
   config.include Warden::Test::Helpers
+  
+  # Configuration pour les contrôleurs de l'engine
+  config.before(:each, type: :controller) do
+    @routes = Immo::Promo::Engine.routes
+  end
 end

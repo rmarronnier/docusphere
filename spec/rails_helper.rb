@@ -37,6 +37,13 @@ RSpec.configure do |config|
   config.before(:suite) do
     Audited.auditing_enabled = false
   end
+  
+  # Configure ActiveJob to run inline for email tests
+  config.around(:each, type: :service) do |example|
+    perform_enqueued_jobs do
+      example.run
+    end
+  end
 
   # FactoryBot configuration
   config.include FactoryBot::Syntax::Methods
@@ -55,6 +62,9 @@ RSpec.configure do |config|
   config.include Devise::Test::ControllerHelpers, type: :controller
   config.include Devise::Test::IntegrationHelpers, type: :request
   config.include Warden::Test::Helpers, type: :system
+  
+  # ActiveJob test helpers
+  config.include ActiveJob::TestHelper, type: :service
 
   # ViewComponent test helpers
   config.include ViewComponent::TestHelpers, type: :component

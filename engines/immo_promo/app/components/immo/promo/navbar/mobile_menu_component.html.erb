@@ -1,0 +1,9 @@
+<div class="sm:hidden hidden" data-immo-promo-navbar-target="mobileMenu">
+  <div class="pt-2 pb-3 space-y-1">
+    <%= link_to "Tableau de bord", projects_path,
+                class: "#{on_dashboard? ? 'bg-blue-50 border-blue-500 text-blue-700' : 'border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium" %>
+    
+    <%= link_to "Projets", projects_path,
+                class: "#{on_projects_index? ? 'bg-blue-50 border-blue-500 text-blue-700' : 'border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium" %>
+  </div>
+</div>

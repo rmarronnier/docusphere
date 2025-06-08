@@ -1,349 +1,264 @@
-class Immo::Promo::PermitTrackerService
-  attr_reader :project, :current_user
+module Immo
+  module Promo
+    class PermitTrackerService
+      attr_reader :project, :current_user
 
-  def initialize(project, current_user)
-    @project = project
-    @current_user = current_user
-  end
+      def initialize(project, current_user = nil)
+        @project = project
+        @current_user = current_user
+        @timeline_service = PermitTimelineService.new(project)
+        @compliance_service = RegulatoryComplianceService.new(project)
+        @deadline_service = PermitDeadlineService.new(project)
+      end
 
-  def track_permit_deadlines
-    deadline_alerts = []
-    
-    project.permits.each do |permit|
-      # Check submission deadlines
-      if permit.draft? && should_submit_soon?(permit)
-        deadline_alerts << {
-          permit: permit,
-          type: 'submission_due',
-          urgency: calculate_urgency(permit),
-          message: generate_submission_message(permit),
-          action_required: 'Finaliser et soumettre le dossier'
+      # Délégation aux services spécialisés
+      def track_permit_deadlines
+        @deadline_service.track_permit_deadlines
+      end
+
+      def generate_permit_workflow
+        @timeline_service.generate_permit_workflow
+      end
+
+      def check_regulatory_compliance
+        @compliance_service.check_regulatory_compliance
+      end
+
+      def generate_permit_timeline
+        @timeline_service.generate_permit_timeline
+      end
+
+      def calculate_processing_times
+        @timeline_service.calculate_processing_times
+      end
+
+      def check_expiring_permits(days_threshold = 30)
+        project.permits.expiring_soon(days_threshold).order(:expiry_date)
+      end
+
+      def compliance_check
+        issues = @compliance_service.check_permit_conditions_compliance
+        expired_permits = project.permits.approved.where('expiry_date < ?', Date.current)
+        
+        all_issues = []
+        
+        # Add permit condition issues
+        issues.each do |issue|
+          all_issues << {
+            permit: issue[:permit],
+            unmet_conditions: issue[:conditions]
+          }
+        end
+        
+        # Add expired permit issues
+        expired_permits.each do |permit|
+          all_issues << {
+            permit: permit,
+            issue_type: 'expired'
+          }
+        end
+        
+        {
+          compliant: issues.empty? && expired_permits.empty?,
+          issues: all_issues,
+          expired_permits: expired_permits
         }
       end
-      
-      # Check response deadlines
-      if permit.under_review? && response_overdue?(permit)
-        deadline_alerts << {
-          permit: permit,
-          type: 'response_overdue',
-          urgency: 'high',
-          message: "Réponse attendue depuis #{overdue_days(permit)} jours",
-          action_required: 'Relancer les services instructeurs'
+
+      # Méthodes métier principales
+      def track_permit_status
+        total = project.permits.count
+        by_status = project.permits.group(:status).count
+        
+        approved_count = by_status['approved'] || 0
+        approval_rate = total > 0 ? (approved_count.to_f / total * 100).round(2) : 0
+        
+        {
+          total: total,
+          by_status: by_status.symbolize_keys,
+          approval_rate: approval_rate,
+          pending: project.permits.pending,
+          approved: project.permits.approved,
+          critical_pending: project.permits.critical.pending
         }
       end
-      
-      # Check expiry dates
-      if permit.approved? && expiring_soon?(permit)
-        deadline_alerts << {
-          permit: permit,
-          type: 'expiring',
-          urgency: calculate_expiry_urgency(permit),
-          message: "Expire le #{permit.expiry_date.strftime('%d/%m/%Y')}",
-          action_required: determine_expiry_action(permit)
+
+      def critical_permits_status
+        critical_types = ['construction', 'urban_planning']
+        critical_permits = project.permits.where(permit_type: critical_types)
+        
+        approved_critical = critical_permits.approved.count
+        total_critical = critical_permits.count
+        
+        {
+          critical_permits: critical_permits,
+          approved_count: approved_critical,
+          total_count: total_critical,
+          ready_for_construction: total_critical > 0 && approved_critical == total_critical,
+          missing_permits: identify_missing_critical_permits(critical_types)
         }
       end
-    end
-    
-    deadline_alerts.sort_by { |alert| urgency_score(alert[:urgency]) }.reverse
-  end
 
-  def generate_permit_workflow
-    workflow_steps = []
-    
-    # Urban planning permit workflow
-    if needs_urban_planning_permit?
-      workflow_steps << create_permit_workflow_step(
-        'urban_planning',
-        'Permis d\'aménager',
-        calculate_urban_planning_timeline
-      )
-    end
-    
-    # Construction permit workflow
-    workflow_steps << create_permit_workflow_step(
-      'construction',
-      'Permis de construire',
-      calculate_construction_permit_timeline
-    )
-    
-    # Environmental permits if needed
-    if needs_environmental_permits?
-      workflow_steps << create_permit_workflow_step(
-        'environmental',
-        'Autorisations environnementales',
-        calculate_environmental_timeline
-      )
-    end
-    
-    workflow_steps
-  end
+      def notify_permit_updates(permit, old_status, new_status)
+        return unless old_status != new_status
+        
+        notification_data = build_permit_notification(permit, old_status, new_status)
+        Notification.create!(notification_data)
+        
+        # Send email notification if critical status change
+        if critical_status_change?(old_status, new_status)
+          PermitMailer.status_change_notification(permit, old_status, new_status).deliver_later
+        end
+      end
 
-  def check_regulatory_compliance
-    compliance_issues = []
-    
-    # RT 2020 compliance
-    unless project.lots.all? { |lot| lot.lot_specifications.where(specification_type: 'environmental').exists? }
-      compliance_issues << {
-        regulation: 'RT 2020',
-        severity: 'critical',
-        description: 'Spécifications environnementales manquantes pour certains lots',
-        action: 'Compléter les spécifications RT 2020 pour tous les lots'
-      }
-    end
-    
-    # Accessibility compliance
-    if project.residential? && project.total_units > 20
-      accessible_units = project.lots.joins(:lot_specifications)
-                                    .where(lot_specifications: { specification_type: 'accessibility' })
-                                    .count
-      required_accessible = (project.total_units * 0.05).ceil
-      
-      if accessible_units < required_accessible
-        compliance_issues << {
-          regulation: 'Accessibilité PMR',
-          severity: 'high',
-          description: "#{required_accessible} logements accessibles requis, #{accessible_units} prévus",
-          action: 'Modifier la conception pour respecter le quota PMR'
+      def generate_permit_report
+        {
+          project: {
+            name: project.name,
+            reference: project.reference_number
+          },
+          status_summary: track_permit_status,
+          critical_permits: critical_permits_status,
+          upcoming_deadlines: @deadline_service.upcoming_deadlines,
+          overdue_items: @deadline_service.overdue_items,
+          compliance: @compliance_service.compliance_summary,
+          processing_times: calculate_processing_times,
+          timeline: generate_permit_timeline,
+          generated_at: Time.current
         }
       end
-    end
-    
-    # Fire safety compliance
-    unless has_fire_safety_approval?
-      compliance_issues << {
-        regulation: 'Sécurité incendie',
-        severity: 'critical',
-        description: 'Avis de la commission de sécurité manquant',
-        action: 'Soumettre le dossier à la commission de sécurité'
-      }
-    end
-    
-    compliance_issues
-  end
 
-  def estimate_approval_timeline
-    timeline_estimates = {}
-    
-    project.permits.where.not(status: ['approved', 'denied']).each do |permit|
-      base_duration = base_permit_duration(permit.permit_type)
-      complexity_factor = calculate_complexity_factor(permit)
-      seasonal_factor = calculate_seasonal_factor(permit)
-      
-      estimated_days = (base_duration * complexity_factor * seasonal_factor).round
-      
-      timeline_estimates[permit.id] = {
-        permit: permit,
-        estimated_duration_days: estimated_days,
-        estimated_approval_date: permit.submission_date ? 
-          permit.submission_date + estimated_days.days : 
-          Date.current + estimated_days.days,
-        confidence_level: calculate_confidence_level(permit, estimated_days),
-        factors: {
-          base_duration: base_duration,
-          complexity_factor: complexity_factor,
-          seasonal_factor: seasonal_factor
+      def identify_bottlenecks
+        bottlenecks = []
+        
+        # Permits under review for too long
+        overdue_reviews = project.permits.overdue_response
+        if overdue_reviews.any?
+          bottlenecks << {
+            type: :overdue_review,
+            permits: overdue_reviews,
+            message: "#{overdue_reviews.count} permis en attente de réponse depuis plus de 30 jours",
+            severity: :high
+          }
+        end
+        
+        # Missing critical permits
+        missing_critical = identify_missing_critical_permits(['construction', 'urban_planning'])
+        if missing_critical.any?
+          bottlenecks << {
+            type: :missing_permits,
+            permit_types: missing_critical,
+            message: "Permis critiques manquants : #{missing_critical.join(', ')}",
+            severity: :critical
+          }
+        end
+        
+        # Expiring permits without work started
+        expiring_unused = project.permits.approved
+                                         .expiring_soon(60)
+                                         .joins(:project)
+                                         .where(projects: { status: ['planning', 'permits'] })
+        if expiring_unused.any?
+          bottlenecks << {
+            type: :expiring_unused,
+            permits: expiring_unused,
+            message: "#{expiring_unused.count} permis approuvés expirent bientôt sans travaux commencés",
+            severity: :high
+          }
+        end
+        
+        bottlenecks
+      end
+
+      def suggest_next_actions
+        actions = []
+        
+        # Check for permits needing submission
+        draft_permits = project.permits.draft
+        draft_permits.each do |permit|
+          if permit.submission_urgency != :low
+            actions << {
+              type: :submit_permit,
+              permit: permit,
+              urgency: permit.submission_urgency,
+              action: "Soumettre le #{permit.permit_type.humanize}",
+              deadline: @deadline_service.send(:calculate_submission_deadline, permit)
+            }
+          end
+        end
+        
+        # Check for overdue responses needing follow-up
+        overdue_permits = project.permits.overdue_response
+        overdue_permits.each do |permit|
+          actions << {
+            type: :follow_up,
+            permit: permit,
+            urgency: :high,
+            action: "Relancer pour #{permit.permit_type.humanize}",
+            overdue_days: permit.overdue_days
+          }
+        end
+        
+        # Check for expiring permits
+        expiring_permits = project.permits.expiring_soon(30)
+        expiring_permits.each do |permit|
+          actions << {
+            type: :use_or_extend,
+            permit: permit,
+            urgency: :critical,
+            action: permit.expiry_action_required,
+            days_remaining: permit.days_until_expiry
+          }
+        end
+        
+        actions.sort_by { |a| urgency_score(a[:urgency]) }.reverse
+      end
+
+      private
+
+      def identify_missing_critical_permits(critical_types)
+        existing_types = project.permits.pluck(:permit_type).uniq
+        critical_types - existing_types
+      end
+
+      def build_permit_notification(permit, old_status, new_status)
+        {
+          title: "Changement de statut - #{permit.permit_type.humanize} #{permit.permit_number}",
+          message: "Le permis #{permit.permit_number} est passé de #{old_status} à #{new_status}",
+          notifiable: permit,
+          user: project.project_manager || current_user || User.first,
+          notification_type: 'system_announcement',
+          data: {
+            permit_id: permit.id,
+            old_status: old_status,
+            new_status: new_status,
+            project_id: project.id
+          }
         }
-      }
+      end
+
+      def critical_status_change?(old_status, new_status)
+        critical_transitions = [
+          ['submitted', 'approved'],
+          ['submitted', 'denied'],
+          ['under_review', 'approved'],
+          ['under_review', 'denied'],
+          ['appeal', 'approved'],
+          ['appeal', 'denied']
+        ]
+        
+        critical_transitions.include?([old_status, new_status])
+      end
+
+      def urgency_score(urgency)
+        case urgency
+        when :critical then 4
+        when :high then 3
+        when :medium then 2
+        when :low then 1
+        else 0
+        end
+      end
     end
-    
-    timeline_estimates
-  end
-
-  private
-
-  def should_submit_soon?(permit)
-    # Logic to determine if permit should be submitted soon
-    # based on project timeline and dependencies
-    project.phases.where(phase_type: 'permits').any? do |phase|
-      phase.start_date && phase.start_date <= 2.weeks.from_now
-    end
-  end
-
-  def response_overdue?(permit)
-    return false unless permit.expected_decision_date
-    Date.current > permit.expected_decision_date
-  end
-
-  def expiring_soon?(permit)
-    return false unless permit.expiry_date
-    permit.expiry_date <= 3.months.from_now
-  end
-
-  def calculate_urgency(permit)
-    return 'critical' if should_submit_immediately?(permit)
-    return 'high' if should_submit_soon?(permit)
-    'medium'
-  end
-
-  def should_submit_immediately?(permit)
-    # Critical if project phase starts in less than a week
-    project.phases.where(phase_type: 'permits').any? do |phase|
-      phase.start_date && phase.start_date <= 1.week.from_now
-    end
-  end
-
-  def generate_submission_message(permit)
-    case permit.permit_type
-    when 'urban_planning'
-      "Permis d'aménager à soumettre - délai d'instruction : 3 mois"
-    when 'construction'
-      "Permis de construire à soumettre - délai d'instruction : 2-3 mois"
-    when 'environmental'
-      "Autorisation environnementale à soumettre - délai variable"
-    else
-      "Dossier de #{permit.permit_type.humanize} à soumettre"
-    end
-  end
-
-  def overdue_days(permit)
-    return 0 unless permit.expected_decision_date
-    (Date.current - permit.expected_decision_date).to_i
-  end
-
-  def calculate_expiry_urgency(permit)
-    return 'critical' if permit.expiry_date <= 1.month.from_now
-    return 'high' if permit.expiry_date <= 2.months.from_now
-    'medium'
-  end
-
-  def determine_expiry_action(permit)
-    days_until_expiry = (permit.expiry_date - Date.current).to_i
-    
-    if days_until_expiry <= 30
-      'Commencer les travaux immédiatement ou demander une prorogation'
-    elsif days_until_expiry <= 60
-      'Planifier le démarrage des travaux ou préparer une demande de prorogation'
-    else
-      'Surveiller et planifier le démarrage des travaux'
-    end
-  end
-
-  def urgency_score(urgency)
-    case urgency
-    when 'critical' then 3
-    when 'high' then 2
-    when 'medium' then 1
-    else 0
-    end
-  end
-
-  def needs_urban_planning_permit?
-    # Logic to determine if urban planning permit is needed
-    project.total_surface_area && project.total_surface_area > 1000
-  end
-
-  def needs_environmental_permits?
-    # Logic to determine if environmental permits are needed
-    project.commercial? || (project.total_surface_area && project.total_surface_area > 5000)
-  end
-
-  def create_permit_workflow_step(permit_type, name, timeline)
-    {
-      permit_type: permit_type,
-      name: name,
-      estimated_duration: timeline[:duration],
-      steps: timeline[:steps],
-      dependencies: timeline[:dependencies]
-    }
-  end
-
-  def calculate_urban_planning_timeline
-    {
-      duration: 90, # days
-      steps: [
-        'Préparation du dossier (15 jours)',
-        'Dépôt en mairie (1 jour)',
-        'Instruction (75 jours)',
-        'Décision (notification)'
-      ],
-      dependencies: ['Études préliminaires', 'Relevés topographiques']
-    }
-  end
-
-  def calculate_construction_permit_timeline
-    {
-      duration: project.total_surface_area > 1000 ? 90 : 60,
-      steps: [
-        'Préparation du dossier (20 jours)',
-        'Dépôt en mairie (1 jour)',
-        'Instruction (60-90 jours)',
-        'Décision (notification)'
-      ],
-      dependencies: ['Plans d\'architecte', 'Études techniques']
-    }
-  end
-
-  def calculate_environmental_timeline
-    {
-      duration: 120,
-      steps: [
-        'Étude d\'impact (30 jours)',
-        'Dossier ICPE (15 jours)',
-        'Enquête publique (30 jours)',
-        'Instruction (45 jours)'
-      ],
-      dependencies: ['Études environnementales']
-    }
-  end
-
-  def has_fire_safety_approval?
-    project.permits.where(permit_type: 'safety', status: 'approved').exists? ||
-    project.stakeholders.where(stakeholder_type: 'control_office').any? do |stakeholder|
-      stakeholder.certifications.where(certification_type: 'safety', is_valid: true).exists?
-    end
-  end
-
-  def base_permit_duration(permit_type)
-    case permit_type
-    when 'urban_planning' then 90
-    when 'construction' then project.total_surface_area > 1000 ? 90 : 60
-    when 'environmental' then 120
-    when 'demolition' then 30
-    when 'modification' then 30
-    else 60
-    end
-  end
-
-  def calculate_complexity_factor(permit)
-    complexity = 1.0
-    
-    # Size factor
-    if project.total_surface_area
-      complexity *= 1.2 if project.total_surface_area > 5000
-      complexity *= 1.1 if project.total_surface_area > 1000
-    end
-    
-    # Type factor
-    complexity *= 1.3 if project.mixed?
-    complexity *= 1.2 if project.commercial?
-    
-    # Location factor (assume urban areas are more complex)
-    complexity *= 1.1 if project.city&.match?(/Paris|Lyon|Marseille/)
-    
-    complexity
-  end
-
-  def calculate_seasonal_factor(permit)
-    current_month = Date.current.month
-    # Summer months may have delays due to vacations
-    return 1.2 if [7, 8].include?(current_month)
-    # December may have delays due to holidays
-    return 1.1 if current_month == 12
-    1.0
-  end
-
-  def calculate_confidence_level(permit, estimated_days)
-    # Base confidence on historical data and complexity
-    base_confidence = 0.7
-    
-    # Reduce confidence for complex projects
-    base_confidence -= 0.1 if estimated_days > 90
-    base_confidence -= 0.1 if project.mixed? || project.commercial?
-    
-    # Increase confidence for simple projects
-    base_confidence += 0.1 if estimated_days < 60
-    base_confidence += 0.1 if project.residential?
-    
-    [base_confidence, 0.95].min
   end
 end

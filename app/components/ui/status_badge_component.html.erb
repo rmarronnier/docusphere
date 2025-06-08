@@ -1,3 +1,13 @@
 <span class="<%= badge_classes %>">
-  <%= status_text %>
+  <% if @dot %>
+    <span class="w-2 h-2 mr-1.5 rounded-full <%= dot_color_class %>" aria-hidden="true"></span>
+  <% end %>
+  <%= @label %>
+  <% if @removable %>
+    <button type="button" 
+            class="ml-1.5 inline-flex flex-shrink-0 h-4 w-4 rounded-full hover:bg-black hover:bg-opacity-10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-black focus:ring-opacity-20"
+            aria-label="Remove <%= @label %>">
+      <%= render Ui::IconComponent.new(name: :x, size: 3) %>
+    </button>
+  <% end %>
 </span>

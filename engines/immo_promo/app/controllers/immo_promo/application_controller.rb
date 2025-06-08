@@ -1,5 +1,5 @@
 module ImmoPromo
   class ApplicationController < ::ApplicationController
-    protect_from_forgery with: :exception
+    # Base controller for the ImmoPromo engine
   end
 end

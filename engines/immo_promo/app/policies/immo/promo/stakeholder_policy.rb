@@ -23,16 +23,16 @@ class Immo::Promo::StakeholderPolicy < ApplicationPolicy
   def manage_certifications?
     return true if user_is_admin?
     return true if record.project.project_manager_id == user.id
-    
-    user.organization_id == record.project.organization_id && 
+
+    user.organization_id == record.project.organization_id &&
     user_has_permission?('immo_promo:legal:manage')
   end
 
   def manage_contracts?
     return true if user_is_admin?
     return true if record.project.project_manager_id == user.id
-    
-    user.organization_id == record.project.organization_id && 
+
+    user.organization_id == record.project.organization_id &&
     user_has_permission?('immo_promo:contracts:manage')
   end
 
