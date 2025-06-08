@@ -54,6 +54,7 @@ RSpec.configure do |config|
   # Devise test helpers
   config.include Devise::Test::ControllerHelpers, type: :controller
   config.include Devise::Test::IntegrationHelpers, type: :request
+  config.include Warden::Test::Helpers, type: :system
 
   # ViewComponent test helpers
   config.include ViewComponent::TestHelpers, type: :component

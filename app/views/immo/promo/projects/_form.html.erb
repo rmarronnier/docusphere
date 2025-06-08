@@ -1,0 +1,164 @@
+<%= form_with model: [:immo_promo, @project], local: true, data: { turbo: false } do |form| %>
+  <% if @project.errors.any? %>
+    <div class="rounded-md bg-red-50 p-4 mb-6">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+          </svg>
+        </div>
+        <div class="ml-3">
+          <h3 class="text-sm font-medium text-red-800">
+            <%= pluralize(@project.errors.count, "erreur") %> lors de la sauvegarde du projet:
+          </h3>
+          <div class="mt-2 text-sm text-red-700">
+            <ul class="list-disc list-inside space-y-1">
+              <% @project.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="space-y-8">
+    <!-- Informations générales -->
+    <div class="bg-white shadow rounded-lg p-6">
+      <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+        Informations générales
+      </h3>
+      
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <div>
+          <%= form.label :name, "Nom du projet", class: "block text-sm font-medium text-gray-700" %>
+          <%= form.text_field :name, class: "mt-1 focus:ring-primary-500 focus:border-primary-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md", required: true %>
+        </div>
+
+        <div>
+          <%= form.label :reference, "Référence", class: "block text-sm font-medium text-gray-700" %>
+          <%= form.text_field :reference, class: "mt-1 focus:ring-primary-500 focus:border-primary-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" %>
+        </div>
+
+        <div class="sm:col-span-2">
+          <%= form.label :description, class: "block text-sm font-medium text-gray-700" %>
+          <%= form.text_area :description, rows: 3, class: "mt-1 focus:ring-primary-500 focus:border-primary-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" %>
+        </div>
+
+        <div>
+          <%= form.label :project_type, "Type de projet", class: "block text-sm font-medium text-gray-700" %>
+          <%= form.select :project_type, 
+              options_for_select([
+                ['Résidentiel', 'residential'],
+                ['Commercial', 'commercial'],
+                ['Mixte', 'mixed'],
+                ['Social', 'social']
+              ], @project.project_type),
+              { prompt: "Sélectionnez un type" },
+              class: "mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-md" %>
+        </div>
+
+        <div>
+          <%= form.label :status, "Statut", class: "block text-sm font-medium text-gray-700" %>
+          <%= form.select :status,
+              options_for_select([
+                ['Prospection', 'prospecting'],
+                ['Étude', 'study'],
+                ['En cours', 'active'],
+                ['En pause', 'on_hold'],
+                ['Terminé', 'completed'],
+                ['Annulé', 'cancelled']
+              ], @project.status),
+              { prompt: "Sélectionnez un statut" },
+              class: "mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-md" %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Localisation -->
+    <div class="bg-white shadow rounded-lg p-6">
+      <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+        Localisation
+      </h3>
+      
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <div class="sm:col-span-2">
+          <%= form.label :address, "Adresse", class: "block text-sm font-medium text-gray-700" %>
+          <%= form.text_field :address, class: "mt-1 focus:ring-primary-500 focus:border-primary-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" %>
+        </div>
+
+        <div>
+          <%= form.label :city, "Ville", class: "block text-sm font-medium text-gray-700" %>
+          <%= form.text_field :city, class: "mt-1 focus:ring-primary-500 focus:border-primary-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" %>
+        </div>
+
+        <div>
+          <%= form.label :postal_code, "Code postal", class: "block text-sm font-medium text-gray-700" %>
+          <%= form.text_field :postal_code, class: "mt-1 focus:ring-primary-500 focus:border-primary-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" %>
+        </div>
+
+        <div>
+          <%= form.label :country, "Pays", class: "block text-sm font-medium text-gray-700" %>
+          <%= form.text_field :country, value: @project.country || "France", class: "mt-1 focus:ring-primary-500 focus:border-primary-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Planning et budget -->
+    <div class="bg-white shadow rounded-lg p-6">
+      <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+        Planning et budget
+      </h3>
+      
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <div>
+          <%= form.label :start_date, "Date de début", class: "block text-sm font-medium text-gray-700" %>
+          <%= form.date_field :start_date, class: "mt-1 focus:ring-primary-500 focus:border-primary-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" %>
+        </div>
+
+        <div>
+          <%= form.label :end_date, "Date de fin prévisionnelle", class: "block text-sm font-medium text-gray-700" %>
+          <%= form.date_field :end_date, class: "mt-1 focus:ring-primary-500 focus:border-primary-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" %>
+        </div>
+
+        <div>
+          <%= form.label :total_budget_cents, "Budget total (€)", class: "block text-sm font-medium text-gray-700" %>
+          <%= form.number_field :total_budget_cents, 
+              value: @project.total_budget_cents ? @project.total_budget_cents / 100 : nil,
+              step: 0.01,
+              class: "mt-1 focus:ring-primary-500 focus:border-primary-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" %>
+        </div>
+
+        <div>
+          <%= form.label :total_units, "Nombre d'unités", class: "block text-sm font-medium text-gray-700" %>
+          <%= form.number_field :total_units, class: "mt-1 focus:ring-primary-500 focus:border-primary-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" %>
+        </div>
+
+        <div>
+          <%= form.label :total_surface_area, "Surface totale (m²)", class: "block text-sm font-medium text-gray-700" %>
+          <%= form.number_field :total_surface_area, step: 0.01, class: "mt-1 focus:ring-primary-500 focus:border-primary-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notes -->
+    <div class="bg-white shadow rounded-lg p-6">
+      <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+        Notes
+      </h3>
+      
+      <div>
+        <%= form.label :notes, "Notes internes", class: "block text-sm font-medium text-gray-700" %>
+        <%= form.text_area :notes, rows: 4, class: "mt-1 focus:ring-primary-500 focus:border-primary-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" %>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex justify-end space-x-3">
+      <%= link_to "Annuler", immo_promo_projects_path, class: "bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500" %>
+      <%= form.submit @project.new_record? ? "Créer le projet" : "Mettre à jour le projet", 
+          class: "inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500" %>
+    </div>
+  </div>
+<% end %>

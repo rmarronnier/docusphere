@@ -25,11 +25,15 @@ class Immo::Promo::ProjectsController < Immo::Promo::ApplicationController
     @project.project_manager = current_user
     authorize @project
 
-    if @project.save
-      create_default_phases
-      redirect_to immo_promo_project_path(@project), notice: 'Projet créé avec succès.'
-    else
-      render :new, status: :unprocessable_entity
+    respond_to do |format|
+      if @project.save
+        create_default_phases
+        format.html { redirect_to immo_promo_project_path(@project), notice: 'Projet créé avec succès.' }
+        format.json { render json: { success: true, redirect_url: immo_promo_project_path(@project) } }
+      else
+        format.html { render :new, status: :unprocessable_entity }
+        format.json { render json: { success: false, errors: @project.errors.full_messages }, status: :unprocessable_entity }
+      end
     end
   end
 

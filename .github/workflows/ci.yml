@@ -3,7 +3,12 @@ name: CI
 on:
   pull_request:
   push:
-    branches: [ main ]
+    branches: [ master, main, develop ]
+
+env:
+  POSTGRES_VERSION: 15
+  REDIS_VERSION: 7
+  BUN_VERSION: latest
 
 jobs:
   scan_ruby:
@@ -22,6 +27,11 @@ jobs:
       - name: Scan for common Rails security vulnerabilities using static analysis
         run: bin/brakeman --no-pager
 
+      - name: Check for security vulnerabilities in Ruby dependencies
+        run: |
+          gem install bundler-audit
+          bundle-audit check --update
+
   scan_js:
     runs-on: ubuntu-latest
 
@@ -29,14 +39,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v1
         with:
-          ruby-version: .ruby-version
-          bundler-cache: true
+          bun-version: ${{ env.BUN_VERSION }}
+
+      - name: Install JavaScript dependencies with Bun
+        run: bun install
 
       - name: Scan for security vulnerabilities in JavaScript dependencies
-        run: bin/importmap audit
+        run: bun audit
 
   lint:
     runs-on: ubuntu-latest
@@ -50,18 +62,33 @@ jobs:
           ruby-version: .ruby-version
           bundler-cache: true
 
-      - name: Lint code for consistent style
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+
+      - name: Install JavaScript dependencies
+        run: bun install
+
+      - name: Lint Ruby code for consistent style
         run: bin/rubocop -f github
+
+      - name: Lint JavaScript code with ESLint
+        run: bun run lint:js
+
+      - name: Lint CSS with Stylelint
+        run: bun run lint:css
 
   test:
     runs-on: ubuntu-latest
     
     services:
       postgres:
-        image: postgres:15
+        image: postgres:${{ env.POSTGRES_VERSION }}
         env:
           POSTGRES_USER: docusphere
           POSTGRES_PASSWORD: password
+          POSTGRES_DB: docusphere_test
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -69,6 +96,16 @@ jobs:
           --health-retries 5
         ports:
           - 5432:5432
+      
+      redis:
+        image: redis:${{ env.REDIS_VERSION }}
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     
     steps:
       - name: Checkout code
@@ -80,18 +117,56 @@ jobs:
           ruby-version: .ruby-version
           bundler-cache: true
 
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y \
+            libpq-dev \
+            imagemagick \
+            libmagickwand-dev \
+            poppler-utils \
+            tesseract-ocr \
+            libreoffice \
+            ghostscript \
+            libvips-dev
+
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+
+      - name: Install JavaScript dependencies with Bun
+        run: bun install
+
+      - name: Build assets with Bun
+        run: |
+          bun run build
+          bun run build:css
+
       - name: Setup test database
         env:
           RAILS_ENV: test
           DATABASE_HOST: localhost
+          REDIS_URL: redis://localhost:6379/0
         run: |
           bin/rails db:create
           bin/rails db:schema:load
-          bin/rails db:seed
 
-      - name: Run tests
+      - name: Run Ruby tests
         env:
           RAILS_ENV: test
           DATABASE_HOST: localhost
-        run: bundle exec rspec
+          REDIS_URL: redis://localhost:6379/0
+        run: |
+          bundle exec rspec spec/ --format progress
+
+      - name: Run JavaScript tests with Bun
+        run: bun test
+
+      - name: Upload coverage reports
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: coverage
+          path: coverage/
 

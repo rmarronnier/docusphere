@@ -1,0 +1,14 @@
+This is a sample text file for testing document upload functionality.
+
+It contains multiple lines of text to simulate a real document.
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+This file can be used to test:
+- File upload
+- Text extraction
+- Document versioning
+- File metadata handling
+
+End of sample text file.

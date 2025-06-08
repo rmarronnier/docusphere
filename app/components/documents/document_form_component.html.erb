@@ -1,0 +1,181 @@
+<%= form_with model: document, url: form_url, method: form_method, 
+              local: true, 
+              html: { class: "document-form", data: { controller: "form-validation file-upload" } } do |f| %>
+  
+  <% if document.errors.any? %>
+    <div class="form-errors alert alert-danger">
+      <h4><%= pluralize(document.errors.count, "erreur") %> empêche(nt) l'enregistrement :</h4>
+      <ul>
+        <% document.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="form-section">
+    <div class="form-group">
+      <%= f.label :title, "Titre", class: "form-label required" %>
+      <%= f.text_field :title, class: "form-control", required: true %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :description, "Description", class: "form-label" %>
+      <%= f.text_area :description, class: "form-control", rows: 3 %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :space_id, "Espace", class: "form-label required" %>
+      <%= f.select :space_id, options_for_select(spaces_for_select, document.space_id), 
+                   { prompt: "Sélectionner un espace" }, 
+                   { class: "form-control", required: true } %>
+    </div>
+
+    <% if folders_for_select.any? %>
+      <div class="form-group">
+        <%= f.label :folder_id, "Dossier", class: "form-label" %>
+        <%= f.select :folder_id, options_for_select(folders_for_select, document.folder_id), 
+                     { include_blank: "Racine" }, 
+                     { class: "form-control" } %>
+      </div>
+    <% end %>
+
+    <% if document.persisted? && document.file.attached? %>
+      <div class="current-file-info">
+        <p>Fichier actuel: <%= document.file.filename %></p>
+        <%= f.label :file, "Remplacer le fichier", class: "form-label" %>
+        <p class="text-muted">Laisser vide pour conserver le fichier actuel</p>
+      </div>
+    <% else %>
+      <%= f.label :file, "Fichier", class: "form-label required" %>
+    <% end %>
+
+    <div class="drop-zone" data-file-upload-target="dropZone">
+      <p>Glissez-déposez votre fichier ici ou cliquez pour parcourir</p>
+      <%= f.file_field :file, 
+                       class: "form-control", 
+                       required: !document.persisted?,
+                       data: { file_upload_target: "fileInput" },
+                       accept: allowed_file_types&.join(",") %>
+    </div>
+
+    <% if max_file_size %>
+      <p class="text-muted">Taille maximale: <%= number_to_human_size(max_file_size) %></p>
+    <% end %>
+
+    <% if allowed_file_types %>
+      <p class="text-muted">Formats acceptés: <%= allowed_file_types.map { |t| t.split('/').last.upcase }.join(', ') %></p>
+    <% end %>
+
+    <div class="progress-container hidden" data-file-upload-target="progress">
+      <div class="progress">
+        <div class="progress-bar" data-file-upload-target="progressBar" style="width: 0%"></div>
+      </div>
+      <span data-file-upload-target="progressText">0%</span>
+    </div>
+  </div>
+
+  <% if enable_tags %>
+    <div class="form-section">
+      <h3>Tags</h3>
+      <div data-controller="tag-input"
+           data-tag-input-suggestions-value="<%= existing_tags.to_json %>"
+           data-tag-input-allow-create-value="<%= allow_new_tags %>">
+        <%= f.label :tag_list, "Tags", class: "form-label" %>
+        <%= f.text_field :tag_list, 
+                         value: document.tags.pluck(:name).join(", "),
+                         class: "form-control",
+                         data: { tag_input_target: "input" } %>
+      </div>
+    </div>
+  <% end %>
+
+  <% if metadata_template %>
+    <div class="form-section" data-controller="collapse">
+      <h3 data-action="click->collapse#toggle" class="cursor-pointer">
+        Métadonnées
+        <span data-collapse-target="icon">▼</span>
+      </h3>
+      <div class="metadata-fields" data-collapse-target="content">
+        <% metadata_template.metadata_fields.each do |field| %>
+          <div class="form-group">
+            <%= label_tag "metadata_#{field.name}", field.label, 
+                          class: "form-label #{'required' if field.required}" %>
+            
+            <% case field.field_type %>
+            <% when 'select' %>
+              <%= select_tag "metadata[#{field.name}]", 
+                             options_for_select(field.options, document.metadata_value(field.name)),
+                             class: "form-control",
+                             required: field.required,
+                             include_blank: !field.required %>
+            <% when 'number' %>
+              <%= number_field_tag "metadata[#{field.name}]", 
+                                   document.metadata_value(field.name),
+                                   class: "form-control",
+                                   required: field.required %>
+            <% when 'date' %>
+              <%= date_field_tag "metadata[#{field.name}]", 
+                                 document.metadata_value(field.name),
+                                 class: "form-control",
+                                 required: field.required %>
+            <% when 'boolean' %>
+              <%= check_box_tag "metadata[#{field.name}]", 
+                                "1",
+                                document.metadata_value(field.name) == "true",
+                                class: "form-check-input" %>
+            <% else %>
+              <%= text_field_tag "metadata[#{field.name}]", 
+                                 document.metadata_value(field.name),
+                                 class: "form-control",
+                                 required: field.required %>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <% if show_permissions %>
+    <div class="form-section permissions-section">
+      <h3>Permissions</h3>
+      <div class="form-check">
+        <%= f.check_box :inherit_permissions, class: "form-check-input" %>
+        <%= f.label :inherit_permissions, "Hériter les permissions du dossier", class: "form-check-label" %>
+      </div>
+    </div>
+  <% end %>
+
+  <% if show_advanced_options %>
+    <div class="form-section" data-controller="collapse">
+      <h3 data-action="click->collapse#toggle" class="cursor-pointer">
+        Options avancées
+        <span data-collapse-target="icon">▼</span>
+      </h3>
+      <div class="advanced-options" data-collapse-target="content">
+        <div class="form-check">
+          <%= f.check_box :enable_ocr, class: "form-check-input" %>
+          <%= f.label :enable_ocr, "Activer l'OCR", class: "form-check-label" %>
+        </div>
+        <div class="form-check">
+          <%= f.check_box :extract_metadata, class: "form-check-input" %>
+          <%= f.label :extract_metadata, "Extraire les métadonnées", class: "form-check-label" %>
+        </div>
+        <div class="form-check">
+          <%= f.check_box :generate_preview, class: "form-check-input" %>
+          <%= f.label :generate_preview, "Générer un aperçu", class: "form-check-label" %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="form-actions">
+    <%= f.submit submit_button_text, class: "btn btn-primary" %>
+    <% if show_save_and_continue %>
+      <%= f.submit "#{submit_button_text} et continuer", 
+                   name: "continue", 
+                   class: "btn btn-secondary" %>
+    <% end %>
+    <%= link_to "Annuler", :back, class: "btn btn-link" %>
+  </div>
+<% end %>

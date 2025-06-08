@@ -28,10 +28,14 @@ ENV RAILS_ENV="production" \
 # Throw-away build stage to reduce size of final image
 FROM base AS build
 
-# Install packages needed to build gems
+# Install packages needed to build gems and Bun
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y build-essential git libpq-dev libyaml-dev pkg-config && \
+    apt-get install --no-install-recommends -y build-essential git libpq-dev libyaml-dev pkg-config curl unzip && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
+
+# Install Bun
+RUN curl -fsSL https://bun.sh/install | bash
+ENV PATH="/root/.bun/bin:$PATH"
 
 # Install application gems
 COPY Gemfile Gemfile.lock ./
@@ -41,6 +45,12 @@ RUN bundle install && \
 
 # Copy application code
 COPY . .
+
+# Install JavaScript dependencies with Bun
+RUN bun install --frozen-lockfile
+
+# Build JavaScript assets with Bun
+RUN bun run build && bun run build:css
 
 # Precompile bootsnap code for faster boot times
 RUN bundle exec bootsnap precompile app/ lib/

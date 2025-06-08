@@ -1,5 +1,14 @@
 # CLAUDE.md - AI Assistant Instructions
 
+## Testing Requirements
+
+**IMPORTANT**: For every new feature or functionality added to the codebase, you MUST:
+1. Write corresponding RSpec tests (unit tests, integration tests, or system tests as appropriate)
+2. Ensure tests cover both happy paths and edge cases
+3. Run tests to verify they pass before considering the feature complete
+4. Follow existing test patterns and conventions in the codebase
+5. Update GitHub Actions workflows (.github/workflows/) if new dependencies or test configurations are needed
+
 ## Running Ruby Commands
 
 All Ruby-dependent commands (such as `rspec`, `bundle`, `rails`, etc.) should be run inside a Docker container. Use the following patterns:

@@ -1,0 +1,135 @@
+<div class="min-h-screen bg-gray-50 py-8">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- En-tête de la recherche -->
+    <div class="bg-white shadow rounded-lg px-6 py-4 mb-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900">Résultats de recherche</h1>
+          <% if @query.present? %>
+            <p class="mt-1 text-sm text-gray-600">
+              <%= @documents.total_count %> résultat<%= 's' if @documents.total_count > 1 %> pour 
+              <span class="font-medium">"<%= @query %>"</span>
+            </p>
+          <% end %>
+        </div>
+        
+        <!-- Nouvelle recherche -->
+        <div class="flex items-center space-x-4">
+          <%= form_with url: search_path, method: :get, local: true, class: "flex items-center" do |f| %>
+            <div class="relative">
+              <%= f.text_field :q, 
+                  value: @query,
+                  class: "block w-64 pl-3 pr-10 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-primary-500 focus:border-primary-500 sm:text-sm",
+                  placeholder: "Nouvelle recherche..." %>
+              <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                <button type="submit" class="text-gray-400 hover:text-gray-500">
+                  <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <% if @query.present? %>
+      <% if @documents.any? %>
+        <!-- Liste des résultats -->
+        <div class="bg-white shadow overflow-hidden sm:rounded-md">
+          <ul class="divide-y divide-gray-200">
+            <% @documents.each do |document| %>
+              <li>
+                <%= link_to ged_document_path(document), class: "block hover:bg-gray-50 px-4 py-4 sm:px-6" do %>
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                      <div class="flex-shrink-0">
+                        <svg class="h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                      </div>
+                      <div class="ml-4">
+                        <div class="text-sm font-medium text-gray-900">
+                          <%= highlight(document.title, @query) %>
+                        </div>
+                        <% if document.description.present? %>
+                          <div class="text-sm text-gray-500">
+                            <%= highlight(truncate(document.description, length: 150), @query) %>
+                          </div>
+                        <% end %>
+                        <div class="mt-2 flex items-center text-xs text-gray-500">
+                          <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 mr-2">
+                            <%= document.document_type %>
+                          </span>
+                          <svg class="flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                          </svg>
+                          <%= document.space.name %>
+                          <% if document.folder.present? %>
+                            <span class="mx-1">/</span>
+                            <%= document.folder.name %>
+                          <% end %>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="ml-4 flex-shrink-0 flex flex-col items-end">
+                      <p class="text-sm text-gray-500">
+                        <%= document.user.full_name %>
+                      </p>
+                      <p class="text-xs text-gray-400">
+                        <%= l(document.updated_at, format: :short) %>
+                      </p>
+                      <% if document.tags.any? %>
+                        <div class="mt-2 flex flex-wrap gap-1">
+                          <% document.tags.limit(3).each do |tag| %>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-primary-100 text-primary-800">
+                              <%= tag.name %>
+                            </span>
+                          <% end %>
+                          <% if document.tags.count > 3 %>
+                            <span class="text-xs text-gray-500">+<%= document.tags.count - 3 %></span>
+                          <% end %>
+                        </div>
+                      <% end %>
+                    </div>
+                  </div>
+                <% end %>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+
+        <!-- Pagination -->
+        <div class="mt-6">
+          <%= paginate @documents %>
+        </div>
+      <% else %>
+        <!-- Aucun résultat -->
+        <div class="bg-white shadow rounded-lg p-6 text-center">
+          <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <h3 class="mt-2 text-sm font-medium text-gray-900">Aucun résultat trouvé</h3>
+          <p class="mt-1 text-sm text-gray-500">
+            Aucun document ne correspond à votre recherche "<%= @query %>".
+          </p>
+          <div class="mt-6">
+            <%= link_to "Retour au tableau de bord", ged_dashboard_path, class: "btn btn-primary" %>
+          </div>
+        </div>
+      <% end %>
+    <% else %>
+      <!-- Pas de recherche -->
+      <div class="bg-white shadow rounded-lg p-6 text-center">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900">Commencez votre recherche</h3>
+        <p class="mt-1 text-sm text-gray-500">
+          Utilisez la barre de recherche ci-dessus pour trouver des documents.
+        </p>
+      </div>
+    <% end %>
+  </div>
+</div>

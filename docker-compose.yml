@@ -69,7 +69,8 @@ services:
       - elasticsearch_data:/usr/share/elasticsearch/data
 
   clamav:
-    image: clamav/clamav:stable
+    image: clamav/clamav:stable_base
+    platform: linux/amd64
     ports:
       - "3310:3310"
     volumes:

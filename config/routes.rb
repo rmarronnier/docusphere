@@ -2,6 +2,10 @@ Rails.application.routes.draw do
   get 'home/index'
   devise_for :users
   
+  # Search Routes
+  get '/search', to: 'search#index', as: 'search'
+  get '/search/suggestions', to: 'search#suggestions', as: 'search_suggestions'
+  
   # GED Routes
   scope '/ged', as: 'ged' do
     get '/', to: 'ged#dashboard', as: 'dashboard'
