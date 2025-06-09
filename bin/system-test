@@ -1,0 +1,47 @@
+#!/bin/bash
+# Script to run system tests with Selenium service
+
+set -e
+
+# Detect architecture
+ARCH=$(uname -m)
+COMPOSE_CMD="docker-compose"
+
+if [[ "$ARCH" == "x86_64" ]] || [[ -n "$GITHUB_ACTIONS" ]]; then
+  echo "🖥️  Detected x86_64 architecture"
+  COMPOSE_CMD="docker-compose -f docker-compose.yml -f docker-compose.selenium-x86.yml"
+else
+  echo "🖥️  Detected ARM64 architecture"
+fi
+
+echo "🚀 Starting Selenium service..."
+$COMPOSE_CMD up -d selenium
+
+echo "⏳ Waiting for Selenium to be ready..."
+# Wait up to 30 seconds for Selenium
+COUNTER=0
+while [ $COUNTER -lt 30 ]; do
+  if curl -s http://localhost:4444/wd/hub/status 2>/dev/null | grep -q '"ready":\s*true'; then
+    break
+  fi
+  sleep 1
+  COUNTER=$((COUNTER + 1))
+done
+
+if [ $COUNTER -eq 30 ]; then
+  echo "❌ Selenium failed to start within 30 seconds"
+  exit 1
+fi
+
+echo "✅ Selenium is ready!"
+echo "🧪 Running system tests..."
+
+# Run tests with proper environment
+$COMPOSE_CMD run --rm \
+  -e DOCKER_CONTAINER=true \
+  -e CAPYBARA_APP_HOST=web \
+  web bundle exec rspec spec/system/ "$@"
+
+echo "🛑 Tests completed. Selenium service is still running."
+echo "💡 To view Selenium browser: open http://localhost:7900"
+echo "💡 To stop Selenium: docker-compose stop selenium"

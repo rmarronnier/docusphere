@@ -99,8 +99,8 @@ RSpec.describe GedController, type: :controller do
     it 'denies access to folders from other organizations' do
       other_folder = create(:folder, space: create(:space, organization: create(:organization)))
       get :show_folder, params: { id: other_folder.id }
-      expect(response).to redirect_to(ged_dashboard_path)
-      expect(flash[:alert]).to eq('Accès non autorisé')
+      expect(response).to redirect_to(root_path)
+      expect(flash[:alert]).to eq('Vous n\'êtes pas autorisé à effectuer cette action.')
     end
   end
   
@@ -118,8 +118,8 @@ RSpec.describe GedController, type: :controller do
     it 'denies access to documents from other organizations' do
       other_doc = create(:document, uploaded_by: create(:user), space: create(:space, organization: create(:organization)))
       get :show_document, params: { id: other_doc.id }
-      expect(response).to redirect_to(ged_dashboard_path)
-      expect(flash[:alert]).to eq('Accès non autorisé')
+      expect(response).to redirect_to(root_path)
+      expect(flash[:alert]).to eq('Vous n\'êtes pas autorisé à effectuer cette action.')
     end
   end
   

@@ -1,10 +1,22 @@
 # CLAUDE.md - AI Assistant Instructions
 
+## 🚨 OBLIGATOIRE : Lire WORKFLOW.md avant TOUTE session
+
+Ce fichier contient les procédures obligatoires pour éviter les régressions. **NE PAS** commencer une session sans avoir lu et compris WORKFLOW.md.
+
 ## Important Rules
 
 **NEVER run git commands directly**. Always let the user handle git operations.
 
 **⚠️ DOCUMENT VERSIONING**: Document model uses PaperTrail for versioning with a custom DocumentVersion class that inherits from PaperTrail::Version. This provides document-specific versioning features while leveraging PaperTrail's robust infrastructure. Access versions through `document.versions` which returns DocumentVersion instances.
+
+## ⚠️ Pièges Connus (Mis à jour 09/06/2025)
+
+1. **Document#lock!** : Override la méthode PaperTrail - cause un warning au démarrage
+2. **Authorizable#owned_by?** : Vérifie différents attributs selon le modèle (user, uploaded_by, project_manager)
+3. **WorkflowManageable** : Incompatible avec Workflow model (utilise des statuts différents)
+4. **Tests parallèles** : Utiliser SEULEMENT en local, jamais sur GitHub Actions
+5. **Factories avec associations** : Toujours vérifier le schema.rb pour les colonnes réelles
 
 ## GitHub Actions Compatibility
 
@@ -12,6 +24,30 @@ When running on GitHub Actions (x86_64-linux), you may need to add the platform 
 ```bash
 docker-compose run --rm web bundle lock --add-platform x86_64-linux
 ```
+
+## Recent Changes (June 2025)
+
+### 1. Selenium Testing Infrastructure
+- Added dedicated Selenium service in Docker Compose
+- Supports both ARM64 (Mac M1/M2) and x86_64 (GitHub Actions)
+- Centralized Capybara configuration with automatic Docker detection
+- Created SystemTestHelper for common test functionality
+- Script `bin/system-test` for easy test execution
+- Full documentation in `docs/SELENIUM_TESTING.md`
+
+### 2. Test Stabilization Progress
+- **Phase 1.1 ✅**: All controller tests passing (251 examples)
+- **Phase 1.2 ✅**: System test infrastructure ready
+- Fixed Pundit authorization issues across multiple controllers
+- Created missing policies (ValidationRequestPolicy, DocumentValidationPolicy)
+- Fixed Tag model validation order (before_validation for normalization)
+- Removed non-existent UserNotificationPreference model/controller
+
+### 3. Key Lessons Learned
+- **Always check schema.rb** before creating models/factories
+- **Pundit action inference**: `create_space` action looks for `create_space?` method
+- **Callback order matters**: Use `before_validation` for data normalization
+- **UI has changed significantly**: Many system tests need updating
 
 ## Recent Changes (January 2025)
 

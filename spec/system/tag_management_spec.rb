@@ -6,10 +6,6 @@ RSpec.describe 'Tag Management', type: :system do
   let(:regular_user) { create(:user, organization: organization) }
   let(:space) { create(:space, organization: organization) }
   
-  before do
-    driven_by(:selenium_chrome_headless)
-  end
-  
   describe 'Viewing tags' do
     let!(:tag1) { create(:tag, organization: organization, name: 'Important', color: 'bg-red-100') }
     let!(:tag2) { create(:tag, organization: organization, name: 'Archive', color: 'bg-gray-100') }

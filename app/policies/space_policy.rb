@@ -23,7 +23,7 @@ class SpacePolicy < ApplicationPolicy
     def resolve
       if user.blank?
         scope.none
-      elsif user_is_super_admin?
+      elsif user.super_admin?
         scope.all
       else
         scope.where(organization: user.organization)

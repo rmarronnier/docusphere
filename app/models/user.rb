@@ -15,6 +15,7 @@ class User < ApplicationRecord
   has_many :workflow_submissions, foreign_key: 'submitted_by_id', dependent: :destroy
   has_many :validation_requests, foreign_key: 'requester_id', dependent: :destroy
   has_many :document_validations, foreign_key: 'validator_id', dependent: :destroy
+  has_many :authorizations, dependent: :destroy
 
   validates :email, presence: true, uniqueness: true
   validates :first_name, :last_name, presence: true

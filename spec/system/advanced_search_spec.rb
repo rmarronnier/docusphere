@@ -9,7 +9,6 @@ RSpec.describe 'Advanced Search', type: :system do
   let(:tag2) { create(:tag, organization: organization, name: 'Archive', color: 'bg-gray-100') }
   
   before do
-    driven_by(:selenium_chrome_headless)
     login_as(user, scope: :user)
   end
   

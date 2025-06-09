@@ -22,15 +22,6 @@ Rails.application.routes.draw do
     end
   end
   
-  # Notification Preferences Routes
-  resources :notification_preferences, only: [:index, :update] do
-    collection do
-      patch :bulk_update
-      patch :reset_to_defaults
-      get :preview
-    end
-  end
-  
   # Basket Routes
   resources :baskets do
     member do

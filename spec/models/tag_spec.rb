@@ -10,7 +10,7 @@ RSpec.describe Tag, type: :model do
     subject { build(:tag) }
     
     it { should validate_presence_of(:name) }
-    it { should validate_uniqueness_of(:name).scoped_to(:organization_id) }
+    it { should validate_uniqueness_of(:name).scoped_to(:organization_id).case_insensitive }
   end
 
   describe 'factory' do

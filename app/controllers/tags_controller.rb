@@ -9,7 +9,7 @@ class TagsController < ApplicationController
     
     if params[:search].present?
       search_term = "%#{params[:search]}%"
-      @tags = @tags.where("name ILIKE ? OR description ILIKE ?", search_term, search_term)
+      @tags = @tags.where("name ILIKE ?", search_term)
     end
     
     @tags = @tags.page(params[:page]).per(30)
@@ -73,6 +73,6 @@ class TagsController < ApplicationController
   end
 
   def tag_params
-    params.require(:tag).permit(:name, :description, :color, :tag_type)
+    params.require(:tag).permit(:name, :color)
   end
 end

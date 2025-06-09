@@ -4,6 +4,15 @@ RSpec.describe User, type: :model do
   describe 'associations' do
     it { should belong_to(:organization) }
     it { should have_many(:documents).dependent(:destroy) }
+    it { should have_many(:baskets).dependent(:destroy) }
+    it { should have_many(:user_group_memberships).dependent(:destroy) }
+    it { should have_many(:user_groups).through(:user_group_memberships) }
+    it { should have_many(:notifications).dependent(:destroy) }
+    it { should have_many(:search_queries).dependent(:destroy) }
+    it { should have_many(:workflow_submissions).dependent(:destroy) }
+    it { should have_many(:validation_requests).dependent(:destroy) }
+    it { should have_many(:document_validations).dependent(:destroy) }
+    it { should have_many(:authorizations).dependent(:destroy) }
   end
 
   describe 'validations' do

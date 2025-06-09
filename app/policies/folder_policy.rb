@@ -23,7 +23,7 @@ class FolderPolicy < ApplicationPolicy
     def resolve
       if user.blank?
         scope.none
-      elsif user_is_super_admin?
+      elsif user.super_admin?
         scope.all
       else
         scope.joins(:space).where(spaces: { organization: user.organization })

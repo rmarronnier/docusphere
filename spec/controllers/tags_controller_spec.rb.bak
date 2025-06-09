@@ -32,7 +32,7 @@ RSpec.describe TagsController, type: :controller do
       end
     end
 
-    xcontext 'with format JSON' do
+    context 'with format JSON' do
       it 'returns JSON response' do
         get :index, format: :json
         expect(response).to be_successful
@@ -96,7 +96,7 @@ RSpec.describe TagsController, type: :controller do
         expect(response).to redirect_to(tag_path(Tag.last))
       end
 
-      xcontext 'with AJAX request' do
+      context 'with AJAX request' do
         it 'returns JSON response' do
           post :create, params: { tag: valid_attributes }, xhr: true
           expect(response).to be_successful
@@ -113,7 +113,7 @@ RSpec.describe TagsController, type: :controller do
     end
 
     context 'with invalid parameters' do
-      let(:invalid_attributes) { { name: '' } }
+      let(:invalid_attributes) { { name: '', description: 'Tag Description' } }
 
       it 'does not create a new Tag' do
         expect {
@@ -126,7 +126,7 @@ RSpec.describe TagsController, type: :controller do
         expect(response).to render_template(:new)
       end
 
-      xcontext 'with AJAX request' do
+      context 'with AJAX request' do
         it 'returns error response' do
           post :create, params: { tag: invalid_attributes }, xhr: true
           json_response = JSON.parse(response.body)
@@ -141,7 +141,7 @@ RSpec.describe TagsController, type: :controller do
 
       it 'does not create duplicate tag' do
         expect {
-          post :create, params: { tag: { name: 'Duplicate' } }
+          post :create, params: { tag: { name: 'Duplicate', description: 'Test' } }
         }.to change(Tag, :count).by(0)
       end
     end
@@ -175,7 +175,7 @@ RSpec.describe TagsController, type: :controller do
         expect(response).to redirect_to(tag_path(tag))
       end
 
-      xcontext 'with AJAX request' do
+      context 'with AJAX request' do
         it 'returns success JSON response' do
           patch :update, params: { id: tag.id, tag: new_attributes }, xhr: true
           expect(response).to be_successful
@@ -215,7 +215,7 @@ RSpec.describe TagsController, type: :controller do
       expect(response).to redirect_to(tags_path)
     end
 
-    xcontext 'with AJAX request' do
+    context 'with AJAX request' do
       it 'returns success JSON response' do
         delete :destroy, params: { id: tag.id }, xhr: true
         expect(response).to be_successful
@@ -272,7 +272,7 @@ RSpec.describe TagsController, type: :controller do
       expect(document.tags.where(id: source_tags.map(&:id))).to be_empty
     end
 
-    xcontext 'with AJAX request' do
+    context 'with AJAX request' do
       it 'returns JSON response' do
         post :merge, params: { 
           id: target_tag.id, 

@@ -59,10 +59,8 @@ module WorkflowManageable
       update!(status: new_status)
       
       workflow_transitions.create!(
-        from_status: old_status,
-        to_status: new_status,
-        user: user,
-        comment: comment,
+        notes: comment,
+        transitioned_by: user,
         transitioned_at: Time.current
       )
       

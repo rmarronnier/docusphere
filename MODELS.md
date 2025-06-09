@@ -1,8 +1,50 @@
 # MODELS.md - Comprehensive Model Analysis
 
+## ⚠️ IMPORTANT: Lire WORKFLOW.md avant toute modification
+
+Ce document doit être maintenu à jour après chaque modification de modèle ou concern.
+
 ## Overview
 
 This document provides a comprehensive analysis of all models in the Docusphere application, their business purposes, implementation details, traps, and evolution suggestions.
+
+## 🔥 Refactoring Prioritaire (Suite à l'analyse du 09/06/2025)
+
+### 1. **Problèmes Critiques à Corriger**
+
+#### Duplication de Code
+- **Gestion des statuts** : WorkflowManageable vs AASM - standardiser sur une approche
+- **Calcul de progression** : 4 implémentations différentes - créer concern `ProgressCalculable`
+- **Méthodes de permissions** : Doublons dans Authorizable (`readable_by?`/`can_read?`)
+
+#### Incohérences
+- **Validatable concern** : Contient du code spécifique à Document - à refactorer
+- **owned_by?** : Vérifie différents attributs selon le modèle - à standardiser
+- **WorkflowManageable** : Incompatible avec ProjectWorkflowTransition actuel
+
+#### Code Mort
+- **Concerns non utilisés** : Uploadable, Storable - à supprimer ou implémenter
+- **document_version.rb** : Fichier obsolète (utilise PaperTrail) - à supprimer
+
+### 2. **Plan de Refactoring Recommandé**
+
+#### Phase 1 - Nettoyage (Priorité HAUTE)
+1. Supprimer les concerns non utilisés (Uploadable, Storable)
+2. Supprimer les méthodes dupliquées dans Authorizable
+3. Refactorer Validatable pour retirer le code spécifique à Document
+4. Standardiser `owned_by?` avec une approche configurable
+
+#### Phase 2 - Standardisation (Priorité MOYENNE)
+1. Choisir entre AASM et WorkflowManageable pour tous les modèles
+2. Créer concern `ProgressCalculable` pour unifier le calcul de progression
+3. Extraire la complexité de Document en plusieurs concerns
+4. Ajouter les index manquants pour les requêtes d'autorisation
+
+#### Phase 3 - Optimisation (Priorité BASSE)
+1. Ajouter cache pour les vérifications de permissions
+2. Implémenter les concerns manquants si nécessaire
+3. Créer des enums partagés pour les statuts communs
+4. Documenter les patterns de conception utilisés
 
 ## Core Models
 
@@ -46,7 +88,7 @@ This document provides a comprehensive analysis of all models in the Docusphere 
 - Slug generation pattern for URL-friendly identifiers
 - Clean cascade deletion setup
 
-### Document
+### Document ⚠️ MODÈLE CRITIQUE - 580+ lignes
 **Business Purpose**: Core document management model with versioning, processing pipeline, validation workflow, and AI capabilities. Supports file uploads, metadata, tagging, sharing, locking, and state management through AASM. Documents can be organized in spaces/folders and linked to other entities via polymorphic associations.
 
 **Key Features & Traps**:
@@ -57,9 +99,11 @@ This document provides a comprehensive analysis of all models in the Docusphere 
 - AI processing happens asynchronously after base processing completes
 - Supports both direct authorization and space-level permissions
 - Version tracking includes file metadata, comments, and creator information
+- ⚠️ **ATTENTION**: `lock!` method override PaperTrail - voir warning au démarrage
+- ⚠️ **PIÈGE**: `editable_by?` dépend de `locked_by_user?` ET `writable_by?`
 
 **Questions/Evolution**:
-- Consider extracting AI functionality to a concern
+- ❗ URGENT: Décomposer en concerns (Document::Lockable, Document::AIProcessable, etc.)
 - State machine has many states - could be simplified
 - Processing pipeline could use ActiveJob workflows
 - Large model (580+ lines) - needs decomposition
@@ -406,16 +450,21 @@ This document provides a comprehensive analysis of all models in the Docusphere 
 
 ## Concerns
 
-### Authorizable
+### Authorizable ⚠️ CONCERN CRITIQUE
 **Business Purpose**: Adds authorization capabilities to any model. Provides methods for granting, revoking, and checking permissions at multiple levels.
 
 **Key Features & Traps**:
 - Complex SQL queries for permission checking
 - Handles both user and group permissions
-- Multiple helper methods with similar names (can_read?, readable_by?)
+- ❗ **DUPLICATION**: Multiple helper methods with similar names (can_read?, readable_by?)
 - Owner bypass logic for permissions
+- ⚠️ **PIÈGE**: `owned_by?` vérifie différents attributs:
+  - `user` (cas général)
+  - `uploaded_by` (Document)
+  - `project_manager` (ImmoPromo::Project)
 
 **Questions/Evolution**:
+- ❗ URGENT: Supprimer les méthodes dupliquées
 - Add caching layer for permission checks
 - Simplify method naming conventions
 - Add bulk permission operations

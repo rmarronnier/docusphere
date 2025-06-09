@@ -8,10 +8,6 @@ RSpec.describe 'Document Locking Workflow', type: :system do
   let(:admin_user) { create(:user, organization: organization, role: 'admin') }
   let!(:document) { create(:document, space: space, uploaded_by: user, status: 'published', title: 'Test Document') }
   
-  before do
-    driven_by(:selenium_chrome_headless)
-  end
-  
   describe 'Locking a document' do
     before do
       login_as(user, scope: :user)

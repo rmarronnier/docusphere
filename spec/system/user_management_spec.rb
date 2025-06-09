@@ -5,10 +5,6 @@ RSpec.describe 'User Management', type: :system do
   let(:admin) { create(:user, :admin, organization: organization) }
   let(:regular_user) { create(:user, organization: organization) }
   
-  before do
-    driven_by(:selenium_chrome_headless)
-  end
-  
   describe 'Admin access' do
     before do
       login_as(admin, scope: :user)

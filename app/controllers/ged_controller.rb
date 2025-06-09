@@ -3,6 +3,7 @@ class GedController < ApplicationController
   before_action :set_space, only: [:show_space, :create_folder]
   before_action :set_folder, only: [:show_folder]
   before_action :set_document, only: [:show_document, :lock_document, :unlock_document]
+  skip_after_action :verify_authorized, only: [:dashboard]
 
   def dashboard
     @favorite_spaces = policy_scope(Space).limit(6)
@@ -38,7 +39,7 @@ class GedController < ApplicationController
 
   def create_space
     @space = current_user.organization.spaces.build(space_params)
-    authorize @space
+    authorize @space, :create?
     
     if @space.save
       render json: { success: true, message: 'Espace créé avec succès', redirect_url: ged_space_path(@space) }
@@ -51,7 +52,7 @@ class GedController < ApplicationController
     # authorize already called in set_space
     @folder = @space.folders.build(folder_params)
     @folder.parent_id = params[:parent_id] if params[:parent_id].present?
-    authorize @folder
+    authorize @folder, :create?
     
     if @folder.save
       redirect_path = @folder.parent ? ged_folder_path(@folder.parent) : ged_space_path(@space)
@@ -64,7 +65,7 @@ class GedController < ApplicationController
   def upload_document
     @document = Document.new(document_params)
     @document.uploaded_by = current_user
-    authorize @document
+    authorize @document, :create?
     
     if @document.save
       redirect_path = @document.folder ? ged_folder_path(@document.folder) : ged_space_path(@document.space)
@@ -313,17 +314,17 @@ class GedController < ApplicationController
 
   def set_space
     @space = current_user.organization.spaces.find(params[:space_id] || params[:id])
-    authorize @space
+    authorize @space, :show?
   end
 
   def set_folder
     @folder = Folder.find(params[:id])
-    authorize @folder
+    authorize @folder, :show?
   end
 
   def set_document
     @document = Document.find(params[:id])
-    authorize @document
+    authorize @document, :show?
   end
 
   def space_params

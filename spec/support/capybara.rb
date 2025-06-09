@@ -14,45 +14,86 @@ Capybara.configure do |config|
   config.exact = false
   config.raise_server_errors = true
   config.save_path = Rails.root.join('tmp/screenshots')
+  # Important: Tell Capybara where the app is running
+  config.app_host = "http://#{ENV.fetch('CAPYBARA_APP_HOST', 'web')}:3000"
+  config.always_include_port = true
+  config.server_host = '0.0.0.0'
+  config.server_port = 3000
 end
 
 # Ensure screenshot directory exists
 FileUtils.mkdir_p(Capybara.save_path)
 
-# Chromium headless options for Docker
-chrome_options = Selenium::WebDriver::Chrome::Options.new
-chrome_options.binary = '/usr/bin/chromium'
-chrome_options.add_argument('--headless=new')
-chrome_options.add_argument('--no-sandbox')
-chrome_options.add_argument('--disable-dev-shm-usage')
-chrome_options.add_argument('--disable-gpu')
-chrome_options.add_argument('--window-size=1920,1080')
-chrome_options.add_argument('--disable-web-security')
-chrome_options.add_argument('--disable-features=VizDisplayCompositor')
-
-# Register Chromium headless driver
-Capybara.register_driver :chrome_headless do |app|
-  Capybara::Selenium::Driver.new(
-    app,
-    browser: :chrome,
-    options: chrome_options
-  )
+# Detect if we're running in Docker
+def running_in_docker?
+  File.exist?('/.dockerenv') || ENV['DOCKER_CONTAINER'].present?
 end
 
-# Chromium visible options for debugging
-chrome_debug_options = Selenium::WebDriver::Chrome::Options.new
-chrome_debug_options.binary = '/usr/bin/chromium'
-chrome_debug_options.add_argument('--no-sandbox')
-chrome_debug_options.add_argument('--disable-dev-shm-usage')
-chrome_debug_options.add_argument('--window-size=1920,1080')
+# Configure Selenium to use remote Chrome when in Docker
+if running_in_docker?
+  # Use remote Selenium service
+  Capybara.register_driver :chrome_headless do |app|
+    chrome_options = Selenium::WebDriver::Chrome::Options.new
+    chrome_options.add_argument('--headless=new')
+    chrome_options.add_argument('--no-sandbox')
+    chrome_options.add_argument('--disable-dev-shm-usage')
+    chrome_options.add_argument('--disable-gpu')
+    chrome_options.add_argument('--window-size=1920,1080')
+    chrome_options.add_argument('--disable-web-security')
+    
+    Capybara::Selenium::Driver.new(
+      app,
+      browser: :remote,
+      url: "http://selenium:4444/wd/hub",
+      options: chrome_options
+    )
+  end
+else
+  # Local development - use local Chrome
+  Capybara.register_driver :chrome_headless do |app|
+    chrome_options = Selenium::WebDriver::Chrome::Options.new
+    chrome_options.add_argument('--headless=new')
+    chrome_options.add_argument('--no-sandbox')
+    chrome_options.add_argument('--disable-dev-shm-usage')
+    chrome_options.add_argument('--disable-gpu')
+    chrome_options.add_argument('--window-size=1920,1080')
+    
+    Capybara::Selenium::Driver.new(
+      app,
+      browser: :chrome,
+      options: chrome_options
+    )
+  end
+end
 
-# Register Chromium visible driver for debugging
-Capybara.register_driver :chrome_debug do |app|
-  Capybara::Selenium::Driver.new(
-    app,
-    browser: :chrome,
-    options: chrome_debug_options
-  )
+# Register Chrome visible driver for debugging
+if running_in_docker?
+  Capybara.register_driver :chrome_debug do |app|
+    chrome_debug_options = Selenium::WebDriver::Chrome::Options.new
+    chrome_debug_options.add_argument('--no-sandbox')
+    chrome_debug_options.add_argument('--disable-dev-shm-usage')
+    chrome_debug_options.add_argument('--window-size=1920,1080')
+    
+    Capybara::Selenium::Driver.new(
+      app,
+      browser: :remote,
+      url: "http://selenium:4444/wd/hub",
+      options: chrome_debug_options
+    )
+  end
+else
+  Capybara.register_driver :chrome_debug do |app|
+    chrome_debug_options = Selenium::WebDriver::Chrome::Options.new
+    chrome_debug_options.add_argument('--no-sandbox')
+    chrome_debug_options.add_argument('--disable-dev-shm-usage')
+    chrome_debug_options.add_argument('--window-size=1920,1080')
+    
+    Capybara::Selenium::Driver.new(
+      app,
+      browser: :chrome,
+      options: chrome_debug_options
+    )
+  end
 end
 
 # Use headless Chrome by default
@@ -72,15 +113,21 @@ RSpec.configure do |config|
     end
   end
   
-  # Use Chrome headless for system tests
+  # Configure driver for system tests
   config.before(:each, type: :system) do |example|
-    if example.metadata[:js] || example.metadata[:type] == :system
-      driven_by :chrome_headless
-    else
-      driven_by :rack_test
+    # By default, use Chrome headless for all system tests
+    driven_by :chrome_headless
+    
+    # Individual tests can override with metadata:
+    # it "test name", driver: :rack_test do ... end
+    # it "test name", driver: :chrome_debug do ... end
+    if example.metadata[:driver]
+      driven_by example.metadata[:driver]
     end
   end
   
-  # For debugging individual tests, you can use:
-  # driven_by :chrome_debug, using: :chrome, screen_size: [1920, 1080]
+  # Helper method for debugging specific tests
+  config.define_derived_metadata(debug: true) do |metadata|
+    metadata[:driver] = :chrome_debug
+  end
 end

@@ -1,7 +1,7 @@
 FactoryBot.define do
   factory :link do
-    document { nil }
-    linked_document { nil }
-    link_type { "MyString" }
+    association :source, factory: :document
+    association :target, factory: :document
+    link_type { "reference" }
   end
 end

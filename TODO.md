@@ -82,6 +82,20 @@
 
 ## 🚧 EN COURS / À FAIRE
 
+### 🔥 URGENT : Stabilisation Application
+**Priorité : CRITIQUE** 🔴🔴🔴
+
+Suite aux régressions massives découvertes le 09/06/2025, un plan de stabilisation complet est nécessaire. Voir **STABILIZATION_PLAN.md** pour les détails.
+
+#### Actions Immédiates :
+- [ ] **Corriger TOUS les tests** : Controllers, System, Services, Components
+- [ ] **Refactorer Document model** : 580+ lignes → découper en concerns
+- [ ] **Nettoyer code mort** : Uploadable, Storable, document_version.rb
+- [ ] **Standardiser statuts** : AASM vs WorkflowManageable
+- [ ] **Optimiser performances** : Ajouter cache et index manquants
+
+⚠️ **OBLIGATOIRE** : Suivre WORKFLOW.md pour éviter nouvelles régressions !
+
 
 ### 🧪 Tests système complexes multi-utilisateurs
 **Priorité : HAUTE** 🔴

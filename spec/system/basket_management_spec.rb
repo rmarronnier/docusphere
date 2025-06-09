@@ -9,7 +9,6 @@ RSpec.describe 'Basket Management', type: :system do
   let!(:document2) { create(:document, space: space, uploaded_by: user, title: 'Second Document') }
   
   before do
-    driven_by(:selenium_chrome_headless)
     login_as(user, scope: :user)
   end
   

@@ -1,10 +1,10 @@
 FactoryBot.define do
   factory :project_workflow_transition do
-    workflowable { nil }
-    from_status { "MyString" }
-    to_status { "MyString" }
-    user { nil }
-    comment { "MyText" }
-    transitioned_at { "2025-06-07 13:41:45" }
+    association :workflowable, factory: :immo_promo_project
+    association :from_step, factory: :project_workflow_step
+    association :to_step, factory: :project_workflow_step
+    association :transitioned_by, factory: :user
+    notes { "Transition note" }
+    transitioned_at { Time.current }
   end
 end

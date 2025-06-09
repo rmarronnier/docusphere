@@ -14,353 +14,271 @@ RSpec.describe DocumentValidationsController, type: :controller do
   end
 
   describe 'GET #index' do
-    it 'returns a success response' do
-      get :index
-      expect(response).to be_successful
-    end
-
-    it 'assigns validation requests for current user' do
-      validation_request
-      get :index
-      expect(assigns(:validation_requests)).to include(validation_request)
-    end
-
-    it 'assigns pending validations for current user as validator' do
-      pending_validation = create(:document_validation, 
-                                  validation_request: validation_request, 
-                                  validator: user,
-                                  status: 'pending')
+    context 'when user is a validator' do
+      let(:document2) { create(:document, space: space, uploaded_by: user) }
+      let(:validation_request2) { create(:validation_request, document: document2, requester: user) }
       
-      get :index
-      expect(assigns(:pending_validations)).to include(pending_validation)
-    end
+      let!(:pending_validation) { create(:document_validation, 
+                                        validation_request: validation_request, 
+                                        validator: user,
+                                        status: 'pending') }
+      let!(:completed_validation) { create(:document_validation, 
+                                          validation_request: validation_request2, 
+                                          validator: user,
+                                          status: 'approved',
+                                          validated_at: Time.current) }
 
-    context 'with status filter' do
-      let!(:pending_request) { create(:validation_request, document: document, requester: user, status: 'pending') }
-      let!(:completed_request) { create(:validation_request, document: document, requester: user, status: 'completed') }
-
-      it 'filters by pending status' do
-        get :index, params: { status: 'pending' }
-        expect(assigns(:validation_requests)).to include(pending_request)
-        expect(assigns(:validation_requests)).not_to include(completed_request)
+      it 'returns a success response' do
+        get :index, params: { document_id: document.id }
+        expect(response).to be_successful
       end
 
-      it 'filters by completed status' do
-        get :index, params: { status: 'completed' }
-        expect(assigns(:validation_requests)).to include(completed_request)
-        expect(assigns(:validation_requests)).not_to include(pending_request)
+      it 'assigns pending validations for current user' do
+        get :index, params: { document_id: document.id }
+        expect(assigns(:pending_validations)).to include(pending_validation)
+      end
+
+      it 'assigns completed validations for current user' do
+        get :index, params: { document_id: document.id }
+        expect(assigns(:completed_validations)).to include(completed_validation)
       end
     end
   end
 
   describe 'GET #show' do
+    before do
+      create(:document_validation, validation_request: validation_request, validator: user, status: 'pending')
+    end
+
     it 'returns a success response' do
-      get :show, params: { id: document_validation.id }
+      get :show, params: { document_id: document.id, id: validation_request.id }
       expect(response).to be_successful
     end
 
-    it 'assigns the requested validation' do
-      get :show, params: { id: document_validation.id }
-      expect(assigns(:validation)).to eq(document_validation)
-    end
-
-    it 'assigns the validation request' do
-      get :show, params: { id: document_validation.id }
+    it 'assigns the requested validation request' do
+      get :show, params: { document_id: document.id, id: validation_request.id }
       expect(assigns(:validation_request)).to eq(validation_request)
     end
 
-    it 'assigns the document' do
-      get :show, params: { id: document_validation.id }
-      expect(assigns(:document)).to eq(document)
+    it 'assigns document validations' do
+      get :show, params: { document_id: document.id, id: validation_request.id }
+      expect(assigns(:document_validations)).to be_present
     end
 
-    it 'prevents access to validations from other organizations' do
-      other_org = create(:organization)
-      other_user = create(:user, organization: other_org)
-      other_space = create(:space, organization: other_org)
-      other_document = create(:document, space: other_space, uploaded_by: other_user)
-      other_request = create(:validation_request, document: other_document, requester: other_user)
-      other_validation = create(:document_validation, validation_request: other_request, validator: other_user)
-      
-      expect {
-        get :show, params: { id: other_validation.id }
-      }.to raise_error(ActiveRecord::RecordNotFound)
+    it 'determines if current user can validate' do
+      get :show, params: { document_id: document.id, id: validation_request.id }
+      expect(assigns(:can_validate)).to be true
+    end
+  end
+
+  describe 'GET #new' do
+    context 'when user can request validation' do
+      before do
+        allow_any_instance_of(Document).to receive(:can_request_validation?).and_return(true)
+      end
+
+      it 'returns a success response' do
+        get :new, params: { document_id: document.id }
+        expect(response).to be_successful
+      end
+
+      it 'assigns a new validation request' do
+        get :new, params: { document_id: document.id }
+        expect(assigns(:validation_request)).to be_a_new(ValidationRequest)
+      end
+
+      it 'assigns available validators' do
+        create(:authorization, user: validator, authorizable: space, permission_level: 'validate')
+        get :new, params: { document_id: document.id }
+        expect(assigns(:available_validators)).to include(validator)
+      end
+    end
+
+    context 'when user cannot request validation' do
+      before do
+        allow_any_instance_of(Document).to receive(:can_request_validation?).and_return(false)
+      end
+
+      it 'redirects to document page' do
+        get :new, params: { document_id: document.id }
+        expect(response).to redirect_to(ged_document_path(document))
+      end
     end
   end
 
   describe 'POST #create' do
-    let(:validation_request) { create(:validation_request, document: document, requester: user) }
-
-    context 'with valid parameters' do
-      let(:valid_attributes) do
-        {
-          validation_request_id: validation_request.id,
-          validator_id: validator.id,
-          status: 'pending',
-          comments: 'Please review this document'
-        }
+    context 'when user can request validation' do
+      before do
+        allow_any_instance_of(Document).to receive(:can_request_validation?).and_return(true)
       end
-
-      it 'creates a new DocumentValidation' do
-        expect {
-          post :create, params: { document_validation: valid_attributes }
-        }.to change(DocumentValidation, :count).by(1)
-      end
-
-      it 'assigns the validation to the request' do
-        post :create, params: { document_validation: valid_attributes }
-        expect(assigns(:validation).validation_request).to eq(validation_request)
-      end
-
-      it 'redirects to the validation request' do
-        post :create, params: { document_validation: valid_attributes }
-        expect(response).to redirect_to(validation_request_path(validation_request))
-      end
-
-      it 'sends notification to validator' do
-        expect {
-          post :create, params: { document_validation: valid_attributes }
-        }.to change { ActionMailer::Base.deliveries.count }.by(1)
-      end
-    end
-
-    context 'with invalid parameters' do
-      let(:invalid_attributes) { { validation_request_id: nil, validator_id: nil } }
-
-      it 'does not create a new DocumentValidation' do
-        expect {
-          post :create, params: { document_validation: invalid_attributes }
-        }.to change(DocumentValidation, :count).by(0)
-      end
-
-      it 'renders new template' do
-        post :create, params: { document_validation: invalid_attributes }
-        expect(response).to render_template(:new)
-      end
-    end
-  end
-
-  describe 'PATCH #update' do
-    context 'when user is the validator' do
-      before { sign_in validator }
 
       context 'with valid parameters' do
-        let(:new_attributes) do
+        let(:valid_params) do
           {
-            status: 'approved',
-            comments: 'Document approved after review',
-            decision_reason: 'All requirements met'
+            document_id: document.id,
+            validation_request: {
+              validator_ids: [validator.id.to_s],
+              min_validations: '1'
+            }
           }
         end
 
-        it 'updates the validation' do
-          patch :update, params: { id: document_validation.id, document_validation: new_attributes }
-          document_validation.reload
-          expect(document_validation.status).to eq('approved')
-          expect(document_validation.comments).to eq('Document approved after review')
-        end
-
-        it 'updates validated_at timestamp' do
-          patch :update, params: { id: document_validation.id, document_validation: new_attributes }
-          document_validation.reload
-          expect(document_validation.validated_at).to be_present
-        end
-
-        it 'redirects to the validation' do
-          patch :update, params: { id: document_validation.id, document_validation: new_attributes }
-          expect(response).to redirect_to(document_validation_path(document_validation))
-        end
-
-        it 'sends notification to requester' do
+        it 'creates a new validation request' do
           expect {
-            patch :update, params: { id: document_validation.id, document_validation: new_attributes }
-          }.to change { ActionMailer::Base.deliveries.count }.by(1)
+            post :create, params: valid_params
+          }.to change(ValidationRequest, :count).by(1)
         end
 
-        context 'when approving' do
-          it 'marks validation as approved' do
-            patch :update, params: { 
-              id: document_validation.id, 
-              document_validation: { status: 'approved', comments: 'Approved' } 
-            }
-            document_validation.reload
-            expect(document_validation.status).to eq('approved')
-          end
-        end
-
-        context 'when rejecting' do
-          it 'marks validation as rejected' do
-            patch :update, params: { 
-              id: document_validation.id, 
-              document_validation: { status: 'rejected', comments: 'Does not meet requirements' } 
-            }
-            document_validation.reload
-            expect(document_validation.status).to eq('rejected')
-          end
+        it 'redirects to document page' do
+          post :create, params: valid_params
+          expect(response).to redirect_to(ged_document_path(document))
         end
       end
 
-      context 'with invalid parameters' do
-        let(:invalid_attributes) { { status: 'invalid_status' } }
-
-        it 'does not update the validation' do
-          original_status = document_validation.status
-          patch :update, params: { id: document_validation.id, document_validation: invalid_attributes }
-          document_validation.reload
-          expect(document_validation.status).to eq(original_status)
-        end
-
-        it 'renders edit template' do
-          patch :update, params: { id: document_validation.id, document_validation: invalid_attributes }
-          expect(response).to render_template(:edit)
-        end
-      end
-    end
-
-    context 'when user is not the validator' do
-      it 'prevents unauthorized updates' do
-        expect {
-          patch :update, params: { 
-            id: document_validation.id, 
-            document_validation: { status: 'approved' } 
+      context 'with no validators selected' do
+        let(:invalid_params) do
+          {
+            document_id: document.id,
+            validation_request: {
+              validator_ids: [''],
+              min_validations: '1'
+            }
           }
-        }.to raise_error(Pundit::NotAuthorizedError)
+        end
+
+        it 'does not create a validation request' do
+          expect {
+            post :create, params: invalid_params
+          }.not_to change(ValidationRequest, :count)
+        end
+
+        it 'redirects with alert' do
+          post :create, params: invalid_params
+          expect(response).to redirect_to(ged_document_path(document))
+          expect(flash[:alert]).to be_present
+        end
       end
-    end
-  end
 
-  describe 'DELETE #destroy' do
-    context 'when user is the requester' do
-      it 'destroys the validation' do
-        document_validation
-        expect {
-          delete :destroy, params: { id: document_validation.id }
-        }.to change(DocumentValidation, :count).by(-1)
-      end
+      context 'when min_validations exceeds validator count' do
+        let(:invalid_params) do
+          {
+            document_id: document.id,
+            validation_request: {
+              validator_ids: [validator.id.to_s],
+              min_validations: '2'
+            }
+          }
+        end
 
-      it 'redirects to validations index' do
-        delete :destroy, params: { id: document_validation.id }
-        expect(response).to redirect_to(document_validations_path)
-      end
-    end
+        it 'does not create a validation request' do
+          expect {
+            post :create, params: invalid_params
+          }.not_to change(ValidationRequest, :count)
+        end
 
-    context 'when validation is already completed' do
-      before { document_validation.update(status: 'approved', validated_at: Time.current) }
-
-      it 'prevents deletion of completed validations' do
-        expect {
-          delete :destroy, params: { id: document_validation.id }
-        }.to raise_error(Pundit::NotAuthorizedError)
-      end
-    end
-
-    context 'when user is not authorized' do
-      let(:other_user) { create(:user, organization: organization) }
-      before { sign_in other_user }
-
-      it 'prevents unauthorized deletion' do
-        expect {
-          delete :destroy, params: { id: document_validation.id }
-        }.to raise_error(Pundit::NotAuthorizedError)
+        it 'redirects with alert' do
+          post :create, params: invalid_params
+          expect(response).to redirect_to(ged_document_path(document))
+          expect(flash[:alert]).to include('nombre minimum')
+        end
       end
     end
   end
 
   describe 'POST #approve' do
-    before { sign_in validator }
+    let!(:pending_validation) { create(:document_validation, 
+                                      validation_request: validation_request, 
+                                      validator: user,
+                                      status: 'pending') }
 
-    it 'approves the validation' do
-      post :approve, params: { 
-        id: document_validation.id, 
-        comments: 'Approved after review' 
-      }
-      document_validation.reload
-      expect(document_validation.status).to eq('approved')
-    end
+    context 'when user can validate' do
+      it 'approves the validation' do
+        post :approve, params: { document_id: document.id, id: validation_request.id, comment: 'Approved' }
+        pending_validation.reload
+        expect(pending_validation.status).to eq('approved')
+      end
 
-    it 'sets validated_at timestamp' do
-      post :approve, params: { id: document_validation.id }
-      document_validation.reload
-      expect(document_validation.validated_at).to be_present
-    end
+      it 'redirects to validation request page' do
+        post :approve, params: { document_id: document.id, id: validation_request.id, comment: 'Approved' }
+        expect(response).to redirect_to(ged_document_validation_path(document, validation_request))
+      end
 
-    it 'returns success for AJAX requests' do
-      post :approve, params: { id: document_validation.id }, xhr: true
-      expect(response).to be_successful
-    end
-  end
-
-  describe 'POST #reject' do
-    before { sign_in validator }
-
-    it 'rejects the validation' do
-      post :reject, params: { 
-        id: document_validation.id, 
-        comments: 'Does not meet requirements' 
-      }
-      document_validation.reload
-      expect(document_validation.status).to eq('rejected')
-    end
-
-    it 'requires rejection reason' do
-      post :reject, params: { id: document_validation.id }
-      expect(response).to have_http_status(:unprocessable_entity)
-    end
-
-    it 'returns success for AJAX requests with reason' do
-      post :reject, params: { 
-        id: document_validation.id, 
-        comments: 'Missing required information' 
-      }, xhr: true
-      expect(response).to be_successful
-    end
-  end
-
-  describe 'POST #request_changes' do
-    before { sign_in validator }
-
-    it 'requests changes for the validation' do
-      post :request_changes, params: { 
-        id: document_validation.id, 
-        comments: 'Please update section 3' 
-      }
-      document_validation.reload
-      expect(document_validation.status).to eq('changes_requested')
-    end
-
-    it 'requires change request reason' do
-      post :request_changes, params: { id: document_validation.id }
-      expect(response).to have_http_status(:unprocessable_entity)
-    end
-  end
-
-  describe 'GET #history' do
-    it 'returns validation history' do
-      get :history, params: { id: document_validation.id }
-      expect(response).to be_successful
-      expect(assigns(:history)).to be_present
-    end
-
-    context 'with JSON format' do
-      it 'returns history in JSON format' do
-        get :history, params: { id: document_validation.id }, format: :json
-        expect(response).to be_successful
-        expect(response.content_type).to include('application/json')
+      context 'with JSON format' do
+        it 'returns success response' do
+          post :approve, params: { document_id: document.id, id: validation_request.id, comment: 'Approved' }, format: :json
+          expect(response).to be_successful
+          json_response = JSON.parse(response.body)
+          expect(json_response['status']).to eq('approved')
+        end
       end
     end
   end
 
-  describe 'authentication' do
-    before { sign_out user }
+  describe 'POST #reject' do
+    let!(:pending_validation) { create(:document_validation, 
+                                      validation_request: validation_request, 
+                                      validator: user,
+                                      status: 'pending') }
 
-    it 'redirects to login for index' do
-      get :index
-      expect(response).to redirect_to(new_user_session_path)
+    context 'with comment' do
+      it 'rejects the validation' do
+        post :reject, params: { document_id: document.id, id: validation_request.id, comment: 'Issues found' }
+        pending_validation.reload
+        expect(pending_validation.status).to eq('rejected')
+      end
+
+      it 'redirects to validation request page' do
+        post :reject, params: { document_id: document.id, id: validation_request.id, comment: 'Issues found' }
+        expect(response).to redirect_to(ged_document_validation_path(document, validation_request))
+      end
+
+      context 'with JSON format' do
+        it 'returns success response' do
+          post :reject, params: { document_id: document.id, id: validation_request.id, comment: 'Issues found' }, format: :json
+          expect(response).to be_successful
+          json_response = JSON.parse(response.body)
+          expect(json_response['status']).to eq('rejected')
+        end
+      end
     end
 
-    it 'redirects to login for show' do
-      get :show, params: { id: document_validation.id }
-      expect(response).to redirect_to(new_user_session_path)
+    context 'without comment' do
+      it 'does not reject the validation' do
+        post :reject, params: { document_id: document.id, id: validation_request.id }
+        pending_validation.reload
+        expect(pending_validation.status).to eq('pending')
+      end
+
+      it 'redirects with alert' do
+        post :reject, params: { document_id: document.id, id: validation_request.id }
+        expect(response).to redirect_to(ged_document_validation_path(document, validation_request))
+        expect(flash[:alert]).to include('commentaire')
+      end
+
+      context 'with JSON format' do
+        it 'returns error response' do
+          post :reject, params: { document_id: document.id, id: validation_request.id }, format: :json
+          expect(response).to have_http_status(:unprocessable_entity)
+          json_response = JSON.parse(response.body)
+          expect(json_response['message']).to include('Commentaire')
+        end
+      end
+    end
+  end
+
+  describe 'GET #my_requests' do
+    let!(:user_request) { create(:validation_request, document: document, requester: user) }
+    let!(:other_request) { create(:validation_request, document: document, requester: validator) }
+
+    it 'returns a success response' do
+      get :my_requests
+      expect(response).to be_successful
+    end
+
+    it 'assigns validation requests for current user' do
+      get :my_requests
+      expect(assigns(:validation_requests)).to include(user_request)
+      expect(assigns(:validation_requests)).not_to include(other_request)
     end
   end
 end

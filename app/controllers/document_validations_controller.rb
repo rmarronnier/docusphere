@@ -1,6 +1,6 @@
 class DocumentValidationsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_document
+  before_action :set_document, except: [:my_requests]
   before_action :set_validation_request, only: [:show, :approve, :reject]
   before_action :set_document_validation, only: [:approve, :reject]
   before_action :ensure_can_request_validation, only: [:new, :create]
@@ -8,12 +8,12 @@ class DocumentValidationsController < ApplicationController
   
   def index
     # Show all validation requests for the current user (as validator)
-    @pending_validations = current_user.document_validations
+    @pending_validations = policy_scope(DocumentValidation)
                                       .includes(:document, :validation_request)
                                       .pending
                                       .page(params[:page])
     
-    @completed_validations = current_user.document_validations
+    @completed_validations = policy_scope(DocumentValidation)
                                         .includes(:document, :validation_request)
                                         .completed
                                         .order(validated_at: :desc)
@@ -21,14 +21,16 @@ class DocumentValidationsController < ApplicationController
   end
   
   def show
+    authorize @validation_request, :show?
     # Show details of a specific validation request
     @document_validations = @validation_request.document_validations.includes(:validator)
     @can_validate = @validation_request.document_validations.exists?(validator: current_user, status: 'pending')
   end
   
   def new
-    # Form to create a new validation request
     @validation_request = @document.validation_requests.build
+    authorize @validation_request
+    # Form to create a new validation request
     @available_validators = User.joins(:authorizations)
                                .where(authorizations: { 
                                  authorizable: @document.space,
@@ -38,6 +40,7 @@ class DocumentValidationsController < ApplicationController
   end
   
   def create
+    authorize ValidationRequest.new(document: @document), :create?
     # Create a new validation request
     validator_ids = params[:validation_request][:validator_ids].reject(&:blank?)
     min_validations = params[:validation_request][:min_validations].to_i
@@ -68,29 +71,31 @@ class DocumentValidationsController < ApplicationController
   end
   
   def approve
+    authorize @document_validation, :approve?
     # Approve a document validation
     comment = params[:comment].presence
     
     if @document_validation.approve!(comment: comment)
       respond_to do |format|
-        format.html { redirect_to document_validation_path(@document, @validation_request), notice: "Document approuvé avec succès" }
+        format.html { redirect_to ged_document_validation_path(@document, @validation_request), notice: "Document approuvé avec succès" }
         format.json { render json: { status: 'approved', message: 'Document approuvé' } }
       end
     else
       respond_to do |format|
-        format.html { redirect_to document_validation_path(@document, @validation_request), alert: "Erreur lors de l'approbation" }
+        format.html { redirect_to ged_document_validation_path(@document, @validation_request), alert: "Erreur lors de l'approbation" }
         format.json { render json: { status: 'error', message: @document_validation.errors.full_messages.join(', ') }, status: :unprocessable_entity }
       end
     end
   end
   
   def reject
+    authorize @document_validation, :reject?
     # Reject a document validation
     comment = params[:comment].presence
     
     if comment.blank?
       respond_to do |format|
-        format.html { redirect_to document_validation_path(@document, @validation_request), alert: "Un commentaire est requis pour refuser un document" }
+        format.html { redirect_to ged_document_validation_path(@document, @validation_request), alert: "Un commentaire est requis pour refuser un document" }
         format.json { render json: { status: 'error', message: 'Commentaire requis' }, status: :unprocessable_entity }
       end
       return
@@ -98,18 +103,19 @@ class DocumentValidationsController < ApplicationController
     
     if @document_validation.reject!(comment: comment)
       respond_to do |format|
-        format.html { redirect_to document_validation_path(@document, @validation_request), notice: "Document refusé" }
+        format.html { redirect_to ged_document_validation_path(@document, @validation_request), notice: "Document refusé" }
         format.json { render json: { status: 'rejected', message: 'Document refusé' } }
       end
     else
       respond_to do |format|
-        format.html { redirect_to document_validation_path(@document, @validation_request), alert: "Erreur lors du refus" }
+        format.html { redirect_to ged_document_validation_path(@document, @validation_request), alert: "Erreur lors du refus" }
         format.json { render json: { status: 'error', message: @document_validation.errors.full_messages.join(', ') }, status: :unprocessable_entity }
       end
     end
   end
   
   def my_requests
+    authorize :validation_request, :my_requests?
     # Show validation requests created by the current user
     @validation_requests = ValidationRequest.for_requester(current_user)
                                           .includes(:document, :document_validations)

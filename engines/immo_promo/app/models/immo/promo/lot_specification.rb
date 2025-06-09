@@ -5,25 +5,12 @@ module Immo
 
       belongs_to :lot, class_name: 'Immo::Promo::Lot'
 
-      validates :specification_type, inclusion: {
-        in: %w[finishes equipment technical_requirements environmental accessibility]
-      }
-      validates :name, presence: true
+      def has_amenities?
+        has_balcony || has_terrace || has_parking || has_storage
+      end
 
-      enum specification_type: {
-        finishes: 'finishes',
-        equipment: 'equipment',
-        technical_requirements: 'technical_requirements',
-        environmental: 'environmental',
-        accessibility: 'accessibility'
-      }
-
-      scope :by_type, ->(type) { where(specification_type: type) }
-      scope :standard, -> { where(is_standard: true) }
-      scope :custom, -> { where(is_standard: false) }
-
-      def display_name
-        "#{specification_type.humanize}: #{name}"
+      def total_rooms
+        rooms || 0
       end
     end
   end

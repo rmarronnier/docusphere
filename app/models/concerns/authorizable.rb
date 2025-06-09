@@ -178,6 +178,8 @@ module Authorizable
   def owned_by?(user)
     # Check if owned by user (general case)
     return true if respond_to?(:user) && self.user == user
+    # Check if uploaded by user (for Document model)
+    return true if respond_to?(:uploaded_by) && self.uploaded_by == user
     # Check if user is project manager (for Immo::Promo models)
     return true if respond_to?(:project_manager) && self.project_manager == user
     false

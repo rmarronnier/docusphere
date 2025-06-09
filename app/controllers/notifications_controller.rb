@@ -3,14 +3,13 @@ class NotificationsController < ApplicationController
   before_action :set_notification, only: [:show, :mark_as_read, :destroy]
 
   def index
-    @pagy, @notifications = pagy(
-      current_user.notifications
+    @notifications = policy_scope(Notification)
         .includes(:notifiable)
         .by_category(params[:category])
         .then { |scope| params[:unread_only] == 'true' ? scope.unread : scope }
-        .recent,
-      items: 20
-    )
+        .recent
+        .page(params[:page])
+        .per(20)
     
     @categories = Notification.categories
     @stats = NotificationService.notification_stats_for_user(current_user)
@@ -22,6 +21,7 @@ class NotificationsController < ApplicationController
   end
 
   def show
+    authorize @notification
     @notification.mark_as_read! if @notification.unread?
     
     respond_to do |format|
@@ -31,6 +31,7 @@ class NotificationsController < ApplicationController
   end
 
   def mark_as_read
+    authorize @notification
     @notification.mark_as_read!
     
     respond_to do |format|
@@ -40,6 +41,7 @@ class NotificationsController < ApplicationController
   end
 
   def mark_all_as_read
+    authorize :notification, :mark_all_as_read?
     NotificationService.mark_all_read_for_user(current_user)
     
     respond_to do |format|
@@ -49,6 +51,7 @@ class NotificationsController < ApplicationController
   end
 
   def bulk_mark_as_read
+    authorize :notification, :bulk_mark_as_read?
     count = NotificationService.bulk_mark_as_read(params[:notification_ids], current_user)
     
     respond_to do |format|
@@ -58,6 +61,7 @@ class NotificationsController < ApplicationController
   end
 
   def destroy
+    authorize @notification
     @notification.destroy!
     
     respond_to do |format|
@@ -67,6 +71,7 @@ class NotificationsController < ApplicationController
   end
 
   def bulk_destroy
+    authorize :notification, :bulk_destroy?
     count = NotificationService.bulk_delete_notifications(params[:notification_ids], current_user)
     
     respond_to do |format|
@@ -76,6 +81,7 @@ class NotificationsController < ApplicationController
   end
 
   def dropdown
+    authorize :notification, :dropdown?
     @notifications = NotificationService.recent_notifications_for_user(current_user, limit: 10)
     @unread_count = NotificationService.unread_count_for_user(current_user)
     
@@ -91,6 +97,7 @@ class NotificationsController < ApplicationController
   end
 
   def urgent
+    authorize :notification, :urgent?
     @notifications = NotificationService.urgent_notifications_for_user(current_user)
     
     respond_to do |format|
@@ -100,6 +107,7 @@ class NotificationsController < ApplicationController
   end
 
   def stats
+    authorize :notification, :stats?
     @stats = NotificationService.notification_stats_for_user(current_user)
     
     respond_to do |format|
@@ -142,10 +150,10 @@ class NotificationsController < ApplicationController
     {
       notifications: @notifications.map { |n| notification_json(n) },
       pagination: {
-        current_page: @pagy.page,
-        total_pages: @pagy.pages,
-        total_count: @pagy.count,
-        items_per_page: @pagy.items
+        current_page: @notifications.current_page,
+        total_pages: @notifications.total_pages,
+        total_count: @notifications.total_count,
+        items_per_page: @notifications.limit_value
       },
       stats: @stats,
       categories: @categories

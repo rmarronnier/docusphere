@@ -6,7 +6,7 @@ RSpec.describe Document, type: :model do
     let(:space) { create(:space, organization: organization) }
     let(:owner) { create(:user, organization: organization) }
     let(:other_user) { create(:user, organization: organization) }
-    let(:admin_user) { create(:user, organization: organization, role: 'admin') }
+    let(:admin_user) { create(:user, organization: organization, role: 'super_admin') }
     let(:document) { create(:document, space: space, uploaded_by: owner, status: 'published') }
     
     describe 'associations' do
@@ -16,7 +16,9 @@ RSpec.describe Document, type: :model do
     describe 'lock state transitions' do
       context 'when document is published' do
         it 'can be locked' do
-          expect(document).to allow_transition_from(:published).to(:locked).on_event(:lock)
+          expect(document.may_lock?).to be true
+          document.lock!
+          expect(document.locked?).to be true
         end
         
         it 'sets locked_at when locking' do
@@ -30,7 +32,9 @@ RSpec.describe Document, type: :model do
         before { document.lock! }
         
         it 'can be unlocked' do
-          expect(document).to allow_transition_from(:locked).to(:published).on_event(:unlock)
+          expect(document.may_unlock?).to be true
+          document.unlock!
+          expect(document.published?).to be true
         end
         
         it 'clears lock fields when unlocking' do

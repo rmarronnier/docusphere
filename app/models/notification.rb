@@ -63,7 +63,7 @@ class Notification < ApplicationRecord
   scope :recent, -> { order(created_at: :desc) }
   scope :by_type, ->(type) { where(notification_type: type) }
   scope :for_user, ->(user) { where(user: user) }
-  scope :by_category, ->(category) { where(notification_type: notification_types_by_category(category)) }
+  scope :by_category, ->(category) { category.present? ? where(notification_type: notification_types_by_category(category)) : all }
   scope :urgent, -> { where(notification_type: urgent_types) }
   scope :today, -> { where('created_at >= ?', Time.current.beginning_of_day) }
   scope :this_week, -> { where('created_at >= ?', Time.current.beginning_of_week) }

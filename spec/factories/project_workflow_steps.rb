@@ -1,10 +1,10 @@
 FactoryBot.define do
   factory :project_workflow_step do
-    workflowable { nil }
-    name { "MyString" }
-    description { "MyText" }
-    position { 1 }
-    status { "MyString" }
-    assigned_to { nil }
+    name { "Design Phase" }
+    description { "Initial design and planning" }
+    sequence(:sequence_number) { |n| n }
+    requires_approval { false }
+    is_active { true }
+    organization
   end
 end

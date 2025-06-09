@@ -29,6 +29,7 @@ services:
       - db
       - redis
       - elasticsearch
+      - selenium
     environment:
       DATABASE_URL: postgresql://docusphere:password@db:5432/docusphere_development
       REDIS_URL: redis://redis:6379/0
@@ -36,6 +37,8 @@ services:
       ELASTICSEARCH_URL: http://elasticsearch:9200
       CLAMAV_HOST: clamav
       CLAMAV_PORT: 3310
+      DOCKER_CONTAINER: 'true'
+      CAPYBARA_APP_HOST: web
 
   sidekiq:
     build:
@@ -103,6 +106,21 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+
+  selenium:
+    image: seleniarm/standalone-chromium:latest
+    platform: linux/arm64
+    ports:
+      - "4444:4444"
+      - "7900:7900"  # VNC server for debugging
+    shm_size: 2gb
+    environment:
+      - SE_NODE_MAX_SESSIONS=4
+      - SE_NODE_SESSION_TIMEOUT=300
+      - SE_VNC_NO_PASSWORD=1
+      - SE_OPTS=--log-level WARNING
+    volumes:
+      - /dev/shm:/dev/shm
 
 volumes:
   postgres_data:

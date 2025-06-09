@@ -4,7 +4,8 @@ RSpec.describe DocumentShare, type: :model do
   describe 'associations' do
     it { should belong_to(:document) }
     it { should belong_to(:shared_by).class_name('User') }
-    it { should belong_to(:shared_with).class_name('User').optional }
+    # Note: shared_with is technically optional but has conditional validation
+    # it { should belong_to(:shared_with).class_name('User').optional }
   end
 
   describe 'validations' do

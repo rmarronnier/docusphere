@@ -11,7 +11,7 @@ RSpec.describe "Search Functionality", type: :system do
     description: "Contrat annuel de maintenance informatique",
     content: "Ce contrat définit les termes de service pour l'année 2024",
     space: space,
-    user: user
+    uploaded_by: user
   )}
   
   let!(:invoice_doc) { create(:document,
@@ -19,7 +19,7 @@ RSpec.describe "Search Functionality", type: :system do
     description: "Facture pour services rendus en janvier",
     content: "Montant total: 5000 EUR pour consulting",
     space: space,
-    user: user
+    uploaded_by: user
   )}
   
   let!(:report_doc) { create(:document,
@@ -27,7 +27,7 @@ RSpec.describe "Search Functionality", type: :system do
     description: "Rapport d'activité du mois de janvier 2024",
     content: "Performance exceptionnelle ce mois avec 20% de croissance",
     space: space,
-    user: user
+    uploaded_by: user
   )}
   
   before do

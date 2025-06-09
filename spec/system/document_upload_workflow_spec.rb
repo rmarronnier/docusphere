@@ -20,7 +20,7 @@ RSpec.describe "Document Upload Workflow", type: :system do
       expect(page).to have_content("Gestion Électronique de Documents")
       
       # 2. Cliquer sur le bouton d'upload
-      click_button "Nouveau Document"
+      click_button "Upload Document"
       
       # 3. Attendre que la modale s'ouvre
       expect(page).to have_css('#uploadModal:not(.hidden)', wait: 2)
@@ -70,7 +70,7 @@ RSpec.describe "Document Upload Workflow", type: :system do
     it "shows validation errors for invalid form submission" do
       visit ged_dashboard_path
       
-      click_button "Nouveau Document"
+      click_button "Upload Document"
       expect(page).to have_css('#uploadModal:not(.hidden)')
       
       # Soumettre sans remplir les champs obligatoires

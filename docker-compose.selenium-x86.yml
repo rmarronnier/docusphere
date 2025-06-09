@@ -1,0 +1,7 @@
+# Override for x86_64 architecture (GitHub Actions, Intel Macs, etc.)
+# Use with: docker-compose -f docker-compose.yml -f docker-compose.selenium-x86.yml up
+
+services:
+  selenium:
+    image: selenium/standalone-chrome:latest
+    platform: linux/amd64

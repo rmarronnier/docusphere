@@ -111,9 +111,9 @@ FactoryBot.define do
   
   factory :search_query do
     user
-    query { "recherche test" }
-    search_type { "documents" }
-    filters { {} }
-    results_count { 10 }
+    name { "recherche test" }
+    query_params { {} }
+    usage_count { 0 }
+    is_favorite { false }
   end
 end
