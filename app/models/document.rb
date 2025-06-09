@@ -5,6 +5,7 @@ class Document < ApplicationRecord
   has_paper_trail
   
   belongs_to :uploaded_by, class_name: 'User', foreign_key: 'uploaded_by_id'
+  belongs_to :locked_by, class_name: 'User', foreign_key: 'locked_by_id', optional: true
   belongs_to :parent, class_name: 'Document', optional: true
   belongs_to :space
   belongs_to :folder, optional: true
@@ -72,6 +73,19 @@ class Document < ApplicationRecord
     
     event :lock do
       transitions from: [:draft, :published], to: :locked
+      before do
+        self.locked_at = Time.current
+      end
+    end
+    
+    event :unlock do
+      transitions from: :locked, to: :published
+      before do
+        self.locked_by = nil
+        self.locked_at = nil
+        self.lock_reason = nil
+        self.unlock_scheduled_at = nil
+      end
     end
     
     event :archive do
@@ -374,6 +388,68 @@ class Document < ApplicationRecord
       created_at: current_validation_request.created_at,
       completed_at: current_validation_request.completed_at
     }
+  end
+  
+  # Locking methods
+  def lock_document!(user, reason: nil, scheduled_unlock: nil)
+    return false unless can_lock?(user)
+    
+    self.locked_by = user
+    self.lock_reason = reason
+    self.unlock_scheduled_at = scheduled_unlock
+    
+    lock!
+  end
+  
+  def unlock_document!(user)
+    return false unless can_unlock?(user)
+    
+    unlock!
+  end
+  
+  def can_lock?(user)
+    return false unless user
+    return false if locked?
+    
+    # Owner can lock
+    return true if uploaded_by == user
+    
+    # Admin can lock
+    return true if admin_by?(user)
+    
+    # Users with write permission can lock
+    writable_by?(user)
+  end
+  
+  def can_unlock?(user)
+    return false unless user
+    return false unless locked?
+    
+    # The user who locked can unlock
+    return true if locked_by == user
+    
+    # Owner can unlock
+    return true if uploaded_by == user
+    
+    # Admin can unlock
+    admin_by?(user)
+  end
+  
+  def locked_by_user?(user)
+    locked? && locked_by == user
+  end
+  
+  def lock_expired?
+    return false unless locked?
+    return false unless unlock_scheduled_at
+    
+    unlock_scheduled_at <= Time.current
+  end
+  
+  def editable_by?(user)
+    return false if locked? && !locked_by_user?(user)
+    
+    writable_by?(user)
   end
 
   private

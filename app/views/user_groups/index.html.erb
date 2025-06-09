@@ -1,0 +1,99 @@
+<%= page_wrapper do %>
+      <!-- Header -->
+      <%= page_header(title: "Groupes d'utilisateurs", description: "Gérez les groupes et leurs permissions") do %>
+        <%= link_to new_user_group_path, 
+                    class: "block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-700" do %>
+          <svg class="-ml-0.5 mr-1.5 h-5 w-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+          </svg>
+          Nouveau groupe
+        <% end %>
+      <% end %>
+
+      <!-- Search -->
+      <%= search_form(url: user_groups_path, placeholder: "Rechercher un groupe...", value: params[:search]) %>
+
+      <!-- Groups Grid -->
+      <%= card_grid(columns: { sm: 2, lg: 3 }, gap: 6) do %>
+        <% @user_groups.each do |group| %>
+          <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+              <div class="flex items-center">
+                <div class="flex-shrink-0">
+                  <div class="h-12 w-12 rounded-md bg-indigo-100 flex items-center justify-center">
+                    <svg class="h-8 w-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                    </svg>
+                  </div>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                  <dl>
+                    <dt class="text-sm font-medium text-gray-500 truncate">
+                      <%= group.name %>
+                    </dt>
+                    <dd>
+                      <div class="text-lg font-medium text-gray-900">
+                        <%= pluralize(group.member_count, 'membre') %>
+                      </div>
+                    </dd>
+                  </dl>
+                </div>
+              </div>
+              <% if group.description.present? %>
+                <div class="mt-4">
+                  <p class="text-sm text-gray-500 line-clamp-2">
+                    <%= group.description %>
+                  </p>
+                </div>
+              <% end %>
+              <div class="mt-4 flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                  <% if group.active? %>
+                    <span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
+                      Actif
+                    </span>
+                  <% else %>
+                    <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">
+                      Inactif
+                    </span>
+                  <% end %>
+                  <% if group.group_type.present? %>
+                    <span class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
+                      <%= group.group_type.humanize %>
+                    </span>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+            <div class="bg-gray-50 px-5 py-3">
+              <div class="text-sm">
+                <%= link_to "Voir le groupe", user_group_path(group), 
+                            class: "font-medium text-indigo-600 hover:text-indigo-900" %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+
+      <!-- Empty state -->
+      <% if @user_groups.empty? %>
+        <%= empty_state(title: "Aucun groupe", 
+                        description: "Commencez par créer un nouveau groupe.",
+                        icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>') do %>
+          <%= link_to new_user_group_path, 
+                      class: "inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700" do %>
+            <svg class="-ml-0.5 mr-1.5 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            Nouveau groupe
+          <% end %>
+        <% end %>
+      <% end %>
+
+      <!-- Pagination -->
+      <% if @user_groups.total_pages > 1 %>
+        <div class="mt-6">
+          <%= paginate @user_groups %>
+        </div>
+      <% end %>
+<% end %>

@@ -14,10 +14,10 @@
       <div class="flex-1 min-w-0">
         <div class="flex items-center justify-between">
           <h3 class="text-sm font-medium text-gray-900 truncate">
-            <%= link_to document.title, document_path(document), class: "hover:text-primary-600" %>
+            <%= helpers.link_to document.title, helpers.document_path(document), class: "hover:text-primary-600" %>
           </h3>
           <span class="<%= status_badge_classes %>">
-            <%= t("documents.status.#{document.status}") %>
+            <%= helpers.t("documents.status.#{document.status}") %>
           </span>
         </div>
         
@@ -65,15 +65,21 @@
         <div class="hidden origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-10"
              data-dropdown-target="menu">
           <div class="py-1">
-            <%= link_to "Voir", document_path(document), class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
-            <%= link_to "Modifier", edit_document_path(document), class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
-            <%= link_to "Télécharger", document_path(document, format: :pdf), class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
-            <%= link_to "Partager", new_document_share_path(document_id: document.id), class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
-            <div class="border-t border-gray-100"></div>
-            <%= link_to "Supprimer", document_path(document), 
-                method: :delete, 
-                data: { confirm: "Êtes-vous sûr ?" },
-                class: "block px-4 py-2 text-sm text-red-700 hover:bg-red-50" %>
+            <%= helpers.link_to "Voir", helpers.document_path(document), class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
+            <% if helpers.policy(document).update? %>
+              <%= helpers.link_to "Modifier", helpers.edit_document_path(document), class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
+            <% end %>
+            <%= helpers.link_to "Télécharger", helpers.document_path(document, format: :pdf), class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
+            <% if helpers.policy(document).share? %>
+              <%= helpers.link_to "Partager", helpers.new_document_share_path(document_id: document.id), class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
+            <% end %>
+            <% if helpers.policy(document).destroy? %>
+              <div class="border-t border-gray-100"></div>
+              <%= helpers.link_to "Supprimer", helpers.document_path(document), 
+                  method: :delete, 
+                  data: { confirm: "Êtes-vous sûr ?" },
+                  class: "block px-4 py-2 text-sm text-red-700 hover:bg-red-50" %>
+            <% end %>
           </div>
         </div>
       </div>

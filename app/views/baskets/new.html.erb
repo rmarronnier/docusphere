@@ -1,0 +1,81 @@
+<div class="min-h-screen bg-gray-50">
+  <%= render Navigation::NavbarComponent.new %>
+  
+  <div class="max-w-3xl mx-auto py-6 sm:px-6 lg:px-8">
+    <div class="px-4 py-6 sm:px-0">
+      <!-- Header -->
+      <div class="mb-6">
+        <h1 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl">
+          Nouvelle bannette
+        </h1>
+      </div>
+
+      <!-- Form -->
+      <div class="bg-white shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+          <%= form_with model: @basket, local: true do |form| %>
+            <% if @basket.errors.any? %>
+              <div class="rounded-md bg-red-50 p-4 mb-6">
+                <div class="flex">
+                  <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                    </svg>
+                  </div>
+                  <div class="ml-3">
+                    <h3 class="text-sm font-medium text-red-800">
+                      <%= pluralize(@basket.errors.count, "erreur") %> empêchent l'enregistrement :
+                    </h3>
+                    <div class="mt-2 text-sm text-red-700">
+                      <ul role="list" class="list-disc space-y-1 pl-5">
+                        <% @basket.errors.full_messages.each do |message| %>
+                          <li><%= message %></li>
+                        <% end %>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+
+            <div class="space-y-6">
+              <div>
+                <%= form.label :name, "Nom de la bannette", class: "block text-sm font-medium text-gray-700" %>
+                <%= form.text_field :name, 
+                                    class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm",
+                                    placeholder: "Ex: Documents de travail" %>
+              </div>
+
+              <div>
+                <%= form.label :description, "Description", class: "block text-sm font-medium text-gray-700" %>
+                <%= form.text_area :description, 
+                                   rows: 3,
+                                   class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm",
+                                   placeholder: "Description optionnelle de la bannette" %>
+              </div>
+
+              <div>
+                <%= form.label :color, "Couleur", class: "block text-sm font-medium text-gray-700" %>
+                <div class="mt-2 grid grid-cols-6 gap-3">
+                  <% %w[bg-gray-100 bg-red-100 bg-yellow-100 bg-green-100 bg-blue-100 bg-indigo-100 bg-purple-100 bg-pink-100].each do |color| %>
+                    <label class="relative cursor-pointer">
+                      <%= form.radio_button :color, color, class: "sr-only peer" %>
+                      <div class="w-full h-10 rounded-lg <%= color %> ring-2 ring-transparent peer-checked:ring-indigo-500 peer-checked:ring-offset-2"></div>
+                    </label>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-6 flex items-center justify-end space-x-3">
+              <%= link_to "Annuler", baskets_path, 
+                          class: "rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" %>
+              <%= form.submit "Créer la bannette", 
+                              class: "rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -7,10 +7,12 @@ class Ui::ProgressBarComponent < ApplicationComponent
     @color = color
     @show_label = show_label
     @label_position = label_position
-    @label_text = label_text || content.presence
+    @label_text = label_text
   end
   
   private
+  
+  attr_reader :percentage, :size, :color, :show_label, :label_position
   
   def calculate_percentage
     return 0 if @max.zero?
@@ -18,7 +20,7 @@ class Ui::ProgressBarComponent < ApplicationComponent
   end
   
   def label_text
-    @label_text || 'Progress'
+    @label_text || content || 'Progress'
   end
   
   def bar_container_classes

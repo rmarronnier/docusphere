@@ -7,6 +7,9 @@
       <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
         Projets immobiliers
       </h2>
+      <p class="mt-1 text-sm text-gray-500">
+        <%= @projects.total_count %> <%= @projects.total_count > 1 ? 'projets' : 'projet' %>
+      </p>
     </div>
     <div class="mt-4 flex space-x-3 md:ml-4 md:mt-0">
       <button type="button"
@@ -93,6 +96,12 @@
               <span class="text-gray-500">Type:</span>
               <span class="text-gray-900"><%= project.project_type.humanize %></span>
             </div>
+            <% if project.total_budget %>
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-500">Budget:</span>
+                <span class="text-gray-900 font-medium"><%= number_to_currency(project.total_budget.amount, unit: "€", separator: ",", delimiter: " ", format: "%n %u") %></span>
+              </div>
+            <% end %>
             <% if project.total_units %>
               <div class="flex justify-between text-sm">
                 <span class="text-gray-500">Logements:</span>

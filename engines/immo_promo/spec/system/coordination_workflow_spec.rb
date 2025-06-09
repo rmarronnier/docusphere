@@ -24,7 +24,7 @@ RSpec.describe 'Coordination Workflow', type: :system do
     end
 
     it 'displays coordination overview' do
-      visit immo_promo_engine.project_coordination_dashboard_path(project)
+      visit immo_promo_engine.coordination_dashboard_project_path(project)
       
       expect(page).to have_content('Coordination des Intervenants')
       expect(page).to have_content(project.name)
@@ -40,7 +40,7 @@ RSpec.describe 'Coordination Workflow', type: :system do
     end
 
     it 'allows filtering interventions' do
-      visit immo_promo_engine.project_coordination_interventions_path(project)
+      visit immo_promo_engine.coordination_interventions_project_path(project)
       
       # Filter by stakeholder
       select stakeholders.first.name, from: 'stakeholder_filter'
@@ -68,7 +68,7 @@ RSpec.describe 'Coordination Workflow', type: :system do
         title: 'Conflicting Task'
       )
       
-      visit immo_promo_engine.project_coordination_conflicts_path(project)
+      visit immo_promo_engine.coordination_conflicts_resolution_project_path(project)
       
       expect(page).to have_content('Conflits détectés')
       expect(page).to have_content('Surcharge de ressource')
@@ -98,7 +98,7 @@ RSpec.describe 'Coordination Workflow', type: :system do
     end
 
     it 'displays performance metrics' do
-      visit immo_promo_engine.project_coordination_performance_path(project)
+      visit immo_promo_engine.coordination_performance_project_path(project)
       
       expect(page).to have_content('Performance des équipes')
       
@@ -127,7 +127,7 @@ RSpec.describe 'Coordination Workflow', type: :system do
     end
 
     it 'shows certification status and alerts' do
-      visit immo_promo_engine.project_coordination_certifications_path(project)
+      visit immo_promo_engine.coordination_certifications_project_path(project)
       
       expect(page).to have_content('État des certifications')
       
@@ -152,7 +152,7 @@ RSpec.describe 'Coordination Workflow', type: :system do
         requires_certification: 'electrical_license'
       )
       
-      visit immo_promo_engine.project_coordination_interventions_path(project)
+      visit immo_promo_engine.coordination_interventions_project_path(project)
       
       within("#task-#{task.id}") do
         expect(page).to have_css('.certification-required')
@@ -175,7 +175,7 @@ RSpec.describe 'Coordination Workflow', type: :system do
     end
 
     it 'displays interactive timeline' do
-      visit immo_promo_engine.project_coordination_timeline_path(project)
+      visit immo_promo_engine.coordination_timeline_project_path(project)
       
       expect(page).to have_content('Timeline du projet')
       expect(page).to have_css('.gantt-chart')
@@ -197,7 +197,7 @@ RSpec.describe 'Coordination Workflow', type: :system do
     end
 
     it 'highlights critical path' do
-      visit immo_promo_engine.project_coordination_timeline_path(project)
+      visit immo_promo_engine.coordination_timeline_project_path(project)
       
       click_button 'Afficher chemin critique'
       
@@ -213,7 +213,7 @@ RSpec.describe 'Coordination Workflow', type: :system do
 
   describe 'Alert management' do
     it 'sends coordination alerts' do
-      visit immo_promo_engine.project_coordination_dashboard_path(project)
+      visit immo_promo_engine.coordination_dashboard_project_path(project)
       
       click_button 'Nouvelle alerte'
       
@@ -235,7 +235,7 @@ RSpec.describe 'Coordination Workflow', type: :system do
     let!(:tasks) { create_list(:immo_promo_task, 20, project: project) }
 
     it 'generates coordination report' do
-      visit immo_promo_engine.project_coordination_dashboard_path(project)
+      visit immo_promo_engine.coordination_dashboard_project_path(project)
       
       click_link 'Générer rapport'
       
@@ -259,7 +259,7 @@ RSpec.describe 'Coordination Workflow', type: :system do
     it 'works on mobile devices' do
       page.driver.browser.manage.window.resize_to(375, 667) # iPhone size
       
-      visit immo_promo_engine.project_coordination_dashboard_path(project)
+      visit immo_promo_engine.coordination_dashboard_project_path(project)
       
       expect(page).to have_css('.mobile-menu-toggle')
       
@@ -272,7 +272,7 @@ RSpec.describe 'Coordination Workflow', type: :system do
       end
       
       expect(page).to have_current_path(
-        immo_promo_engine.project_coordination_interventions_path(project)
+        immo_promo_engine.coordination_interventions_project_path(project)
       )
       
       # Check responsive layout
@@ -282,14 +282,14 @@ RSpec.describe 'Coordination Workflow', type: :system do
 
   describe 'Real-time updates' do
     it 'shows live intervention updates' do
-      visit immo_promo_engine.project_coordination_dashboard_path(project)
+      visit immo_promo_engine.coordination_dashboard_project_path(project)
       
       # Simulate another user creating a task
       in_browser(:two) do
         other_user = create(:user, organization: organization)
         login_as(other_user, scope: :user)
         
-        visit immo_promo_engine.project_coordination_dashboard_path(project)
+        visit immo_promo_engine.coordination_dashboard_project_path(project)
         
         click_button 'Nouvelle intervention'
         fill_in 'task_title', with: 'Intervention urgente'

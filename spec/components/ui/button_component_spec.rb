@@ -32,11 +32,10 @@ RSpec.describe Ui::ButtonComponent, type: :component do
   end
   
   it "renders with icon" do
-    render_inline(described_class.new(text: "Save", icon: "save"))
+    rendered = render_inline(described_class.new(text: "Save", icon: :check))
     
-    expect(page).to have_css('.btn-icon')
-    expect(page).to have_css('i.icon-save')
-    expect(page).to have_content("Save")
+    expect(rendered).to have_css('svg')
+    expect(rendered).to have_content("Save")
   end
   
   it "renders icon-only button" do

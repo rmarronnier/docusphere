@@ -12,9 +12,8 @@
       <p class="text-sm text-gray-500"><%= project.reference_number %></p>
     </div>
   </div>
-  <%= render Ui::StatusBadgeComponent.new(
+  <%= render Immo::Promo::Shared::StatusBadgeComponent.new(
     status: project.status,
-    size: :small,
-    color: status_color_mapping
+    size: 'small'
   ) %>
 </div>

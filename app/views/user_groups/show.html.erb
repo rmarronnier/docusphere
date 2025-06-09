@@ -1,0 +1,219 @@
+<%= page_wrapper do %>
+      <!-- Header -->
+      <%= page_header(title: @user_group.name, description: @user_group.description) do %>
+            <% if policy(@user_group).update? %>
+              <%= link_to edit_user_group_path(@user_group), 
+                          class: "inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" do %>
+                <svg class="-ml-0.5 mr-1.5 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                </svg>
+                Modifier
+              <% end %>
+            <% end %>
+            <% if policy(@user_group).destroy? %>
+              <%= link_to user_group_path(@user_group), 
+                          method: :delete,
+                          data: { confirm: "Êtes-vous sûr de vouloir supprimer ce groupe ?" },
+                          class: "inline-flex items-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700" do %>
+                <svg class="-ml-0.5 mr-1.5 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+                Supprimer
+              <% end %>
+            <% end %>
+      <% end %>
+
+      <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <!-- Group Information -->
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+          <div class="px-4 py-5 sm:px-6">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">
+              Informations du groupe
+            </h3>
+          </div>
+          <div class="border-t border-gray-200">
+            <dl>
+              <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-gray-500">Nom</dt>
+                <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                  <%= @user_group.name %>
+                </dd>
+              </div>
+              <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-gray-500">Organisation</dt>
+                <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                  <%= @user_group.organization.name %>
+                </dd>
+              </div>
+              <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-gray-500">Type</dt>
+                <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                  <%= @user_group.group_type&.humanize || 'Standard' %>
+                </dd>
+              </div>
+              <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-gray-500">Statut</dt>
+                <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                  <% if @user_group.active? %>
+                    <span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
+                      Actif
+                    </span>
+                  <% else %>
+                    <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">
+                      Inactif
+                    </span>
+                  <% end %>
+                </dd>
+              </div>
+              <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-gray-500">Membres</dt>
+                <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                  <%= pluralize(@user_group.member_count, 'membre') %>
+                </dd>
+              </div>
+            </dl>
+          </div>
+        </div>
+
+        <!-- Permissions -->
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+          <div class="px-4 py-5 sm:px-6">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">
+              Permissions
+            </h3>
+          </div>
+          <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
+            <% if @user_group.permissions.present? && @user_group.permissions.any? %>
+              <div class="flex flex-wrap gap-2">
+                <% @user_group.permissions.each do |permission, enabled| %>
+                  <% if enabled %>
+                    <span class="inline-flex items-center rounded-full bg-green-100 px-3 py-0.5 text-sm font-medium text-green-800">
+                      <%= permission %>
+                    </span>
+                  <% end %>
+                <% end %>
+              </div>
+            <% else %>
+              <p class="text-sm text-gray-500">Aucune permission spécifique définie.</p>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Members -->
+      <div class="mt-6 bg-white shadow overflow-hidden sm:rounded-lg">
+        <div class="px-4 py-5 sm:px-6 sm:flex sm:items-center sm:justify-between">
+          <h3 class="text-lg leading-6 font-medium text-gray-900">
+            Membres du groupe
+          </h3>
+          <% if policy(@user_group).update? %>
+            <button type="button" 
+                    data-controller="modal"
+                    data-action="click->modal#open"
+                    data-modal-target-value="add-member-modal"
+                    class="mt-3 inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 sm:mt-0">
+              <svg class="-ml-0.5 mr-1.5 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+              </svg>
+              Ajouter un membre
+            </button>
+          <% end %>
+        </div>
+        <div class="border-t border-gray-200">
+          <% if @members.any? %>
+            <ul role="list" class="divide-y divide-gray-200">
+              <% @members.each do |membership| %>
+                <li class="px-4 py-4 sm:px-6">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                      <div class="flex-shrink-0">
+                        <%= user_avatar(user: membership.user, size: "md") %>
+                      </div>
+                      <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-900"><%= membership.user.full_name %></p>
+                        <p class="text-sm text-gray-500"><%= membership.user.email %></p>
+                      </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                      <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium <%= 
+                        membership.admin? ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-800' %>">
+                        <%= membership.role.humanize %>
+                      </span>
+                      <% if policy(@user_group).update? %>
+                        <%= link_to "Retirer", 
+                                    remove_member_user_group_path(@user_group, user_id: membership.user.id), 
+                                    method: :delete,
+                                    data: { confirm: "Êtes-vous sûr de vouloir retirer ce membre ?" },
+                                    class: "text-sm text-red-600 hover:text-red-900" %>
+                      <% end %>
+                    </div>
+                  </div>
+                </li>
+              <% end %>
+            </ul>
+          <% else %>
+            <div class="px-4 py-5 sm:px-6">
+              <p class="text-sm text-gray-500">Ce groupe n'a pas encore de membres.</p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+<% end %>
+
+<!-- Add Member Modal -->
+<div id="add-member-modal" class="hidden fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true" data-controller="modal">
+  <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" data-action="click->modal#close"></div>
+    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+    <div class="relative inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+      <%= form_with url: add_member_user_group_path(@user_group), method: :post, local: true do |form| %>
+        <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+          <div class="sm:flex sm:items-start">
+            <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-indigo-100 sm:mx-0 sm:h-10 sm:w-10">
+              <svg class="h-6 w-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+              </svg>
+            </div>
+            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left flex-1">
+              <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                Ajouter un membre
+              </h3>
+              <div class="mt-4 space-y-4">
+                <div>
+                  <%= form.label :user_id, "Utilisateur", class: "block text-sm font-medium text-gray-700" %>
+                  <%= form.select :user_id, 
+                                  options_for_select(
+                                    User.where(organization: @user_group.organization)
+                                        .where.not(id: @user_group.users.pluck(:id))
+                                        .order(:last_name, :first_name)
+                                        .map { |u| [u.full_name, u.id] }
+                                  ),
+                                  { prompt: "Sélectionner un utilisateur" },
+                                  class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" %>
+                </div>
+                <div>
+                  <%= form.label :role, "Rôle", class: "block text-sm font-medium text-gray-700" %>
+                  <%= form.select :role, 
+                                  options_for_select([
+                                    ['Membre', 'member'],
+                                    ['Administrateur', 'admin']
+                                  ]),
+                                  {},
+                                  class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" %>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+          <%= form.submit "Ajouter", class: "w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm" %>
+          <button type="button" 
+                  data-action="click->modal#close"
+                  class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+            Annuler
+          </button>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

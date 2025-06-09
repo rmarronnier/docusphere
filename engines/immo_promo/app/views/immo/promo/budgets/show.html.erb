@@ -1,0 +1,103 @@
+<% content_for :title, "Budget - #{@budget.name}" %>
+
+<div class="space-y-6">
+  <!-- Header -->
+  <div class="bg-white shadow rounded-lg p-6">
+    <div class="md:flex md:items-center md:justify-between">
+      <div class="min-w-0 flex-1">
+        <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+          <%= @budget.name %>
+        </h2>
+        <p class="mt-1 text-sm text-gray-500">
+          <%= @budget.description %>
+        </p>
+      </div>
+      <div class="mt-4 flex space-x-3 md:ml-4 md:mt-0">
+        <%= link_to "Retour", immo_promo_engine.project_budgets_path(@project),
+                    class: "inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" %>
+        <%= link_to "Modifier", immo_promo_engine.edit_project_budget_path(@project, @budget),
+                    class: "inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" %>
+        <%= button_to "Dupliquer", immo_promo_engine.duplicate_project_budget_path(@project, @budget),
+                      method: :post,
+                      class: "inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500" %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Budget Summary -->
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-4">
+    <div class="bg-white shadow rounded-lg p-6">
+      <h3 class="text-sm font-medium text-gray-500">Total planifié</h3>
+      <p class="mt-2 text-2xl font-semibold text-gray-900">
+        <%= number_to_currency(@budget_summary[:total_planned], unit: "€", separator: ",", delimiter: " ", format: "%n %u") %>
+      </p>
+    </div>
+    
+    <div class="bg-white shadow rounded-lg p-6">
+      <h3 class="text-sm font-medium text-gray-500">Dépensé</h3>
+      <p class="mt-2 text-2xl font-semibold text-gray-900">
+        <%= number_to_currency(@budget_summary[:total_spent], unit: "€", separator: ",", delimiter: " ", format: "%n %u") %>
+      </p>
+    </div>
+    
+    <div class="bg-white shadow rounded-lg p-6">
+      <h3 class="text-sm font-medium text-gray-500">Engagé</h3>
+      <p class="mt-2 text-2xl font-semibold text-gray-900">
+        <%= number_to_currency(@budget_summary[:total_committed], unit: "€", separator: ",", delimiter: " ", format: "%n %u") %>
+      </p>
+    </div>
+    
+    <div class="bg-white shadow rounded-lg p-6">
+      <h3 class="text-sm font-medium text-gray-500">Restant</h3>
+      <p class="mt-2 text-2xl font-semibold text-gray-900">
+        <%= number_to_currency(@budget_summary[:remaining], unit: "€", separator: ",", delimiter: " ", format: "%n %u") %>
+      </p>
+    </div>
+  </div>
+
+  <!-- Budget Lines -->
+  <div class="bg-white shadow rounded-lg">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h3 class="text-lg font-medium text-gray-900">Lignes budgétaires</h3>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Catégorie</th>
+            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Quantité</th>
+            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Prix unitaire</th>
+            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Dépensé</th>
+            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Écart</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% @budget_lines.each do |line| %>
+            <tr>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><%= line.description %></td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><%= line.category %></td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right"><%= line.quantity %></td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
+                <%= number_to_currency(line.unit_price || 0, unit: "€", separator: ",", delimiter: " ", format: "%n %u") %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 text-right">
+                <%= number_to_currency(line.total_amount || 0, unit: "€", separator: ",", delimiter: " ", format: "%n %u") %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
+                <%= number_to_currency(line.actual_amount || 0, unit: "€", separator: ",", delimiter: " ", format: "%n %u") %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-right">
+                <% variance = (line.actual_amount || 0) - (line.total_amount || 0) %>
+                <span class="<%= variance > 0 ? 'text-red-600' : 'text-green-600' %>">
+                  <%= number_to_currency(variance, unit: "€", separator: ",", delimiter: " ", format: "%n %u") %>
+                </span>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

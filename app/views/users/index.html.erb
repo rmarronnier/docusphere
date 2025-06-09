@@ -1,0 +1,123 @@
+<%= render Layout::PageWrapperComponent.new do %>
+      <!-- Header -->
+      <%= render Layout::PageHeaderComponent.new(
+        title: "Utilisateurs",
+        description: "Gérez les utilisateurs de votre organisation"
+      ) do %>
+        <%= link_to new_user_path, 
+                    class: "block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-700" do %>
+          <svg class="-ml-0.5 mr-1.5 h-5 w-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+          </svg>
+          Nouvel utilisateur
+        <% end %>
+      <% end %>
+
+      <!-- Search -->
+      <%= render Forms::SearchFormComponent.new(
+        url: users_path,
+        placeholder: "Rechercher par nom ou email...",
+        value: params[:search]
+      ) %>
+
+      <!-- Table -->
+      <%= render Ui::DataTableComponent.new do %>
+        <table class="min-w-full divide-y divide-gray-300">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">
+                      Utilisateur
+                    </th>
+                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                      Email
+                    </th>
+                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                      Rôle
+                    </th>
+                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                      Groupes
+                    </th>
+                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                      Statut
+                    </th>
+                    <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
+                      <span class="sr-only">Actions</span>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 bg-white">
+                  <% @users.each do |user| %>
+                    <tr>
+                      <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm sm:pl-6">
+                        <div class="flex items-center">
+                          <div class="h-10 w-10 flex-shrink-0">
+                            <%= render Ui::UserAvatarComponent.new(user: user) %>
+                          </div>
+                          <div class="ml-4">
+                            <div class="font-medium text-gray-900"><%= user.full_name %></div>
+                            <div class="text-gray-500"><%= user.organization.name %></div>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                        <%= user.email %>
+                      </td>
+                      <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                        <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium <%= 
+                          case user.role
+                          when 'super_admin' then 'bg-purple-100 text-purple-800'
+                          when 'admin' then 'bg-red-100 text-red-800'
+                          when 'manager' then 'bg-yellow-100 text-yellow-800'
+                          else 'bg-gray-100 text-gray-800'
+                          end %>">
+                          <%= user.role.humanize %>
+                        </span>
+                      </td>
+                      <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                        <% if user.user_groups.any? %>
+                          <div class="flex flex-wrap gap-1">
+                            <% user.user_groups.limit(3).each do |group| %>
+                              <span class="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800">
+                                <%= group.name %>
+                              </span>
+                            <% end %>
+                            <% if user.user_groups.count > 3 %>
+                              <span class="text-xs text-gray-500">+<%= user.user_groups.count - 3 %></span>
+                            <% end %>
+                          </div>
+                        <% else %>
+                          <span class="text-gray-400">Aucun groupe</span>
+                        <% end %>
+                      </td>
+                      <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                        <% if user.last_sign_in_at %>
+                          <span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
+                            Actif
+                          </span>
+                        <% else %>
+                          <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">
+                            Jamais connecté
+                          </span>
+                        <% end %>
+                      </td>
+                      <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+                        <div class="flex justify-end space-x-2">
+                          <%= link_to "Voir", user_path(user), 
+                                      class: "text-indigo-600 hover:text-indigo-900" %>
+                          <%= link_to "Modifier", edit_user_path(user), 
+                                      class: "text-indigo-600 hover:text-indigo-900" %>
+                        </div>
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+      <% end %>
+
+      <!-- Pagination -->
+      <% if @users.total_pages > 1 %>
+        <div class="mt-6">
+          <%= paginate @users %>
+        </div>
+      <% end %>
+<% end %>

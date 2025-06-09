@@ -1,0 +1,127 @@
+<%= render Layout::PageWrapperComponent.new do %>
+      <!-- Header -->
+      <div class="mb-6">
+        <div class="sm:flex sm:items-center sm:justify-between">
+          <div class="flex items-center">
+            <%= render Ui::UserAvatarComponent.new(user: @user, size: "xl") %>
+            <div class="ml-4">
+              <h1 class="text-2xl font-bold text-gray-900"><%= @user.full_name %></h1>
+              <p class="text-sm text-gray-500"><%= @user.email %></p>
+            </div>
+          </div>
+          <div class="mt-4 flex sm:ml-4 sm:mt-0 space-x-3">
+            <% if policy(@user).update? %>
+              <%= link_to edit_user_path(@user), 
+                          class: "inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" do %>
+                <svg class="-ml-0.5 mr-1.5 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                </svg>
+                Modifier
+              <% end %>
+            <% end %>
+            <% if policy(@user).destroy? %>
+              <%= link_to user_path(@user), 
+                          method: :delete,
+                          data: { confirm: "Êtes-vous sûr de vouloir supprimer cet utilisateur ?" },
+                          class: "inline-flex items-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700" do %>
+                <svg class="-ml-0.5 mr-1.5 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+                Supprimer
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- User Information -->
+      <%= render Ui::DescriptionListComponent.new(title: "Informations utilisateur")
+        .with_item(label: "Nom complet", value: @user.full_name)
+        .with_item(label: "Email", value: @user.email)
+        .with_item(label: "Organisation", value: @user.organization.name)
+        .with_item(label: "Rôle") do %>
+          <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium <%= 
+            case @user.role
+            when 'super_admin' then 'bg-purple-100 text-purple-800'
+            when 'admin' then 'bg-red-100 text-red-800'
+            when 'manager' then 'bg-yellow-100 text-yellow-800'
+            else 'bg-gray-100 text-gray-800'
+            end %>">
+            <%= @user.role.humanize %>
+          </span>
+        <% end.with_item(label: "Date de création", value: l(@user.created_at, format: :long))
+        .with_item(label: "Dernière connexion") do %>
+          <% if @user.last_sign_in_at %>
+            <%= l(@user.last_sign_in_at, format: :long) %>
+          <% else %>
+            <span class="text-gray-400">Jamais connecté</span>
+          <% end %>
+        <% end %>
+
+      <!-- User Groups -->
+      <div class="mt-6 bg-white shadow overflow-hidden sm:rounded-lg">
+        <div class="px-4 py-5 sm:px-6">
+          <h3 class="text-lg leading-6 font-medium text-gray-900">
+            Groupes d'utilisateurs
+          </h3>
+        </div>
+        <div class="border-t border-gray-200">
+          <% if @user.user_groups.any? %>
+            <ul role="list" class="divide-y divide-gray-200">
+              <% @user.user_groups.each do |group| %>
+                <li class="px-4 py-4 sm:px-6">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                      <div class="flex-shrink-0">
+                        <div class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
+                          <svg class="h-6 w-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                          </svg>
+                        </div>
+                      </div>
+                      <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-900"><%= group.name %></p>
+                        <% membership = @user.user_group_memberships.find_by(user_group: group) %>
+                        <p class="text-sm text-gray-500">
+                          Rôle : <%= membership.role.humanize %>
+                        </p>
+                      </div>
+                    </div>
+                    <%= link_to "Voir le groupe", user_group_path(group), 
+                                class: "text-sm text-indigo-600 hover:text-indigo-900" %>
+                  </div>
+                </li>
+              <% end %>
+            </ul>
+          <% else %>
+            <div class="px-4 py-5 sm:px-6">
+              <p class="text-sm text-gray-500">Cet utilisateur n'appartient à aucun groupe.</p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Permissions -->
+      <div class="mt-6 bg-white shadow overflow-hidden sm:rounded-lg">
+        <div class="px-4 py-5 sm:px-6">
+          <h3 class="text-lg leading-6 font-medium text-gray-900">
+            Permissions
+          </h3>
+        </div>
+        <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
+          <% if @user.permissions.present? && @user.permissions.any? %>
+            <div class="flex flex-wrap gap-2">
+              <% @user.permissions.each do |permission, enabled| %>
+                <% if enabled %>
+                  <span class="inline-flex items-center rounded-full bg-green-100 px-3 py-0.5 text-sm font-medium text-green-800">
+                    <%= permission %>
+                  </span>
+                <% end %>
+              <% end %>
+            </div>
+          <% else %>
+            <p class="text-sm text-gray-500">Aucune permission spécifique définie.</p>
+          <% end %>
+        </div>
+      </div>
+<% end %>

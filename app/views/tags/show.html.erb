@@ -1,0 +1,165 @@
+<div class="min-h-screen bg-gray-50">
+  <%= render Navigation::NavbarComponent.new %>
+  
+  <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <div class="px-4 py-6 sm:px-0">
+      <!-- Header -->
+      <div class="mb-6">
+        <div class="sm:flex sm:items-center sm:justify-between">
+          <div class="flex items-center">
+            <div class="h-12 w-12 rounded-lg <%= @tag.color || 'bg-gray-100' %> flex items-center justify-center">
+              <svg class="h-8 w-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+              </svg>
+            </div>
+            <div class="ml-4">
+              <h1 class="text-2xl font-bold text-gray-900"><%= @tag.name %></h1>
+              <% if @tag.description.present? %>
+                <p class="mt-1 text-sm text-gray-500"><%= @tag.description %></p>
+              <% end %>
+            </div>
+          </div>
+          <div class="mt-4 flex sm:ml-4 sm:mt-0 space-x-3">
+            <% if policy(@tag).update? %>
+              <%= link_to edit_tag_path(@tag), 
+                          class: "inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" do %>
+                <svg class="-ml-0.5 mr-1.5 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                </svg>
+                Modifier
+              <% end %>
+            <% end %>
+            <% if policy(@tag).destroy? %>
+              <%= link_to tag_path(@tag), 
+                          method: :delete,
+                          data: { confirm: "Êtes-vous sûr de vouloir supprimer ce tag ?" },
+                          class: "inline-flex items-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700" do %>
+                <svg class="-ml-0.5 mr-1.5 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+                Supprimer
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tag Information -->
+      <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div class="px-4 py-5 sm:px-6">
+          <h3 class="text-lg leading-6 font-medium text-gray-900">
+            Informations du tag
+          </h3>
+        </div>
+        <div class="border-t border-gray-200">
+          <dl>
+            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt class="text-sm font-medium text-gray-500">Nom</dt>
+              <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                <%= @tag.name %>
+              </dd>
+            </div>
+            <% if @tag.description.present? %>
+              <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-gray-500">Description</dt>
+                <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                  <%= @tag.description %>
+                </dd>
+              </div>
+            <% end %>
+            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt class="text-sm font-medium text-gray-500">Type</dt>
+              <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                <%= @tag.tag_type&.humanize || 'Standard' %>
+              </dd>
+            </div>
+            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt class="text-sm font-medium text-gray-500">Couleur</dt>
+              <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                <div class="flex items-center">
+                  <div class="h-6 w-6 rounded <%= @tag.color || 'bg-gray-100' %>"></div>
+                  <span class="ml-2 text-sm text-gray-500"><%= @tag.color || 'Par défaut' %></span>
+                </div>
+              </dd>
+            </div>
+            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt class="text-sm font-medium text-gray-500">Documents associés</dt>
+              <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                <%= pluralize(@tag.documents.count, 'document') %>
+              </dd>
+            </div>
+            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt class="text-sm font-medium text-gray-500">Date de création</dt>
+              <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                <%= l(@tag.created_at, format: :long) %>
+              </dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+
+      <!-- Documents with this tag -->
+      <div class="mt-6">
+        <h2 class="text-lg font-medium text-gray-900 mb-4">Documents avec ce tag</h2>
+        
+        <% if @documents.any? %>
+          <div class="bg-white shadow overflow-hidden sm:rounded-md">
+            <ul role="list" class="divide-y divide-gray-200">
+              <% @documents.each do |document| %>
+                <li>
+                  <%= link_to ged_document_path(document), class: "block hover:bg-gray-50" do %>
+                    <div class="px-4 py-4 sm:px-6">
+                      <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                          <div class="flex-shrink-0">
+                            <div class="h-10 w-10 rounded-lg bg-gray-200 flex items-center justify-center">
+                              <svg class="h-6 w-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                              </svg>
+                            </div>
+                          </div>
+                          <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-900"><%= document.title %></p>
+                            <p class="text-sm text-gray-500">
+                              <%= document.space.name %> • 
+                              Par <%= document.uploaded_by.display_name %> • 
+                              <%= l(document.created_at, format: :short) %>
+                            </p>
+                          </div>
+                        </div>
+                        <div class="flex items-center">
+                          <% if document.file.attached? %>
+                            <span class="text-sm text-gray-500">
+                              <%= number_to_human_size(document.file.byte_size) %>
+                            </span>
+                          <% end %>
+                          <svg class="ml-2 h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+                  <% end %>
+                </li>
+              <% end %>
+            </ul>
+          </div>
+          
+          <!-- Pagination -->
+          <% if @documents.total_pages > 1 %>
+            <div class="mt-4">
+              <%= paginate @documents %>
+            </div>
+          <% end %>
+        <% else %>
+          <div class="text-center py-12 bg-white rounded-lg">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            <p class="mt-2 text-sm text-gray-500">Aucun document n'utilise ce tag.</p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

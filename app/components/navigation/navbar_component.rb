@@ -15,17 +15,20 @@ class Navigation::NavbarComponent < ApplicationComponent
   def navigation_items
     items = [
       { name: 'Tableau de bord', path: root_path, icon: 'home' },
-      { name: 'Documents', path: '#', icon: 'document' },
-      { name: 'Espaces', path: '#', icon: 'folder' },
-      { name: 'Workflows', path: '#', icon: 'workflow' },
-      { name: 'Bannettes', path: '#', icon: 'inbox' },
-      { name: 'Recherche', path: '#', icon: 'search' }
+      { name: 'GED', path: helpers.ged_dashboard_path, icon: 'document' },
+      { name: 'Bannettes', path: helpers.baskets_path, icon: 'inbox' },
+      { name: 'Tags', path: helpers.tags_path, icon: 'tag' },
+      { name: 'Recherche', path: helpers.search_path, icon: 'search' }
     ]
     
-    if helpers.current_user&.role == 'admin'
-      items << { name: 'Administration', path: '#', icon: 'cog' }
-      items << { name: 'Utilisateurs', path: '#', icon: 'users' }
-      items << { name: 'Paramètres', path: '#', icon: 'settings' }
+    # Add ImmoPromo if user has access
+    if helpers.current_user&.has_permission?('immo_promo:access')
+      items << { name: 'Immo Promo', path: '/immo/promo/projects', icon: 'building' }
+    end
+    
+    if helpers.current_user&.admin? || helpers.current_user&.super_admin?
+      items << { name: 'Utilisateurs', path: helpers.users_path, icon: 'users' }
+      items << { name: 'Groupes', path: helpers.user_groups_path, icon: 'user-group' }
     end
     
     items

@@ -4,7 +4,38 @@ Rails.application.routes.draw do
   
   # Search Routes
   get '/search', to: 'search#index', as: 'search'
+  get '/search/advanced', to: 'search#advanced', as: 'advanced_search'
   get '/search/suggestions', to: 'search#suggestions', as: 'search_suggestions'
+  
+  # Basket Routes
+  resources :baskets do
+    member do
+      post :share
+      post :add_document
+      delete :remove_document
+      get :download_all
+    end
+  end
+  
+  # Admin Routes
+  resources :users do
+    member do
+      patch :toggle_active
+    end
+  end
+  
+  resources :user_groups do
+    member do
+      post :add_member
+      delete 'remove_member/:user_id', to: 'user_groups#remove_member', as: 'remove_member'
+    end
+  end
+  
+  resources :tags do
+    collection do
+      get :autocomplete
+    end
+  end
   
   # GED Routes
   scope '/ged', as: 'ged' do
@@ -22,6 +53,8 @@ Rails.application.routes.draw do
     get '/documents/:id/download', to: 'ged#download_document', as: 'download_document'
     get '/documents/:id/preview', to: 'ged#preview_document', as: 'preview_document'
     get '/documents/:id/status', to: 'ged#document_status', as: 'document_status'
+    post '/documents/:id/lock', to: 'ged#lock_document', as: 'lock_document'
+    post '/documents/:id/unlock', to: 'ged#unlock_document', as: 'unlock_document'
     
     # Permissions management
     get '/spaces/:id/permissions', to: 'ged#space_permissions', as: 'space_permissions'

@@ -29,6 +29,9 @@ ImmoPromo::Engine.routes.draw do
     end
     resources :permits, controller: 'immo/promo/permits'
     resources :budgets, controller: 'immo/promo/budgets' do
+      member do
+        post :duplicate
+      end
       resources :budget_lines, controller: 'immo/promo/budget_lines'
     end
     resources :contracts, controller: 'immo/promo/contracts'

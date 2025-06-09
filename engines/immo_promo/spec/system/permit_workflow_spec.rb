@@ -27,7 +27,7 @@ RSpec.describe 'Permit Workflow', type: :system do
     end
 
     it 'displays permit overview and status' do
-      visit immo_promo_engine.project_permit_workflow_dashboard_path(project)
+      visit immo_promo_engine.permit_workflow_dashboard_project_path(project)
       
       expect(page).to have_content('Workflow Permis & Autorisations')
       expect(page).to have_content(project.name)
@@ -57,7 +57,7 @@ RSpec.describe 'Permit Workflow', type: :system do
         title: 'Permis de construire'
       )
       
-      visit immo_promo_engine.project_permit_workflow_dashboard_path(project)
+      visit immo_promo_engine.permit_workflow_dashboard_project_path(project)
       
       within('.deadline-alerts') do
         expect(page).to have_content('Échéances à venir')
@@ -68,14 +68,14 @@ RSpec.describe 'Permit Workflow', type: :system do
       end
       
       expect(page).to have_current_path(
-        immo_promo_engine.extend_project_permit_workflow_permit_path(project, expiring_permit)
+        immo_promo_engine.extend_permit_workflow_permit_project_path(project, expiring_permit)
       )
     end
   end
 
   describe 'Guided workflow process' do
     it 'provides step-by-step guidance for permit application' do
-      visit immo_promo_engine.project_permit_workflow_guide_path(project)
+      visit immo_promo_engine.permit_workflow_guide_project_path(project)
       
       expect(page).to have_content('Guide du workflow')
       expect(page).to have_content('Projet résidentiel')
@@ -106,7 +106,7 @@ RSpec.describe 'Permit Workflow', type: :system do
     it 'adapts workflow based on project type' do
       project.update(project_type: 'commercial', total_area_sqm: 10000)
       
-      visit immo_promo_engine.project_permit_workflow_guide_path(project)
+      visit immo_promo_engine.permit_workflow_guide_project_path(project)
       
       # Additional steps for commercial project
       expect(page).to have_content('Étude d\'impact environnemental')
@@ -126,7 +126,7 @@ RSpec.describe 'Permit Workflow', type: :system do
     end
 
     it 'tracks compliance requirements' do
-      visit immo_promo_engine.project_permit_workflow_compliance_checklist_path(project)
+      visit immo_promo_engine.permit_workflow_compliance_checklist_project_path(project)
       
       expect(page).to have_content('Checklist de conformité')
       
@@ -165,7 +165,7 @@ RSpec.describe 'Permit Workflow', type: :system do
         status: 'pending'
       )
       
-      visit immo_promo_engine.project_permit_workflow_compliance_checklist_path(project)
+      visit immo_promo_engine.permit_workflow_compliance_checklist_project_path(project)
       
       within('.overdue-alerts') do
         expect(page).to have_content('Conditions en retard')
@@ -179,7 +179,7 @@ RSpec.describe 'Permit Workflow', type: :system do
     let!(:permits) { create_list(:immo_promo_permit, 4, project: project) }
 
     it 'displays permit timeline with milestones' do
-      visit immo_promo_engine.project_permit_workflow_timeline_tracker_path(project)
+      visit immo_promo_engine.permit_workflow_timeline_tracker_project_path(project)
       
       expect(page).to have_content('Timeline des permis')
       expect(page).to have_css('.timeline-visualization')
@@ -204,7 +204,7 @@ RSpec.describe 'Permit Workflow', type: :system do
         expected_response_date: 1.month.ago
       )
       
-      visit immo_promo_engine.project_permit_workflow_timeline_tracker_path(project)
+      visit immo_promo_engine.permit_workflow_timeline_tracker_project_path(project)
       
       within('.delays-section') do
         expect(page).to have_content('Retards identifiés')
@@ -220,7 +220,7 @@ RSpec.describe 'Permit Workflow', type: :system do
 
   describe 'Critical path analysis' do
     it 'shows permit dependencies and critical path' do
-      visit immo_promo_engine.project_permit_workflow_critical_path_path(project)
+      visit immo_promo_engine.permit_workflow_critical_path_project_path(project)
       
       expect(page).to have_content('Analyse du chemin critique')
       
@@ -282,7 +282,7 @@ RSpec.describe 'Permit Workflow', type: :system do
     end
 
     it 'generates submission package' do
-      visit immo_promo_engine.generate_project_permit_workflow_submission_package_path(
+      visit immo_promo_engine.generate_permit_workflow_submission_package_project_path(
         project, permit, format: :pdf
       )
       
@@ -321,7 +321,7 @@ RSpec.describe 'Permit Workflow', type: :system do
     end
 
     it 'sends follow-up alerts to administration' do
-      visit immo_promo_engine.project_permit_workflow_dashboard_path(project)
+      visit immo_promo_engine.permit_workflow_dashboard_project_path(project)
       
       within("#permit-#{permit.id}") do
         click_button 'Relancer'
@@ -342,7 +342,7 @@ RSpec.describe 'Permit Workflow', type: :system do
     let!(:permits) { create_list(:immo_promo_permit, 5, project: project) }
 
     it 'generates compliance report' do
-      visit immo_promo_engine.project_permit_workflow_dashboard_path(project)
+      visit immo_promo_engine.permit_workflow_dashboard_project_path(project)
       
       click_link 'Rapport de conformité'
       
@@ -360,7 +360,7 @@ RSpec.describe 'Permit Workflow', type: :system do
     end
 
     it 'exports permit data' do
-      visit immo_promo_engine.project_permit_workflow_dashboard_path(project)
+      visit immo_promo_engine.permit_workflow_dashboard_project_path(project)
       
       click_link 'Exporter données'
       
@@ -375,7 +375,7 @@ RSpec.describe 'Permit Workflow', type: :system do
     it 'provides mobile-friendly permit management' do
       page.driver.browser.manage.window.resize_to(375, 667)
       
-      visit immo_promo_engine.project_permit_workflow_dashboard_path(project)
+      visit immo_promo_engine.permit_workflow_dashboard_project_path(project)
       
       expect(page).to have_css('.mobile-optimized')
       

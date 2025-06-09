@@ -4,6 +4,9 @@ class ApplicationController < ActionController::Base
   # Protect from forgery attacks
   protect_from_forgery with: :exception
   
+  # Include component helpers
+  helper ComponentsHelper
+  
   # Configure Devise parameters
   before_action :configure_permitted_parameters, if: :devise_controller?
   before_action :authenticate_user!

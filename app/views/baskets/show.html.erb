@@ -1,0 +1,174 @@
+<div class="min-h-screen bg-gray-50">
+  <%= render Navigation::NavbarComponent.new %>
+  
+  <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <div class="px-4 py-6 sm:px-0">
+      <!-- Breadcrumb -->
+      <nav class="flex mb-6" aria-label="Breadcrumb">
+        <ol role="list" class="flex items-center space-x-4">
+          <li>
+            <div class="flex items-center">
+              <%= link_to "Bannettes", baskets_path, class: "text-sm font-medium text-gray-500 hover:text-gray-700" %>
+            </div>
+          </li>
+          <li>
+            <div class="flex items-center">
+              <svg class="flex-shrink-0 h-5 w-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                <path d="M5.555 17.776l8-16 .894.448-8 16-.894-.448z"/>
+              </svg>
+              <span class="ml-4 text-sm font-medium text-gray-500"><%= @basket.name %></span>
+            </div>
+          </li>
+        </ol>
+      </nav>
+
+      <!-- Header -->
+      <div class="bg-white shadow rounded-lg mb-6">
+        <div class="px-4 py-5 sm:p-6">
+          <div class="md:flex md:items-center md:justify-between">
+            <div class="min-w-0 flex-1">
+              <h1 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl">
+                <%= @basket.name %>
+              </h1>
+              <% if @basket.description.present? %>
+                <p class="mt-1 text-sm text-gray-500"><%= @basket.description %></p>
+              <% end %>
+              <div class="mt-2 flex items-center text-sm text-gray-500">
+                <svg class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                <%= pluralize(@basket_items.count, 'document') %>
+              </div>
+            </div>
+            <div class="mt-5 flex space-x-3 md:ml-4 md:mt-0">
+              <%= link_to edit_basket_path(@basket), 
+                          class: "inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" do %>
+                <svg class="-ml-0.5 mr-1.5 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                </svg>
+                Modifier
+              <% end %>
+              
+              <% if @basket.is_shared? %>
+                <button type="button" 
+                        class="inline-flex items-center rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-700">
+                  <svg class="-ml-0.5 mr-1.5 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m9.032 4.026a9.001 9.001 0 010-5.368m0 5.368a9.001 9.001 0 01-6.032 3.89m6.032-9.258a9.001 9.001 0 00-6.032-3.89m6.032 3.89A8.96 8.96 0 0118 12a8.96 8.96 0 01-.318 2.374m0-4.748C16.522 5.458 14.08 2.5 12 2.5S7.478 5.458 6.318 9.626m11.364 0A7.474 7.474 0 0012 9.5a7.474 7.474 0 00-5.682.126"/>
+                  </svg>
+                  Lien de partage
+                </button>
+              <% else %>
+                <%= link_to share_basket_path(@basket), method: :post,
+                            class: "inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" do %>
+                  <svg class="-ml-0.5 mr-1.5 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m9.032 4.026a9.001 9.001 0 010-5.368m0 5.368a9.001 9.001 0 01-6.032 3.89m6.032-9.258a9.001 9.001 0 00-6.032-3.89m6.032 3.89A8.96 8.96 0 0118 12a8.96 8.96 0 01-.318 2.374m0-4.748C16.522 5.458 14.08 2.5 12 2.5S7.478 5.458 6.318 9.626m11.364 0A7.474 7.474 0 0012 9.5a7.474 7.474 0 00-5.682.126"/>
+                  </svg>
+                  Partager
+                <% end %>
+              <% end %>
+              
+              <% if @basket_items.any? %>
+                <%= link_to download_all_basket_path(@basket), 
+                            class: "inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700" do %>
+                  <svg class="-ml-0.5 mr-1.5 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
+                  </svg>
+                  Télécharger tout
+                <% end %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Share info -->
+      <% if @basket.is_shared? %>
+        <div class="bg-green-50 border border-green-200 rounded-lg mb-6">
+          <div class="px-4 py-5 sm:p-6">
+            <div class="flex">
+              <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                </svg>
+              </div>
+              <div class="ml-3">
+                <h3 class="text-sm font-medium text-green-800">
+                  Bannette partagée
+                </h3>
+                <div class="mt-2 text-sm text-green-700">
+                  <p>Cette bannette est accessible via un lien de partage.</p>
+                  <% if @basket.share_expires_at %>
+                    <p class="mt-1">Le partage expire le <%= l(@basket.share_expires_at, format: :long) %></p>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- Documents -->
+      <div class="bg-white shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+          <% if @basket_items.any? %>
+            <div class="space-y-3">
+              <% @basket_items.each do |basket_item| %>
+                <% if basket_item.document? && basket_item.document %>
+                  <% document = basket_item.document %>
+                  <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
+                    <div class="flex items-center space-x-3">
+                      <div class="flex-shrink-0">
+                        <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                          <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                          </svg>
+                        </div>
+                      </div>
+                      <div class="min-w-0 flex-1">
+                        <p class="text-sm font-medium text-gray-900 truncate">
+                          <%= link_to document.title, ged_document_path(document), class: "hover:text-indigo-600" %>
+                        </p>
+                        <p class="text-sm text-gray-500">
+                          <%= document.space.name %> 
+                          <% if document.folder %>/ <%= document.folder.name %><% end %>
+                        </p>
+                        <p class="text-xs text-gray-400">
+                          Ajouté par <%= document.uploaded_by.display_name %> le <%= l(document.created_at, format: :short) %>
+                        </p>
+                      </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                      <%= link_to ged_download_document_path(document), 
+                                  class: "p-2 text-gray-400 hover:text-gray-500" do %>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
+                        </svg>
+                      <% end %>
+                      <%= link_to remove_document_basket_path(@basket, document_id: document.id), 
+                                  method: :delete,
+                                  data: { confirm: "Retirer ce document de la bannette ?" },
+                                  class: "p-2 text-red-400 hover:text-red-500" do %>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                      <% end %>
+                    </div>
+                  </div>
+                <% end %>
+              <% end %>
+            </div>
+          <% else %>
+            <div class="text-center py-12">
+              <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+              <h3 class="mt-2 text-sm font-medium text-gray-900">Aucun document</h3>
+              <p class="mt-1 text-sm text-gray-500">Cette bannette est vide.</p>
+              <p class="mt-1 text-sm text-gray-500">Ajoutez des documents depuis la vue document.</p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

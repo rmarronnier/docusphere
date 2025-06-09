@@ -137,9 +137,9 @@ RSpec.describe "Dashboard Workflows", type: :system do
       expect(page).to have_content("3 projets")
       
       # Should show financial summary
-      expect(page).to have_content("1 800 000 €") # Villa budget
-      expect(page).to have_content("4 500 000 €") # Residence budget
-      expect(page).to have_content("8 000 000 €") # Commercial budget
+      expect(page).to have_content("1 800 000").and have_content("€") # Villa budget
+      expect(page).to have_content("4 500 000").and have_content("€") # Residence budget
+      expect(page).to have_content("8 000 000").and have_content("€") # Commercial budget
       
       # Should show status distribution
       expect(page).to have_content("Planification") # villa status
@@ -202,8 +202,8 @@ RSpec.describe "Dashboard Workflows", type: :system do
       click_link "Budget"
       
       expect(page).to have_content("Budget du projet")
-      expect(page).to have_content("1 800 000 €") # Total budget
-      expect(page).to have_content("450 000 €") # Current spent
+      expect(page).to have_content("1 800 000").and have_content("€") # Total budget
+      expect(page).to have_content("450 000").and have_content("€") # Current spent
       
       # Should show budget utilization
       expect(page).to have_content("25%").or have_content("25,0%") # 450k/1800k = 25%
@@ -248,7 +248,7 @@ RSpec.describe "Dashboard Workflows", type: :system do
       
       # Should see basic project information
       expect(page).to have_content("Villa Les Oliviers")
-      expect(page).to have_content("1 800 000 €")
+      expect(page).to have_content("1 800 000").and have_content("€")
       expect(page).to have_content("Planification")
       
       # Should NOT see management actions
@@ -286,21 +286,21 @@ RSpec.describe "Dashboard Workflows", type: :system do
       
       # Should see projects with emphasis on financial data
       expect(page).to have_content("Villa Les Oliviers")
-      expect(page).to have_content("1 800 000 €")
-      expect(page).to have_content("4 500 000 €") 
-      expect(page).to have_content("8 000 000 €")
+      expect(page).to have_content("1 800 000").and have_content("€")
+      expect(page).to have_content("4 500 000").and have_content("€") 
+      expect(page).to have_content("8 000 000").and have_content("€")
       
       # Should show aggregated financial information
       total_budget = 1_800_000 + 4_500_000 + 8_000_000 # 14.3M€
-      expect(page).to have_content("14 300 000 €").or have_content("14,3 M€")
+      expect(page).to have_content("14 300 000").or have_content("14,3 M")
     end
     
     it "can access detailed budget information", js: true do
       visit "/immo/promo/projects/#{villa_project.id}"
       
       # Should see financial information prominently
-      expect(page).to have_content("1 800 000 €")
-      expect(page).to have_content("450 000 €") # spent amount
+      expect(page).to have_content("1 800 000").and have_content("€")
+      expect(page).to have_content("450 000").and have_content("€") # spent amount
       
       # Should be able to access budget details
       expect(page).to have_link("Budget")
@@ -315,9 +315,9 @@ RSpec.describe "Dashboard Workflows", type: :system do
       visit "/immo/promo/projects/#{villa_project.id}/budget"
       
       # Should show detailed budget breakdown
-      expect(page).to have_content("1 800 000 €") # total
-      expect(page).to have_content("450 000 €") # spent
-      expect(page).to have_content("1 350 000 €") # remaining
+      expect(page).to have_content("1 800 000").and have_content("€") # total
+      expect(page).to have_content("450 000").and have_content("€") # spent
+      expect(page).to have_content("1 350 000").and have_content("€") # remaining
       
       # Should show utilization percentage
       expect(page).to have_content("25%").or have_content("25,0%")

@@ -1,0 +1,18 @@
+<div class="relative" data-controller="dropdown">
+  <button type="button" 
+          class="relative inline-flex items-center rounded-md bg-white p-1 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          data-action="click->dropdown#toggle">
+    <span class="sr-only">Ouvrir les options</span>
+    <% if trigger_text.present? %>
+      <%= trigger_text %>
+    <% end %>
+    <svg class="h-5 w-5 <%= 'ml-2' if trigger_text.present? %>" fill="currentColor" viewBox="0 0 20 20">
+      <%= raw(trigger_icon || default_trigger_icon) %>
+    </svg>
+  </button>
+  
+  <div class="hidden absolute <%= menu_position_classes %> z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5"
+       data-dropdown-target="menu">
+    <%= content %>
+  </div>
+</div>

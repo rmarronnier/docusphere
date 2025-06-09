@@ -1,0 +1,11 @@
+<div class="min-h-screen bg-gray-50">
+  <% if with_navbar %>
+    <%= render Navigation::NavbarComponent.new %>
+  <% end %>
+  
+  <div class="<%= container_classes %>">
+    <div class="px-4 py-6 sm:px-0">
+      <%= content %>
+    </div>
+  </div>
+</div>

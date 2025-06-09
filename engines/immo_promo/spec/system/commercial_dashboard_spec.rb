@@ -7,7 +7,7 @@ RSpec.describe 'Commercial Dashboard', type: :system do
     create(:immo_promo_project, 
       organization: organization, 
       project_manager: user,
-      units_count: 50,
+      total_units: 50,
       project_type: 'residential'
     ) 
   }
@@ -35,7 +35,7 @@ RSpec.describe 'Commercial Dashboard', type: :system do
 
   describe 'Commercial overview dashboard' do
     it 'displays sales metrics and inventory status' do
-      visit immo_promo_engine.project_commercial_dashboard_path(project)
+      visit immo_promo_engine.commercial_dashboard_project_path(project)
       
       expect(page).to have_content('Dashboard Commercial')
       expect(page).to have_content(project.name)
@@ -63,7 +63,7 @@ RSpec.describe 'Commercial Dashboard', type: :system do
     end
 
     it 'shows sales funnel visualization' do
-      visit immo_promo_engine.project_commercial_dashboard_path(project)
+      visit immo_promo_engine.commercial_dashboard_project_path(project)
       
       within('.sales-funnel') do
         expect(page).to have_css('.funnel-stage', count: 5)
@@ -78,7 +78,7 @@ RSpec.describe 'Commercial Dashboard', type: :system do
 
   describe 'Lot inventory management' do
     it 'displays interactive lot inventory with filters' do
-      visit immo_promo_engine.project_commercial_lot_inventory_path(project)
+      visit immo_promo_engine.commercial_dashboard_lot_inventory_project_path(project)
       
       expect(page).to have_content('Inventaire des lots')
       
@@ -115,7 +115,7 @@ RSpec.describe 'Commercial Dashboard', type: :system do
     end
 
     it 'provides building view with floor plans' do
-      visit immo_promo_engine.project_commercial_lot_inventory_path(project)
+      visit immo_promo_engine.commercial_dashboard_lot_inventory_project_path(project)
       
       click_button 'Vue bâtiment'
       
@@ -140,7 +140,7 @@ RSpec.describe 'Commercial Dashboard', type: :system do
     end
 
     it 'allows quick lot status updates' do
-      visit immo_promo_engine.project_commercial_lot_inventory_path(project)
+      visit immo_promo_engine.commercial_dashboard_lot_inventory_project_path(project)
       
       within("#lot-#{@lots[0].id}") do
         click_button 'Actions'
@@ -163,7 +163,7 @@ RSpec.describe 'Commercial Dashboard', type: :system do
 
   describe 'Reservation management' do
     it 'displays reservation pipeline and metrics' do
-      visit immo_promo_engine.project_commercial_reservation_management_path(project)
+      visit immo_promo_engine.commercial_dashboard_reservation_management_project_path(project)
       
       expect(page).to have_content('Gestion des réservations')
       
@@ -193,7 +193,7 @@ RSpec.describe 'Commercial Dashboard', type: :system do
     end
 
     it 'handles reservation conversion to sale' do
-      visit immo_promo_engine.project_commercial_reservation_management_path(project)
+      visit immo_promo_engine.commercial_dashboard_reservation_management_project_path(project)
       
       within("#reservation-#{@reservations[0].id}") do
         click_button 'Convertir en vente'
@@ -222,7 +222,7 @@ RSpec.describe 'Commercial Dashboard', type: :system do
         status: 'active'
       )
       
-      visit immo_promo_engine.project_commercial_reservation_management_path(project)
+      visit immo_promo_engine.commercial_dashboard_reservation_management_project_path(project)
       
       within('.expiring-reservations') do
         expect(page).to have_content('Réservations à renouveler')
@@ -245,7 +245,7 @@ RSpec.describe 'Commercial Dashboard', type: :system do
 
   describe 'Pricing strategy' do
     it 'displays pricing analysis and recommendations' do
-      visit immo_promo_engine.project_commercial_pricing_strategy_path(project)
+      visit immo_promo_engine.commercial_dashboard_pricing_strategy_project_path(project)
       
       expect(page).to have_content('Stratégie de tarification')
       
@@ -272,7 +272,7 @@ RSpec.describe 'Commercial Dashboard', type: :system do
     end
 
     it 'allows dynamic pricing adjustments' do
-      visit immo_promo_engine.project_commercial_pricing_strategy_path(project)
+      visit immo_promo_engine.commercial_dashboard_pricing_strategy_project_path(project)
       
       click_button 'Ajuster les prix'
       
@@ -297,7 +297,7 @@ RSpec.describe 'Commercial Dashboard', type: :system do
     end
 
     it 'suggests pricing optimizations' do
-      visit immo_promo_engine.project_commercial_pricing_strategy_path(project)
+      visit immo_promo_engine.commercial_dashboard_pricing_strategy_project_path(project)
       
       within('.pricing-suggestions') do
         expect(page).to have_content('Recommandations tarifaires')
@@ -316,7 +316,7 @@ RSpec.describe 'Commercial Dashboard', type: :system do
 
   describe 'Sales pipeline' do
     it 'visualizes sales pipeline stages' do
-      visit immo_promo_engine.project_commercial_sales_pipeline_path(project)
+      visit immo_promo_engine.commercial_dashboard_sales_pipeline_project_path(project)
       
       expect(page).to have_content('Pipeline commercial')
       
@@ -348,7 +348,7 @@ RSpec.describe 'Commercial Dashboard', type: :system do
     end
 
     it 'provides sales forecasting' do
-      visit immo_promo_engine.project_commercial_sales_pipeline_path(project)
+      visit immo_promo_engine.commercial_dashboard_sales_pipeline_project_path(project)
       
       within('.sales-forecast') do
         expect(page).to have_content('Prévisions de vente')
@@ -373,7 +373,7 @@ RSpec.describe 'Commercial Dashboard', type: :system do
 
   describe 'Customer insights' do
     it 'analyzes customer segments and preferences' do
-      visit immo_promo_engine.project_commercial_customer_insights_path(project)
+      visit immo_promo_engine.commercial_dashboard_customer_insights_project_path(project)
       
       expect(page).to have_content('Insights clients')
       
@@ -405,7 +405,7 @@ RSpec.describe 'Commercial Dashboard', type: :system do
 
   describe 'Commercial reporting' do
     it 'generates sales performance report' do
-      visit immo_promo_engine.project_commercial_dashboard_path(project)
+      visit immo_promo_engine.commercial_dashboard_project_path(project)
       
       click_link 'Rapport commercial'
       
@@ -426,7 +426,7 @@ RSpec.describe 'Commercial Dashboard', type: :system do
     end
 
     it 'creates commercial offer documents' do
-      visit immo_promo_engine.project_commercial_lot_inventory_path(project)
+      visit immo_promo_engine.commercial_dashboard_lot_inventory_project_path(project)
       
       within("#lot-#{@lots[0].id}") do
         click_button 'Générer offre'
@@ -450,7 +450,7 @@ RSpec.describe 'Commercial Dashboard', type: :system do
     it 'provides mobile-optimized lot browsing' do
       page.driver.browser.manage.window.resize_to(375, 667)
       
-      visit immo_promo_engine.project_commercial_lot_inventory_path(project)
+      visit immo_promo_engine.commercial_dashboard_lot_inventory_project_path(project)
       
       expect(page).to have_css('.mobile-lot-browser')
       
@@ -470,7 +470,7 @@ RSpec.describe 'Commercial Dashboard', type: :system do
     it 'enables on-site reservation creation' do
       page.driver.browser.manage.window.resize_to(375, 667)
       
-      visit immo_promo_engine.project_commercial_dashboard_path(project)
+      visit immo_promo_engine.commercial_dashboard_project_path(project)
       
       find('.mobile-fab').click
       click_link 'Nouvelle réservation'
@@ -492,14 +492,14 @@ RSpec.describe 'Commercial Dashboard', type: :system do
 
   describe 'Real-time availability updates' do
     it 'shows live lot status updates' do
-      visit immo_promo_engine.project_commercial_lot_inventory_path(project)
+      visit immo_promo_engine.commercial_dashboard_lot_inventory_project_path(project)
       
       # Simulate another user reserving a lot
       in_browser(:two) do
         other_user = create(:user, organization: organization)
         login_as(other_user, scope: :user)
         
-        visit immo_promo_engine.project_commercial_lot_inventory_path(project)
+        visit immo_promo_engine.commercial_dashboard_lot_inventory_project_path(project)
         
         within("#lot-#{@lots[0].id}") do
           click_button 'Réserver'

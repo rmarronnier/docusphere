@@ -1,0 +1,98 @@
+<%= page_wrapper(max_width: "3xl") do %>
+      <!-- Header -->
+      <%= page_header(title: "Modifier le groupe", show_actions: false) %>
+
+      <!-- Form -->
+      <div class="bg-white shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+          <%= form_with model: @user_group, local: true do |form| %>
+            <%= form_errors(@user_group) %>
+
+            <div class="space-y-6">
+              <div>
+                <%= form.label :name, "Nom du groupe", class: "block text-sm font-medium text-gray-700" %>
+                <%= form.text_field :name, 
+                                    class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" %>
+              </div>
+
+              <div>
+                <%= form.label :description, "Description", class: "block text-sm font-medium text-gray-700" %>
+                <%= form.text_area :description, 
+                                   rows: 3,
+                                   class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" %>
+                <p class="mt-1 text-sm text-gray-500">Décrivez le rôle et les responsabilités de ce groupe</p>
+              </div>
+
+              <div>
+                <%= form.label :group_type, "Type de groupe", class: "block text-sm font-medium text-gray-700" %>
+                <%= form.select :group_type, 
+                                options_for_select([
+                                  ['Standard', 'standard'],
+                                  ['Département', 'department'],
+                                  ['Projet', 'project'],
+                                  ['Temporaire', 'temporary']
+                                ], @user_group.group_type),
+                                { prompt: "Sélectionner un type" },
+                                class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" %>
+              </div>
+
+              <div>
+                <div class="relative flex items-start">
+                  <div class="flex h-5 items-center">
+                    <%= form.check_box :is_active, 
+                                       { class: "h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" },
+                                       true, false %>
+                  </div>
+                  <div class="ml-3 text-sm">
+                    <%= form.label :is_active, "Groupe actif", class: "font-medium text-gray-700" %>
+                    <p class="text-gray-500">Les groupes inactifs ne peuvent pas être assignés à de nouveaux utilisateurs</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="border-t border-gray-200 pt-6">
+                <h3 class="text-lg font-medium leading-6 text-gray-900">Permissions</h3>
+                <p class="mt-1 text-sm text-gray-500">
+                  Gérez les permissions attribuées à ce groupe. Ces permissions s'appliquent à tous les membres du groupe.
+                </p>
+                
+                <div class="mt-4 space-y-4">
+                  <div class="space-y-2">
+                    <% %w[document:read document:write document:delete ged:admin immo_promo:access].each do |permission| %>
+                      <div class="relative flex items-start">
+                        <div class="flex h-5 items-center">
+                          <%= check_box_tag "user_group[permissions][#{permission}]", 
+                                            true, 
+                                            @user_group.permissions&.dig(permission),
+                                            class: "h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" %>
+                        </div>
+                        <div class="ml-3">
+                          <label for="user_group_permissions_<%= permission %>" class="text-sm font-medium text-gray-700">
+                            <%= permission.humanize %>
+                          </label>
+                        </div>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-6 flex items-center justify-between">
+              <% if policy(@user_group).destroy? %>
+                <%= link_to "Supprimer", user_group_path(@user_group), 
+                            method: :delete,
+                            data: { confirm: "Êtes-vous sûr de vouloir supprimer ce groupe ?" },
+                            class: "text-red-600 hover:text-red-900" %>
+              <% end %>
+              <div class="flex items-center space-x-3">
+                <%= link_to "Annuler", user_group_path(@user_group), 
+                            class: "rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" %>
+                <%= form.submit "Enregistrer", 
+                                class: "rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700" %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+<% end %>

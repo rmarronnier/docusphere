@@ -2,7 +2,7 @@ class GedController < ApplicationController
   before_action :authenticate_user!
   before_action :set_space, only: [:show_space, :create_folder]
   before_action :set_folder, only: [:show_folder]
-  before_action :set_document, only: [:show_document]
+  before_action :set_document, only: [:show_document, :lock_document, :unlock_document]
 
   def dashboard
     skip_authorization
@@ -206,6 +206,41 @@ class GedController < ApplicationController
       redirect_to ged_document_path(@document), notice: 'Permissions mises à jour avec succès'
     else
       redirect_to ged_document_permissions_path(@document), alert: 'Erreur lors de la mise à jour des permissions'
+    end
+  end
+  
+  # Document locking actions
+  def lock_document
+    skip_authorization
+    
+    unless @document.can_lock?(current_user)
+      redirect_to ged_document_path(@document), alert: 'Vous n\'avez pas les droits pour verrouiller ce document'
+      return
+    end
+    
+    lock_params = params.permit(:lock_reason, :unlock_scheduled_at)
+    scheduled_unlock = lock_params[:unlock_scheduled_at].present? ? 
+                      DateTime.parse(lock_params[:unlock_scheduled_at]) : nil
+    
+    if @document.lock_document!(current_user, reason: lock_params[:lock_reason], scheduled_unlock: scheduled_unlock)
+      redirect_to ged_document_path(@document), notice: 'Document verrouillé avec succès'
+    else
+      redirect_to ged_document_path(@document), alert: 'Erreur lors du verrouillage du document'
+    end
+  end
+  
+  def unlock_document
+    skip_authorization
+    
+    unless @document.can_unlock?(current_user)
+      redirect_to ged_document_path(@document), alert: 'Vous n\'avez pas les droits pour déverrouiller ce document'
+      return
+    end
+    
+    if @document.unlock_document!(current_user)
+      redirect_to ged_document_path(@document), notice: 'Document déverrouillé avec succès'
+    else
+      redirect_to ged_document_path(@document), alert: 'Erreur lors du déverrouillage du document'
     end
   end
 

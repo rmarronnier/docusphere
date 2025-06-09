@@ -1,40 +1,158 @@
-<div class="min-h-screen bg-gray-50 py-8">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<%= page_wrapper(with_navbar: false) do %>
     <!-- En-tête de la recherche -->
     <div class="bg-white shadow rounded-lg px-6 py-4 mb-6">
       <div class="flex items-center justify-between">
         <div>
           <h1 class="text-2xl font-bold text-gray-900">Résultats de recherche</h1>
-          <% if @query.present? %>
+          <% if @query.present? || @advanced_search %>
             <p class="mt-1 text-sm text-gray-600">
-              <%= @documents.total_count %> résultat<%= 's' if @documents.total_count > 1 %> pour 
-              <span class="font-medium">"<%= @query %>"</span>
+              <%= @documents.total_count %> résultat<%= 's' if @documents.total_count > 1 %>
+              <% if @query.present? %>
+                pour <span class="font-medium">"<%= @query %>"</span>
+              <% end %>
+              <% if @advanced_search %>
+                avec filtres avancés
+              <% end %>
             </p>
           <% end %>
         </div>
         
         <!-- Nouvelle recherche -->
         <div class="flex items-center space-x-4">
-          <%= form_with url: search_path, method: :get, local: true, class: "flex items-center" do |f| %>
-            <div class="relative">
-              <%= f.text_field :q, 
-                  value: @query,
-                  class: "block w-64 pl-3 pr-10 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-primary-500 focus:border-primary-500 sm:text-sm",
-                  placeholder: "Nouvelle recherche..." %>
-              <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
-                <button type="submit" class="text-gray-400 hover:text-gray-500">
-                  <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                </button>
-              </div>
-            </div>
+          <%= search_form(url: search_path, value: @query, placeholder: "Nouvelle recherche...") %>
+          
+          <%= link_to advanced_search_path, 
+                      class: "inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" do %>
+            <svg class="-ml-0.5 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
+            </svg>
+            Recherche avancée
           <% end %>
         </div>
       </div>
     </div>
 
-    <% if @query.present? %>
+    <% if params[:advanced].present? %>
+      <!-- Filtres avancés -->
+      <div class="bg-white shadow rounded-lg px-6 py-4 mb-6">
+        <%= form_with url: search_path, method: :get, local: true do |f| %>
+          <%= f.hidden_field :advanced, value: '1' %>
+          <%= f.hidden_field :q, value: @query %>
+          
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <!-- Espace -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Espace</label>
+              <%= f.select :space_id,
+                           options_for_select(
+                             [['Tous les espaces', '']] + @spaces.map { |s| [s.name, s.id] },
+                             params[:space_id]
+                           ),
+                           {},
+                           class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" %>
+            </div>
+            
+            <!-- Utilisateur -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Créé par</label>
+              <%= f.select :uploaded_by_id,
+                           options_for_select(
+                             [['Tous les utilisateurs', '']] + @users.map { |u| [u.full_name, u.id] },
+                             params[:uploaded_by_id]
+                           ),
+                           {},
+                           class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" %>
+            </div>
+            
+            <!-- Type de fichier -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Type de fichier</label>
+              <%= f.select :file_type,
+                           options_for_select([
+                             ['Tous les types', ''],
+                             ['PDF', 'pdf'],
+                             ['Word', 'word'],
+                             ['Excel', 'excel'],
+                             ['Images', 'image']
+                           ], params[:file_type]),
+                           {},
+                           class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" %>
+            </div>
+            
+            <!-- Statut -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Statut</label>
+              <%= f.select :status,
+                           options_for_select([
+                             ['Tous les statuts', ''],
+                             ['Brouillon', 'draft'],
+                             ['Publié', 'published'],
+                             ['Verrouillé', 'locked'],
+                             ['Archivé', 'archived']
+                           ], params[:status]),
+                           {},
+                           class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" %>
+            </div>
+            
+            <!-- Date de début -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Date de début</label>
+              <%= f.date_field :date_from,
+                               value: params[:date_from],
+                               class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" %>
+            </div>
+            
+            <!-- Date de fin -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Date de fin</label>
+              <%= f.date_field :date_to,
+                               value: params[:date_to],
+                               class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" %>
+            </div>
+          </div>
+          
+          <!-- Tags -->
+          <div class="mt-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Tags</label>
+            <div class="flex flex-wrap gap-2">
+              <% @tags.each do |tag| %>
+                <label class="inline-flex items-center">
+                  <%= check_box_tag 'tag_ids[]', tag.id, 
+                                    params[:tag_ids]&.include?(tag.id.to_s),
+                                    class: "rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+                  <span class="ml-2 text-sm text-gray-700"><%= tag.name %></span>
+                </label>
+              <% end %>
+            </div>
+          </div>
+          
+          <!-- Tri -->
+          <div class="mt-4 flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+              <label class="block text-sm font-medium text-gray-700">Trier par</label>
+              <%= f.select :sort_by,
+                           options_for_select([
+                             ['Dernière modification', ''],
+                             ['Titre', 'title'],
+                             ['Date de création (ancien)', 'created_at_asc'],
+                             ['Taille', 'size']
+                           ], params[:sort_by]),
+                           {},
+                           class: "rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" %>
+            </div>
+            
+            <div class="flex items-center space-x-2">
+              <%= link_to "Réinitialiser", search_path, 
+                          class: "inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" %>
+              <%= f.submit "Appliquer les filtres", 
+                           class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700" %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
+    <% if @query.present? || @advanced_search %>
       <% if @documents.any? %>
         <!-- Liste des résultats -->
         <div class="bg-white shadow overflow-hidden sm:rounded-md">
@@ -75,7 +193,7 @@
                     </div>
                     <div class="ml-4 flex-shrink-0 flex flex-col items-end">
                       <p class="text-sm text-gray-500">
-                        <%= document.user.full_name %>
+                        <%= document.uploaded_by.full_name %>
                       </p>
                       <p class="text-xs text-gray-400">
                         <%= l(document.updated_at, format: :short) %>
@@ -106,30 +224,19 @@
         </div>
       <% else %>
         <!-- Aucun résultat -->
-        <div class="bg-white shadow rounded-lg p-6 text-center">
-          <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <h3 class="mt-2 text-sm font-medium text-gray-900">Aucun résultat trouvé</h3>
-          <p class="mt-1 text-sm text-gray-500">
-            Aucun document ne correspond à votre recherche "<%= @query %>".
-          </p>
-          <div class="mt-6">
-            <%= link_to "Retour au tableau de bord", ged_dashboard_path, class: "btn btn-primary" %>
-          </div>
-        </div>
+        <%= empty_state(title: "Aucun résultat trouvé",
+                        description: "Aucun document ne correspond à votre recherche \"#{@query}\".",
+                        icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />') do %>
+          <%= link_to "Retour au tableau de bord", ged_dashboard_path, class: "btn btn-primary" %>
+        <% end %>
       <% end %>
     <% else %>
       <!-- Pas de recherche -->
-      <div class="bg-white shadow rounded-lg p-6 text-center">
-        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-        </svg>
-        <h3 class="mt-2 text-sm font-medium text-gray-900">Commencez votre recherche</h3>
-        <p class="mt-1 text-sm text-gray-500">
-          Utilisez la barre de recherche ci-dessus pour trouver des documents.
-        </p>
-      </div>
+      <%= empty_state(title: "Commencez votre recherche",
+                      description: "Utilisez la barre de recherche ci-dessus pour trouver des documents.",
+                      icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />') do %>
+        <%= link_to "Recherche avancée", advanced_search_path(advanced: '1'), 
+                    class: "inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700" %>
+      <% end %>
     <% end %>
-  </div>
-</div>
+<% end %>

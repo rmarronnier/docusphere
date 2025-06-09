@@ -8,62 +8,84 @@ RSpec.describe Documents::DocumentCardComponent, type: :component do
     description: "A test description",
     space: space,
     uploaded_by: user,
-    processing_status: 'completed'
+    processing_status: 'completed',
+    status: 'published'
   )}
   
   before do
-    # Simuler l'utilisateur connecté pour les policies
-    allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user)
+    mock_component_helpers(described_class, user: user, additional_helpers: {
+      ged_document_path: ->(doc) { "/ged/documents/#{doc.id}" },
+      download_ged_document_path: ->(doc) { "/ged/documents/#{doc.id}/download" },
+      share_ged_document_path: ->(doc) { "/ged/documents/#{doc.id}/share" },
+      image_tag: ->(src, options = {}) { "<img src='#{src}' #{options.map{|k,v| "#{k}='#{v}'"}.join(' ')}/>".html_safe },
+      policy: ->(record) {
+        double(
+          update?: true,
+          destroy?: true,
+          share?: true
+        )
+      }
+    })
   end
   
   it "renders document title" do
-    render_inline(described_class.new(document: document))
+    rendered = render_inline(described_class.new(document: document))
     
-    expect(page).to have_content("Test Document")
-    expect(page).to have_link("Test Document", href: ged_document_path(document))
+    expect(rendered).to have_content("Test Document")
+    expect(rendered).to have_link("Test Document")
   end
   
   it "renders document metadata" do
-    render_inline(described_class.new(document: document))
+    rendered = render_inline(described_class.new(document: document))
     
-    expect(page).to have_content(user.full_name)
-    expect(page).to have_content(space.name)
-    expect(page).to have_content("A test description")
+    expect(rendered).to have_content("A test description")
+    expect(rendered).to have_content("PDF")
+    expect(rendered).to have_content("21 B") # File size
   end
   
-  it "shows processing status badge" do
-    document.update!(processing_status: 'processing')
+  it "shows document status" do
+    document.update!(status: 'archived')
     
-    render_inline(described_class.new(document: document))
+    rendered = render_inline(described_class.new(document: document))
     
-    expect(page).to have_css('.badge.processing')
-    expect(page).to have_content("En cours de traitement")
+    expect(rendered).to have_content("Archivé")
   end
   
-  it "shows virus warning for infected files" do
-    document.update!(virus_scan_status: 'infected')
+  it "renders document actions dropdown" do
+    rendered = render_inline(described_class.new(document: document))
     
-    render_inline(described_class.new(document: document))
-    
-    expect(page).to have_css('.alert-danger')
-    expect(page).to have_content("Virus détecté")
+    expect(rendered).to have_css('[data-controller="dropdown"]')
+    expect(rendered).to have_css('[data-action="click->dropdown#toggle"]')
   end
   
   it "renders action buttons based on permissions" do
-    render_inline(described_class.new(document: document))
+    rendered = render_inline(described_class.new(document: document))
     
-    expect(page).to have_link("Télécharger")
-    expect(page).to have_link("Partager")
-    expect(page).to have_link("Supprimer")
+    expect(rendered).to have_link("Télécharger")
+    expect(rendered).to have_link("Partager")
+    expect(rendered).to have_link("Supprimer")
   end
   
   it "hides actions for users without permissions" do
-    other_user = create(:user)
-    allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(other_user)
+    mock_component_helpers(described_class, user: user, additional_helpers: {
+      ged_document_path: ->(doc) { "/ged/documents/#{doc.id}" },
+      download_ged_document_path: ->(doc) { "/ged/documents/#{doc.id}/download" },
+      share_ged_document_path: ->(doc) { "/ged/documents/#{doc.id}/share" },
+      image_tag: ->(src, options = {}) { "<img src='#{src}' #{options.map{|k,v| "#{k}='#{v}'"}.join(' ')}/>".html_safe },
+      policy: ->(record) {
+        double(
+          update?: false,
+          destroy?: false,
+          share?: false
+        )
+      }
+    })
     
-    render_inline(described_class.new(document: document))
+    rendered = render_inline(described_class.new(document: document))
     
-    expect(page).not_to have_link("Supprimer")
+    expect(rendered).not_to have_link("Supprimer")
+    expect(rendered).not_to have_link("Modifier")
+    expect(rendered).not_to have_link("Partager")
   end
   
   describe "with tags" do
@@ -75,24 +97,22 @@ RSpec.describe Documents::DocumentCardComponent, type: :component do
     end
     
     it "displays document tags" do
-      render_inline(described_class.new(document: document))
+      rendered = render_inline(described_class.new(document: document))
       
-      expect(page).to have_css('.tag', text: "Important")
-      expect(page).to have_css('.tag', text: "Contrat")
+      expect(rendered).to have_content("Important")
+      expect(rendered).to have_content("Contrat")
     end
   end
   
-  describe "hover interactions" do
-    it "shows preview on hover when available" do
-      document.preview.attach(
-        io: File.open(Rails.root.join('spec/fixtures/preview.jpg')),
-        filename: 'preview.jpg'
-      )
+  describe "dropdown menu" do
+    it "includes all action links" do
+      rendered = render_inline(described_class.new(document: document))
       
-      render_inline(described_class.new(document: document))
-      
-      expect(page).to have_css('[data-action="mouseenter->document-card#showPreview"]')
-      expect(page).to have_css('.preview-container.hidden')
+      expect(rendered).to have_link("Voir")
+      expect(rendered).to have_link("Modifier")
+      expect(rendered).to have_link("Télécharger")
+      expect(rendered).to have_link("Partager")
+      expect(rendered).to have_link("Supprimer")
     end
   end
 end

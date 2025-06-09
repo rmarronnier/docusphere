@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_06_08_213528) do
+ActiveRecord::Schema[7.1].define(version: 2025_06_09_074033) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -225,6 +225,10 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_08_213528) do
     t.text "processing_error"
     t.jsonb "processing_metadata", default: {}
     t.text "extracted_content"
+    t.integer "locked_by_id"
+    t.datetime "locked_at"
+    t.datetime "unlock_scheduled_at"
+    t.text "lock_reason"
     t.index ["archived_at"], name: "index_documents_on_archived_at"
     t.index ["document_type"], name: "index_documents_on_document_type"
     t.index ["expires_at"], name: "index_documents_on_expires_at"
@@ -232,12 +236,14 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_08_213528) do
     t.index ["folder_id"], name: "index_documents_on_folder_id"
     t.index ["is_public"], name: "index_documents_on_is_public"
     t.index ["is_template"], name: "index_documents_on_is_template"
+    t.index ["locked_by_id"], name: "index_documents_on_locked_by_id"
     t.index ["parent_id"], name: "index_documents_on_parent_id"
     t.index ["processing_completed_at"], name: "index_documents_on_processing_completed_at"
     t.index ["processing_started_at"], name: "index_documents_on_processing_started_at"
     t.index ["processing_status"], name: "index_documents_on_processing_status"
     t.index ["space_id"], name: "index_documents_on_space_id"
     t.index ["status"], name: "index_documents_on_status"
+    t.index ["unlock_scheduled_at"], name: "index_documents_on_unlock_scheduled_at"
     t.index ["uploaded_by_id"], name: "index_documents_on_uploaded_by_id"
     t.index ["virus_scan_status"], name: "index_documents_on_virus_scan_status"
   end
@@ -1069,6 +1075,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_08_213528) do
   add_foreign_key "documents", "documents", column: "parent_id"
   add_foreign_key "documents", "folders"
   add_foreign_key "documents", "spaces"
+  add_foreign_key "documents", "users", column: "locked_by_id"
   add_foreign_key "documents", "users", column: "uploaded_by_id"
   add_foreign_key "folders", "folders", column: "parent_id"
   add_foreign_key "folders", "spaces"

@@ -4,14 +4,14 @@
       <!-- Logo et navigation principale -->
       <div class="flex">
         <div class="flex-shrink-0 flex items-center">
-          <%= link_to root_path, class: "text-xl font-bold text-primary-600" do %>
+          <%= helpers.link_to helpers.root_path, class: "text-xl font-bold text-primary-600" do %>
             Docusphere
           <% end %>
         </div>
         
         <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
           <% navigation_items.each do |item| %>
-            <%= link_to item[:path], 
+            <%= helpers.link_to item[:path], 
                 class: "#{active_item?(item[:path]) ? 'border-primary-500 text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" do %>
               <%= item[:name] %>
             <% end %>
@@ -24,8 +24,8 @@
         <div class="max-w-lg w-full lg:max-w-xs">
           <div class="relative" 
                data-controller="search-autocomplete" 
-               data-search-autocomplete-url-value="<%= search_suggestions_path %>">
-            <%= form_with url: search_path, method: :get, local: true, data: { "search-autocomplete-target": "form", action: "submit->search-autocomplete#submitForm" } do |f| %>
+               data-search-autocomplete-url-value="<%= helpers.search_suggestions_path rescue '/search/suggestions' %>">
+            <%= helpers.form_with url: helpers.search_path, method: :get, local: true, data: { "search-autocomplete-target": "form", action: "submit->search-autocomplete#submitForm" } do |f| %>
               <div class="relative">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -54,7 +54,7 @@
 
       <!-- Menu utilisateur -->
       <div class="hidden sm:ml-6 sm:flex sm:items-center">
-        <% if current_user %>
+        <% if helpers.current_user %>
           <!-- Notifications -->
           <div class="relative">
             <button type="button" class="bg-white p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
@@ -81,7 +81,7 @@
                 <span class="sr-only">Ouvrir le menu utilisateur</span>
                 <div class="h-8 w-8 rounded-full bg-primary-100 flex items-center justify-center">
                   <span class="text-sm font-medium text-primary-700">
-                    <%= current_user.first_name&.first&.upcase || current_user.email.first.upcase %>
+                    <%= helpers.current_user.first_name&.first&.upcase || helpers.current_user.email.first.upcase %>
                   </span>
                 </div>
               </button>
@@ -93,7 +93,7 @@
                  aria-orientation="vertical" 
                  aria-labelledby="user-menu-button">
               <% user_items.each do |item| %>
-                <%= link_to item[:path], 
+                <%= helpers.link_to item[:path], 
                     class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100",
                     role: "menuitem",
                     method: item[:method] do %>
@@ -104,8 +104,8 @@
           </div>
         <% else %>
           <div class="flex space-x-4">
-            <%= link_to "Connexion", new_user_session_path, class: "text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium" %>
-            <%= link_to "Inscription", new_user_registration_path, class: "btn btn-primary" %>
+            <%= helpers.link_to "Connexion", helpers.new_user_session_path, class: "text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium" %>
+            <%= helpers.link_to "Inscription", helpers.new_user_registration_path, class: "btn btn-primary" %>
           </div>
         <% end %>
       </div>

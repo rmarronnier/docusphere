@@ -73,7 +73,7 @@ RSpec.describe 'Risk Monitoring', type: :system do
 
   describe 'Risk monitoring dashboard' do
     it 'displays comprehensive risk overview' do
-      visit immo_promo_engine.project_risk_monitoring_dashboard_path(project)
+      visit immo_promo_engine.risk_monitoring_dashboard_project_path(project)
       
       expect(page).to have_content('Monitoring des Risques')
       expect(page).to have_content(project.name)
@@ -100,7 +100,7 @@ RSpec.describe 'Risk Monitoring', type: :system do
     end
 
     it 'displays interactive risk matrix' do
-      visit immo_promo_engine.project_risk_monitoring_dashboard_path(project)
+      visit immo_promo_engine.risk_monitoring_dashboard_project_path(project)
       
       within('.risk-matrix') do
         expect(page).to have_content('Matrice des Risques')
@@ -123,7 +123,7 @@ RSpec.describe 'Risk Monitoring', type: :system do
     end
 
     it 'shows mitigation tracking progress' do
-      visit immo_promo_engine.project_risk_monitoring_dashboard_path(project)
+      visit immo_promo_engine.risk_monitoring_dashboard_project_path(project)
       
       within('.mitigation-tracking') do
         expect(page).to have_content('État des Atténuations')
@@ -137,14 +137,14 @@ RSpec.describe 'Risk Monitoring', type: :system do
       end
       
       expect(page).to have_current_path(
-        immo_promo_engine.project_risk_monitoring_risk_register_path(project)
+        immo_promo_engine.risk_monitoring_risk_register_project_path(project)
       )
     end
   end
 
   describe 'Risk register management' do
     it 'displays and filters risk register' do
-      visit immo_promo_engine.project_risk_monitoring_risk_register_path(project)
+      visit immo_promo_engine.risk_monitoring_risk_register_project_path(project)
       
       expect(page).to have_content('Registre des Risques')
       expect(page).to have_css('.risk-item', count: 4)
@@ -170,7 +170,7 @@ RSpec.describe 'Risk Monitoring', type: :system do
     end
 
     it 'allows creating new risks' do
-      visit immo_promo_engine.project_risk_monitoring_dashboard_path(project)
+      visit immo_promo_engine.risk_monitoring_dashboard_project_path(project)
       
       click_button 'Nouveau risque'
       
@@ -190,7 +190,7 @@ RSpec.describe 'Risk Monitoring', type: :system do
     end
 
     it 'enables risk assessment updates' do
-      visit immo_promo_engine.project_risk_monitoring_risk_register_path(project)
+      visit immo_promo_engine.risk_monitoring_risk_register_project_path(project)
       
       within("#risk-#{@risks[2].id}") do
         click_button 'Réévaluer'
@@ -216,7 +216,7 @@ RSpec.describe 'Risk Monitoring', type: :system do
 
   describe 'Mitigation action management' do
     it 'creates and tracks mitigation actions' do
-      visit immo_promo_engine.project_risk_monitoring_risk_register_path(project)
+      visit immo_promo_engine.risk_monitoring_risk_register_project_path(project)
       
       within("#risk-#{@risks[2].id}") do
         click_button 'Plan d\'atténuation'
@@ -242,7 +242,7 @@ RSpec.describe 'Risk Monitoring', type: :system do
     end
 
     it 'updates mitigation action status' do
-      visit immo_promo_engine.project_risk_monitoring_risk_register_path(project)
+      visit immo_promo_engine.risk_monitoring_risk_register_project_path(project)
       
       within("#risk-#{@risks[0].id}") do
         click_link 'Voir actions'
@@ -267,7 +267,7 @@ RSpec.describe 'Risk Monitoring', type: :system do
 
   describe 'Alert center' do
     it 'displays and manages risk alerts' do
-      visit immo_promo_engine.project_risk_monitoring_alert_center_path(project)
+      visit immo_promo_engine.risk_monitoring_alert_center_project_path(project)
       
       expect(page).to have_content('Centre d\'alertes')
       
@@ -304,7 +304,7 @@ RSpec.describe 'Risk Monitoring', type: :system do
       # Create an active alert
       alert = create(:alert, project: project, alert_type: 'risk_escalation')
       
-      visit immo_promo_engine.project_risk_monitoring_alert_center_path(project)
+      visit immo_promo_engine.risk_monitoring_alert_center_project_path(project)
       
       within("#alert-#{alert.id}") do
         expect(page).to have_css('.alert-unacknowledged')
@@ -320,7 +320,7 @@ RSpec.describe 'Risk Monitoring', type: :system do
 
   describe 'Early warning system' do
     it 'displays predictive risk indicators' do
-      visit immo_promo_engine.project_risk_monitoring_early_warning_system_path(project)
+      visit immo_promo_engine.risk_monitoring_early_warning_system_project_path(project)
       
       expect(page).to have_content('Système d\'alerte précoce')
       
@@ -345,7 +345,7 @@ RSpec.describe 'Risk Monitoring', type: :system do
     end
 
     it 'configures threshold violations' do
-      visit immo_promo_engine.project_risk_monitoring_early_warning_system_path(project)
+      visit immo_promo_engine.risk_monitoring_early_warning_system_project_path(project)
       
       click_button 'Configurer seuils'
       
@@ -371,7 +371,7 @@ RSpec.describe 'Risk Monitoring', type: :system do
 
   describe 'Risk reporting' do
     it 'generates comprehensive risk report' do
-      visit immo_promo_engine.project_risk_monitoring_dashboard_path(project)
+      visit immo_promo_engine.risk_monitoring_dashboard_project_path(project)
       
       click_link 'Rapport des risques'
       
@@ -393,7 +393,7 @@ RSpec.describe 'Risk Monitoring', type: :system do
     end
 
     it 'exports risk matrix visualization' do
-      visit immo_promo_engine.project_risk_monitoring_dashboard_path(project)
+      visit immo_promo_engine.risk_monitoring_dashboard_project_path(project)
       
       within('.risk-matrix') do
         click_link 'Exporter matrice'
@@ -412,7 +412,7 @@ RSpec.describe 'Risk Monitoring', type: :system do
       low_risk = @risks[3]
       low_risk.update(probability: 'very_high', impact: 'catastrophic')
       
-      visit immo_promo_engine.project_risk_monitoring_risk_register_path(project)
+      visit immo_promo_engine.risk_monitoring_risk_register_project_path(project)
       
       within("#risk-#{low_risk.id}") do
         expect(page).to have_css('.escalation-indicator')
@@ -428,7 +428,7 @@ RSpec.describe 'Risk Monitoring', type: :system do
     end
 
     it 'manages manual risk escalation' do
-      visit immo_promo_engine.project_risk_monitoring_risk_register_path(project)
+      visit immo_promo_engine.risk_monitoring_risk_register_project_path(project)
       
       within("#risk-#{@risks[2].id}") do
         click_button 'Escalader'
@@ -452,7 +452,7 @@ RSpec.describe 'Risk Monitoring', type: :system do
     it 'provides mobile-optimized risk monitoring' do
       page.driver.browser.manage.window.resize_to(375, 667)
       
-      visit immo_promo_engine.project_risk_monitoring_dashboard_path(project)
+      visit immo_promo_engine.risk_monitoring_dashboard_project_path(project)
       
       expect(page).to have_css('.mobile-risk-dashboard')
       

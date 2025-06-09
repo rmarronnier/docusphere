@@ -1,77 +1,46 @@
 module Immo
   module Promo
     module Shared
-      class DataTableComponent < BaseListComponent
+      class DataTableComponent < ::Ui::DataTableComponent
         def initialize(items:, columns:, actions: nil, empty_message: 'Aucune donnée disponible', striped: true, hoverable: true, responsive: true)
-          @items = items
-          @columns = columns
+          # Call parent initializer with translated empty message
+          super(
+            items: items,
+            columns: columns,
+            responsive: responsive,
+            striped: striped,
+            hoverable: hoverable,
+            empty_message: empty_message
+          )
+          
           @actions = actions
-          @empty_message = empty_message
-          @striped = striped
-          @hoverable = hoverable
-          @responsive = responsive
         end
 
         private
 
-        attr_reader :items, :columns, :actions, :empty_message, :striped, :hoverable, :responsive
+        attr_reader :actions
 
-        def table_classes
-          classes = ['min-w-full divide-y divide-gray-300']
-          classes << 'table-striped' if striped
-          classes << 'table-hover' if hoverable
-          classes.join(' ')
-        end
-
+        # Override render_cell to handle ImmoPromo-specific status component
         def render_cell(item, column)
           value = extract_value(item, column[:key])
           
           case column[:type]
           when :status
-            render Ui::StatusBadgeComponent.new(
+            # Use ImmoPromo's StatusBadgeComponent for French labels
+            render Immo::Promo::Shared::StatusBadgeComponent.new(
               status: value,
-              preset: column[:preset] || 'default'
+              custom_text: column[:label]
             )
           when :progress
+            # Use ImmoPromo's ProgressIndicatorComponent
             render Immo::Promo::Shared::ProgressIndicatorComponent.new(
               progress: value,
               show_label: false,
               size: 'small'
             )
-          when :money
-            format_money(value)
-          when :date
-            l(value, format: column[:format] || :short) if value
-          when :datetime
-            l(value, format: column[:format] || :long) if value
-          when :link
-            link_to value, column[:path].call(item), class: 'text-blue-600 hover:text-blue-700'
-          when :custom
-            column[:render].call(item, value)
           else
-            value.to_s
-          end
-        end
-
-        def extract_value(item, key)
-          if key.is_a?(Symbol)
-            item.public_send(key)
-          elsif key.is_a?(String) && key.include?('.')
-            key.split('.').reduce(item) { |obj, method| obj&.public_send(method) }
-          elsif key.is_a?(Proc)
-            key.call(item)
-          else
-            item[key]
-          end
-        end
-
-        def format_money(value)
-          return '-' unless value
-          
-          if value.respond_to?(:format)
-            value.format(symbol: true, thousands_separator: ' ')
-          else
-            number_to_currency(value, unit: '€', separator: ',', delimiter: ' ')
+            # Delegate to parent for other types
+            super
           end
         end
       end

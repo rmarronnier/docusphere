@@ -144,54 +144,54 @@ RSpec.describe Immo::Promo::ProjectCardComponent, type: :component do
     end
 
     context 'status badge styling' do
-      it 'shows planning status with blue styling' do
+      it 'shows planning status with French label' do
         project.update(status: 'planning')
         
         component = described_class.new(project: project)
         render_inline(component)
         
         expect(page).to have_css('.bg-blue-100.text-blue-800')
-        expect(page).to have_text('Planning')
+        expect(page).to have_text('En planification')
       end
 
-      it 'shows pre_construction status with purple styling' do
-        project.update(status: 'pre_construction')
-        
-        component = described_class.new(project: project)
-        render_inline(component)
-        
-        expect(page).to have_css('.bg-purple-100.text-purple-800')
-        expect(page).to have_text('Pre construction')
-      end
-
-      it 'shows construction status with yellow styling' do
-        project.update(status: 'construction')
-        
-        component = described_class.new(project: project)
-        render_inline(component)
-        
-        expect(page).to have_css('.bg-yellow-100.text-yellow-800')
-        expect(page).to have_text('Construction')
-      end
-
-      it 'shows delivered status with orange styling' do
-        project.update(status: 'delivered')
-        
-        component = described_class.new(project: project)
-        render_inline(component)
-        
-        expect(page).to have_css('.bg-orange-100.text-orange-800')
-        expect(page).to have_text('Delivered')
-      end
-
-      it 'shows completed status with green styling' do
-        project.update(status: 'completed')
+      it 'shows in_progress status with French label' do
+        project.update(status: 'in_progress')
         
         component = described_class.new(project: project)
         render_inline(component)
         
         expect(page).to have_css('.bg-green-100.text-green-800')
-        expect(page).to have_text('Completed')
+        expect(page).to have_text('En cours')
+      end
+
+      it 'shows on_hold status with French label' do
+        project.update(status: 'on_hold')
+        
+        component = described_class.new(project: project)
+        render_inline(component)
+        
+        expect(page).to have_css('.bg-yellow-100.text-yellow-800')
+        expect(page).to have_text('En pause')
+      end
+
+      it 'shows completed status with French label' do
+        project.update(status: 'completed')
+        
+        component = described_class.new(project: project)
+        render_inline(component)
+        
+        expect(page).to have_css('.bg-gray-100.text-gray-800')
+        expect(page).to have_text('Terminé')
+      end
+
+      it 'shows cancelled status with French label' do
+        project.update(status: 'cancelled')
+        
+        component = described_class.new(project: project)
+        render_inline(component)
+        
+        expect(page).to have_css('.bg-red-100.text-red-800')
+        expect(page).to have_text('Annulé')
       end
     end
   end

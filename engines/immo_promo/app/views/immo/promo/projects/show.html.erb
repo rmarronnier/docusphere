@@ -1,1 +1,155 @@
-<h1>Project</h1>
+<% content_for :title, @project.name %>
+
+<div class="space-y-6">
+  <!-- Project Header -->
+  <div class="bg-white shadow rounded-lg p-6">
+    <div class="md:flex md:items-center md:justify-between">
+      <div class="min-w-0 flex-1">
+        <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+          <%= @project.name %>
+        </h2>
+        <p class="mt-1 text-sm text-gray-500">
+          Référence: <%= @project.reference_number %>
+        </p>
+      </div>
+      <div class="mt-4 flex space-x-3 md:ml-4 md:mt-0">
+        <% if policy(@project).edit? %>
+          <%= link_to "Modifier", immo_promo_engine.edit_project_path(@project),
+                      class: "inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" %>
+        <% end %>
+        <%= link_to "Phases", immo_promo_engine.project_phases_path(@project),
+                    class: "inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" %>
+        <%= link_to "Budget", immo_promo_engine.project_budgets_path(@project),
+                    class: "inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" %>
+        <%= link_to "Permis", immo_promo_engine.project_permits_path(@project),
+                    class: "inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" %>
+        <%= link_to "Intervenants", immo_promo_engine.project_stakeholders_path(@project),
+                    class: "inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" %>
+      </div>
+    </div>
+
+    <!-- Project Status Badge -->
+    <div class="mt-4">
+      <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
+                   <%= @project.status == 'planning' ? 'bg-blue-100 text-blue-800' :
+                       @project.status == 'construction' ? 'bg-yellow-100 text-yellow-800' :
+                       @project.status == 'completed' ? 'bg-green-100 text-green-800' :
+                       'bg-gray-100 text-gray-800' %>">
+        <%= @project.status.humanize %>
+      </span>
+    </div>
+  </div>
+
+  <!-- Project Info Grid -->
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+    <!-- Budget Card -->
+    <div class="bg-white shadow rounded-lg p-6">
+      <h3 class="text-lg font-medium text-gray-900 mb-4">Budget</h3>
+      <dl class="space-y-2">
+        <div class="flex justify-between">
+          <dt class="text-sm text-gray-500">Budget total:</dt>
+          <dd class="text-sm font-medium text-gray-900">
+            <%= number_to_currency(@project.total_budget&.amount || 0, unit: "€", separator: ",", delimiter: " ", format: "%n %u") %>
+          </dd>
+        </div>
+        <div class="flex justify-between">
+          <dt class="text-sm text-gray-500">Dépensé:</dt>
+          <dd class="text-sm font-medium text-gray-900">
+            <%= number_to_currency(@project.current_budget&.amount || 0, unit: "€", separator: ",", delimiter: " ", format: "%n %u") %>
+          </dd>
+        </div>
+        <div class="flex justify-between">
+          <dt class="text-sm text-gray-500">Utilisation:</dt>
+          <dd class="text-sm font-medium text-gray-900">
+            <%= @project.budget_usage_percentage %>%
+          </dd>
+        </div>
+      </dl>
+    </div>
+
+    <!-- Project Details Card -->
+    <div class="bg-white shadow rounded-lg p-6">
+      <h3 class="text-lg font-medium text-gray-900 mb-4">Détails du projet</h3>
+      <dl class="space-y-2">
+        <div class="flex justify-between">
+          <dt class="text-sm text-gray-500">Type:</dt>
+          <dd class="text-sm font-medium text-gray-900"><%= @project.project_type.humanize %></dd>
+        </div>
+        <div class="flex justify-between">
+          <dt class="text-sm text-gray-500">Logements:</dt>
+          <dd class="text-sm font-medium text-gray-900"><%= @project.total_units || 0 %></dd>
+        </div>
+        <div class="flex justify-between">
+          <dt class="text-sm text-gray-500">Surface totale:</dt>
+          <dd class="text-sm font-medium text-gray-900"><%= number_with_delimiter(@project.total_surface_area.to_i) %> m²</dd>
+        </div>
+        <div class="flex justify-between">
+          <dt class="text-sm text-gray-500">Chef de projet:</dt>
+          <dd class="text-sm font-medium text-gray-900"><%= @project.project_manager&.display_name || "Non assigné" %></dd>
+        </div>
+      </dl>
+    </div>
+
+    <!-- Timeline Card -->
+    <div class="bg-white shadow rounded-lg p-6">
+      <h3 class="text-lg font-medium text-gray-900 mb-4">Planning</h3>
+      <dl class="space-y-2">
+        <div class="flex justify-between">
+          <dt class="text-sm text-gray-500">Début:</dt>
+          <dd class="text-sm font-medium text-gray-900">
+            <%= @project.start_date&.strftime('%d/%m/%Y') || 'À définir' %>
+          </dd>
+        </div>
+        <div class="flex justify-between">
+          <dt class="text-sm text-gray-500">Fin prévue:</dt>
+          <dd class="text-sm font-medium text-gray-900">
+            <%= @project.expected_completion_date&.strftime('%d/%m/%Y') || 'À définir' %>
+          </dd>
+        </div>
+        <div class="flex justify-between">
+          <dt class="text-sm text-gray-500">Avancement:</dt>
+          <dd class="text-sm font-medium text-gray-900"><%= @project.completion_percentage %>%</dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+
+  <!-- Progress Bar -->
+  <div class="bg-white shadow rounded-lg p-6">
+    <h3 class="text-lg font-medium text-gray-900 mb-4">Progression globale</h3>
+    <div class="w-full bg-gray-200 rounded-full h-4">
+      <div class="bg-indigo-600 h-4 rounded-full transition-all duration-300"
+           style="width: <%= @project.completion_percentage %>%"></div>
+    </div>
+    <p class="mt-2 text-sm text-gray-500">
+      <%= @project.completion_percentage %>% complété
+    </p>
+  </div>
+
+  <!-- Phases Overview -->
+  <% if @phases.any? %>
+    <div class="bg-white shadow rounded-lg p-6">
+      <h3 class="text-lg font-medium text-gray-900 mb-4">Phases du projet</h3>
+      <div class="space-y-4">
+        <% @phases.each do |phase| %>
+          <div class="border-l-4 <%= phase.status == 'completed' ? 'border-green-400' : phase.status == 'in_progress' ? 'border-yellow-400' : 'border-gray-300' %> pl-4">
+            <div class="flex justify-between items-start">
+              <div>
+                <h4 class="text-sm font-medium text-gray-900"><%= phase.name %></h4>
+                <p class="text-sm text-gray-500">
+                  <%= phase.start_date&.strftime('%d/%m/%Y') %> - <%= phase.end_date&.strftime('%d/%m/%Y') %>
+                </p>
+              </div>
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                           <%= phase.status == 'completed' ? 'bg-green-100 text-green-800' :
+                               phase.status == 'in_progress' ? 'bg-yellow-100 text-yellow-800' :
+                               'bg-gray-100 text-gray-800' %>">
+                <%= phase.status.humanize %>
+              </span>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>

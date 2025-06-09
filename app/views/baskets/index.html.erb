@@ -1,0 +1,123 @@
+<%= page_wrapper do %>
+      <!-- Header -->
+      <%= page_header(title: "Mes bannettes", 
+                      description: "Organisez vos documents dans des bannettes pour un accès rapide") do %>
+          <%= link_to new_basket_path, 
+                      class: "inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700" do %>
+            <svg class="-ml-0.5 mr-1.5 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            Nouvelle bannette
+          <% end %>
+      <% end %>
+
+      <!-- My Baskets -->
+      <div class="mb-8">
+        <h2 class="text-lg font-medium text-gray-900 mb-4">Mes bannettes personnelles</h2>
+        
+        <% if @baskets.any? %>
+          <%= card_grid(columns: { sm: 2, lg: 3 }, gap: 4) do %>
+            <% @baskets.each do |basket| %>
+              <div class="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm hover:border-gray-400">
+                <div class="flex items-start">
+                  <div class="flex-shrink-0">
+                    <div class="inline-flex rounded-lg p-3 <%= basket.color || 'bg-gray-100' %>">
+                      <svg class="h-6 w-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="ml-4 flex-1">
+                    <h3 class="text-lg font-medium text-gray-900">
+                      <%= link_to basket.name, basket_path(basket), class: "hover:text-indigo-600" %>
+                    </h3>
+                    <% if basket.description.present? %>
+                      <p class="mt-1 text-sm text-gray-500"><%= basket.description %></p>
+                    <% end %>
+                    <p class="mt-2 text-sm text-gray-500">
+                      <%= pluralize(basket.document_count, 'document') %>
+                    </p>
+                  </div>
+                  <div class="ml-4 flex-shrink-0">
+                    <%= dropdown(trigger_icon: '<path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/>') do %>
+                      <%= link_to "Voir", basket_path(basket), 
+                                  class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
+                      <%= link_to "Modifier", edit_basket_path(basket), 
+                                  class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
+                      <% if basket.is_shared? %>
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                          Copier le lien de partage
+                        </a>
+                      <% else %>
+                        <%= link_to "Partager", share_basket_path(basket), method: :post,
+                                    class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
+                      <% end %>
+                      <hr class="my-1">
+                      <%= link_to "Supprimer", basket_path(basket), method: :delete,
+                                  data: { confirm: "Êtes-vous sûr de vouloir supprimer cette bannette ?" },
+                                  class: "block px-4 py-2 text-sm text-red-700 hover:bg-gray-100" %>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          <% end %>
+        <% else %>
+          <%= empty_state(title: "Aucune bannette",
+                          description: "Créez votre première bannette pour organiser vos documents.",
+                          icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>') do %>
+            <%= link_to new_basket_path, 
+                        class: "inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700" do %>
+              <svg class="-ml-0.5 mr-1.5 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+              </svg>
+              Nouvelle bannette
+            <% end %>
+          <% end %>
+        <% end %>
+      </div>
+
+      <!-- Shared Baskets -->
+      <% if @shared_baskets.any? %>
+        <div>
+          <h2 class="text-lg font-medium text-gray-900 mb-4">Bannettes partagées</h2>
+          
+          <%= card_grid(columns: { sm: 2, lg: 3 }, gap: 4) do %>
+            <% @shared_baskets.each do |basket| %>
+              <div class="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm hover:border-gray-400">
+                <div class="absolute top-2 right-2">
+                  <span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
+                    Partagée
+                  </span>
+                </div>
+                <div class="flex items-start">
+                  <div class="flex-shrink-0">
+                    <div class="inline-flex rounded-lg p-3 bg-green-100">
+                      <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m9.032 4.026a9.001 9.001 0 010-5.368m0 5.368a9.001 9.001 0 01-6.032 3.89m6.032-9.258a9.001 9.001 0 00-6.032-3.89m6.032 3.89A8.96 8.96 0 0118 12a8.96 8.96 0 01-.318 2.374m0-4.748C16.522 5.458 14.08 2.5 12 2.5S7.478 5.458 6.318 9.626m11.364 0A7.474 7.474 0 0012 9.5a7.474 7.474 0 00-5.682.126"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="ml-4 flex-1">
+                    <h3 class="text-lg font-medium text-gray-900">
+                      <a href="#" class="hover:text-indigo-600"><%= basket.name %></a>
+                    </h3>
+                    <p class="mt-1 text-sm text-gray-500">
+                      Partagée par <%= basket.user.display_name %>
+                    </p>
+                    <p class="mt-1 text-sm text-gray-500">
+                      <%= pluralize(basket.document_count, 'document') %>
+                    </p>
+                    <% if basket.share_expires_at %>
+                      <p class="mt-1 text-xs text-gray-400">
+                        Expire le <%= l(basket.share_expires_at, format: :short) %>
+                      </p>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+      <% end %>
+<% end %>

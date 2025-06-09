@@ -47,7 +47,7 @@ RSpec.describe 'Financial Dashboard', type: :system do
 
   describe 'Financial overview dashboard' do
     it 'displays comprehensive financial metrics' do
-      visit immo_promo_engine.project_financial_dashboard_path(project)
+      visit immo_promo_engine.financial_dashboard_project_path(project)
       
       expect(page).to have_content('Dashboard Financier')
       expect(page).to have_content(project.name)
@@ -76,7 +76,7 @@ RSpec.describe 'Financial Dashboard', type: :system do
     end
 
     it 'shows budget consumption gauge' do
-      visit immo_promo_engine.project_financial_dashboard_path(project)
+      visit immo_promo_engine.financial_dashboard_project_path(project)
       
       within('.budget-consumption') do
         expect(page).to have_css('.gauge-chart')
@@ -88,7 +88,7 @@ RSpec.describe 'Financial Dashboard', type: :system do
 
   describe 'Variance analysis' do
     it 'displays detailed variance by category' do
-      visit immo_promo_engine.project_financial_variance_analysis_path(project)
+      visit immo_promo_engine.financial_dashboard_variance_analysis_project_path(project)
       
       expect(page).to have_content('Analyse des écarts')
       
@@ -121,7 +121,7 @@ RSpec.describe 'Financial Dashboard', type: :system do
     end
 
     it 'provides variance explanations and actions' do
-      visit immo_promo_engine.project_financial_variance_analysis_path(project)
+      visit immo_promo_engine.financial_dashboard_variance_analysis_project_path(project)
       
       within('tr', text: 'Foncier') do
         click_button 'Détails'
@@ -142,7 +142,7 @@ RSpec.describe 'Financial Dashboard', type: :system do
 
   describe 'Cost control' do
     it 'displays cost control measures and projections' do
-      visit immo_promo_engine.project_financial_cost_control_path(project)
+      visit immo_promo_engine.financial_dashboard_cost_control_project_path(project)
       
       expect(page).to have_content('Contrôle des coûts')
       
@@ -169,7 +169,7 @@ RSpec.describe 'Financial Dashboard', type: :system do
     end
 
     it 'identifies savings opportunities' do
-      visit immo_promo_engine.project_financial_cost_control_path(project)
+      visit immo_promo_engine.financial_dashboard_cost_control_project_path(project)
       
       within('.savings-opportunities') do
         expect(page).to have_content('Opportunités d\'économies')
@@ -188,7 +188,7 @@ RSpec.describe 'Financial Dashboard', type: :system do
 
   describe 'Cash flow management' do
     it 'displays cash flow forecast and analysis' do
-      visit immo_promo_engine.project_financial_cash_flow_management_path(project)
+      visit immo_promo_engine.financial_dashboard_cash_flow_management_project_path(project)
       
       expect(page).to have_content('Gestion de trésorerie')
       
@@ -212,7 +212,7 @@ RSpec.describe 'Financial Dashboard', type: :system do
     end
 
     it 'allows cash flow scenario planning' do
-      visit immo_promo_engine.project_financial_cash_flow_management_path(project)
+      visit immo_promo_engine.financial_dashboard_cash_flow_management_project_path(project)
       
       click_button 'Scénarios'
       
@@ -236,7 +236,7 @@ RSpec.describe 'Financial Dashboard', type: :system do
 
   describe 'Budget scenarios' do
     it 'generates multiple budget scenarios' do
-      visit immo_promo_engine.project_financial_budget_scenarios_path(project)
+      visit immo_promo_engine.financial_dashboard_budget_scenarios_project_path(project)
       
       expect(page).to have_content('Scénarios budgétaires')
       
@@ -272,7 +272,7 @@ RSpec.describe 'Financial Dashboard', type: :system do
     end
 
     it 'performs sensitivity analysis' do
-      visit immo_promo_engine.project_financial_budget_scenarios_path(project)
+      visit immo_promo_engine.financial_dashboard_budget_scenarios_project_path(project)
       
       click_button 'Analyse de sensibilité'
       
@@ -296,7 +296,7 @@ RSpec.describe 'Financial Dashboard', type: :system do
 
   describe 'Profitability analysis' do
     it 'calculates and displays profitability metrics' do
-      visit immo_promo_engine.project_financial_profitability_analysis_path(project)
+      visit immo_promo_engine.financial_dashboard_profitability_analysis_project_path(project)
       
       expect(page).to have_content('Analyse de rentabilité')
       
@@ -324,7 +324,7 @@ RSpec.describe 'Financial Dashboard', type: :system do
 
   describe 'Budget adjustments' do
     it 'allows budget reallocation between categories' do
-      visit immo_promo_engine.project_financial_dashboard_path(project)
+      visit immo_promo_engine.financial_dashboard_project_path(project)
       
       click_button 'Réallocation budgétaire'
       
@@ -340,7 +340,7 @@ RSpec.describe 'Financial Dashboard', type: :system do
       expect(page).to have_content('Réallocation effectuée')
       
       # Check updated values
-      visit immo_promo_engine.project_financial_variance_analysis_path(project)
+      visit immo_promo_engine.financial_dashboard_variance_analysis_project_path(project)
       
       within('tr', text: 'Contingency') do
         expect(page).to have_content('800 000 €') # 1M - 200K
@@ -352,7 +352,7 @@ RSpec.describe 'Financial Dashboard', type: :system do
     end
 
     it 'requires approval for large adjustments' do
-      visit immo_promo_engine.project_financial_dashboard_path(project)
+      visit immo_promo_engine.financial_dashboard_project_path(project)
       
       click_button 'Ajustement budgétaire'
       
@@ -379,7 +379,7 @@ RSpec.describe 'Financial Dashboard', type: :system do
 
   describe 'Financial alerts' do
     it 'configures budget alerts' do
-      visit immo_promo_engine.project_financial_cost_control_path(project)
+      visit immo_promo_engine.financial_dashboard_cost_control_project_path(project)
       
       click_button 'Configurer alertes'
       
@@ -407,7 +407,7 @@ RSpec.describe 'Financial Dashboard', type: :system do
 
   describe 'Financial reporting' do
     it 'generates comprehensive financial report' do
-      visit immo_promo_engine.project_financial_dashboard_path(project)
+      visit immo_promo_engine.financial_dashboard_project_path(project)
       
       click_link 'Générer rapport financier'
       
@@ -429,7 +429,7 @@ RSpec.describe 'Financial Dashboard', type: :system do
     end
 
     it 'exports budget data for analysis' do
-      visit immo_promo_engine.project_financial_dashboard_path(project)
+      visit immo_promo_engine.financial_dashboard_project_path(project)
       
       click_link 'Exporter données'
       
@@ -449,7 +449,7 @@ RSpec.describe 'Financial Dashboard', type: :system do
 
   describe 'Accounting system integration' do
     it 'synchronizes with external accounting system' do
-      visit immo_promo_engine.project_financial_dashboard_path(project)
+      visit immo_promo_engine.financial_dashboard_project_path(project)
       
       click_button 'Synchroniser comptabilité'
       
@@ -477,7 +477,7 @@ RSpec.describe 'Financial Dashboard', type: :system do
     it 'provides mobile-optimized financial views' do
       page.driver.browser.manage.window.resize_to(375, 667)
       
-      visit immo_promo_engine.project_financial_dashboard_path(project)
+      visit immo_promo_engine.financial_dashboard_project_path(project)
       
       expect(page).to have_css('.mobile-dashboard')
       

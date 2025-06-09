@@ -1,0 +1,38 @@
+<% if items.any? %>
+  <table class="<%= table_classes %>">
+    <thead class="bg-gray-50">
+      <tr>
+        <% columns.each do |column| %>
+          <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 <%= column[:class] %>">
+            <%= column[:label] %>
+          </th>
+        <% end %>
+        <% if content.present? %>
+          <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
+            <span class="sr-only">Actions</span>
+          </th>
+        <% end %>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-200 bg-white">
+      <% items.each do |item| %>
+        <tr class="<%= 'hover:bg-gray-50' if hoverable %>">
+          <% columns.each do |column| %>
+            <td class="whitespace-nowrap px-3 py-4 text-sm <%= column[:td_class] %>">
+              <%= render_cell(item, column) %>
+            </td>
+          <% end %>
+          <% if content.present? %>
+            <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+              <%= content %>
+            </td>
+          <% end %>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <div class="text-center py-12">
+    <p class="text-sm text-gray-500"><%= empty_message %></p>
+  </div>
+<% end %>

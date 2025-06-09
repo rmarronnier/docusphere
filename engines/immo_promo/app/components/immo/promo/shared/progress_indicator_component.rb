@@ -1,75 +1,62 @@
 module Immo
   module Promo
     module Shared
-      class ProgressIndicatorComponent < ApplicationComponent
+      class ProgressIndicatorComponent < ::Ui::ProgressBarComponent
         def initialize(progress:, status: nil, show_label: true, size: 'default', color_scheme: 'auto')
-          @progress = [progress.to_f, 100].min
+          # Map size to parent component's size system
+          size_mapped = case size
+                        when 'small', 'sm' then :small
+                        when 'large', 'lg' then :large
+                        else :medium
+                        end
+          
+          # Determine color based on status or color_scheme
+          color = determine_color(progress, status, color_scheme)
+          
+          # Call parent initializer
+          super(
+            value: progress,
+            max: 100,
+            size: size_mapped,
+            color: color,
+            show_label: show_label
+          )
+          
           @status = status
-          @show_label = show_label
-          @size = size
-          @color_scheme = color_scheme
         end
 
         private
 
-        attr_reader :progress, :status, :show_label, :size, :color_scheme
+        attr_reader :status
 
-        def progress_color
-          return manual_color if color_scheme != 'auto'
+        def determine_color(progress, status, color_scheme)
+          return color_scheme.to_sym if color_scheme != 'auto'
           
           if status.present?
             case status.to_s
             when 'on_track', 'completed', 'approved'
-              'bg-green-600'
+              :green
             when 'at_risk', 'warning', 'pending'
-              'bg-yellow-600'
+              :yellow
             when 'critical', 'overdue', 'denied'
-              'bg-red-600'
+              :red
             else
-              'bg-blue-600'
+              :blue
             end
           else
-            # Color based on percentage
-            if progress >= 80
-              'bg-green-600'
-            elsif progress >= 60
-              'bg-blue-600'
-            elsif progress >= 40
-              'bg-yellow-600'
-            else
-              'bg-red-600'
-            end
+            # Use parent's auto color logic
+            :auto
           end
         end
 
-        def manual_color
-          case color_scheme
-          when 'green'
-            'bg-green-600'
-          when 'blue'
-            'bg-blue-600'
-          when 'yellow'
-            'bg-yellow-600'
-          when 'red'
-            'bg-red-600'
-          else
-            'bg-gray-600'
+        # Override the auto_color_class to match ImmoPromo's thresholds
+        def auto_color_class
+          case @percentage
+          when 0..40 then 'bg-red-600'
+          when 41..60 then 'bg-yellow-600'
+          when 61..80 then 'bg-blue-600'
+          else 'bg-green-600'
           end
-        end
-
-        def height_class
-          case size
-          when 'small', 'sm'
-            'h-1.5'
-          when 'large', 'lg'
-            'h-3'
-          else
-            'h-2'
-          end
-        end
-
-        def formatted_progress
-          "#{progress.round}%"
         end
       end
     end
