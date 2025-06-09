@@ -1,0 +1,130 @@
+<div class="container mx-auto px-4 py-8 max-w-2xl">
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900">Demander une validation</h1>
+    <p class="mt-2 text-gray-600">Document: <%= @document.title %></p>
+  </div>
+
+  <div class="bg-white shadow rounded-lg p-6">
+    <%= form_with model: [@document, @validation_request], url: ged_document_validations_path(@document), local: true do |f| %>
+      <!-- Validators Selection -->
+      <div class="mb-6">
+        <label class="block text-sm font-medium text-gray-700 mb-3">
+          Sélectionner les validateurs
+        </label>
+        
+        <div class="space-y-3 max-h-64 overflow-y-auto border rounded-md p-4">
+          <% @available_validators.each do |validator| %>
+            <label class="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded">
+              <%= check_box_tag "validation_request[validator_ids][]", validator.id, false, class: "h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded", id: "validator_#{validator.id}" %>
+              <div class="flex-1">
+                <p class="text-sm font-medium text-gray-900"><%= validator.full_name %></p>
+                <p class="text-xs text-gray-500"><%= validator.email %></p>
+              </div>
+            </label>
+          <% end %>
+        </div>
+        
+        <% if @available_validators.empty? %>
+          <div class="text-center py-8 text-gray-500">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+            <p class="mt-2">Aucun validateur disponible</p>
+            <p class="text-sm">Les validateurs doivent avoir la permission de validation sur cet espace.</p>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- Minimum Validations -->
+      <div class="mb-6">
+        <label for="min_validations" class="block text-sm font-medium text-gray-700">
+          Nombre minimum de validations requises
+        </label>
+        <div class="mt-1 relative rounded-md shadow-sm">
+          <%= f.number_field :min_validations, value: 1, min: 1, class: "block w-full pr-10 border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md", id: "min_validations" %>
+          <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+            <span class="text-gray-500 sm:text-sm" id="validation-count-suffix">validation(s)</span>
+          </div>
+        </div>
+        <p class="mt-2 text-sm text-gray-500">
+          Le document sera approuvé dès que ce nombre de validations positives sera atteint.
+        </p>
+      </div>
+
+      <!-- Summary -->
+      <div class="mb-6 p-4 bg-gray-50 rounded-md">
+        <h3 class="text-sm font-medium text-gray-900 mb-2">Résumé de la demande</h3>
+        <dl class="text-sm space-y-1">
+          <div class="flex justify-between">
+            <dt class="text-gray-500">Validateurs sélectionnés:</dt>
+            <dd class="font-medium text-gray-900" id="selected-count">0</dd>
+          </div>
+          <div class="flex justify-between">
+            <dt class="text-gray-500">Validations requises:</dt>
+            <dd class="font-medium text-gray-900" id="min-count">1</dd>
+          </div>
+        </dl>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex justify-end space-x-3">
+        <%= link_to "Annuler", ged_document_path(@document), class: "px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
+        <%= f.submit "Envoyer la demande", class: "px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500", disabled: @available_validators.empty? %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Information Panel -->
+  <div class="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
+    <div class="flex">
+      <div class="flex-shrink-0">
+        <svg class="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+        </svg>
+      </div>
+      <div class="ml-3">
+        <h3 class="text-sm font-medium text-blue-800">Comment fonctionne la validation ?</h3>
+        <div class="mt-2 text-sm text-blue-700">
+          <ul class="list-disc list-inside space-y-1">
+            <li>Les validateurs sélectionnés recevront une notification</li>
+            <li>Chaque validateur peut approuver ou refuser le document</li>
+            <li>Un seul refus entraîne le rejet définitif du document</li>
+            <li>Le document est approuvé dès que le nombre minimum de validations est atteint</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const checkboxes = document.querySelectorAll('input[name="validation_request[validator_ids][]"]');
+  const minValidationsInput = document.getElementById('min_validations');
+  const selectedCountEl = document.getElementById('selected-count');
+  const minCountEl = document.getElementById('min-count');
+  
+  function updateCounts() {
+    const selectedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+    selectedCountEl.textContent = selectedCount;
+    
+    // Limit max validations to selected validators
+    if (minValidationsInput.value > selectedCount && selectedCount > 0) {
+      minValidationsInput.value = selectedCount;
+    }
+    minValidationsInput.max = selectedCount || 1;
+    
+    minCountEl.textContent = minValidationsInput.value;
+  }
+  
+  checkboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', updateCounts);
+  });
+  
+  minValidationsInput.addEventListener('input', function() {
+    minCountEl.textContent = this.value;
+  });
+  
+  updateCounts();
+});
+</script>

@@ -1,0 +1,148 @@
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="bg-white shadow rounded-lg">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h1 class="text-xl font-semibold text-gray-900">
+        Ajouter des documents
+      </h1>
+      <p class="mt-1 text-sm text-gray-600">
+        <%= @documentable.class.model_name.human %> : <%= @documentable.respond_to?(:name) ? @documentable.name : @documentable.to_s %>
+      </p>
+    </div>
+    
+    <%= form_with url: polymorphic_path([@documentable, :documents]), 
+                  method: :post, 
+                  local: true, 
+                  html: { multipart: true } do |form| %>
+      
+      <div class="px-6 py-4 space-y-6">
+        <!-- File Upload Area -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Fichiers à télécharger
+          </label>
+          <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+            <div class="space-y-1 text-center">
+              <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+              <div class="flex text-sm text-gray-600">
+                <label for="documents_files" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                  <span>Sélectionner des fichiers</span>
+                  <%= form.file_field :files, 
+                                      multiple: true, 
+                                      id: 'documents_files',
+                                      class: "sr-only",
+                                      data: { 
+                                        controller: "file-upload",
+                                        action: "change->file-upload#updateFileList"
+                                      } %>
+                </label>
+                <p class="pl-1">ou glisser-déposer</p>
+              </div>
+              <p class="text-xs text-gray-500">
+                PDF, DOC, XLS, JPG, PNG jusqu'à 50MB chacun
+              </p>
+            </div>
+          </div>
+          
+          <!-- Selected Files List -->
+          <div id="selected-files" class="mt-4 hidden">
+            <h4 class="text-sm font-medium text-gray-700 mb-2">Fichiers sélectionnés :</h4>
+            <ul id="file-list" class="space-y-2"></ul>
+          </div>
+        </div>
+        
+        <!-- Document Category -->
+        <div>
+          <label for="documents_category" class="block text-sm font-medium text-gray-700">
+            Catégorie
+          </label>
+          <%= form.select :category, 
+                          options_for_select(@categories.map { |c| [t("document.categories.#{c}", default: c.humanize), c] }), 
+                          { prompt: "Sélectionner une catégorie" },
+                          { class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" } %>
+        </div>
+        
+        <!-- Title (optional) -->
+        <div>
+          <label for="documents_title" class="block text-sm font-medium text-gray-700">
+            Titre (optionnel)
+          </label>
+          <%= form.text_field :title, 
+                              placeholder: "Laissez vide pour utiliser le nom du fichier",
+                              class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+        </div>
+        
+        <!-- Description -->
+        <div>
+          <label for="documents_description" class="block text-sm font-medium text-gray-700">
+            Description (optionnel)
+          </label>
+          <%= form.text_area :description, 
+                             rows: 3,
+                             placeholder: "Ajoutez une description ou des notes...",
+                             class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+        </div>
+      </div>
+      
+      <!-- Form Actions -->
+      <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end space-x-3">
+        <%= link_to "Annuler", 
+                    polymorphic_path([@documentable, :documents]), 
+                    class: "px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+        
+        <%= form.submit "Télécharger", 
+                        class: "px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const fileInput = document.getElementById('documents_files');
+  const selectedFilesDiv = document.getElementById('selected-files');
+  const fileList = document.getElementById('file-list');
+  
+  fileInput.addEventListener('change', function(e) {
+    const files = Array.from(e.target.files);
+    
+    if (files.length > 0) {
+      selectedFilesDiv.classList.remove('hidden');
+      fileList.innerHTML = '';
+      
+      files.forEach(file => {
+        const li = document.createElement('li');
+        li.className = 'flex items-center justify-between py-2 px-3 bg-gray-50 rounded-md';
+        
+        const fileInfo = document.createElement('div');
+        fileInfo.className = 'flex items-center';
+        
+        const icon = document.createElement('svg');
+        icon.className = 'w-5 h-5 mr-2 text-gray-400';
+        icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />';
+        icon.setAttribute('fill', 'none');
+        icon.setAttribute('stroke', 'currentColor');
+        icon.setAttribute('viewBox', '0 0 24 24');
+        
+        const fileName = document.createElement('span');
+        fileName.className = 'text-sm text-gray-900';
+        fileName.textContent = file.name;
+        
+        const fileSize = document.createElement('span');
+        fileSize.className = 'ml-2 text-xs text-gray-500';
+        fileSize.textContent = `(${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+        
+        fileInfo.appendChild(icon);
+        fileInfo.appendChild(fileName);
+        fileInfo.appendChild(fileSize);
+        
+        li.appendChild(fileInfo);
+        fileList.appendChild(li);
+      });
+    } else {
+      selectedFilesDiv.classList.add('hidden');
+    }
+  });
+});
+</script>

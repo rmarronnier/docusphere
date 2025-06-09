@@ -1,0 +1,206 @@
+<div class="<%= wrapper_classes %>" data-controller="document-grid">
+  <% documents.each do |document| %>
+    <% case view_mode %>
+    <% when :grid %>
+      <!-- Grid View -->
+      <div class="group relative" data-document-id="<%= document.id %>">
+        <%= render Ui::CardComponent.new(
+          href: ged_document_path(document),
+          clickable: true,
+          hover: true,
+          padded: false,
+          shadow: :sm
+        ) do %>
+          <!-- Preview Area -->
+          <div class="aspect-video bg-gray-50 relative overflow-hidden">
+            <% if preview_available?(document) %>
+              <div class="absolute inset-0 flex items-center justify-center">
+                <!-- Add actual preview here -->
+                <% icon_info = document_icon(document) %>
+                <%= render Ui::IconComponent.new(name: icon_info[:name], css_class: "h-16 w-16 #{icon_info[:color]} opacity-20") %>
+              </div>
+            <% else %>
+              <div class="absolute inset-0 flex items-center justify-center">
+                <% icon_info = document_icon(document) %>
+                <%= render Ui::IconComponent.new(name: icon_info[:name], css_class: "h-16 w-16 #{icon_info[:color]}") %>
+              </div>
+            <% end %>
+            
+            <!-- Selection Checkbox -->
+            <% if selectable %>
+              <div class="absolute top-2 left-2">
+                <input type="checkbox" 
+                       class="form-checkbox h-4 w-4 text-primary-600 rounded border-gray-300 opacity-0 group-hover:opacity-100 transition-opacity"
+                       value="<%= document.id %>"
+                       data-action="change->document-grid#toggleSelection">
+              </div>
+            <% end %>
+            
+            <!-- Status Badge -->
+            <div class="absolute top-2 right-2">
+              <%= render Ui::StatusBadgeComponent.new(
+                status: document.status,
+                size: :sm
+              ) %>
+            </div>
+            
+            <!-- Quick Actions -->
+            <% if show_actions %>
+              <div class="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <%= render Ui::ButtonComponent.new(
+                  icon: "download",
+                  size: :sm,
+                  variant: :primary,
+                  aria_label: "Download",
+                  href: rails_blob_path(document.file, disposition: "attachment"),
+                  onclick: "event.stopPropagation()"
+                ) if document.file.attached? %>
+              </div>
+            <% end %>
+          </div>
+          
+          <!-- Document Info -->
+          <div class="p-4">
+            <h3 class="text-sm font-medium text-gray-900 truncate">
+              <%= document.title %>
+            </h3>
+            <div class="mt-2 flex items-center justify-between text-xs text-gray-500">
+              <span class="<%= file_size_color(document.file.byte_size) if document.file.attached? %>">
+                <%= document.file.attached? ? number_to_human_size(document.file.byte_size) : "No file" %>
+              </span>
+              <span><%= time_ago_in_words(document.updated_at) %> ago</span>
+            </div>
+            <div class="mt-2 flex items-center space-x-2">
+              <%= render Ui::UserAvatarComponent.new(user: document.uploaded_by, size: :xs) if document.uploaded_by %>
+              <span class="text-xs text-gray-500 truncate flex-1">
+                <%= document.uploaded_by&.display_name || "Unknown" %>
+              </span>
+            </div>
+          </div>
+        <% end %>
+      </div>
+      
+    <% when :list %>
+      <!-- List View -->
+      <%= render Ui::CardComponent.new(
+        href: ged_document_path(document),
+        clickable: true,
+        hover: true,
+        padded: false
+      ) do %>
+        <div class="flex items-center space-x-4 p-4">
+          <% if selectable %>
+            <input type="checkbox" 
+                   class="form-checkbox h-4 w-4 text-primary-600 rounded border-gray-300"
+                   value="<%= document.id %>"
+                   data-action="change->document-grid#toggleSelection">
+          <% end %>
+          
+          <!-- Icon -->
+          <div class="flex-shrink-0">
+            <div class="h-12 w-12 rounded-lg bg-gray-50 flex items-center justify-center">
+              <% icon_info = document_icon(document) %>
+              <%= render Ui::IconComponent.new(name: icon_info[:name], css_class: "h-6 w-6 #{icon_info[:color]}") %>
+            </div>
+          </div>
+          
+          <!-- Info -->
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center justify-between">
+              <h3 class="text-sm font-medium text-gray-900 truncate pr-2">
+                <%= document.title %>
+              </h3>
+              <%= render Ui::StatusBadgeComponent.new(
+                status: document.status,
+                size: :sm
+              ) %>
+            </div>
+            <div class="mt-1 flex items-center space-x-4 text-sm text-gray-500">
+              <span><%= document.document_type&.upcase if document.file.attached? %></span>
+              <span class="<%= file_size_color(document.file.byte_size) if document.file.attached? %>">
+                <%= document.file.attached? ? number_to_human_size(document.file.byte_size) : "No file" %>
+              </span>
+              <span>Modified <%= time_ago_in_words(document.updated_at) %> ago</span>
+              <div class="flex items-center space-x-1">
+                <%= render Ui::UserAvatarComponent.new(user: document.uploaded_by, size: :xs) if document.uploaded_by %>
+                <span><%= document.uploaded_by&.display_name || "Unknown" %></span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Actions -->
+          <% if show_actions %>
+            <div class="flex-shrink-0 flex items-center space-x-2">
+              <%= render Ui::ButtonComponent.new(
+                icon: "download",
+                size: :sm,
+                variant: :ghost,
+                aria_label: "Download",
+                href: rails_blob_path(document.file, disposition: "attachment")
+              ) if document.file.attached? %>
+              
+              <%= render Ui::ButtonComponent.new(
+                icon: "dots-vertical",
+                size: :sm,
+                variant: :ghost,
+                aria_label: "More options",
+                dropdown: true
+              ) do |button| %>
+                <% button.with_dropdown_item(text: "View", href: ged_document_path(document), icon: "eye") %>
+                <% button.with_dropdown_item(text: "Edit", href: edit_ged_document_path(document), icon: "pencil") %>
+                <% button.with_dropdown_item(divider: true) %>
+                <% button.with_dropdown_item(text: "Delete", href: "#", icon: "trash", method: :delete) %>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+      
+    <% when :compact %>
+      <!-- Compact View -->
+      <div class="flex items-center space-x-3 py-3 hover:bg-gray-50 px-4 group">
+        <% if selectable %>
+          <input type="checkbox" 
+                 class="form-checkbox h-4 w-4 text-primary-600 rounded border-gray-300"
+                 value="<%= document.id %>"
+                 data-action="change->document-grid#toggleSelection">
+        <% end %>
+        
+        <% icon_info = document_icon(document) %>
+        <%= render Ui::IconComponent.new(name: icon_info[:name], css_class: "h-5 w-5 #{icon_info[:color]} flex-shrink-0") %>
+        
+        <%= link_to document.title, ged_document_path(document), class: "text-sm font-medium text-gray-900 hover:text-primary-600 truncate flex-1" %>
+        
+        <span class="text-xs text-gray-500">
+          <%= document.file.attached? ? number_to_human_size(document.file.byte_size) : "-" %>
+        </span>
+        
+        <span class="text-xs text-gray-500">
+          <%= time_ago_in_words(document.updated_at) %> ago
+        </span>
+        
+        <% if show_actions %>
+          <div class="opacity-0 group-hover:opacity-100 transition-opacity">
+            <%= render Ui::ButtonComponent.new(
+              icon: "download",
+              size: :xs,
+              variant: :ghost,
+              aria_label: "Download",
+              href: rails_blob_path(document.file, disposition: "attachment")
+            ) if document.file.attached? %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+</div>
+
+<% if documents.empty? %>
+  <%= render Ui::EmptyStateComponent.new(
+    title: "Aucun document",
+    description: "Commencez par uploader votre premier document.",
+    icon: "document",
+    action_text: "Upload Document",
+    action_url: "#"
+  ) %>
+<% end %>

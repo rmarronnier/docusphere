@@ -6,100 +6,162 @@
       <!-- Header avec actions rapides -->
       <div class="md:flex md:items-center md:justify-between mb-8">
         <div class="min-w-0 flex-1">
-          <h1 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate">
+          <h1 class="text-3xl font-bold text-gray-900 tracking-tight">
             Gestion Électronique de Documents
           </h1>
+          <p class="mt-2 text-sm text-gray-600">
+            Gérez et organisez tous vos documents en un seul endroit
+          </p>
         </div>
-        <div class="mt-4 flex md:ml-4 md:mt-0">
-          <button type="button" 
-                  onclick="openModal('createSpaceModal')" 
-                  class="ml-3 inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700">
-            <svg class="-ml-0.5 mr-1.5 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-            </svg>
-            Nouvel Espace
-          </button>
-          <button type="button" 
-                  onclick="openModal('createFolderModal')" 
-                  class="ml-3 inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
-            <svg class="-ml-0.5 mr-1.5 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-5l-2-2H5a2 2 0 00-2 2z"/>
-            </svg>
-            Nouveau Dossier
-          </button>
-          <button type="button" 
-                  onclick="openModal('uploadModal')" 
-                  class="ml-3 inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
-            <svg class="-ml-0.5 mr-1.5 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-            </svg>
-            Upload Document
-          </button>
+        <div class="mt-4 flex space-x-3 md:ml-4 md:mt-0">
+          <%= render Ui::ButtonComponent.new(
+            text: "Nouvel Espace",
+            icon: "folder-plus",
+            variant: :primary,
+            onclick: "openModal('createSpaceModal')" 
+          ) %>
+          <%= render Ui::ButtonComponent.new(
+            text: "Nouveau Dossier",
+            icon: "folder",
+            variant: :secondary,
+            onclick: "openModal('createFolderModal')" 
+          ) %>
+          <%= render Ui::ButtonComponent.new(
+            text: "Upload Document",
+            icon: "cloud-upload",
+            variant: :secondary,
+            onclick: "openModal('uploadModal')" 
+          ) %>
         </div>
       </div>
 
       <!-- Statistiques -->
       <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
-        <div class="bg-white overflow-hidden shadow rounded-lg">
-          <div class="p-5">
-            <div class="flex items-center">
-              <div class="flex-shrink-0">
-                <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
-                </svg>
-              </div>
-              <div class="ml-5 w-0 flex-1">
-                <dl>
-                  <dt class="text-sm font-medium text-gray-500 truncate">Espaces</dt>
-                  <dd class="text-lg font-medium text-gray-900"><%= @spaces_count %></dd>
-                </dl>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-white overflow-hidden shadow rounded-lg">
-          <div class="p-5">
-            <div class="flex items-center">
-              <div class="flex-shrink-0">
-                <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                </svg>
-              </div>
-              <div class="ml-5 w-0 flex-1">
-                <dl>
-                  <dt class="text-sm font-medium text-gray-500 truncate">Documents</dt>
-                  <dd class="text-lg font-medium text-gray-900"><%= @documents_count %></dd>
-                </dl>
-              </div>
-            </div>
-          </div>
-        </div>
+        <%= render Ui::StatCardComponent.new(
+          title: "Total des Espaces",
+          value: @spaces_count,
+          subtitle: "Espaces de travail actifs",
+          icon: "folder",
+          trend: :up,
+          trend_value: "+12%",
+          variant: :primary,
+          href: "#"
+        ) %>
+        
+        <%= render Ui::StatCardComponent.new(
+          title: "Documents",
+          value: number_with_delimiter(@documents_count),
+          subtitle: "Total des documents stockés",
+          icon: "document",
+          trend: :up,
+          trend_value: "+23%",
+          variant: :success
+        ) %>
+        
+        <%= render Ui::StatCardComponent.new(
+          title: "Stockage Utilisé",
+          value: "45.2 GB",
+          subtitle: "Sur 100 GB disponibles",
+          icon: "database",
+          trend: :neutral,
+          trend_value: "45%",
+          variant: :warning
+        ) %>
+        
+        <%= render Ui::StatCardComponent.new(
+          title: "Utilisateurs Actifs",
+          value: "124",
+          subtitle: "Cette semaine",
+          icon: "users",
+          trend: :up,
+          trend_value: "+8",
+          variant: :default
+        ) %>
+      </div>
+      
+      <!-- Graphiques -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <%= render Ui::ChartComponent.new(
+          type: :area,
+          title: "Évolution des documents",
+          subtitle: "Nombre de documents uploadés par mois",
+          data: {
+            categories: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil'],
+            series: [{
+              name: 'Documents',
+              data: [312, 423, 456, 512, 623, 734, 845]
+            }]
+          },
+          height: "h-80"
+        ) %>
+        
+        <%= render Ui::ChartComponent.new(
+          type: :donut,
+          title: "Répartition par type",
+          subtitle: "Types de documents stockés",
+          data: {
+            series: [44, 25, 19, 12],
+            labels: ['PDF', 'Images', 'Word', 'Autres']
+          },
+          height: "h-80"
+        ) %>
       </div>
 
       <!-- Espaces favoris -->
       <div class="mb-8">
-        <h2 class="text-lg font-medium text-gray-900 mb-4">Espaces de travail</h2>
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-xl font-semibold text-gray-900">Espaces de travail</h2>
+          <%= link_to "Voir tous", "#", class: "text-sm font-medium text-primary-600 hover:text-primary-700" %>
+        </div>
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <% @favorite_spaces.each do |space| %>
-            <div class="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm hover:border-gray-400 cursor-pointer">
-              <%= link_to ged_space_path(space), class: "absolute inset-0" do %>
-                <span class="sr-only">Voir <%= space.name %></span>
-              <% end %>
-              <div class="flex items-center space-x-3">
+            <%= render Ui::CardComponent.new(
+              href: ged_space_path(space),
+              clickable: true,
+              padded: true,
+              hover: true
+            ) do %>
+              <div class="flex items-start space-x-4">
                 <div class="flex-shrink-0">
-                  <div class="h-10 w-10 rounded-lg bg-indigo-500 flex items-center justify-center">
-                    <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
-                    </svg>
+                  <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-lg shadow-primary-500/20">
+                    <%= render Ui::IconComponent.new(name: "folder", css_class: "h-6 w-6 text-white") %>
                   </div>
                 </div>
-                <div class="min-w-0 flex-1">
-                  <span class="absolute inset-0" aria-hidden="true"></span>
-                  <p class="text-sm font-medium text-gray-900"><%= space.name %></p>
-                  <p class="text-sm text-gray-500 truncate"><%= space.description || "Aucune description" %></p>
+                <div class="flex-1 min-w-0">
+                  <h3 class="text-base font-semibold text-gray-900 mb-1">
+                    <%= space.name %>
+                  </h3>
+                  <p class="text-sm text-gray-500 truncate">
+                    <%= space.description || "Aucune description" %>
+                  </p>
+                  <div class="mt-3 flex items-center space-x-4 text-xs text-gray-500">
+                    <span class="flex items-center">
+                      <%= render Ui::IconComponent.new(name: "document", size: 4, css_class: "mr-1") %>
+                      <%= space.documents.count %> documents
+                    </span>
+                    <span class="flex items-center">
+                      <%= render Ui::IconComponent.new(name: "folder", size: 4, css_class: "mr-1") %>
+                      <%= space.folders.count %> dossiers
+                    </span>
+                  </div>
                 </div>
               </div>
+            <% end %>
+          <% end %>
+          
+          <!-- Carte pour créer un nouvel espace -->
+          <%= render Ui::CardComponent.new(
+            clickable: true,
+            padded: true,
+            variant: :flat,
+            onclick: "openModal('createSpaceModal')"
+          ) do %>
+            <div class="flex flex-col items-center justify-center py-8 text-center">
+              <div class="h-12 w-12 rounded-xl bg-gray-100 flex items-center justify-center mb-3">
+                <%= render Ui::IconComponent.new(name: "plus", css_class: "h-6 w-6 text-gray-600") %>
+              </div>
+              <p class="text-sm font-medium text-gray-900">Créer un nouvel espace</p>
+              <p class="text-xs text-gray-500 mt-1">Organisez vos documents</p>
             </div>
           <% end %>
         </div>
@@ -107,42 +169,81 @@
 
       <!-- Documents récents -->
       <div>
-        <h2 class="text-lg font-medium text-gray-900 mb-4">Documents récents</h2>
-        <div class="bg-white shadow overflow-hidden sm:rounded-md">
-          <ul role="list" class="divide-y divide-gray-200">
-            <% @recent_documents.each do |document| %>
-              <li>
-                <%= link_to ged_document_path(document), class: "block hover:bg-gray-50" do %>
-                  <div class="px-4 py-4 sm:px-6">
-                    <div class="flex items-center justify-between">
-                      <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                          <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                          </svg>
-                        </div>
-                        <div class="ml-4">
-                          <p class="text-sm font-medium text-indigo-600 truncate"><%= document.title %></p>
-                          <p class="text-sm text-gray-500">
-                            <%= document.space.name %>
-                            <% if document.folder %>
-                              • <%= document.folder.name %>
-                            <% end %>
-                          </p>
-                        </div>
-                      </div>
-                      <div class="flex flex-shrink-0 items-center">
-                        <p class="text-sm text-gray-500">
-                          Modifié le <%= l(document.updated_at, format: :short) %>
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                <% end %>
-              </li>
-            <% end %>
-          </ul>
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-xl font-semibold text-gray-900">Documents récents</h2>
+          <%= link_to "Voir tous", "#", class: "text-sm font-medium text-primary-600 hover:text-primary-700" %>
         </div>
+        
+        <%= render Ui::CardComponent.new(padded: false, shadow: :md) do %>
+          <%= render Ui::DataGridComponent.new(
+            data: @recent_documents,
+            striped: false,
+            hover: true,
+            compact: true
+          ) do |grid| %>
+            <% grid.with_column(
+              key: :title,
+              label: "Document",
+              sortable: true
+            ) do |document| %>
+              <div class="flex items-center space-x-3">
+                <div class="flex-shrink-0">
+                  <%= render Ui::IconComponent.new(name: "document", css_class: "h-8 w-8 text-gray-400") %>
+                </div>
+                <div class="min-w-0">
+                  <%= link_to document.title, ged_document_path(document), class: "text-sm font-medium text-gray-900 hover:text-primary-600 truncate block" %>
+                  <p class="text-xs text-gray-500">PDF • 2.4 MB</p>
+                </div>
+              </div>
+            <% end %>
+            
+            <% grid.with_column(
+              key: :space,
+              label: "Espace",
+              sortable: true
+            ) do |document| %>
+              <span class="text-sm text-gray-600"><%= document.space.name %></span>
+            <% end %>
+            
+            <% grid.with_column(
+              key: :uploaded_by,
+              label: "Auteur"
+            ) do |document| %>
+              <% if document.uploaded_by %>
+                <div class="flex items-center space-x-2">
+                  <%= render Ui::UserAvatarComponent.new(user: document.uploaded_by, size: :sm) %>
+                  <span class="text-sm text-gray-600"><%= document.uploaded_by.name %></span>
+                </div>
+              <% else %>
+                <span class="text-sm text-gray-400">Inconnu</span>
+              <% end %>
+            <% end %>
+            
+            <% grid.with_column(
+              key: :updated_at,
+              label: "Modifié",
+              sortable: true,
+              align: :right
+            ) do |document| %>
+              <span class="text-sm text-gray-500"><%= time_ago_in_words(document.updated_at) %> ago</span>
+            <% end %>
+            
+            <% grid.with_action do |document| %>
+              <%= render Ui::ButtonComponent.new(
+                icon: "dots-vertical",
+                variant: :ghost,
+                size: :sm,
+                aria_label: "Options",
+                dropdown: true
+              ) do |button| %>
+                <% button.with_dropdown_item(text: "Voir", href: ged_document_path(document), icon: "eye") %>
+                <% button.with_dropdown_item(text: "Télécharger", href: "#", icon: "download") %>
+                <% button.with_dropdown_item(divider: true) %>
+                <% button.with_dropdown_item(text: "Supprimer", href: "#", icon: "trash", method: :delete) %>
+              <% end %>
+            <% end %>
+          <% end %>
+        <% end %>
       </div>
     </div>
   </div>

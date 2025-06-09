@@ -1,0 +1,82 @@
+#!/usr/bin/env ruby
+require 'net/http'
+require 'json'
+
+puts "🏥 DocuSphere Demo Health Check"
+puts "=" * 40
+
+# Check if Docker is running
+docker_status = `docker-compose ps 2>&1`
+if $?.success?
+  puts "✅ Docker Compose is running"
+  
+  # Check each service
+  services = docker_status.split("\n").select { |line| line.include?("Up") }
+  puts "   - #{services.count} services are up"
+else
+  puts "❌ Docker Compose is not running!"
+  exit 1
+end
+
+# Check web service
+begin
+  uri = URI('http://localhost:3000')
+  response = Net::HTTP.get_response(uri)
+  
+  if response.code.to_i < 400
+    puts "✅ Web service is responding (HTTP #{response.code})"
+  else
+    puts "⚠️  Web service returned HTTP #{response.code}"
+  end
+rescue => e
+  puts "❌ Cannot reach web service: #{e.message}"
+  puts "   Try: docker-compose logs web"
+end
+
+# Check database
+db_check = `docker-compose run --rm web rails runner "puts User.count" 2>&1`
+if db_check.match?(/\d+/)
+  user_count = db_check.match(/(\d+)/)[1]
+  puts "✅ Database is accessible (#{user_count} users)"
+else
+  puts "❌ Database connection failed"
+  puts "   Try: docker-compose run --rm web rails db:create db:migrate"
+end
+
+# Check for common issues
+puts "\n🔍 Common Issues Check:"
+
+# Port 3000 already in use?
+port_check = `lsof -i :3000 2>&1`
+if port_check.include?("LISTEN") && !port_check.include?("docker")
+  puts "⚠️  Port 3000 might be used by another process"
+end
+
+# Check disk space
+df_output = `df -h . | tail -1`
+disk_usage = df_output.match(/(\d+)%/)[1].to_i
+if disk_usage > 90
+  puts "⚠️  Low disk space (#{disk_usage}% used)"
+else
+  puts "✅ Disk space OK (#{disk_usage}% used)"
+end
+
+# Check logs for errors
+recent_errors = `docker-compose logs --tail=100 web 2>&1 | grep -i error | wc -l`.strip.to_i
+if recent_errors > 0
+  puts "⚠️  Found #{recent_errors} recent errors in logs"
+  puts "   Check: docker-compose logs web"
+else
+  puts "✅ No recent errors in logs"
+end
+
+puts "\n📋 Quick Actions:"
+puts "  - View logs: docker-compose logs -f web"
+puts "  - Restart web: docker-compose restart web"
+puts "  - Reset database: docker-compose run --rm web rails db:reset"
+puts "  - Run minimal demo: docker-compose run --rm web rails runner 'load \"db/demo_minimal.rb\"'"
+
+puts "\n🚀 Demo URLs:"
+puts "  - Main app: http://localhost:3000"
+puts "  - ImmoPromo: http://localhost:3000/immo/promo"
+puts "  - Login: admin@docusphere.fr / password123"

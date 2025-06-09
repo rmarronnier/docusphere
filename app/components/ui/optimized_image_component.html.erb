@@ -1,0 +1,11 @@
+<div class="<%= wrapper_classes %>">
+  <% if placeholder != :none %>
+    <div data-lazy-load-target="placeholder">
+      <%= placeholder_content %>
+    </div>
+  <% end %>
+  
+  <%= tag.img(**image_attributes) %>
+  
+  <%= noscript_fallback %>
+</div>

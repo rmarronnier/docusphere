@@ -243,6 +243,117 @@ class GedController < ApplicationController
       redirect_to ged_document_path(@document), alert: 'Erreur lors du déverrouillage du document'
     end
   end
+  
+  # Document versioning actions
+  def document_versions
+    skip_authorization
+    @document = Document.find(params[:id])
+    
+    unless @document.can_read?(current_user)
+      redirect_to ged_document_path(@document), alert: 'Vous n\'avez pas les droits pour voir les versions'
+      return
+    end
+    
+    @versions = @document.document_versions.includes(:created_by)
+    
+    respond_to do |format|
+      format.json { render json: @versions }
+      format.html { render partial: 'ged/partials/document_versions', locals: { document: @document, versions: @versions } }
+    end
+  end
+  
+  def create_document_version
+    skip_authorization
+    @document = Document.find(params[:id])
+    
+    unless @document.can_write?(current_user)
+      render json: { error: 'Vous n\'avez pas les droits pour créer une nouvelle version' }, status: :forbidden
+      return
+    end
+    
+    if @document.locked? && !@document.locked_by_user?(current_user)
+      render json: { error: 'Le document est verrouillé par un autre utilisateur' }, status: :locked
+      return
+    end
+    
+    uploaded_file = params[:file]
+    comment = params[:comment]
+    
+    if uploaded_file.blank?
+      render json: { error: 'Aucun fichier fourni' }, status: :unprocessable_entity
+      return
+    end
+    
+    version = @document.create_version!(uploaded_file, current_user, comment)
+    
+    if version
+      render json: { 
+        success: true, 
+        message: 'Nouvelle version créée avec succès',
+        version: {
+          id: version.id,
+          version_number: version.version_number,
+          created_at: version.created_at,
+          created_by: version.created_by.full_name,
+          comment: version.comment
+        }
+      }
+    else
+      render json: { error: 'Erreur lors de la création de la version' }, status: :unprocessable_entity
+    end
+  end
+  
+  def restore_document_version
+    skip_authorization
+    @document = Document.find(params[:id])
+    
+    unless @document.can_write?(current_user)
+      render json: { error: 'Vous n\'avez pas les droits pour restaurer une version' }, status: :forbidden
+      return
+    end
+    
+    if @document.locked? && !@document.locked_by_user?(current_user)
+      render json: { error: 'Le document est verrouillé par un autre utilisateur' }, status: :locked
+      return
+    end
+    
+    version_number = params[:version_number].to_i
+    
+    restored_version = @document.restore_version!(version_number, current_user)
+    
+    if restored_version
+      render json: { 
+        success: true, 
+        message: "Document restauré à partir de la version #{version_number}",
+        new_version: {
+          id: restored_version.id,
+          version_number: restored_version.version_number,
+          created_at: restored_version.created_at
+        }
+      }
+    else
+      render json: { error: 'Version introuvable ou erreur lors de la restauration' }, status: :unprocessable_entity
+    end
+  end
+  
+  def download_document_version
+    skip_authorization
+    @document = Document.find(params[:id])
+    version_number = params[:version_number].to_i
+    
+    unless @document.can_read?(current_user)
+      redirect_to ged_document_path(@document), alert: 'Vous n\'avez pas les droits pour télécharger ce document'
+      return
+    end
+    
+    version = @document.version_at(version_number)
+    
+    if version && version.file.attached?
+      redirect_to rails_blob_path(version.file, disposition: "attachment")
+    else
+      redirect_to ged_document_path(@document), alert: 'Version introuvable'
+    end
+  end
 
   private
 
@@ -338,5 +449,335 @@ class GedController < ApplicationController
       Rails.logger.error "Erreur lors de la mise à jour des permissions: #{e.message}"
       false
     end
+  end
+  
+  # Bulk document operations
+  def bulk_action
+    action = params[:bulk_action]
+    document_ids = params[:document_ids] || []
+    
+    if document_ids.empty?
+      render json: { error: 'Aucun document sélectionné' }, status: :unprocessable_entity
+      return
+    end
+    
+    documents = Document.where(id: document_ids)
+    skip_authorization # We'll check permissions per document
+    
+    case action
+    when 'delete'
+      perform_bulk_delete(documents)
+    when 'move'
+      perform_bulk_move(documents)
+    when 'tag'
+      perform_bulk_tag(documents)
+    when 'untag'
+      perform_bulk_untag(documents)
+    when 'lock'
+      perform_bulk_lock(documents)
+    when 'unlock'
+      perform_bulk_unlock(documents)
+    when 'archive'
+      perform_bulk_archive(documents)
+    when 'download'
+      perform_bulk_download(documents)
+    when 'validate'
+      perform_bulk_validate(documents)
+    when 'classify'
+      perform_bulk_classify(documents)
+    when 'check_compliance'
+      perform_bulk_compliance_check(documents)
+    else
+      render json: { error: 'Action inconnue' }, status: :bad_request
+    end
+  end
+  
+  def perform_bulk_delete(documents)
+    deleted_count = 0
+    errors = []
+    
+    documents.each do |document|
+      if document.can_write?(current_user)
+        if document.mark_for_deletion!
+          deleted_count += 1
+        else
+          errors << "Impossible de supprimer #{document.title}"
+        end
+      else
+        errors << "Permission refusée pour #{document.title}"
+      end
+    end
+    
+    if errors.empty?
+      render json: { message: "#{deleted_count} document(s) marqué(s) pour suppression" }
+    else
+      render json: { message: "#{deleted_count} document(s) marqué(s) pour suppression", errors: errors }, status: :partial_content
+    end
+  end
+  
+  def perform_bulk_move(documents)
+    destination_folder_id = params[:destination_folder_id]
+    destination_space_id = params[:destination_space_id]
+    
+    moved_count = 0
+    errors = []
+    
+    documents.each do |document|
+      if document.can_write?(current_user)
+        document.folder_id = destination_folder_id if destination_folder_id
+        document.space_id = destination_space_id if destination_space_id
+        
+        if document.save
+          moved_count += 1
+        else
+          errors << "Impossible de déplacer #{document.title}: #{document.errors.full_messages.join(', ')}"
+        end
+      else
+        errors << "Permission refusée pour déplacer #{document.title}"
+      end
+    end
+    
+    if errors.empty?
+      render json: { message: "#{moved_count} document(s) déplacé(s)" }
+    else
+      render json: { message: "#{moved_count} document(s) déplacé(s)", errors: errors }, status: :partial_content
+    end
+  end
+  
+  def perform_bulk_tag(documents)
+    tag_names = params[:tags] || []
+    
+    tagged_count = 0
+    errors = []
+    
+    documents.each do |document|
+      if document.can_write?(current_user)
+        tag_names.each do |tag_name|
+          tag = Tag.find_or_create_by(name: tag_name.strip)
+          document.tags << tag unless document.tags.include?(tag)
+        end
+        tagged_count += 1
+      else
+        errors << "Permission refusée pour étiqueter #{document.title}"
+      end
+    end
+    
+    if errors.empty?
+      render json: { message: "#{tagged_count} document(s) étiqueté(s)" }
+    else
+      render json: { message: "#{tagged_count} document(s) étiqueté(s)", errors: errors }, status: :partial_content
+    end
+  end
+  
+  def perform_bulk_untag(documents)
+    tag_names = params[:tags] || []
+    
+    untagged_count = 0
+    errors = []
+    
+    documents.each do |document|
+      if document.can_write?(current_user)
+        tags_to_remove = document.tags.where(name: tag_names)
+        document.tags.destroy(tags_to_remove)
+        untagged_count += 1
+      else
+        errors << "Permission refusée pour retirer les étiquettes de #{document.title}"
+      end
+    end
+    
+    if errors.empty?
+      render json: { message: "Étiquettes retirées de #{untagged_count} document(s)" }
+    else
+      render json: { message: "Étiquettes retirées de #{untagged_count} document(s)", errors: errors }, status: :partial_content
+    end
+  end
+  
+  def perform_bulk_lock(documents)
+    lock_reason = params[:lock_reason] || "Verrouillage en masse"
+    locked_count = 0
+    errors = []
+    
+    documents.each do |document|
+      if document.can_lock?(current_user)
+        if document.lock_document!(current_user, reason: lock_reason)
+          locked_count += 1
+        else
+          errors << "Impossible de verrouiller #{document.title}"
+        end
+      else
+        errors << "Permission refusée pour verrouiller #{document.title}"
+      end
+    end
+    
+    if errors.empty?
+      render json: { message: "#{locked_count} document(s) verrouillé(s)" }
+    else
+      render json: { message: "#{locked_count} document(s) verrouillé(s)", errors: errors }, status: :partial_content
+    end
+  end
+  
+  def perform_bulk_unlock(documents)
+    unlocked_count = 0
+    errors = []
+    
+    documents.each do |document|
+      if document.can_unlock?(current_user)
+        if document.unlock_document!(current_user)
+          unlocked_count += 1
+        else
+          errors << "Impossible de déverrouiller #{document.title}"
+        end
+      else
+        errors << "Permission refusée pour déverrouiller #{document.title}"
+      end
+    end
+    
+    if errors.empty?
+      render json: { message: "#{unlocked_count} document(s) déverrouillé(s)" }
+    else
+      render json: { message: "#{unlocked_count} document(s) déverrouillé(s)", errors: errors }, status: :partial_content
+    end
+  end
+  
+  def perform_bulk_archive(documents)
+    archived_count = 0
+    errors = []
+    
+    documents.each do |document|
+      if document.can_write?(current_user)
+        if document.archive!
+          archived_count += 1
+        else
+          errors << "Impossible d'archiver #{document.title}"
+        end
+      else
+        errors << "Permission refusée pour archiver #{document.title}"
+      end
+    end
+    
+    if errors.empty?
+      render json: { message: "#{archived_count} document(s) archivé(s)" }
+    else
+      render json: { message: "#{archived_count} document(s) archivé(s)", errors: errors }, status: :partial_content
+    end
+  end
+  
+  def perform_bulk_download(documents)
+    # Generate a zip file with all documents
+    require 'zip'
+    
+    zip_filename = "documents_#{Time.current.to_i}.zip"
+    zip_path = Rails.root.join('tmp', zip_filename)
+    
+    Zip::File.open(zip_path, Zip::File::CREATE) do |zipfile|
+      documents.each do |document|
+        if document.can_read?(current_user)
+          document.file.open do |file|
+            zipfile.add(document.file.filename.to_s, file.path)
+          end
+        end
+      end
+    end
+    
+    send_file zip_path, type: 'application/zip', filename: zip_filename, disposition: 'attachment'
+    
+    # Clean up the zip file after sending
+    File.delete(zip_path) if File.exist?(zip_path)
+  rescue => e
+    render json: { error: "Erreur lors de la création de l'archive: #{e.message}" }, status: :internal_server_error
+  end
+  
+  def perform_bulk_validate(documents)
+    # Create validation requests for multiple documents
+    validator_ids = params[:validator_ids] || []
+    min_validations = params[:min_validations]&.to_i || 1
+    
+    if validator_ids.empty?
+      render json: { error: 'Aucun validateur sélectionné' }, status: :unprocessable_entity
+      return
+    end
+    
+    validators = User.where(id: validator_ids)
+    requested_count = 0
+    errors = []
+    
+    documents.each do |document|
+      if document.can_request_validation?(current_user)
+        validation_request = document.request_validation(
+          requester: current_user,
+          validators: validators,
+          min_validations: min_validations
+        )
+        
+        if validation_request.persisted?
+          requested_count += 1
+        else
+          errors << "Impossible de demander la validation pour #{document.title}"
+        end
+      else
+        errors << "Permission refusée pour demander la validation de #{document.title}"
+      end
+    end
+    
+    if errors.empty?
+      render json: { message: "Validation demandée pour #{requested_count} document(s)" }
+    else
+      render json: { message: "Validation demandée pour #{requested_count} document(s)", errors: errors }, status: :partial_content
+    end
+  end
+  
+  def perform_bulk_classify(documents)
+    # Trigger AI classification for multiple documents
+    classified_count = 0
+    errors = []
+    
+    documents.each do |document|
+      if document.can_write?(current_user)
+        if AiClassificationService.classify_document(document)
+          classified_count += 1
+        else
+          errors << "Impossible de classifier #{document.title}"
+        end
+      else
+        errors << "Permission refusée pour classifier #{document.title}"
+      end
+    end
+    
+    if errors.empty?
+      render json: { message: "#{classified_count} document(s) classifié(s)" }
+    else
+      render json: { message: "#{classified_count} document(s) classifié(s)", errors: errors }, status: :partial_content
+    end
+  end
+  
+  def perform_bulk_compliance_check(documents)
+    # Check regulatory compliance for multiple documents
+    results = []
+    
+    documents.each do |document|
+      if document.can_read?(current_user)
+        compliance_result = RegulatoryComplianceService.check_document_compliance(document)
+        results << {
+          document_id: document.id,
+          document_title: document.title,
+          compliant: compliance_result[:compliant],
+          score: compliance_result[:score],
+          violations_count: compliance_result[:violations].count
+        }
+      end
+    end
+    
+    compliant_count = results.count { |r| r[:compliant] }
+    non_compliant_count = results.count { |r| !r[:compliant] }
+    
+    render json: {
+      message: "Vérification de conformité terminée",
+      results: {
+        total_checked: results.count,
+        compliant: compliant_count,
+        non_compliant: non_compliant_count,
+        documents: results
+      }
+    }
   end
 end

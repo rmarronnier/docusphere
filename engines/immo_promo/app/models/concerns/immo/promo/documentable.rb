@@ -47,6 +47,10 @@ module Immo
         )
         
         document.file.attach(file)
+        
+        # Trigger document integration service
+        DocumentIntegrationService.new(document, self).process_document
+        
         document
       end
 

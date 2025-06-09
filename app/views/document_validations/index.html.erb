@@ -1,0 +1,179 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900">Mes validations</h1>
+    <p class="mt-2 text-gray-600">Gérez vos demandes de validation de documents</p>
+  </div>
+
+  <!-- Tabs -->
+  <div class="border-b border-gray-200 mb-6">
+    <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+      <a href="#pending" class="tab-link active border-indigo-500 text-indigo-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+        En attente
+        <% if @pending_validations.any? %>
+          <span class="ml-2 bg-indigo-100 text-indigo-600 py-0.5 px-2.5 rounded-full text-xs font-medium"><%= @pending_validations.total_count %></span>
+        <% end %>
+      </a>
+      <a href="#completed" class="tab-link border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+        Complétées
+        <span class="ml-2 bg-gray-100 text-gray-600 py-0.5 px-2.5 rounded-full text-xs font-medium"><%= @completed_validations.total_count %></span>
+      </a>
+    </nav>
+  </div>
+
+  <!-- Pending Validations -->
+  <div id="pending-tab" class="tab-content">
+    <% if @pending_validations.any? %>
+      <div class="bg-white shadow overflow-hidden sm:rounded-md">
+        <ul class="divide-y divide-gray-200">
+          <% @pending_validations.each do |validation| %>
+            <li>
+              <div class="px-4 py-4 sm:px-6 hover:bg-gray-50">
+                <div class="flex items-center justify-between">
+                  <div class="flex-1">
+                    <div class="flex items-center">
+                      <div class="flex-shrink-0">
+                        <svg class="h-10 w-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                      </div>
+                      <div class="ml-4">
+                        <h4 class="text-lg font-medium text-gray-900">
+                          <%= link_to validation.document.title, ged_document_validation_path(validation.document, validation.validation_request), class: "hover:text-indigo-600" %>
+                        </h4>
+                        <div class="mt-1 flex items-center text-sm text-gray-500">
+                          <span>Demandé par <%= validation.validation_request.requester.full_name %></span>
+                          <span class="mx-2">•</span>
+                          <span><%= l(validation.created_at, format: :short) %></span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="ml-4 flex-shrink-0 flex items-center space-x-2">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                      En attente
+                    </span>
+                    <%= link_to "Valider", ged_document_validation_path(validation.document, validation.validation_request), class: "inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
+                  </div>
+                </div>
+              </div>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+      
+      <div class="mt-6">
+        <%= paginate @pending_validations %>
+      </div>
+    <% else %>
+      <div class="text-center py-12">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900">Aucune validation en attente</h3>
+        <p class="mt-1 text-sm text-gray-500">Vous n'avez aucun document à valider pour le moment.</p>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Completed Validations -->
+  <div id="completed-tab" class="tab-content hidden">
+    <% if @completed_validations.any? %>
+      <div class="bg-white shadow overflow-hidden sm:rounded-md">
+        <ul class="divide-y divide-gray-200">
+          <% @completed_validations.each do |validation| %>
+            <li>
+              <div class="px-4 py-4 sm:px-6">
+                <div class="flex items-center justify-between">
+                  <div class="flex-1">
+                    <div class="flex items-center">
+                      <div class="flex-shrink-0">
+                        <svg class="h-10 w-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                      </div>
+                      <div class="ml-4">
+                        <h4 class="text-lg font-medium text-gray-900">
+                          <%= link_to validation.document.title, ged_document_path(validation.document), class: "hover:text-indigo-600" %>
+                        </h4>
+                        <div class="mt-1 flex items-center text-sm text-gray-500">
+                          <span>Validé le <%= l(validation.validated_at, format: :short) %></span>
+                          <% if validation.comment.present? %>
+                            <span class="mx-2">•</span>
+                            <span class="truncate max-w-xs" title="<%= validation.comment %>"><%= validation.comment %></span>
+                          <% end %>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="ml-4 flex-shrink-0">
+                    <% if validation.approved? %>
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        <svg class="mr-1.5 h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                          <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                        </svg>
+                        Approuvé
+                      </span>
+                    <% else %>
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                        <svg class="mr-1.5 h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                          <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                        Refusé
+                      </span>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+      
+      <div class="mt-6">
+        <%= paginate @completed_validations, param_name: :completed_page %>
+      </div>
+    <% else %>
+      <div class="text-center py-12">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900">Aucune validation complétée</h3>
+        <p class="mt-1 text-sm text-gray-500">Vous n'avez pas encore validé de documents.</p>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Tab switching
+  const tabLinks = document.querySelectorAll('.tab-link');
+  const pendingTab = document.getElementById('pending-tab');
+  const completedTab = document.getElementById('completed-tab');
+  
+  tabLinks.forEach(link => {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      
+      // Remove active class from all tabs
+      tabLinks.forEach(l => {
+        l.classList.remove('border-indigo-500', 'text-indigo-600');
+        l.classList.add('border-transparent', 'text-gray-500');
+      });
+      
+      // Add active class to clicked tab
+      this.classList.remove('border-transparent', 'text-gray-500');
+      this.classList.add('border-indigo-500', 'text-indigo-600');
+      
+      // Show/hide content
+      if (this.getAttribute('href') === '#pending') {
+        pendingTab.classList.remove('hidden');
+        completedTab.classList.add('hidden');
+      } else {
+        pendingTab.classList.add('hidden');
+        completedTab.classList.remove('hidden');
+      }
+    });
+  });
+});
+</script>

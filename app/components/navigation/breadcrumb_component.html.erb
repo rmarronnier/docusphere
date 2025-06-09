@@ -1,21 +1,54 @@
-<nav class="flex mb-6" aria-label="Breadcrumb">
-  <ol role="list" class="flex items-center space-x-4">
-    <% items.each_with_index do |breadcrumb, index| %>
-      <li>
-        <div class="flex items-center">
-          <% if index > 0 %>
-            <svg class="flex-shrink-0 h-5 w-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-              <path d="M5.555 17.776l8-16 .894.448-8 16-.894-.448z"/>
-            </svg>
+<nav class="<%= wrapper_classes %>" aria-label="Breadcrumb">
+  <ol role="list" class="flex items-center flex-wrap">
+    <% display_items.each_with_index do |item, index| %>
+      <li class="flex items-center">
+        <% if index > 0 %>
+          <!-- Separator -->
+          <span class="mx-2 text-gray-400" aria-hidden="true">
+            <% if separator_icon.present? %>
+              <%= render Ui::IconComponent.new(name: separator_icon, size: 4) %>
+            <% else %>
+              <%= separator_text %>
+            <% end %>
+          </span>
+        <% end %>
+        
+        <% if item[:truncated] %>
+          <!-- Truncated indicator -->
+          <span class="text-gray-400">
+            <%= render Ui::IconComponent.new(name: "dots-horizontal", size: 5) %>
+          </span>
+        <% elsif index == display_items.length - 1 %>
+          <!-- Current page (last item) -->
+          <span class="<%= link_classes(item, index) %>" aria-current="page">
+            <% if item[:icon] %>
+              <%= render Ui::IconComponent.new(name: item[:icon], size: 4, css_class: "mr-1.5") %>
+            <% end %>
+            <span class="<%= truncate ? 'max-w-[200px] truncate' : '' %>">
+              <%= item_text(item) %>
+            </span>
+          </span>
+        <% else %>
+          <!-- Clickable breadcrumb -->
+          <%= link_to item_path(item), class: link_classes(item, index) do %>
+            <% if item[:icon] %>
+              <%= render Ui::IconComponent.new(name: item[:icon], size: 4, css_class: "mr-1.5") %>
+            <% end %>
+            <span class="<%= truncate ? 'max-w-[200px] truncate' : '' %>">
+              <%= item_text(item) %>
+            </span>
           <% end %>
-          <% if index == items.length - 1 %>
-            <span class="<%= index > 0 ? 'ml-4' : '' %> text-sm font-medium text-gray-500"><%= breadcrumb[:name] %></span>
-          <% else %>
-            <%= link_to breadcrumb[:name], breadcrumb[:path], 
-                        class: "#{index > 0 ? 'ml-4' : ''} text-sm font-medium text-gray-500 hover:text-gray-700" %>
-          <% end %>
-        </div>
+        <% end %>
       </li>
     <% end %>
   </ol>
+</nav>
+
+<!-- Mobile breadcrumb -->
+<nav class="sm:hidden" aria-label="Back">
+  <%= link_to display_items[-2] ? item_path(display_items[-2]) : root_path, 
+              class: "flex items-center text-sm font-medium text-gray-500 hover:text-gray-700" do %>
+    <%= render Ui::IconComponent.new(name: "chevron-left", size: 5, css_class: "mr-1") %>
+    <span>Retour</span>
+  <% end %>
 </nav>

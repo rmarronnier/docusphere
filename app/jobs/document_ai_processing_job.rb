@@ -28,8 +28,14 @@ class DocumentAiProcessingJob < ApplicationJob
       return
     end
     
-    # Traitement du document
-    processing_service.process_document(document)
+    # Try local AI classification first
+    if AiClassificationService.classify_document(document)
+      Rails.logger.info "Classification IA locale réussie pour le document #{document.id}"
+      document.update(processing_status: 'completed')
+    else
+      # Fallback to external processing service
+      processing_service.process_document(document)
+    end
     
     # Notification de fin de traitement
     notify_processing_completion(document)

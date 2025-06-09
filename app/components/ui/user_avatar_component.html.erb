@@ -1,6 +1,11 @@
-<div class="<%= size_classes %> rounded-full <%= color_classes %> flex items-center justify-center"
-     <% if show_tooltip %>title="<%= user.full_name %>"<% end %>>
-  <span class="font-medium">
+<%= content_tag wrapper_tag, class: wrapper_classes, href: href, data: { tooltip: show_tooltip ? tooltip_text : nil } do %>
+  <span class="<%= avatar_classes %>" aria-hidden="true">
     <%= initials %>
   </span>
-</div>
+  <% if show_status %>
+    <span class="<%= status_classes %>" aria-label="<%= status.to_s.humanize %>"></span>
+  <% end %>
+  <% if href.present? %>
+    <span class="sr-only">View <%= tooltip_text %> profile</span>
+  <% end %>
+<% end %>

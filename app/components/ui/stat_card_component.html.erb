@@ -1,0 +1,45 @@
+<%= content_tag wrapper_tag, wrapper_options do %>
+  <div class="flex items-start justify-between">
+    <div class="flex-1">
+      <% if loading %>
+        <div class="<%= skeleton_class("w-24") %> mb-2"></div>
+        <div class="<%= skeleton_class("w-32") %> h-8 mb-1"></div>
+        <div class="<%= skeleton_class("w-20") %>"></div>
+      <% else %>
+        <dt class="text-sm font-medium text-gray-600">
+          <%= title %>
+        </dt>
+        <dd class="mt-2 flex items-baseline">
+          <p class="<%= value_classes %>">
+            <%= value %>
+          </p>
+          <% if trend.present? && trend_value.present? %>
+            <p class="ml-2 flex items-baseline text-sm <%= trend_color %>">
+              <%= render Ui::IconComponent.new(name: trend_icon, size: 4, css_class: "self-center flex-shrink-0") %>
+              <span class="ml-0.5 font-medium"><%= trend_value %></span>
+            </p>
+          <% end %>
+        </dd>
+        <% if subtitle.present? %>
+          <p class="mt-1 text-sm text-gray-500">
+            <%= subtitle %>
+          </p>
+        <% end %>
+      <% end %>
+    </div>
+    <% if icon.present? && !loading %>
+      <div class="ml-4 flex-shrink-0">
+        <div class="rounded-lg bg-<%= variant_color %>-100/50 p-3">
+          <%= render Ui::IconComponent.new(name: icon, css_class: icon_classes) %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+  
+  <% if href.present? %>
+    <span class="absolute inset-0" aria-hidden="true"></span>
+  <% end %>
+  
+  <!-- Decorative gradient overlay -->
+  <div class="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-gradient-to-br from-<%= variant_color %>-200/20 to-transparent opacity-50"></div>
+<% end %>

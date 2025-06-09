@@ -1,28 +1,41 @@
-<% wrapper_tag = (href && clickable) ? :a : :div %>
-<% wrapper_attrs = card_attributes %>
-<% wrapper_attrs[:href] = href if href && clickable %>
-
-<%= content_tag wrapper_tag, wrapper_attrs do %>
+<%= content_tag wrapper_tag, card_attributes do %>
   <% if loading %>
-    <div class="skeleton-loader">
-      <div class="animate-pulse">
-        <div class="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-        <div class="h-4 bg-gray-200 rounded w-1/2"></div>
-      </div>
-    </div>
+    <%= loading_placeholder %>
   <% else %>
     <% if with_header? %>
-      <div class="card-header" <%= collapsible ? 'data-action="click->collapse#toggle"'.html_safe : '' %>>
-        <h3 class="text-lg font-medium text-gray-900"><%= title %></h3>
-        <% if subtitle? %>
-          <div class="card-subtitle text-sm text-gray-500"><%= subtitle %></div>
-        <% end %>
-        <% if actions? %>
-          <div class="card-actions">
-            <%= actions %>
+      <% if header? %>
+        <%= header %>
+      <% else %>
+        <div class="<%= header_classes %>" <%= collapsible ? 'data-action="click->collapse#toggle" role="button" tabindex="0"'.html_safe : '' %>>
+          <div class="flex items-center space-x-3">
+            <% if icon? %>
+              <div class="flex-shrink-0">
+                <%= icon %>
+              </div>
+            <% end %>
+            <div class="flex-1 min-w-0">
+              <% if title.present? %>
+                <h3 class="card-title"><%= title %></h3>
+              <% end %>
+              <% if subtitle? %>
+                <div class="card-subtitle"><%= subtitle %></div>
+              <% end %>
+            </div>
           </div>
-        <% end %>
-      </div>
+          <div class="flex items-center space-x-2">
+            <% if actions? %>
+              <%= actions %>
+            <% end %>
+            <% if collapsible %>
+              <button type="button" class="text-gray-400 hover:text-gray-600 transition-colors duration-150" aria-label="Toggle card">
+                <svg class="w-5 h-5 transform transition-transform duration-200" data-collapse-target="chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </button>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
     <% end %>
     
     <div <%= tag.attributes(content_attributes) %>>
@@ -34,5 +47,9 @@
         <%= footer %>
       </div>
     <% end %>
+  <% end %>
+  
+  <% if href.present? %>
+    <span class="absolute inset-0" aria-hidden="true"></span>
   <% end %>
 <% end %>

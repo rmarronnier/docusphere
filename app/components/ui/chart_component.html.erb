@@ -1,0 +1,35 @@
+<div class="<%= wrapper_classes %>" data-controller="chart" data-chart-config-value="<%= chart_config.to_json %>" data-chart-series-value="<%= chart_series.to_json %>">
+  <% if title.present? || subtitle.present? %>
+    <div class="mb-4">
+      <% if title.present? %>
+        <h3 class="text-lg font-semibold text-gray-900"><%= title %></h3>
+      <% end %>
+      <% if subtitle.present? %>
+        <p class="mt-1 text-sm text-gray-500"><%= subtitle %></p>
+      <% end %>
+    </div>
+  <% end %>
+
+  <div class="relative <%= height %>">
+    <% if loading %>
+      <div class="absolute inset-0 flex items-center justify-center">
+        <div class="text-center">
+          <div class="inline-flex items-center justify-center w-12 h-12 mb-2">
+            <svg class="animate-spin h-8 w-8 text-primary-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          </div>
+          <p class="text-sm text-gray-500">Chargement du graphique...</p>
+        </div>
+      </div>
+    <% else %>
+      <div id="<%= chart_id %>" class="h-full w-full"></div>
+    <% end %>
+  </div>
+</div>
+
+<script>
+  // Note: This requires ApexCharts to be loaded
+  // Add to application.js: import ApexCharts from 'apexcharts'
+</script>

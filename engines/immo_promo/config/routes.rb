@@ -34,14 +34,18 @@ ImmoPromo::Engine.routes.draw do
     end
 
     # Document management routes for projects
-    resources :documents, controller: 'immo/promo/documents', except: [:new, :edit] do
+    resources :documents, controller: 'immo/promo/documents' do
       collection do
         post :bulk_upload
         get :search
+        post :bulk_actions
       end
       member do
         get :download
+        get :preview
+        get :share
         post :share
+        get :request_validation
         post :request_validation
       end
     end

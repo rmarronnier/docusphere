@@ -1,0 +1,286 @@
+<%= render Layout::PageWrapperComponent.new do %>
+  <!-- Breadcrumb -->
+  <%= render Navigation::BreadcrumbComponent.new(items: @breadcrumbs) %>
+
+  <!-- Document Header -->
+  <div class="mb-8">
+    <%= render Ui::CardComponent.new(padded: false, shadow: :lg) do %>
+      <div class="bg-gradient-to-r from-primary-50 to-white px-6 py-8 sm:px-8">
+        <div class="md:flex md:items-start md:justify-between">
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center space-x-3">
+              <div class="flex-shrink-0">
+                <div class="h-16 w-16 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-lg shadow-primary-500/20">
+                  <%= render Ui::IconComponent.new(name: "document", css_class: "h-8 w-8 text-white") %>
+                </div>
+              </div>
+              <div>
+                <h1 class="text-3xl font-bold text-gray-900 tracking-tight">
+                  <%= @document.title %>
+                </h1>
+                <div class="mt-2 flex flex-wrap items-center gap-4 text-sm text-gray-600">
+                  <div class="flex items-center space-x-1">
+                    <%= render Ui::IconComponent.new(name: "user", size: 4) %>
+                    <span>Par <%= @document.uploaded_by.display_name %></span>
+                  </div>
+                  <div class="flex items-center space-x-1">
+                    <%= render Ui::IconComponent.new(name: "calendar", size: 4) %>
+                    <span>Créé <%= time_ago_in_words(@document.created_at) %> ago</span>
+                  </div>
+                  <div class="flex items-center space-x-1">
+                    <%= render Ui::IconComponent.new(name: "clock", size: 4) %>
+                    <span>Modifié <%= time_ago_in_words(@document.updated_at) %> ago</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <% if @document.description.present? %>
+              <p class="mt-4 text-base text-gray-600 max-w-3xl">
+                <%= @document.description %>
+              </p>
+            <% end %>
+          </div>
+          <div class="mt-6 flex items-center space-x-3 md:ml-6 md:mt-0">
+            <%= render Ui::StatusBadgeComponent.new(
+              status: @document.status,
+              size: :lg,
+              icon: true
+            ) %>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Quick Actions Bar -->
+      <div class="border-t border-gray-100 bg-gray-50/50 px-6 py-4">
+        <div class="flex flex-wrap gap-3">
+          <% if @document.file.attached? %>
+            <%= render Ui::ButtonComponent.new(
+              text: "Télécharger",
+              icon: "download",
+              variant: :primary,
+              href: rails_blob_path(@document.file, disposition: "attachment")
+            ) %>
+            
+            <%= render Ui::ButtonComponent.new(
+              text: "Prévisualiser",
+              icon: "eye",
+              variant: :secondary,
+              href: rails_blob_path(@document.file),
+              target: "_blank"
+            ) %>
+          <% end %>
+          
+          <%= render Ui::ButtonComponent.new(
+            text: "Modifier",
+            icon: "edit",
+            variant: :secondary,
+            href: edit_ged_document_path(@document)
+          ) %>
+          
+          <% if @document.locked? && @document.can_unlock?(current_user) %>
+            <%= render Ui::ButtonComponent.new(
+              text: "Déverrouiller",
+              icon: "lock-open",
+              variant: :warning,
+              href: ged_unlock_document_path(@document),
+              method: :post
+            ) %>
+          <% elsif !@document.locked? && @document.can_lock?(current_user) %>
+            <%= render Ui::ButtonComponent.new(
+              text: "Verrouiller",
+              icon: "lock-closed",
+              variant: :warning,
+              data: {
+                action: "click->modal#open",
+                modal_target_value: "lock-document-modal"
+              }
+            ) %>
+          <% end %>
+          
+          <div class="ml-auto">
+            <%= render Ui::ButtonComponent.new(
+              icon: "dots-vertical",
+              variant: :ghost,
+              aria_label: "More actions",
+              dropdown: true
+            ) do |button| %>
+              <% button.with_dropdown_item(text: "Ajouter à la bannette", href: "#", icon: "collection") %>
+              <% button.with_dropdown_item(text: "Partager", href: "#", icon: "share") %>
+              <% button.with_dropdown_item(text: "Historique", href: "#", icon: "clock") %>
+              <% button.with_dropdown_item(divider: true) %>
+              <% button.with_dropdown_item(text: "Archiver", href: "#", icon: "archive") %>
+              <% button.with_dropdown_item(text: "Supprimer", href: "#", icon: "trash", method: :delete) %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <% if @document.locked? %>
+    <!-- Lock Information Alert -->
+    <div class="mb-6">
+      <%= render Ui::AlertComponent.new(
+        type: :warning,
+        title: "Document verrouillé",
+        icon: "lock-closed"
+      ) do %>
+        <p>Verrouillé par <%= @document.locked_by.display_name %> le <%= l(@document.locked_at, format: :long) %></p>
+        <% if @document.lock_reason.present? %>
+          <p class="mt-1">Raison : <%= @document.lock_reason %></p>
+        <% end %>
+        <% if @document.unlock_scheduled_at.present? %>
+          <p class="mt-1">Déverrouillage prévu le : <%= l(@document.unlock_scheduled_at, format: :long) %></p>
+        <% end %>
+      <% end %>
+    </div>
+  <% end %>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Main Content -->
+    <div class="lg:col-span-2 space-y-6">
+      <!-- File Information -->
+      <%= render Ui::CardComponent.new(title: "Informations du fichier", icon: render(Ui::IconComponent.new(name: "document-text", css_class: "h-5 w-5 text-gray-400"))) do %>
+        <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Nom du fichier</dt>
+            <dd class="mt-1 text-sm text-gray-900 font-mono">
+              <%= @document.file.attached? ? @document.file.filename : "Aucun fichier attaché" %>
+            </dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Type de document</dt>
+            <dd class="mt-1 text-sm text-gray-900">
+              <% if @document.file.attached? %>
+                <span class="inline-flex items-center rounded-md bg-blue-50 px-2.5 py-0.5 text-sm font-medium text-blue-700">
+                  <%= @document.document_type.upcase %>
+                </span>
+              <% else %>
+                -
+              <% end %>
+            </dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Taille</dt>
+            <dd class="mt-1 text-sm text-gray-900">
+              <%= @document.file.attached? ? number_to_human_size(@document.file.byte_size) : "-" %>
+            </dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Type MIME</dt>
+            <dd class="mt-1 text-sm text-gray-900 font-mono text-xs">
+              <%= @document.file.attached? ? @document.file.content_type : "-" %>
+            </dd>
+          </div>
+        </dl>
+      <% end %>
+
+      <!-- Preview Area -->
+      <% if @document.file.attached? && @document.previewable? %>
+        <%= render Ui::CardComponent.new(title: "Aperçu", padded: false) do %>
+          <div class="aspect-video bg-gray-100 rounded-lg overflow-hidden">
+            <!-- Add preview content here based on file type -->
+            <div class="flex items-center justify-center h-full text-gray-400">
+              <%= render Ui::IconComponent.new(name: "document", css_class: "h-24 w-24") %>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+
+      <!-- AI Insights -->
+      <% if @document.ai_insights.present? %>
+        <%= render Documents::AiInsightsComponent.new(document: @document) %>
+      <% end %>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="space-y-6">
+      <!-- Location -->
+      <%= render Ui::CardComponent.new(title: "Emplacement", icon: render(Ui::IconComponent.new(name: "folder", css_class: "h-5 w-5 text-gray-400"))) do %>
+        <div class="space-y-3">
+          <div>
+            <p class="text-sm font-medium text-gray-500">Espace</p>
+            <%= link_to @space.name, ged_space_path(@space), class: "mt-1 text-sm font-medium text-primary-600 hover:text-primary-700" %>
+          </div>
+          <% if @folder %>
+            <div>
+              <p class="text-sm font-medium text-gray-500">Dossier</p>
+              <%= link_to @folder.name, ged_folder_path(@folder), class: "mt-1 text-sm font-medium text-primary-600 hover:text-primary-700" %>
+            </div>
+          <% end %>
+          <div>
+            <p class="text-sm font-medium text-gray-500">Chemin complet</p>
+            <p class="mt-1 text-sm text-gray-600 font-mono text-xs">
+              <%= @folder ? "#{@space.name} / #{@folder.full_path}" : @space.name %>
+            </p>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- Tags -->
+      <%= render Ui::CardComponent.new(title: "Tags", icon: render(Ui::IconComponent.new(name: "tag", css_class: "h-5 w-5 text-gray-400"))) do %>
+        <div class="flex flex-wrap gap-2">
+          <% @document.tags.each do |tag| %>
+            <span class="inline-flex items-center rounded-full bg-primary-50 px-3 py-0.5 text-sm font-medium text-primary-700">
+              <%= tag.name %>
+            </span>
+          <% end %>
+          <%= render Ui::ButtonComponent.new(
+            text: "Ajouter un tag",
+            icon: "plus",
+            size: :sm,
+            variant: :ghost
+          ) %>
+        </div>
+      <% end %>
+
+      <!-- Activity -->
+      <%= render Ui::CardComponent.new(title: "Activité récente", icon: render(Ui::IconComponent.new(name: "clock", css_class: "h-5 w-5 text-gray-400"))) do %>
+        <div class="flow-root">
+          <ul role="list" class="-mb-8">
+            <li>
+              <div class="relative pb-8">
+                <span class="absolute left-4 top-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
+                <div class="relative flex space-x-3">
+                  <div>
+                    <%= render Ui::UserAvatarComponent.new(user: @document.uploaded_by, size: :sm) %>
+                  </div>
+                  <div class="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
+                    <div>
+                      <p class="text-sm text-gray-500">Document créé par <span class="font-medium text-gray-900"><%= @document.uploaded_by.display_name %></span></p>
+                    </div>
+                    <div class="whitespace-nowrap text-right text-sm text-gray-500">
+                      <%= time_ago_in_words(@document.created_at) %> ago
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>
+
+<!-- Modals -->
+<!-- Lock Document Modal -->
+<%= render Ui::ModalComponent.new(id: "lock-document-modal", title: "Verrouiller le document") do %>
+  <%= form_with url: ged_lock_document_path(@document), method: :post, local: true do |form| %>
+    <div class="space-y-4">
+      <div>
+        <%= form.label :lock_reason, "Raison du verrouillage", class: "form-label" %>
+        <%= form.text_area :lock_reason, rows: 3, class: "form-textarea", placeholder: "Expliquez pourquoi vous verrouillez ce document..." %>
+      </div>
+      <div>
+        <%= form.label :unlock_scheduled_at, "Déverrouillage automatique", class: "form-label" %>
+        <%= form.datetime_field :unlock_scheduled_at, class: "form-input" %>
+        <p class="form-help">Optionnel - Date et heure de déverrouillage automatique</p>
+      </div>
+    </div>
+    <div class="mt-6 flex justify-end space-x-3">
+      <%= render Ui::ButtonComponent.new(text: "Annuler", variant: :secondary, data: { action: "modal#close" }) %>
+      <%= form.submit "Verrouiller", class: "btn btn-warning" %>
+    </div>
+  <% end %>
+<% end %>

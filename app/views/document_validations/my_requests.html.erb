@@ -1,0 +1,127 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900">Mes demandes de validation</h1>
+    <p class="mt-2 text-gray-600">Suivez l'état de vos demandes de validation</p>
+  </div>
+
+  <% if @validation_requests.any? %>
+    <div class="bg-white shadow overflow-hidden sm:rounded-md">
+      <ul class="divide-y divide-gray-200">
+        <% @validation_requests.each do |request| %>
+          <li>
+            <div class="px-4 py-4 sm:px-6">
+              <div class="flex items-center justify-between">
+                <div class="flex-1">
+                  <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                      <% case request.status %>
+                      <% when 'pending' %>
+                        <div class="h-10 w-10 rounded-full bg-yellow-100 flex items-center justify-center">
+                          <svg class="h-6 w-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        </div>
+                      <% when 'approved' %>
+                        <div class="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
+                          <svg class="h-6 w-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                          </svg>
+                        </div>
+                      <% when 'rejected' %>
+                        <div class="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center">
+                          <svg class="h-6 w-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                          </svg>
+                        </div>
+                      <% end %>
+                    </div>
+                    <div class="ml-4">
+                      <h4 class="text-lg font-medium text-gray-900">
+                        <%= link_to request.document.title, ged_document_path(request.document), class: "hover:text-indigo-600" %>
+                      </h4>
+                      <div class="mt-1 flex items-center text-sm text-gray-500">
+                        <span>Demandé le <%= l(request.created_at, format: :short) %></span>
+                        <% if request.completed_at %>
+                          <span class="mx-2">•</span>
+                          <span>Complété le <%= l(request.completed_at, format: :short) %></span>
+                        <% end %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="ml-4 flex-shrink-0 flex flex-col items-end space-y-2">
+                  <% case request.status %>
+                  <% when 'pending' %>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                      En cours
+                    </span>
+                  <% when 'approved' %>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      Approuvé
+                    </span>
+                  <% when 'rejected' %>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                      Refusé
+                    </span>
+                  <% end %>
+                  
+                  <%= link_to "Voir détails", ged_document_validation_path(request.document, request), class: "text-sm text-indigo-600 hover:text-indigo-900" %>
+                </div>
+              </div>
+              
+              <!-- Validation Progress -->
+              <% progress = request.validation_progress %>
+              <div class="mt-4">
+                <div class="flex justify-between text-xs text-gray-600 mb-1">
+                  <span>
+                    <%= progress[:approved] %> approuvé(s), 
+                    <%= progress[:rejected] %> refusé(s), 
+                    <%= progress[:pending] %> en attente
+                  </span>
+                  <span><%= progress[:progress_percentage] %>%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-1.5">
+                  <div class="h-1.5 rounded-full <%= request.rejected? ? 'bg-red-600' : request.approved? ? 'bg-green-600' : 'bg-yellow-600' %>" style="width: <%= progress[:progress_percentage] %>%"></div>
+                </div>
+              </div>
+              
+              <!-- Validators Summary -->
+              <div class="mt-3 flex flex-wrap gap-2">
+                <% request.document_validations.includes(:validator).each do |validation| %>
+                  <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium <%= validation.approved? ? 'bg-green-50 text-green-700' : validation.rejected? ? 'bg-red-50 text-red-700' : 'bg-gray-100 text-gray-700' %>">
+                    <%= validation.validator.full_name %>
+                    <% if validation.approved? %>
+                      <svg class="ml-1 h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                      </svg>
+                    <% elsif validation.rejected? %>
+                      <svg class="ml-1 h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                      </svg>
+                    <% else %>
+                      <svg class="ml-1 h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+                      </svg>
+                    <% end %>
+                  </span>
+                <% end %>
+              </div>
+            </div>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+    
+    <div class="mt-6">
+      <%= paginate @validation_requests %>
+    </div>
+  <% else %>
+    <div class="text-center py-12 bg-white rounded-lg shadow">
+      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+      </svg>
+      <h3 class="mt-2 text-sm font-medium text-gray-900">Aucune demande de validation</h3>
+      <p class="mt-1 text-sm text-gray-500">Vous n'avez pas encore demandé de validation pour des documents.</p>
+    </div>
+  <% end %>
+</div>

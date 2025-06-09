@@ -22,7 +22,7 @@ class Document < ApplicationRecord
   has_many :validation_requests, dependent: :destroy
   has_many :document_validations, dependent: :destroy
   has_many :validators, through: :document_validations, source: :validator
-  has_many :document_versions, dependent: :destroy
+  has_many :document_versions, -> { order(version_number: :desc) }, dependent: :destroy
   
   has_one_attached :file
   has_one_attached :preview
@@ -453,6 +453,117 @@ class Document < ApplicationRecord
     return false if locked? && !locked_by_user?(user)
     
     writable_by?(user)
+  end
+  
+  # Versioning methods
+  def create_version!(uploaded_file, user, comment = nil)
+    return false unless uploaded_file.present?
+    
+    transaction do
+      # Create new version
+      version = document_versions.build(
+        created_by: user,
+        comment: comment,
+        file_content_type: uploaded_file.content_type,
+        file_name: uploaded_file.original_filename
+      )
+      
+      version.file.attach(uploaded_file)
+      version.save!
+      
+      # Update main document file
+      self.file.purge if self.file.attached?
+      self.file.attach(uploaded_file)
+      self.current_version_number = version.version_number
+      save!
+      
+      # Reset processing status for new version
+      update!(
+        processing_status: 'pending',
+        ai_processed_at: nil,
+        extracted_text: nil
+      )
+      
+      # Trigger reprocessing
+      enqueue_processing_job
+      
+      version
+    end
+  end
+  
+  def restore_version!(version_number, user)
+    version = document_versions.find_by(version_number: version_number)
+    return false unless version
+    
+    transaction do
+      # Create a new version that's a copy of the old one
+      restored_version = document_versions.build(
+        created_by: user,
+        comment: "Restored from version #{version_number}",
+        file_content_type: version.file_content_type,
+        file_name: version.file_name
+      )
+      
+      # Copy the file
+      version.file.open do |file|
+        restored_version.file.attach(io: file, filename: version.file_name, content_type: version.file_content_type)
+      end
+      
+      restored_version.save!
+      
+      # Update main document
+      self.file.purge if self.file.attached?
+      version.file.open do |file|
+        self.file.attach(io: file, filename: version.file_name, content_type: version.file_content_type)
+      end
+      
+      self.current_version_number = restored_version.version_number
+      save!
+      
+      # Reset processing for restored version
+      update!(
+        processing_status: 'pending',
+        ai_processed_at: nil,
+        extracted_text: nil
+      )
+      
+      enqueue_processing_job
+      
+      restored_version
+    end
+  end
+  
+  def current_version
+    document_versions.find_by(version_number: current_version_number) if current_version_number
+  end
+  
+  def previous_versions
+    return document_versions.none unless current_version_number
+    document_versions.where.not(version_number: current_version_number)
+  end
+  
+  def version_count
+    document_versions.count
+  end
+  
+  def has_versions?
+    version_count > 0
+  end
+  
+  def latest_version
+    document_versions.first
+  end
+  
+  def oldest_version
+    document_versions.last
+  end
+  
+  def version_at(version_number)
+    document_versions.find_by(version_number: version_number)
+  end
+  
+  def versions_between(start_date, end_date)
+    document_versions.where(created_at: start_date..end_date)
   end
 
   private
