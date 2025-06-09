@@ -3,7 +3,20 @@ require 'rails_helper'
 RSpec.describe Immo::Promo::TasksController, type: :controller do
   routes { ImmoPromo::Engine.routes }
   
-  let(:user) { create(:user, organization: organization, role: 'admin') }
+  # Helper methods for routes
+  def project_phase_tasks_path(project, phase)
+    "/immo/promo/projects/#{project.id}/phases/#{phase.id}/tasks"
+  end
+  
+  def project_phase_task_path(project, phase, task)
+    "/immo/promo/projects/#{project.id}/phases/#{phase.id}/tasks/#{task.id}"
+  end
+  
+  def project_phase_path(project, phase)
+    "/immo/promo/projects/#{project.id}/phases/#{phase.id}"
+  end
+  
+  let(:user) { create(:user, :admin, organization: organization) }
   let(:organization) { create(:organization) }
   let(:project) { create(:immo_promo_project, organization: organization, project_manager: user) }
   let(:phase) { create(:immo_promo_phase, project: project) }
@@ -69,7 +82,7 @@ RSpec.describe Immo::Promo::TasksController, type: :controller do
           phase_id: phase.id,
           immo_promo_task: valid_attributes
         }
-        expect(response).to redirect_to(controller.immo_promo_engine.project_phase_task_path(project, phase, Immo::Promo::Task.last))
+        expect(response).to redirect_to(project_phase_task_path(project, phase, Immo::Promo::Task.last))
       end
     end
 
@@ -107,7 +120,7 @@ RSpec.describe Immo::Promo::TasksController, type: :controller do
         id: task.id,
         immo_promo_task: new_attributes
       }
-      expect(response).to redirect_to(controller.immo_promo_engine.project_phase_task_path(project, phase, task))
+      expect(response).to redirect_to(project_phase_task_path(project, phase, task))
     end
   end
 
@@ -129,7 +142,7 @@ RSpec.describe Immo::Promo::TasksController, type: :controller do
         phase_id: phase.id,
         id: task.id
       }
-      expect(response).to redirect_to(controller.immo_promo_engine.project_phase_path(project, phase))
+      expect(response).to redirect_to(project_phase_path(project, phase))
     end
   end
 
@@ -150,7 +163,7 @@ RSpec.describe Immo::Promo::TasksController, type: :controller do
         phase_id: phase.id,
         id: task.id
       }
-      expect(response).to redirect_to(controller.immo_promo_engine.project_phase_task_path(project, phase, task))
+      expect(response).to redirect_to(project_phase_task_path(project, phase, task))
     end
   end
 
@@ -175,7 +188,7 @@ RSpec.describe Immo::Promo::TasksController, type: :controller do
         id: task.id,
         user_id: assignee.id
       }
-      expect(response).to redirect_to(controller.immo_promo_engine.project_phase_task_path(project, phase, task))
+      expect(response).to redirect_to(project_phase_task_path(project, phase, task))
     end
   end
 

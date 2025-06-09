@@ -1,6 +1,8 @@
 class Document < ApplicationRecord
   include AASM
   include Authorizable
+  include Linkable
+  include Validatable
   
   has_paper_trail
   
@@ -19,10 +21,8 @@ class Document < ApplicationRecord
   has_many :tags, through: :document_tags
   has_many :source_links, class_name: 'Link', as: :source, dependent: :destroy
   has_many :target_links, class_name: 'Link', as: :target, dependent: :destroy
-  has_many :validation_requests, dependent: :destroy
-  has_many :document_validations, dependent: :destroy
-  has_many :validators, through: :document_validations, source: :validator
-  has_many :document_versions, -> { order(version_number: :desc) }, dependent: :destroy
+  # Use PaperTrail versions instead of custom document_versions
+  # Access versions through: document.versions (returns DocumentVersion instances)
   
   has_one_attached :file
   has_one_attached :preview
@@ -58,7 +58,15 @@ class Document < ApplicationRecord
              filterable: [:document_type, :document_category, :documentable_type, :created_at, :user_id, :space_id, :tags]
   
   audited
-  has_paper_trail
+  has_paper_trail versions: { class_name: 'DocumentVersion' },
+                  on: [:update, :destroy],
+                  ignore: [:processing_status, :processing_started_at, :processing_completed_at,
+                           :virus_scan_status, :virus_scan_result, :locked_at, :ai_processed_at,
+                           :ai_processing_started_at, :current_version_number],
+                  meta: {
+                    comment: :version_comment,
+                    created_by_id: proc { Current.user&.id }
+                  }
   
   aasm column: 'status' do
     state :draft, initial: true
@@ -316,26 +324,7 @@ class Document < ApplicationRecord
     ai_supported_types.include?(file.content_type)
   end
   
-  # Validation methods
-  def request_validation(requester:, validators:, min_validations: 1)
-    validation_request = validation_requests.create!(
-      requester: requester,
-      min_validations: min_validations,
-      status: 'pending'
-    )
-    
-    validation_request.add_validators(validators)
-    validation_request
-  end
-  
-  def current_validation_request
-    validation_requests.active.last
-  end
-  
-  def validation_pending?
-    current_validation_request&.pending?
-  end
-  
+  # Document-specific validation methods
   def can_validate?(user)
     # Owner can always request validation
     return true if self.uploaded_by == user
@@ -352,19 +341,6 @@ class Document < ApplicationRecord
     authorizations.where(user: user, permission_level: permission_level).exists? ||
     # Check if user belongs to a group with authorization
     authorizations.joins(user_group: :users).where(user_group: { users: { id: user.id } }, permission_level: permission_level).exists?
-  end
-  
-  def validation_approved?
-    current_validation_request&.approved?
-  end
-  
-  def validation_rejected?
-    current_validation_request&.rejected?
-  end
-  
-  def validation_status
-    return 'none' unless current_validation_request
-    current_validation_request.status
   end
   
   def can_request_validation?(user)
@@ -455,30 +431,30 @@ class Document < ApplicationRecord
     writable_by?(user)
   end
   
-  # Versioning methods
+  # Versioning methods using PaperTrail
+  attr_accessor :version_comment
+  
   def create_version!(uploaded_file, user, comment = nil)
     return false unless uploaded_file.present?
     
     transaction do
-      # Create new version
-      version = document_versions.build(
-        created_by: user,
-        comment: comment,
-        file_content_type: uploaded_file.content_type,
-        file_name: uploaded_file.original_filename
-      )
+      # Set version metadata
+      self.version_comment = comment
+      PaperTrail.request.whodunnit = user.id.to_s
       
-      version.file.attach(uploaded_file)
-      version.save!
+      # Store old file info before update
+      old_file_name = file.filename.to_s if file.attached?
       
       # Update main document file
       self.file.purge if self.file.attached?
       self.file.attach(uploaded_file)
-      self.current_version_number = version.version_number
+      
+      # Save with PaperTrail tracking
+      self.paper_trail_event = 'update'
       save!
       
       # Reset processing status for new version
-      update!(
+      update_columns(
         processing_status: 'pending',
         ai_processed_at: nil,
         extracted_text: nil
@@ -487,63 +463,44 @@ class Document < ApplicationRecord
       # Trigger reprocessing
       enqueue_processing_job
       
-      version
+      # Return the newly created version
+      versions.last
     end
   end
   
-  def restore_version!(version_number, user)
-    version = document_versions.find_by(version_number: version_number)
-    return false unless version
+  def restore_version!(version_id, user)
+    version = versions.find(version_id)
+    return false unless version.is_a?(DocumentVersion)
     
     transaction do
-      # Create a new version that's a copy of the old one
-      restored_version = document_versions.build(
-        created_by: user,
-        comment: "Restored from version #{version_number}",
-        file_content_type: version.file_content_type,
-        file_name: version.file_name
-      )
+      # Use DocumentVersion's restore method
+      restored = version.restore!(user)
       
-      # Copy the file
-      version.file.open do |file|
-        restored_version.file.attach(io: file, filename: version.file_name, content_type: version.file_content_type)
+      if restored
+        # Reset processing for restored version
+        update_columns(
+          processing_status: 'pending',
+          ai_processed_at: nil,
+          extracted_text: nil
+        )
+        
+        enqueue_processing_job
       end
       
-      restored_version.save!
-      
-      # Update main document
-      self.file.purge if self.file.attached?
-      version.file.open do |file|
-        self.file.attach(io: file, filename: version.file_name, content_type: version.file_content_type)
-      end
-      
-      self.current_version_number = restored_version.version_number
-      save!
-      
-      # Reset processing for restored version
-      update!(
-        processing_status: 'pending',
-        ai_processed_at: nil,
-        extracted_text: nil
-      )
-      
-      enqueue_processing_job
-      
-      restored_version
+      restored
     end
   end
   
   def current_version
-    document_versions.find_by(version_number: current_version_number) if current_version_number
+    versions.for_documents.first
   end
   
   def previous_versions
-    return document_versions.none unless current_version_number
-    document_versions.where.not(version_number: current_version_number)
+    versions.for_documents.offset(1)
   end
   
   def version_count
-    document_versions.count
+    versions.for_documents.count
   end
   
   def has_versions?
@@ -551,19 +508,19 @@ class Document < ApplicationRecord
   end
   
   def latest_version
-    document_versions.first
+    versions.for_documents.first
   end
   
   def oldest_version
-    document_versions.last
+    versions.for_documents.last
   end
   
   def version_at(version_number)
-    document_versions.find_by(version_number: version_number)
+    versions.for_documents.find_by(version_number: version_number)
   end
   
   def versions_between(start_date, end_date)
-    document_versions.where(created_at: start_date..end_date)
+    versions.for_documents.where(created_at: start_date..end_date)
   end
 
   private

@@ -28,10 +28,6 @@ class Basket < ApplicationRecord
   end
   
   def generate_share_token!
-    update!(
-      share_token: SecureRandom.hex(16),
-      share_expires_at: 7.days.from_now,
-      is_shared: true
-    )
+    update!(is_shared: true)
   end
 end

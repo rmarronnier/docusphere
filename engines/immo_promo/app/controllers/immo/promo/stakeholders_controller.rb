@@ -5,9 +5,9 @@ module Immo
       before_action :set_stakeholder, only: [:show, :edit, :update, :destroy, :approve, :reject]
       
       def index
-        @stakeholders = @project.stakeholders.includes(:certifications, :contracts, :user)
+        stakeholders_scope = policy_scope(@project.stakeholders)
+        @stakeholders = stakeholders_scope.includes(:certifications, :contracts, :user)
                                            .order(:name)
-        @pagy, @stakeholders = pagy(@stakeholders)
         
         # Filtrage par rôle
         if params[:role].present?
@@ -18,6 +18,8 @@ module Immo
         if params[:status].present?
           @stakeholders = @stakeholders.where(status: params[:status])
         end
+        
+        @pagy, @stakeholders = pagy(@stakeholders)
       end
 
       def show
@@ -28,11 +30,13 @@ module Immo
 
       def new
         @stakeholder = @project.stakeholders.build
+        authorize @stakeholder
         @available_users = User.where.not(id: @project.stakeholders.pluck(:user_id))
       end
 
       def create
         @stakeholder = @project.stakeholders.build(stakeholder_params)
+        authorize @stakeholder
         
         if @stakeholder.save
           redirect_to immo_promo_engine.project_stakeholder_path(@project, @stakeholder),
@@ -92,10 +96,12 @@ module Immo
 
       def set_project
         @project = current_user.accessible_projects.find(params[:project_id])
+        authorize @project
       end
 
       def set_stakeholder
         @stakeholder = @project.stakeholders.find(params[:id])
+        authorize @stakeholder
       end
 
       def stakeholder_params

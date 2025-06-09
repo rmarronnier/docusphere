@@ -50,7 +50,7 @@ RSpec.describe Ui::ButtonComponent, type: :component do
     render_inline(described_class.new(text: "Submit", loading: true))
     
     expect(page).to have_css('button.btn-loading[disabled]')
-    expect(page).to have_css('.spinner')
+    expect(page).to have_css('svg.animate-spin')
     expect(page).to have_content("Submit")
   end
   

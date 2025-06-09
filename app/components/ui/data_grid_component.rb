@@ -12,9 +12,9 @@ class Ui::DataGridComponent < ApplicationComponent
   }
   
   renders_one :empty_state
-  renders_many :actions, lambda { |item, **options|
+  renders_many :actions, lambda { |item, **options, &block|
     content_tag(:div, class: "flex items-center space-x-2") do
-      yield(item)
+      block.call(item)
     end
   }
 

@@ -60,7 +60,9 @@ class NotificationPolicy < ApplicationPolicy
     # Scope for ImmoPromo notifications only
     def immo_promo_scope
       if user.present? && user.has_permission?('immo_promo:access')
-        scope.for_user(user).by_category(['projects', 'stakeholders', 'permits', 'budgets', 'risks'])
+        immo_promo_types = ['projects', 'stakeholders', 'permits', 'budgets', 'risks']
+                          .flat_map { |cat| Notification.notification_types_by_category(cat) }
+        scope.for_user(user).where(notification_type: immo_promo_types)
       else
         scope.none
       end

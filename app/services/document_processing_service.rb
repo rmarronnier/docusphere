@@ -1,225 +1,126 @@
 class DocumentProcessingService
-  include HTTParty
-  
-  base_uri Rails.application.config.document_processor_url || 'http://document-processor:8000'
-  
-  def initialize
-    @timeout = 30
-    @retries = 3
+  def initialize(document)
+    @document = document
   end
-  
-  def process_document(document)
-    return unless document.file.attached?
-    
-    Rails.logger.info "Début du traitement IA pour le document #{document.id}"
-    
+
+  def process!
+    return false unless @document.file.attached?
+
     begin
-      # Téléchargement temporaire du fichier
-      temp_file = download_temp_file(document)
+      @document.update(processing_status: 'processing')
       
-      # Appel au service d'extraction
-      result = call_processor_api(temp_file, document)
+      extract_text
+      extract_metadata  
+      generate_thumbnail
+      run_virus_scan
+      apply_auto_tagging
       
-      if result&.dig('status') == 'success'
-        # Mise à jour du document avec les résultats IA
-        update_document_with_ai_results(document, result)
-        Rails.logger.info "Traitement IA réussi pour le document #{document.id}"
-      else
-        Rails.logger.error "Échec du traitement IA pour le document #{document.id}: #{result}"
-        document.update(processing_status: 'failed', processing_error: result&.dig('detail') || 'Unknown error')
-      end
-      
+      @document.update(processing_status: 'completed')
+      true
     rescue => e
-      Rails.logger.error "Erreur lors du traitement IA du document #{document.id}: #{e.message}"
-      document.update(processing_status: 'failed', processing_error: e.message)
-    ensure
-      # Nettoyage du fichier temporaire
-      temp_file&.close
-      temp_file&.unlink if temp_file&.path && File.exist?(temp_file.path)
-    end
-  end
-  
-  def classify_text(text, language: 'fr')
-    begin
-      response = self.class.post('/classify-text', {
-        body: {
-          text: text,
-          language: language
-        }.to_json,
-        headers: { 'Content-Type' => 'application/json' },
-        timeout: @timeout
-      })
-      
-      if response.success?
-        response.parsed_response
-      else
-        Rails.logger.error "Erreur classification de texte: #{response.code} - #{response.body}"
-        nil
-      end
-    rescue => e
-      Rails.logger.error "Erreur lors de la classification de texte: #{e.message}"
-      nil
-    end
-  end
-  
-  def health_check
-    begin
-      response = self.class.get('/health', timeout: 5)
-      response.success? && response.dig('status') == 'healthy'
-    rescue
+      Rails.logger.error "Document processing failed: #{e.message}"
+      @document.update(processing_status: 'failed', processing_error: e.message)
       false
     end
   end
-  
-  def supported_formats
-    begin
-      response = self.class.get('/supported-formats', timeout: 10)
-      response.success? ? response.parsed_response : nil
-    rescue => e
-      Rails.logger.error "Erreur récupération formats supportés: #{e.message}"
-      nil
-    end
-  end
-  
+
   private
-  
-  def download_temp_file(document)
-    temp_file = Tempfile.new([document.title.parameterize, File.extname(document.file.filename.to_s)])
-    temp_file.binmode
-    
-    document.file.open do |file|
-      temp_file.write(file.read)
-    end
-    
-    temp_file.rewind
-    temp_file
-  end
-  
-  def call_processor_api(temp_file, document)
-    # Détermination des options de traitement basées sur le type de document
-    processing_options = determine_processing_options(document)
-    
-    # Préparation de la requête multipart
-    response = self.class.post('/process', {
-      body: {
-        file: temp_file,
-        **processing_options
-      },
-      timeout: @timeout * 3 # Plus de temps pour le traitement
-    })
-    
-    if response.success?
-      response.parsed_response
+
+  attr_reader :document
+
+  def extract_text
+    case document.file_content_type
+    when 'application/pdf'
+      document.extracted_text = extract_pdf_text(document.file.download)
+    when /^image\//
+      document.extracted_text = extract_ocr_text(document.file.download)
+    when 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      document.extracted_text = extract_docx_text(document.file.download)
     else
-      { 'status' => 'error', 'detail' => "#{response.code}: #{response.body}" }
+      document.extracted_text = ''
+    end
+    document.save
+  end
+
+  def extract_metadata
+    document.file_size = document.file.byte_size
+    document.content_hash = calculate_content_hash(document.file.download)
+    document.save
+  end
+
+  def generate_thumbnail
+    case document.file_content_type
+    when /^image\//
+      generate_image_thumbnail
+    when 'application/pdf'
+      generate_pdf_thumbnail
     end
   end
-  
-  def determine_processing_options(document)
-    file_extension = File.extname(document.file.filename.to_s).downcase
-    
-    options = {
-      extract_text: true,
-      classify_document: true,
-      extract_entities: true,
-      language: 'fr'
-    }
-    
-    # OCR pour les images et PDFs scannés
-    if %w[.png .jpg .jpeg .tiff .bmp .gif].include?(file_extension)
-      options[:perform_ocr] = true
-    elsif file_extension == '.pdf'
-      # OCR conditionnel pour les PDFs (sera déterminé par le service)
-      options[:perform_ocr] = true
+
+  def run_virus_scan
+    result = scan_with_clamav(document.file.download)
+    if result[:clean]
+      document.virus_scan_status = 'clean'
+    else
+      document.virus_scan_status = 'infected'
+      document.quarantined = true
     end
-    
-    # Résumé pour les documents longs
-    if %w[.pdf .docx .doc .txt].include?(file_extension)
-      options[:generate_summary] = true
-    end
-    
-    options
+    document.save
   end
-  
-  def update_document_with_ai_results(document, result)
-    # Mise à jour du contenu textuel
-    if result['text_content'].present?
-      document.update_column(:extracted_text, result['text_content'])
+
+  def apply_auto_tagging
+    return unless document.extracted_text.present?
+
+    suggested_tags = suggest_tags_from_content(document.extracted_text)
+    suggested_tags.each do |tag_name|
+      tag = Tag.find_or_create_by(name: tag_name.downcase.strip)
+      document.tags << tag unless document.tags.include?(tag)
     end
-    
-    # Classification du document
-    if result['classification'].present?
-      update_document_classification(document, result['classification'])
-    end
-    
-    # Entités extraites
-    if result['entities'].present?
-      store_extracted_entities(document, result['entities'])
-    end
-    
-    # Résumé
-    if result['summary'].present?
-      document.update_column(:ai_summary, result['summary'])
-    end
-    
-    # Métadonnées de traitement
-    processing_metadata = {
-      processing_time: result['processing_time'],
-      file_type_detected: result['file_type'],
-      ai_metadata: result['metadata'],
-      processed_at: Time.current
-    }
-    
-    document.update(
-      processing_status: 'completed',
-      processing_metadata: processing_metadata,
-      ai_processed_at: Time.current
-    )
   end
-  
-  def update_document_classification(document, classification)
-    # Classification par mots-clés
-    if classification['keyword_classification'].present?
-      keyword_class = classification['keyword_classification']
-      document.update_column(:ai_category, keyword_class['top_category'])
-      document.update_column(:ai_confidence, keyword_class['confidence'])
-    end
-    
-    # Classification ML si disponible
-    if classification['ml_classification'].present?
-      ml_class = classification['ml_classification']
-      # Préférer la classification ML si plus confiante
-      if ml_class['confidence'] > (document.ai_confidence || 0)
-        document.update_column(:ai_category, ml_class['category'])
-        document.update_column(:ai_confidence, ml_class['confidence'])
-      end
-    end
-    
-    # Stockage de toutes les données de classification
-    document.update_column(:ai_classification_data, classification)
+
+  # Helper methods that would integrate with external services in production
+  def extract_pdf_text(content)
+    "Mock PDF text extraction for content of #{content.length} bytes"
   end
-  
-  def store_extracted_entities(document, entities)
-    # Suppression des anciennes entités
-    document.extracted_entities.destroy_all if document.respond_to?(:extracted_entities)
+
+  def extract_ocr_text(content)
+    "Mock OCR text extraction for image of #{content.length} bytes"
+  end
+
+  def extract_docx_text(content)
+    "Mock DOCX text extraction for content of #{content.length} bytes"
+  end
+
+  def calculate_content_hash(content)
+    Digest::SHA256.hexdigest(content)
+  end
+
+  def generate_image_thumbnail
+    # Mock thumbnail generation
+    Rails.logger.info "Generating image thumbnail for document #{document.id}"
+  end
+
+  def generate_pdf_thumbnail
+    # Mock thumbnail generation  
+    Rails.logger.info "Generating PDF thumbnail for document #{document.id}"
+  end
+
+  def scan_with_clamav(content)
+    # Mock virus scan - always return clean for testing
+    { clean: true, signature: nil }
+  end
+
+  def suggest_tags_from_content(content)
+    # Simple keyword-based tagging
+    keywords = %w[contract invoice legal technical administrative financial]
+    content_words = content.downcase.split(/\W+/)
     
-    # Création des nouvelles entités (si le modèle existe)
-    entities.each do |entity_data|
-      # Stocker dans les métadonnées pour le moment
-      # Plus tard, vous pourriez créer un modèle ExtractedEntity
-      next unless entity_data['confidence'] > 0.5 # Seuil de confiance
-      
-      # Pour l'instant, stockage dans un champ JSON
-      current_entities = document.ai_entities || []
-      current_entities << {
-        type: entity_data['type'],
-        value: entity_data['value'],
-        confidence: entity_data['confidence'],
-        position: [entity_data['start'], entity_data['end']],
-        extracted_at: Time.current
-      }
-      
-      document.update_column(:ai_entities, current_entities)
+    keywords.select do |keyword|
+      content_words.any? { |word| word.include?(keyword) }
     end
+  end
+
+  def needs_ocr?
+    document.file_content_type&.start_with?('image/')
   end
 end

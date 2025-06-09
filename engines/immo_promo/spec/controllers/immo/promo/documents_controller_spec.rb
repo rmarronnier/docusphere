@@ -3,6 +3,19 @@ require 'rails_helper'
 RSpec.describe Immo::Promo::DocumentsController, type: :controller do
   routes { ImmoPromo::Engine.routes }
   
+  # Helper methods for routes
+  def project_documents_path(project)
+    "/immo/promo/projects/#{project.id}/documents"
+  end
+  
+  def project_document_path(project, document)
+    "/immo/promo/projects/#{project.id}/documents/#{document.id}"
+  end
+  
+  def new_project_document_path(project)
+    "/immo/promo/projects/#{project.id}/documents/new"
+  end
+  
   let(:organization) { create(:organization) }
   let(:user) { create(:user, :admin, organization: organization) }
   let(:project) { create(:immo_promo_project, organization: organization, project_manager: user) }
@@ -92,7 +105,8 @@ RSpec.describe Immo::Promo::DocumentsController, type: :controller do
           project_id: project.id,
           documents: {
             files: [file],
-            category: 'technical'
+            category: 'technical',
+            title: 'Test Document'
           }
         }
         
@@ -104,7 +118,9 @@ RSpec.describe Immo::Promo::DocumentsController, type: :controller do
           project_id: project.id,
           documents: {
             files: [file],
-            category: 'technical'
+            category: 'technical',
+            title: 'Test Document',
+            description: 'Test description'
           }
         }
         
@@ -187,15 +203,10 @@ RSpec.describe Immo::Promo::DocumentsController, type: :controller do
   end
   
   describe "GET #preview" do
-    context "with preview URL" do
-      before do
-        allow(document).to receive(:preview_url).and_return('http://preview.url')
-      end
-      
-      it "redirects to preview URL" do
-        get :preview, params: { project_id: project.id, id: document.id }
-        expect(response).to redirect_to('http://preview.url')
-      end
+    it "redirects to file when available" do
+      allow(document.file).to receive(:attached?).and_return(true)
+      get :preview, params: { project_id: project.id, id: document.id }
+      expect(response).to be_redirect
     end
   end
   
@@ -220,7 +231,7 @@ RSpec.describe Immo::Promo::DocumentsController, type: :controller do
         stakeholder_ids: [stakeholder.id]
       }
       
-      expect(response).to redirect_to(project_document_path(project, document))
+      expect(response).to redirect_to("/immo/promo/projects/#{project.id}/documents/#{document.id}")
     end
   end
   

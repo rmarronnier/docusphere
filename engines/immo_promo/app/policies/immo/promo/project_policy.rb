@@ -67,6 +67,23 @@ class Immo::Promo::ProjectPolicy < ApplicationPolicy
     )
   end
 
+  # Document-related permissions
+  def preview?
+    show? # If user can see the project, they can preview documents
+  end
+
+  def share?
+    update? # If user can update the project, they can share documents
+  end
+
+  def request_validation?
+    update? # If user can update the project, they can request validation
+  end
+
+  def bulk_actions?
+    update? # If user can update the project, they can perform bulk actions
+  end
+
   class Scope < Scope
     def resolve
       if user.super_admin?

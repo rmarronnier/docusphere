@@ -108,7 +108,7 @@ module Linkable
 
   # Get parent objects
   def parent_objects
-    linked_sources(link_type: 'parent')
+    linked_sources(link_type: 'child')
   end
 
   # Get child objects

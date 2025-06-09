@@ -1,6 +1,7 @@
 class Folder < ApplicationRecord
   include Treeable
   include Authorizable
+  include Linkable
   
   belongs_to :space
   has_many :documents, dependent: :destroy

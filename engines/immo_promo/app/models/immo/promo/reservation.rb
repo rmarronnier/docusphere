@@ -4,11 +4,11 @@ module Immo
       self.table_name = 'immo_promo_reservations'
 
       belongs_to :lot, class_name: 'Immo::Promo::Lot'
-      belongs_to :client, class_name: 'User'
 
       validates :status, inclusion: { in: %w[pending active confirmed cancelled expired] }
       validates :reservation_date, presence: true
       validates :expiry_date, presence: true
+      validates :client_name, presence: true
       validate :expiry_after_reservation
 
       monetize :deposit_amount_cents, allow_nil: true
@@ -27,6 +27,10 @@ module Immo
 
       def is_expired?
         Date.current > expiry_date && !confirmed?
+      end
+      
+      def is_active?
+        %w[pending active confirmed].include?(status)
       end
 
       def days_until_expiry

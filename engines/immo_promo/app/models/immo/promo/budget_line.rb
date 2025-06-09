@@ -41,7 +41,8 @@ module Immo
       end
 
       def is_over_budget?
-        actual_amount && actual_amount > planned_amount
+        return false unless actual_amount
+        actual_amount > planned_amount
       end
       
       # Méthodes alias pour compatibilité
@@ -51,6 +52,11 @@ module Immo
       
       def spent_amount
         actual_amount
+      end
+      
+      def can_be_deleted?
+        # Une ligne budgétaire peut être supprimée s'il n'y a pas de dépenses engagées
+        (actual_amount_cents || 0) == 0 && (committed_amount_cents || 0) == 0
       end
     end
   end

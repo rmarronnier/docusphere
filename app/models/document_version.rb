@@ -1,87 +1,195 @@
-class DocumentVersion < ApplicationRecord
-  belongs_to :document
-  belongs_to :created_by, class_name: 'User'
+class DocumentVersion < PaperTrail::Version
+  self.table_name = :versions
   
-  has_one_attached :file
+  # Relations
+  belongs_to :created_by, class_name: 'User', optional: true
+  belongs_to :document, -> { where(versions: { item_type: 'Document' }) }, 
+             foreign_key: :item_id, class_name: 'Document', optional: true
   
-  validates :version_number, presence: true, uniqueness: { scope: :document_id }
-  validates :file, presence: true
-  validates :created_by, presence: true
+  # Attachments - store file data in file_metadata JSON column
+  # This allows us to keep file versions without duplicating ActiveStorage attachments
   
-  before_validation :set_version_number, on: :create
-  after_create :update_document_current_version
+  # Scopes
+  scope :for_documents, -> { where(item_type: 'Document') }
+  scope :recent_first, -> { order(created_at: :desc) }
+  scope :by_version_number, -> { order(version_number: :desc) }
   
-  scope :latest_first, -> { order(version_number: :desc) }
-  scope :oldest_first, -> { order(version_number: :asc) }
+  # Validations
+  validates :item_type, inclusion: { in: ['Document'] }, if: -> { item_type == 'Document' }
   
-  def title
-    "#{document.title} - v#{version_number}"
+  # Callbacks
+  before_create :capture_file_metadata, if: :document_version?
+  after_create :send_version_notification, if: :document_version?
+  
+  # Helper methods
+  def document_version?
+    item_type == 'Document'
   end
   
-  def is_current?
-    document.current_version_number == version_number
-  end
-  
-  def make_current!
-    transaction do
-      # Update document to point to this version
-      document.update!(
-        current_version_number: version_number,
-        file: self.file.blob
-      )
-      
-      # Log the version change
-      document.audits.create!(
-        action: 'version_change',
-        audited_changes: {
-          'current_version_number' => [document.current_version_number_was, version_number]
-        },
-        user: created_by,
-        comment: "Restored to version #{version_number}"
-      )
-    end
+  def file_name
+    file_metadata['file_name']
   end
   
   def file_size
-    file.blob.byte_size if file.attached?
+    file_metadata['file_size']
+  end
+  
+  def content_type
+    file_metadata['content_type']
   end
   
   def file_size_human
-    return nil unless file.attached?
+    return nil unless file_size
     
-    size = file.blob.byte_size
-    case
-    when size < 1.kilobyte
-      "#{size} B"
-    when size < 1.megabyte
-      "#{(size.to_f / 1.kilobyte).round(1)} KB"
-    when size < 1.gigabyte
-      "#{(size.to_f / 1.megabyte).round(1)} MB"
+    if file_size < 1024
+      "#{file_size} B"
+    elsif file_size < 1024 * 1024
+      "#{(file_size / 1024.0).round(1)} KB"
+    elsif file_size < 1024 * 1024 * 1024
+      "#{(file_size / (1024.0 * 1024)).round(1)} MB"
     else
-      "#{(size.to_f / 1.gigabyte).round(1)} GB"
+      "#{(file_size / (1024.0 * 1024 * 1024)).round(2)} GB"
     end
   end
   
-  def changes_from_previous
-    previous = document.document_versions.where('version_number < ?', version_number).order(version_number: :desc).first
-    return nil unless previous
+  # Get the document instance at this version
+  def reified_document
+    @reified_document ||= reify
+  end
+  
+  # Check if this version can be restored
+  def restorable?
+    document_version? && document.present? && !document.locked?
+  end
+  
+  # Restore this version as the current document
+  def restore!(user)
+    return false unless restorable?
     
-    {
-      file_size_change: file_size - previous.file_size,
-      time_since_previous: created_at - previous.created_at
-    }
+    transaction do
+      # Create a new version entry for the restoration
+      new_version = document.versions.create!(
+        event: 'restore',
+        whodunnit: user.id.to_s,
+        created_by: user,
+        comment: "Restored from version #{version_number}",
+        object: object,
+        object_changes: object_changes,
+        file_metadata: file_metadata
+      )
+      
+      # Revert the document to this version's state
+      reified = reify
+      if reified
+        document.update!(reified.attributes.except('id', 'created_at', 'updated_at'))
+        
+        # If we have file data stored, we should restore it
+        # This would require additional implementation to restore the actual file
+        restore_file_if_needed
+      end
+      
+      new_version
+    end
+  end
+  
+  # Compare with another version
+  def diff_with(other_version)
+    return {} unless other_version.is_a?(DocumentVersion)
+    
+    current_attrs = reified_document&.attributes || {}
+    other_attrs = other_version.reified_document&.attributes || {}
+    
+    diff = {}
+    (current_attrs.keys | other_attrs.keys).each do |key|
+      next if %w[id created_at updated_at].include?(key)
+      
+      if current_attrs[key] != other_attrs[key]
+        diff[key] = {
+          from: other_attrs[key],
+          to: current_attrs[key]
+        }
+      end
+    end
+    
+    diff
+  end
+  
+  # Display helpers
+  def created_by_name
+    created_by&.display_name || whodunnit || 'System'
+  end
+  
+  def event_description
+    case event
+    when 'create'
+      'Document créé'
+    when 'update'
+      'Document modifié'
+    when 'destroy'
+      'Document supprimé'
+    when 'restore'
+      'Document restauré'
+    else
+      event.humanize
+    end
+  end
+  
+  def icon_name
+    case event
+    when 'create'
+      'plus-circle'
+    when 'update'
+      'edit'
+    when 'destroy'
+      'trash'
+    when 'restore'
+      'refresh'
+    else
+      'clock'
+    end
   end
   
   private
   
-  def set_version_number
-    return if version_number.present?
+  def capture_file_metadata
+    return unless document_version? && item_id.present?
     
-    max_version = document.document_versions.maximum(:version_number) || 0
-    self.version_number = max_version + 1
+    # Get the document being versioned
+    doc = Document.find_by(id: item_id)
+    return unless doc&.file&.attached?
+    
+    self.file_metadata = {
+      'file_name' => doc.file.filename.to_s,
+      'file_size' => doc.file.byte_size,
+      'content_type' => doc.file.content_type,
+      'checksum' => doc.file.checksum,
+      'created_at' => Time.current.iso8601
+    }
   end
   
-  def update_document_current_version
-    document.update_column(:current_version_number, version_number)
+  def send_version_notification
+    return unless document_version? && created_by_id.present? && item_id.present?
+    
+    # Get the document
+    doc = Document.find_by(id: item_id)
+    return unless doc
+    
+    # Notify document owner about new version
+    if doc.uploaded_by_id != created_by_id
+      NotificationService.notify(
+        user: doc.uploaded_by,
+        type: 'document_version_created',
+        title: "Nouvelle version de '#{doc.title}'",
+        message: "#{created_by_name} a créé une nouvelle version du document",
+        notifiable: doc
+      )
+    end
+  end
+  
+  def restore_file_if_needed
+    # This would require implementing file restoration logic
+    # For now, we just track metadata
+    # In a full implementation, you might store file blobs separately
+    # or use a different strategy for file versioning
   end
 end

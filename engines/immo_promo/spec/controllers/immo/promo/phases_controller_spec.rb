@@ -3,7 +3,16 @@ require 'rails_helper'
 RSpec.describe Immo::Promo::PhasesController, type: :controller do
   routes { ImmoPromo::Engine.routes }
   
-  let(:user) { create(:user, organization: organization, role: 'admin') }
+  # Helper methods for routes
+  def project_phase_path(project, phase)
+    "/immo/promo/projects/#{project.id}/phases/#{phase.id}"
+  end
+  
+  def project_path(project)
+    "/immo/promo/projects/#{project.id}"
+  end
+  
+  let(:user) { create(:user, :admin, organization: organization) }
   let(:organization) { create(:organization) }
   let(:project) { create(:immo_promo_project, organization: organization, project_manager: user) }
   let(:phase) { create(:immo_promo_phase, project: project) }
@@ -46,7 +55,7 @@ RSpec.describe Immo::Promo::PhasesController, type: :controller do
 
       it 'redirects to the created phase' do
         post :create, params: { project_id: project.id, immo_promo_phase: valid_attributes }
-        expect(response).to redirect_to(controller.immo_promo_engine.project_phase_path(project, Immo::Promo::Phase.last))
+        expect(response).to redirect_to(project_phase_path(project, Immo::Promo::Phase.last))
       end
     end
 
@@ -70,7 +79,7 @@ RSpec.describe Immo::Promo::PhasesController, type: :controller do
 
     it 'redirects to the phase' do
       patch :update, params: { project_id: project.id, id: phase.id, immo_promo_phase: new_attributes }
-      expect(response).to redirect_to(controller.immo_promo_engine.project_phase_path(project, phase))
+      expect(response).to redirect_to(project_phase_path(project, phase))
     end
   end
 
@@ -84,7 +93,7 @@ RSpec.describe Immo::Promo::PhasesController, type: :controller do
 
     it 'redirects to project' do
       delete :destroy, params: { project_id: project.id, id: phase.id }
-      expect(response).to redirect_to(controller.immo_promo_engine.project_path(project))
+      expect(response).to redirect_to(project_path(project))
     end
   end
 
@@ -97,7 +106,7 @@ RSpec.describe Immo::Promo::PhasesController, type: :controller do
 
     it 'redirects to the phase' do
       patch :complete, params: { project_id: project.id, id: phase.id }
-      expect(response).to redirect_to(controller.immo_promo_engine.project_phase_path(project, phase))
+      expect(response).to redirect_to(project_phase_path(project, phase))
     end
   end
 end

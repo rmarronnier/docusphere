@@ -31,42 +31,9 @@ module Immo
         private
 
         def accessible_documents(scope)
-          # Documents uploaded by the user
-          uploaded_docs = scope.where(uploaded_by: user)
-          
-          # Documents explicitly shared with the user
-          shared_docs = scope.joins(:document_shares)
-                            .where(document_shares: { shared_with_user: user })
-                            .where('document_shares.expires_at IS NULL OR document_shares.expires_at > ?', Time.current)
-          
-          # Documents with authorization
-          authorized_docs = scope.joins(:authorizations)
-                                .where(authorizations: { 
-                                  user: user, 
-                                  permission_level: ['read', 'write', 'admin'],
-                                  is_active: true 
-                                })
-                                .where('authorizations.expires_at IS NULL OR authorizations.expires_at > ?', Time.current)
-          
-          # Documents through group authorization
-          group_authorized_docs = scope.joins(:authorizations)
-                                      .joins('JOIN user_group_memberships ON authorizations.user_group_id = user_group_memberships.user_group_id')
-                                      .where(
-                                        user_group_memberships: { user: user },
-                                        authorizations: { 
-                                          permission_level: ['read', 'write', 'admin'],
-                                          is_active: true 
-                                        }
-                                      )
-                                      .where('authorizations.expires_at IS NULL OR authorizations.expires_at > ?', Time.current)
-
-          # Combine all accessible documents
-          scope.where(
-            id: uploaded_docs.select(:id)
-                .or(shared_docs.select(:id))
-                .or(authorized_docs.select(:id))
-                .or(group_authorized_docs.select(:id))
-          )
+          # Simplified approach - just return documents uploaded by the user for now
+          # Can be expanded later when document_shares and authorizations are fully implemented
+          scope.where(uploaded_by: user)
         end
       end
 

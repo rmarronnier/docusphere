@@ -3,6 +3,15 @@ require 'rails_helper'
 RSpec.describe Immo::Promo::ProjectsController, type: :controller do
   routes { ImmoPromo::Engine.routes }
   
+  # Helper methods for routes
+  def projects_path
+    "/immo/promo/projects"
+  end
+  
+  def project_path(project)
+    "/immo/promo/projects/#{project.id}"
+  end
+  
   let(:organization) { create(:organization) }
   let(:user) { create(:user, :admin, organization: organization) }
   let(:project) { create(:immo_promo_project, organization: organization) }
@@ -77,7 +86,7 @@ RSpec.describe Immo::Promo::ProjectsController, type: :controller do
 
       it 'redirects to the created project' do
         post :create, params: { immo_promo_project: valid_attributes }
-        expect(response).to redirect_to(controller.immo_promo_engine.project_path(Immo::Promo::Project.last))
+        expect(response).to redirect_to(project_path(Immo::Promo::Project.last))
       end
     end
 
@@ -107,7 +116,7 @@ RSpec.describe Immo::Promo::ProjectsController, type: :controller do
 
       it 'redirects to the project' do
         put :update, params: { id: project.id, immo_promo_project: new_attributes }
-        expect(response).to redirect_to(controller.immo_promo_engine.project_path(project))
+        expect(response).to redirect_to(project_path(project))
       end
     end
   end
@@ -122,7 +131,7 @@ RSpec.describe Immo::Promo::ProjectsController, type: :controller do
 
     it 'redirects to the projects list' do
       delete :destroy, params: { id: project.id }
-      expect(response).to redirect_to(controller.immo_promo_engine.projects_path)
+      expect(response).to redirect_to(projects_path)
     end
   end
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_06_09_074100) do
+ActiveRecord::Schema[7.1].define(version: 2025_06_09_172000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -180,19 +180,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_09_074100) do
     t.index ["validator_id"], name: "index_document_validations_on_validator_id"
   end
 
-  create_table "document_versions", force: :cascade do |t|
-    t.bigint "document_id", null: false
-    t.integer "version_number", null: false
-    t.bigint "uploaded_by_id", null: false
-    t.text "changes_description"
-    t.jsonb "metadata", default: {}
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["document_id", "version_number"], name: "index_document_versions_on_document_id_and_version_number", unique: true
-    t.index ["document_id"], name: "index_document_versions_on_document_id"
-    t.index ["uploaded_by_id"], name: "index_document_versions_on_uploaded_by_id"
-  end
-
   create_table "documents", force: :cascade do |t|
     t.string "title", null: false
     t.text "description"
@@ -234,8 +221,15 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_09_074100) do
     t.string "document_category"
     t.decimal "ai_confidence", precision: 5, scale: 4
     t.jsonb "ai_entities", default: {}
+    t.string "storage_path"
+    t.integer "current_version_number"
+    t.text "virus_scan_result"
+    t.datetime "ai_processing_started_at"
+    t.text "extracted_text"
     t.index ["ai_entities"], name: "index_documents_on_ai_entities", using: :gin
+    t.index ["ai_processing_started_at"], name: "index_documents_on_ai_processing_started_at"
     t.index ["archived_at"], name: "index_documents_on_archived_at"
+    t.index ["current_version_number"], name: "index_documents_on_current_version_number"
     t.index ["document_category"], name: "index_documents_on_document_category"
     t.index ["document_type"], name: "index_documents_on_document_type"
     t.index ["documentable_type", "documentable_id"], name: "index_documents_on_documentable_type_and_documentable_id"
@@ -251,6 +245,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_09_074100) do
     t.index ["processing_status"], name: "index_documents_on_processing_status"
     t.index ["space_id"], name: "index_documents_on_space_id"
     t.index ["status"], name: "index_documents_on_status"
+    t.index ["storage_path"], name: "index_documents_on_storage_path"
     t.index ["unlock_scheduled_at"], name: "index_documents_on_unlock_scheduled_at"
     t.index ["uploaded_by_id"], name: "index_documents_on_uploaded_by_id"
     t.index ["virus_scan_status"], name: "index_documents_on_virus_scan_status"
@@ -268,12 +263,16 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_09_074100) do
     t.boolean "is_active", default: true
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "storage_path"
+    t.datetime "archived_at"
+    t.index ["archived_at"], name: "index_folders_on_archived_at"
     t.index ["is_active"], name: "index_folders_on_is_active"
     t.index ["parent_id"], name: "index_folders_on_parent_id"
     t.index ["path"], name: "index_folders_on_path"
     t.index ["position"], name: "index_folders_on_position"
     t.index ["slug"], name: "index_folders_on_slug"
     t.index ["space_id"], name: "index_folders_on_space_id"
+    t.index ["storage_path"], name: "index_folders_on_storage_path"
   end
 
   create_table "immo_promo_budget_lines", force: :cascade do |t|
@@ -485,6 +484,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_09_074100) do
     t.integer "deliverables_count", default: 0
     t.date "actual_start_date"
     t.date "actual_end_date"
+    t.decimal "task_completion_percentage", precision: 5, scale: 2, default: "0.0"
     t.index ["phase_type"], name: "index_immo_promo_phases_on_phase_type"
     t.index ["project_id", "position"], name: "index_immo_promo_phases_on_project_id_and_position", unique: true
     t.index ["project_id"], name: "index_immo_promo_phases_on_project_id"
@@ -558,6 +558,9 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_09_074100) do
     t.text "notes"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "final_price_cents"
+    t.bigint "client_id"
+    t.index ["client_id"], name: "index_immo_promo_reservations_on_client_id"
     t.index ["lot_id"], name: "index_immo_promo_reservations_on_lot_id"
     t.index ["reservation_date"], name: "index_immo_promo_reservations_on_reservation_date"
     t.index ["status"], name: "index_immo_promo_reservations_on_status"
@@ -991,8 +994,14 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_09_074100) do
     t.text "object"
     t.text "object_changes"
     t.datetime "created_at"
+    t.integer "version_number"
+    t.text "comment"
+    t.bigint "created_by_id"
+    t.jsonb "file_metadata", default: {}
     t.index ["created_at"], name: "index_versions_on_created_at"
+    t.index ["created_by_id"], name: "index_versions_on_created_by_id"
     t.index ["event"], name: "index_versions_on_event"
+    t.index ["item_type", "item_id", "version_number"], name: "index_versions_on_item_and_version_number"
     t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id"
     t.index ["whodunnit"], name: "index_versions_on_whodunnit"
   end
@@ -1035,10 +1044,21 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_09_074100) do
     t.text "completion_notes"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "priority", default: "normal"
+    t.string "submittable_type"
+    t.bigint "submittable_id"
+    t.datetime "due_date"
+    t.datetime "submitted_at"
+    t.string "decision"
+    t.datetime "decided_at"
+    t.bigint "decided_by_id"
     t.index ["completed_at"], name: "index_workflow_submissions_on_completed_at"
     t.index ["current_step_id"], name: "index_workflow_submissions_on_current_step_id"
+    t.index ["due_date"], name: "index_workflow_submissions_on_due_date"
+    t.index ["priority"], name: "index_workflow_submissions_on_priority"
     t.index ["started_at"], name: "index_workflow_submissions_on_started_at"
     t.index ["status"], name: "index_workflow_submissions_on_status"
+    t.index ["submittable_type", "submittable_id"], name: "index_workflow_submissions_on_submittable"
     t.index ["submitted_by_id"], name: "index_workflow_submissions_on_submitted_by_id"
     t.index ["workflow_id"], name: "index_workflow_submissions_on_workflow_id"
   end
@@ -1078,8 +1098,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_09_074100) do
   add_foreign_key "document_validations", "documents"
   add_foreign_key "document_validations", "users", column: "validator_id"
   add_foreign_key "document_validations", "validation_requests"
-  add_foreign_key "document_versions", "documents"
-  add_foreign_key "document_versions", "users", column: "uploaded_by_id"
   add_foreign_key "documents", "documents", column: "parent_id"
   add_foreign_key "documents", "folders"
   add_foreign_key "documents", "spaces"
@@ -1109,6 +1127,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_09_074100) do
   add_foreign_key "immo_promo_projects", "organizations"
   add_foreign_key "immo_promo_projects", "users", column: "project_manager_id"
   add_foreign_key "immo_promo_reservations", "immo_promo_lots", column: "lot_id"
+  add_foreign_key "immo_promo_reservations", "users", column: "client_id"
   add_foreign_key "immo_promo_risks", "immo_promo_projects", column: "project_id"
   add_foreign_key "immo_promo_risks", "users", column: "owner_id"
   add_foreign_key "immo_promo_stakeholders", "immo_promo_projects", column: "project_id"
@@ -1144,9 +1163,11 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_09_074100) do
   add_foreign_key "validation_requests", "users", column: "requester_id"
   add_foreign_key "validation_requests", "validation_templates"
   add_foreign_key "validation_templates", "organizations"
+  add_foreign_key "versions", "users", column: "created_by_id"
   add_foreign_key "workflow_steps", "user_groups", column: "assigned_to_group_id"
   add_foreign_key "workflow_steps", "users", column: "assigned_to_id"
   add_foreign_key "workflow_steps", "workflows"
+  add_foreign_key "workflow_submissions", "users", column: "decided_by_id"
   add_foreign_key "workflow_submissions", "users", column: "submitted_by_id"
   add_foreign_key "workflow_submissions", "workflow_steps", column: "current_step_id"
   add_foreign_key "workflow_submissions", "workflows"

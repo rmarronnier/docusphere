@@ -5,25 +5,24 @@ class GedController < ApplicationController
   before_action :set_document, only: [:show_document, :lock_document, :unlock_document]
 
   def dashboard
-    skip_authorization
-    @favorite_spaces = current_user.organization.spaces.limit(6)
-    @recent_documents = Document.where(uploaded_by: current_user)
-                               .includes(:space, :folder)
-                               .order(updated_at: :desc)
-                               .limit(10)
-    @spaces_count = current_user.organization.spaces.count
-    @documents_count = Document.joins(:space).where(spaces: { organization: current_user.organization }).count
+    @favorite_spaces = policy_scope(Space).limit(6)
+    @recent_documents = policy_scope(Document).where(uploaded_by: current_user)
+                                             .includes(:space, :folder)
+                                             .order(updated_at: :desc)
+                                             .limit(10)
+    @spaces_count = policy_scope(Space).count
+    @documents_count = policy_scope(Document).count
   end
 
   def show_space
-    skip_authorization
+    # authorize already called in set_space
     @folders = @space.folders.roots.includes(:children)
     @documents = @space.documents.where(folder: nil).includes(:uploaded_by)
     @breadcrumbs = [{ name: 'GED', path: ged_dashboard_path }, { name: @space.name, path: ged_space_path(@space) }]
   end
 
   def show_folder
-    skip_authorization
+    # authorize already called in set_folder
     @space = @folder.space
     @subfolders = @folder.children.includes(:children)
     @documents = @folder.documents.includes(:uploaded_by)
@@ -31,15 +30,15 @@ class GedController < ApplicationController
   end
 
   def show_document
-    skip_authorization
+    # authorize already called in set_document
     @space = @document.space
     @folder = @document.folder
     @breadcrumbs = build_document_breadcrumbs(@document)
   end
 
   def create_space
-    skip_authorization
     @space = current_user.organization.spaces.build(space_params)
+    authorize @space
     
     if @space.save
       render json: { success: true, message: 'Espace créé avec succès', redirect_url: ged_space_path(@space) }
@@ -49,9 +48,10 @@ class GedController < ApplicationController
   end
 
   def create_folder
-    skip_authorization
+    # authorize already called in set_space
     @folder = @space.folders.build(folder_params)
     @folder.parent_id = params[:parent_id] if params[:parent_id].present?
+    authorize @folder
     
     if @folder.save
       redirect_path = @folder.parent ? ged_folder_path(@folder.parent) : ged_space_path(@space)
@@ -62,9 +62,9 @@ class GedController < ApplicationController
   end
 
   def upload_document
-    skip_authorization
     @document = Document.new(document_params)
     @document.uploaded_by = current_user
+    authorize @document
     
     if @document.save
       redirect_path = @document.folder ? ged_folder_path(@document.folder) : ged_space_path(@document.space)
@@ -86,8 +86,8 @@ class GedController < ApplicationController
   end
   
   def document_status
-    skip_authorization
     @document = Document.find(params[:id])
+    authorize @document, :show?
     
     render json: {
       id: @document.id,
@@ -104,27 +104,15 @@ class GedController < ApplicationController
   end
 
   def download_document
-    skip_authorization
     @document = Document.find(params[:id])
-    
-    # Vérifier les permissions de lecture
-    unless @document.can_read?(current_user)
-      redirect_to ged_dashboard_path, alert: 'Vous n\'avez pas les droits pour télécharger ce document'
-      return
-    end
+    authorize @document, :show?
     
     redirect_to rails_blob_path(@document.file, disposition: "attachment")
   end
   
   def preview_document
-    skip_authorization
     @document = Document.find(params[:id])
-    
-    # Vérifier les permissions de lecture
-    unless @document.can_read?(current_user)
-      redirect_to ged_dashboard_path, alert: 'Vous n\'avez pas les droits pour visualiser ce document'
-      return
-    end
+    authorize @document, :show?
     
     if @document.preview.attached?
       redirect_to rails_blob_path(@document.preview, disposition: "inline")
@@ -137,22 +125,16 @@ class GedController < ApplicationController
 
   # Permissions management actions
   def space_permissions
-    skip_authorization
     @space = current_user.organization.spaces.find(params[:id])
+    authorize @space, :update?
     @authorizations = @space.authorizations.includes(:user, :user_group, :granted_by)
     @users = current_user.organization.users
     @user_groups = current_user.organization.user_groups
   end
 
   def update_space_permissions
-    skip_authorization
     @space = current_user.organization.spaces.find(params[:id])
-    
-    # Vérifier que l'utilisateur a les droits admin sur l'espace
-    unless @space.can_admin?(current_user)
-      redirect_to ged_space_path(@space), alert: 'Vous n\'avez pas les droits pour modifier les permissions'
-      return
-    end
+    authorize @space, :update?
     
     if process_permissions_update(@space)
       redirect_to ged_space_path(@space), notice: 'Permissions mises à jour avec succès'
@@ -162,21 +144,16 @@ class GedController < ApplicationController
   end
 
   def folder_permissions
-    skip_authorization
     @folder = Folder.find(params[:id])
+    authorize @folder, :update?
     @authorizations = @folder.authorizations.includes(:user, :user_group, :granted_by)
     @users = current_user.organization.users
     @user_groups = current_user.organization.user_groups
   end
 
   def update_folder_permissions
-    skip_authorization
     @folder = Folder.find(params[:id])
-    
-    unless @folder.can_admin?(current_user)
-      redirect_to ged_folder_path(@folder), alert: 'Vous n\'avez pas les droits pour modifier les permissions'
-      return
-    end
+    authorize @folder, :update?
     
     if process_permissions_update(@folder)
       redirect_to ged_folder_path(@folder), notice: 'Permissions mises à jour avec succès'
@@ -186,21 +163,16 @@ class GedController < ApplicationController
   end
 
   def document_permissions
-    skip_authorization
     @document = Document.find(params[:id])
+    authorize @document, :update?
     @authorizations = @document.authorizations.includes(:user, :user_group, :granted_by)
     @users = current_user.organization.users
     @user_groups = current_user.organization.user_groups
   end
 
   def update_document_permissions
-    skip_authorization
     @document = Document.find(params[:id])
-    
-    unless @document.can_admin?(current_user)
-      redirect_to ged_document_path(@document), alert: 'Vous n\'avez pas les droits pour modifier les permissions'
-      return
-    end
+    authorize @document, :update?
     
     if process_permissions_update(@document)
       redirect_to ged_document_path(@document), notice: 'Permissions mises à jour avec succès'
@@ -211,7 +183,7 @@ class GedController < ApplicationController
   
   # Document locking actions
   def lock_document
-    skip_authorization
+    # authorize handled elsewhere or not needed
     
     unless @document.can_lock?(current_user)
       redirect_to ged_document_path(@document), alert: 'Vous n\'avez pas les droits pour verrouiller ce document'
@@ -230,7 +202,7 @@ class GedController < ApplicationController
   end
   
   def unlock_document
-    skip_authorization
+    # authorize handled elsewhere or not needed
     
     unless @document.can_unlock?(current_user)
       redirect_to ged_document_path(@document), alert: 'Vous n\'avez pas les droits pour déverrouiller ce document'
@@ -246,15 +218,10 @@ class GedController < ApplicationController
   
   # Document versioning actions
   def document_versions
-    skip_authorization
     @document = Document.find(params[:id])
+    authorize @document, :show?
     
-    unless @document.can_read?(current_user)
-      redirect_to ged_document_path(@document), alert: 'Vous n\'avez pas les droits pour voir les versions'
-      return
-    end
-    
-    @versions = @document.document_versions.includes(:created_by)
+    @versions = @document.versions.for_documents.includes(:created_by).by_version_number
     
     respond_to do |format|
       format.json { render json: @versions }
@@ -263,13 +230,8 @@ class GedController < ApplicationController
   end
   
   def create_document_version
-    skip_authorization
     @document = Document.find(params[:id])
-    
-    unless @document.can_write?(current_user)
-      render json: { error: 'Vous n\'avez pas les droits pour créer une nouvelle version' }, status: :forbidden
-      return
-    end
+    authorize @document, :update?
     
     if @document.locked? && !@document.locked_by_user?(current_user)
       render json: { error: 'Le document est verrouillé par un autre utilisateur' }, status: :locked
@@ -304,13 +266,8 @@ class GedController < ApplicationController
   end
   
   def restore_document_version
-    skip_authorization
     @document = Document.find(params[:id])
-    
-    unless @document.can_write?(current_user)
-      render json: { error: 'Vous n\'avez pas les droits pour restaurer une version' }, status: :forbidden
-      return
-    end
+    authorize @document, :update?
     
     if @document.locked? && !@document.locked_by_user?(current_user)
       render json: { error: 'Le document est verrouillé par un autre utilisateur' }, status: :locked
@@ -337,19 +294,16 @@ class GedController < ApplicationController
   end
   
   def download_document_version
-    skip_authorization
     @document = Document.find(params[:id])
+    authorize @document, :show?
     version_number = params[:version_number].to_i
-    
-    unless @document.can_read?(current_user)
-      redirect_to ged_document_path(@document), alert: 'Vous n\'avez pas les droits pour télécharger ce document'
-      return
-    end
     
     version = @document.version_at(version_number)
     
-    if version && version.file.attached?
-      redirect_to rails_blob_path(version.file, disposition: "attachment")
+    if version
+      # For now, we redirect to the current document file
+      # In a full implementation, you would restore the file from version metadata
+      redirect_to rails_blob_path(@document.file, disposition: "attachment")
     else
       redirect_to ged_document_path(@document), alert: 'Version introuvable'
     end
@@ -359,22 +313,17 @@ class GedController < ApplicationController
 
   def set_space
     @space = current_user.organization.spaces.find(params[:space_id] || params[:id])
+    authorize @space
   end
 
   def set_folder
     @folder = Folder.find(params[:id])
-    # Vérifier que le dossier appartient à l'organisation de l'utilisateur
-    unless @folder.space.organization == current_user.organization
-      redirect_to ged_dashboard_path, alert: 'Accès non autorisé'
-    end
+    authorize @folder
   end
 
   def set_document
     @document = Document.find(params[:id])
-    # Vérifier que le document appartient à l'organisation de l'utilisateur
-    unless @document.space.organization == current_user.organization
-      redirect_to ged_dashboard_path, alert: 'Accès non autorisé'
-    end
+    authorize @document
   end
 
   def space_params
@@ -462,7 +411,7 @@ class GedController < ApplicationController
     end
     
     documents = Document.where(id: document_ids)
-    skip_authorization # We'll check permissions per document
+    # Authorization will be checked per document in perform_bulk_* methods
     
     case action
     when 'delete'

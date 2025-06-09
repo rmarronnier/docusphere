@@ -10,15 +10,20 @@ class ApplicationController < ActionController::Base
   # Configure Devise parameters
   before_action :configure_permitted_parameters, if: :devise_controller?
   before_action :authenticate_user!
+  before_action :set_current_user
   
-  # Pundit authorization - only check if action exists
-  after_action :verify_authorized, except: :index, unless: :skip_pundit?, if: :pundit_action_exists?
-  after_action :verify_policy_scoped, only: :index, unless: :skip_pundit?, if: :pundit_action_exists?
+  # Pundit authorization
+  after_action :verify_authorized, except: :index, unless: :skip_pundit?
+  after_action :verify_policy_scoped, only: :index, unless: :skip_pundit?
   
   # Handle authorization errors
   rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
   
   private
+  
+  def set_current_user
+    Current.user = current_user
+  end
   
   def configure_permitted_parameters
     devise_parameter_sanitizer.permit(:sign_up, keys: [:first_name, :last_name, :organization_id])
@@ -27,13 +32,8 @@ class ApplicationController < ActionController::Base
   
   def skip_pundit?
     devise_controller? || 
-    params[:controller] == 'home' || 
-    params[:controller] == 'ged' ||
+    params[:controller] == 'home' ||
     params[:controller] == 'rails/health'
-  end
-  
-  def pundit_action_exists?
-    self.class.action_methods.include?(action_name)
   end
   
   def user_not_authorized

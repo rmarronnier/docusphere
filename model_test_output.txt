@@ -1,0 +1,1 @@
+rbenv: version `3.3.0' is not installed (set by /Users/remy/pro/dev/pawtest/docusphere/.ruby-version)

@@ -176,7 +176,7 @@ module Storable
   # Find items in same location
   def siblings
     if folder
-      folder.children
+      self.class.in_folder(folder)
     elsif space
       self.class.in_space(space).root_items
     else

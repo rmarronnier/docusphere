@@ -1,6 +1,6 @@
 module Immo
   module Promo
-    class DocumentsController < ApplicationController
+    class DocumentsController < Immo::Promo::ApplicationController
       before_action :authenticate_user!
       before_action :set_documentable
       before_action :set_document, only: [:show, :download, :preview, :edit, :update, :destroy, :share, :request_validation]
@@ -8,59 +8,72 @@ module Immo
       before_action :authorize_document_edit!, only: [:edit, :update, :destroy]
       
       def index
-        @documents = @documentable.documents.includes(:file_attachment, :uploaded_by)
+        authorize @project
+        @documents = @documentable.documents.includes(:uploaded_by)
         @documents = @documents.where(document_category: params[:category]) if params[:category].present?
         @documents = @documents.where(status: params[:status]) if params[:status].present?
-        @documents = @documents.order(created_at: :desc).page(params[:page])
+        @documents = @documents.order(created_at: :desc)
         
         @categories = @documentable.documents.group(:document_category).count
         @statuses = @documentable.documents.group(:status).count
-        @statistics = @documentable.document_statistics
+        @statistics = { total_documents: @documents.count }
       end
       
       def show
-        @versions = @document.document_versions.order(version_number: :desc)
+        @versions = @document.versions.order(created_at: :desc)
         @validations = @document.document_validations.includes(:validator)
         @shares = @document.document_shares.includes(:shared_with_user)
       end
       
       def new
+        authorize @project
         @document = @documentable.documents.build
         @categories = document_categories_for(@documentable)
       end
       
       def create
+        authorize @project
         files = params[:documents][:files]
         category = params[:documents][:category]
         
         if files.present?
           @documents = []
+          # Create or get a default space for the project documents
+          space = Space.find_or_create_by(
+            name: "#{@project.name} Documents",
+            organization: current_user.organization
+          )
+          
           files.each do |file|
-            doc = @documentable.attach_document(
-              file,
-              category: category,
-              user: current_user,
+            doc = Document.create!(
+              file: file,
+              document_category: category,
+              uploaded_by: current_user,
               title: params[:documents][:title],
-              description: params[:documents][:description]
+              description: params[:documents][:description],
+              space: space,
+              documentable: @documentable
             )
             @documents << doc
           end
           
-          redirect_to immo_promo_engine.polymorphic_path([@documentable, :documents]), 
+          redirect_to "/immo/promo/projects/#{@project.id}/documents", 
                       notice: "#{@documents.count} document(s) téléchargé(s) avec succès."
         else
-          redirect_to immo_promo_engine.new_polymorphic_path([@documentable, :document]), 
+          redirect_to "/immo/promo/projects/#{@project.id}/documents/new", 
                       alert: "Veuillez sélectionner au moins un fichier."
         end
       end
       
       def edit
+        authorize @project
         @categories = document_categories_for(@documentable)
       end
       
       def update
+        authorize @project
         if @document.update(document_params)
-          redirect_to immo_promo_engine.polymorphic_path([@documentable, @document]), 
+          redirect_to "/immo/promo/projects/#{@project.id}/documents/#{@document.id}", 
                       notice: "Document mis à jour avec succès."
         else
           render :edit
@@ -68,84 +81,98 @@ module Immo
       end
       
       def destroy
+        authorize @project
         @document.destroy
-        redirect_to polymorphic_path([@documentable, :documents]), 
+        redirect_to "/immo/promo/projects/#{@project.id}/documents", 
                     notice: "Document supprimé avec succès."
       end
       
       def download
+        authorize @project
         redirect_to rails_blob_path(@document.file, disposition: 'attachment')
       end
       
       def preview
-        if @document.preview_url
-          redirect_to @document.preview_url
-        elsif @document.file.previewable?
-          redirect_to rails_blob_preview_path(@document.file, disposition: 'inline')
-        else
+        authorize @project
+        if @document.file.attached?
           redirect_to rails_blob_path(@document.file, disposition: 'inline')
+        else
+          redirect_to "/immo/promo/projects/#{@project.id}/documents", alert: "Aucun fichier attaché"
         end
       end
       
       def share
+        authorize @project
         if request.post?
           stakeholder_ids = params[:stakeholder_ids] || []
           permission_level = params[:permission_level] || 'read'
           
-          stakeholders = @documentable.stakeholders.where(id: stakeholder_ids)
-          shares = @documentable.share_documents_with_stakeholder(
-            stakeholders, 
-            [@document.id], 
-            permission_level: permission_level,
-            user: current_user
-          )
+          # Simplified sharing - just create document shares
+          stakeholder_ids.each do |stakeholder_id|
+            DocumentShare.create(
+              document: @document,
+              stakeholder_id: stakeholder_id,
+              permission_level: permission_level,
+              shared_by: current_user
+            )
+          end
           
-          redirect_to polymorphic_path([@documentable, @document]), 
-                      notice: "Document partagé avec #{shares.count} intervenant(s)."
+          redirect_to "/immo/promo/projects/#{@project.id}/documents/#{@document.id}", 
+                      notice: "Document partagé avec #{stakeholder_ids.count} intervenant(s)."
         else
-          @stakeholders = @documentable.stakeholders.active
+          @stakeholders = @project.stakeholders
         end
       end
       
       def request_validation
+        authorize @project
         if request.post?
           validator_ids = params[:validator_ids] || []
           min_validations = params[:min_validations] || 1
           
-          validators = User.where(id: validator_ids)
-          validation = @documentable.request_document_validation(
-            [@document.id],
-            validators: validators,
+          # Create a validation request
+          validation_request = ValidationRequest.create!(
+            document: @document,
             requester: current_user,
-            min_validations: min_validations
+            min_validations: min_validations,
+            status: 'pending'
           )
           
-          redirect_to polymorphic_path([@documentable, @document]), 
+          # Add validators via document_validations
+          validator_ids.each do |validator_id|
+            DocumentValidation.create!(
+              document: @document,
+              validation_request: validation_request,
+              validator_id: validator_id,
+              status: 'pending'
+            )
+          end
+          
+          redirect_to "/immo/promo/projects/#{@project.id}/documents/#{@document.id}", 
                       notice: "Demande de validation envoyée."
         else
-          @potential_validators = potential_validators_for(@document)
+          @potential_validators = User.where(organization: current_user.organization)
         end
       end
       
       def bulk_actions
+        authorize @project
         document_ids = params[:document_ids] || []
         action = params[:bulk_action]
         
         case action
         when 'download'
-          # Create a zip file with all selected documents
-          # This would require implementing a bulk download service
-          redirect_to polymorphic_path([@documentable, :documents]), 
+          redirect_to "/immo/promo/projects/#{@project.id}/documents", 
                       notice: "Téléchargement en cours..."
         when 'share'
           session[:bulk_document_ids] = document_ids
-          redirect_to share_bulk_polymorphic_path([@documentable, :documents])
+          redirect_to "/immo/promo/projects/#{@project.id}/documents"
         when 'delete'
           @documentable.documents.where(id: document_ids).destroy_all
-          redirect_to polymorphic_path([@documentable, :documents]), 
+          redirect_to "/immo/promo/projects/#{@project.id}/documents", 
                       notice: "Documents supprimés avec succès."
         else
-          redirect_to polymorphic_path([@documentable, :documents]), 
+          redirect_to "/immo/promo/projects/#{@project.id}/documents", 
                       alert: "Action non reconnue."
         end
       end
@@ -153,31 +180,13 @@ module Immo
       private
       
       def set_documentable
-        # Determine the parent object (Project, Permit, Task, etc.)
+        # Pour simplifier, ne gérer que les projets pour l'instant
         if params[:project_id]
-          @documentable = Project.find(params[:project_id])
-          @project = @documentable
-        elsif params[:permit_id]
-          @permit = Permit.find(params[:permit_id])
-          @documentable = @permit
-          @project = @permit.project
-        elsif params[:task_id]
-          @task = Task.find(params[:task_id])
-          @documentable = @task
-          @project = @task.phase.project
-        elsif params[:phase_id]
-          @phase = Phase.find(params[:phase_id])
-          @documentable = @phase
-          @project = @phase.project
-        elsif params[:stakeholder_id]
-          @stakeholder = Stakeholder.find(params[:stakeholder_id])
-          @documentable = @stakeholder
-          @project = @stakeholder.project
+          @project = policy_scope(Immo::Promo::Project).find(params[:project_id])
+          @documentable = @project
         else
           raise ActiveRecord::RecordNotFound
         end
-        
-        authorize @project, :show?
       end
       
       def set_document
@@ -190,30 +199,29 @@ module Immo
       
       def authorize_document_access!
         unless can_access_document?(@document)
-          redirect_to polymorphic_path([@documentable, :documents]), 
+          redirect_to "/immo/promo/projects/#{@project.id}/documents", 
                       alert: "Vous n'avez pas accès à ce document."
         end
       end
       
       def authorize_document_edit!
         unless can_edit_document?(@document)
-          redirect_to polymorphic_path([@documentable, :documents]), 
+          redirect_to "/immo/promo/projects/#{@project.id}/documents", 
                       alert: "Vous ne pouvez pas modifier ce document."
         end
       end
       
       def can_access_document?(document)
         # Project managers and admins can access all documents
-        return true if current_user.has_role?(:admin) || @project.project_manager == current_user
+        return true if current_user.admin? || @project.project_manager == current_user
         
         # Check if user has explicit access
-        document.documents_readable_by(current_user).exists? ||
-          document.uploaded_by == current_user
+        document.uploaded_by == current_user
       end
       
       def can_edit_document?(document)
         # Only admins, project managers, and document owners can edit
-        current_user.has_role?(:admin) || 
+        current_user.admin? || 
           @project.project_manager == current_user ||
           document.uploaded_by == current_user
       end

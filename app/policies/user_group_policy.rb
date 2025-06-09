@@ -34,6 +34,14 @@ class UserGroupPolicy < ApplicationPolicy
   def manage_members?
     update?
   end
+  
+  def add_member?
+    update?
+  end
+  
+  def remove_member?
+    update?
+  end
 
   def leave_group?
     user.member_of_group?(record) && !user.admin_of_group?(record)

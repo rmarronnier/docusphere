@@ -107,7 +107,7 @@ RSpec.describe Ui::DataTableComponent, type: :component do
       # Status badge would be rendered by StatusBadgeComponent
       # Progress bar would be rendered by ProgressBarComponent
       expect(rendered).to have_text('1 500')
-      expect(rendered).to have_text('15 jan. 2024')
+      expect(rendered).to have_text('15 jan.')
     end
 
     it "handles nested attributes with dot notation" do

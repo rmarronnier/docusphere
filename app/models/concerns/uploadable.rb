@@ -7,15 +7,42 @@ module Uploadable
     after_create_commit :enqueue_processing_job, if: :has_file_attached?
     after_update_commit :enqueue_reprocessing_job, if: :should_reprocess?
     
-    # Scopes
-    scope :with_files, -> { joins(:file_attachment) }
-    scope :without_files, -> { left_joins(:file_attachment).where(active_storage_attachments: { id: nil }) }
-    scope :by_content_type, ->(type) { joins(:file_blob).where(active_storage_blobs: { content_type: type }) }
+    # Scopes - These need to be implemented differently for each model
+    # as Active Storage doesn't provide generic attachment joins
+    scope :with_files, -> { 
+      if respond_to?(:with_attached_file)
+        with_attached_file
+      else
+        all # fallback if no file attachment
+      end
+    }
+    scope :without_files, -> { 
+      if table_exists? && column_names.include?('id')
+        left_joins("LEFT JOIN active_storage_attachments ON active_storage_attachments.record_type = '#{name}' AND active_storage_attachments.record_id = #{table_name}.id AND active_storage_attachments.name = 'file'")
+          .where(active_storage_attachments: { id: nil })
+      else
+        none
+      end
+    }
+    scope :by_content_type, ->(type) { 
+      if table_exists? && column_names.include?('id')
+        joins("INNER JOIN active_storage_attachments ON active_storage_attachments.record_type = '#{name}' AND active_storage_attachments.record_id = #{table_name}.id AND active_storage_attachments.name = 'file'")
+          .joins("INNER JOIN active_storage_blobs ON active_storage_blobs.id = active_storage_attachments.blob_id")
+          .where(active_storage_blobs: { content_type: type })
+      else
+        none
+      end
+    }
     scope :by_file_size, ->(min: nil, max: nil) {
-      scope = joins(:file_blob)
-      scope = scope.where('active_storage_blobs.byte_size >= ?', min) if min
-      scope = scope.where('active_storage_blobs.byte_size <= ?', max) if max
-      scope
+      if table_exists? && column_names.include?('id')
+        scope = joins("INNER JOIN active_storage_attachments ON active_storage_attachments.record_type = '#{name}' AND active_storage_attachments.record_id = #{table_name}.id AND active_storage_attachments.name = 'file'")
+          .joins("INNER JOIN active_storage_blobs ON active_storage_blobs.id = active_storage_attachments.blob_id")
+        scope = scope.where('active_storage_blobs.byte_size >= ?', min) if min
+        scope = scope.where('active_storage_blobs.byte_size <= ?', max) if max
+        scope
+      else
+        none
+      end
     }
   end
 

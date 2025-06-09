@@ -4,6 +4,8 @@
 
 **NEVER run git commands directly**. Always let the user handle git operations.
 
+**⚠️ DOCUMENT VERSIONING**: Document model uses PaperTrail for versioning with a custom DocumentVersion class that inherits from PaperTrail::Version. This provides document-specific versioning features while leveraging PaperTrail's robust infrastructure. Access versions through `document.versions` which returns DocumentVersion instances.
+
 ## GitHub Actions Compatibility
 
 When running on GitHub Actions (x86_64-linux), you may need to add the platform to Gemfile.lock:

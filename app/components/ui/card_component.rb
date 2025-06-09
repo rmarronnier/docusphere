@@ -80,7 +80,7 @@ class Ui::CardComponent < ApplicationComponent
     when :md then "shadow-md"
     when :lg then "shadow-lg"
     when :xl then "shadow-xl"
-    when :2xl then "shadow-2xl"
+    when :"2xl" then "shadow-2xl"
     else "shadow-md"
     end
   end
@@ -92,7 +92,7 @@ class Ui::CardComponent < ApplicationComponent
     when :md then "rounded-md"
     when :lg then "rounded-lg"
     when :xl then "rounded-xl"
-    when :2xl then "rounded-2xl"
+    when :"2xl" then "rounded-2xl"
     when :full then "rounded-full"
     else "rounded-xl"
     end

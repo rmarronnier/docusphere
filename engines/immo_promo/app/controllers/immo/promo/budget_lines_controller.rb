@@ -6,6 +6,8 @@ module Immo
       before_action :set_budget_line, only: [:show, :edit, :update, :destroy]
       
       def index
+        authorize @project, :show?
+        
         @budget_lines = @budget.budget_lines.includes(:phase)
                                            .order(:category, :description)
         
@@ -14,54 +16,50 @@ module Immo
           @budget_lines = @budget_lines.where(category: params[:category])
         end
         
-        # Filtrage par phase
-        if params[:phase_id].present?
-          @budget_lines = @budget_lines.where(phase_id: params[:phase_id])
-        end
-        
         @categories = @budget.budget_lines.distinct.pluck(:category).compact
-        @phases = @project.phases.order(:start_date)
         
         @pagy, @budget_lines = pagy(@budget_lines) if respond_to?(:pagy)
       end
 
       def show
-        @expense_history = @budget_line.expenses.order(created_at: :desc).limit(10)
+        authorize @project, :show?
+        # @expense_history = @budget_line.expenses.order(created_at: :desc).limit(10)
         @variance_trend = calculate_variance_trend
       end
 
       def new
+        authorize @project, :update?
         @budget_line = @budget.budget_lines.build
-        @phases = @project.phases.order(:start_date)
       end
 
       def create
+        authorize @project, :update?
         @budget_line = @budget.budget_lines.build(budget_line_params)
         
         if @budget_line.save
           redirect_to immo_promo_engine.project_budget_budget_lines_path(@project, @budget),
                       notice: 'Ligne budgétaire ajoutée avec succès.'
         else
-          @phases = @project.phases.order(:start_date)
           render :new, status: :unprocessable_entity
         end
       end
 
       def edit
-        @phases = @project.phases.order(:start_date)
+        authorize @project, :update?
       end
 
       def update
+        authorize @project, :update?
         if @budget_line.update(budget_line_params)
           redirect_to immo_promo_engine.project_budget_budget_line_path(@project, @budget, @budget_line),
                       notice: 'Ligne budgétaire modifiée avec succès.'
         else
-          @phases = @project.phases.order(:start_date)
           render :edit, status: :unprocessable_entity
         end
       end
 
       def destroy
+        authorize @project, :update?
         if @budget_line.can_be_deleted?
           @budget_line.destroy
           redirect_to immo_promo_engine.project_budget_budget_lines_path(@project, @budget),
@@ -75,7 +73,7 @@ module Immo
       private
 
       def set_project
-        @project = current_user.accessible_projects.find(params[:project_id])
+        @project = policy_scope(Immo::Promo::Project).find(params[:project_id])
       end
 
       def set_budget
@@ -87,9 +85,10 @@ module Immo
       end
 
       def budget_line_params
-        params.require(:budget_line).permit(
-          :category, :description, :quantity, :unit, :unit_price,
-          :total_amount, :phase_id, :supplier, :notes
+        params.require(:immo_promo_budget_line).permit(
+          :category, :subcategory, :description, 
+          :planned_amount_cents, :actual_amount_cents, :committed_amount_cents,
+          :notes
         )
       end
 
@@ -98,9 +97,8 @@ module Immo
         months = 6.times.map { |i| i.months.ago.beginning_of_month }
         
         months.map do |month|
-          expenses_up_to_month = @budget_line.expenses.where('created_at <= ?', month.end_of_month)
-          actual_amount = expenses_up_to_month.sum(:amount)
-          planned_amount = @budget_line.total_amount || 0
+          planned_amount = @budget_line.planned_amount_cents || 0
+          actual_amount = @budget_line.actual_amount_cents || 0
           
           {
             month: month,

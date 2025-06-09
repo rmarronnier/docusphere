@@ -6,7 +6,7 @@ module Immo
           if user.admin? || user.super_admin?
             scope.all
           else
-            scope.joins(:project).where(projects: { organization: user.organization })
+            scope.joins(:project).where(immo_promo_projects: { organization: user.organization })
           end
         end
       end

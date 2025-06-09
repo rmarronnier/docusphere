@@ -1,0 +1,62 @@
+require 'rails_helper'
+
+RSpec.describe MetadataTemplate, type: :model do
+  let(:organization) { create(:organization) }
+  
+  describe 'associations' do
+    it { should belong_to(:organization) }
+    it { should have_many(:metadata_fields).dependent(:destroy) }
+    it { should have_many(:documents) }
+  end
+
+  describe 'validations' do
+    it { should validate_presence_of(:name) }
+    it { should validate_presence_of(:organization) }
+    
+    it 'validates uniqueness of name scoped to organization' do
+      create(:metadata_template, name: 'Template 1', organization: organization)
+      should validate_uniqueness_of(:name).scoped_to(:organization_id)
+    end
+  end
+
+  describe 'scopes' do
+    let!(:active_template) { create(:metadata_template, active: true, organization: organization) }
+    let!(:inactive_template) { create(:metadata_template, active: false, organization: organization) }
+
+    describe '.active' do
+      it 'returns only active templates' do
+        expect(MetadataTemplate.active).to include(active_template)
+        expect(MetadataTemplate.active).not_to include(inactive_template)
+      end
+    end
+  end
+
+  describe 'instance methods' do
+    let(:template) { create(:metadata_template, organization: organization) }
+    
+    describe '#activate!' do
+      it 'sets active to true' do
+        template.update(active: false)
+        template.activate!
+        expect(template.reload.active).to be true
+      end
+    end
+
+    describe '#deactivate!' do
+      it 'sets active to false' do
+        template.update(active: true)
+        template.deactivate!
+        expect(template.reload.active).to be false
+      end
+    end
+
+    describe '#field_names' do
+      it 'returns array of field names' do
+        create(:metadata_field, name: 'Field 1', metadata_template: template)
+        create(:metadata_field, name: 'Field 2', metadata_template: template)
+        
+        expect(template.field_names).to contain_exactly('Field 1', 'Field 2')
+      end
+    end
+  end
+end

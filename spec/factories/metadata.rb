@@ -1,9 +1,25 @@
 FactoryBot.define do
   factory :metadatum do
-    document { nil }
-    key { "MyString" }
-    value { "MyText" }
-    metadata_type { "MyString" }
+    association :metadatable, factory: :document
+    key { Faker::Lorem.word }
+    value { Faker::Lorem.sentence }
+    
+    trait :with_field do
+      metadata_field
+      key { nil }
+    end
+    
+    trait :boolean_type do
+      value { "true" }
+      with_field
+      metadata_field { association :metadata_field, field_type: 'boolean' }
+    end
+    
+    trait :date_type do
+      value { Date.current.to_s }
+      with_field
+      metadata_field { association :metadata_field, field_type: 'date' }
+    end
   end
 
   factory :metadata_template do
