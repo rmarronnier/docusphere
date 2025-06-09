@@ -5,6 +5,7 @@ module Immo
 
       include Schedulable
       include WorkflowManageable
+      include Immo::Promo::Documentable
       audited
 
       # Alias pour Schedulable concern
@@ -225,6 +226,22 @@ module Immo
       
       def should_submit_within_month?
         project.phases.where(phase_type: 'construction').any? { |p| p.start_date && p.start_date <= 8.months.from_now }
+      end
+
+      def required_document_types
+        base_docs = %w[permit administrative legal]
+        case permit_type
+        when 'construction'
+          base_docs + %w[technical plan]
+        when 'environmental'
+          base_docs + %w[environmental technical]
+        when 'urban_planning'
+          base_docs + %w[plan]
+        when 'demolition'
+          base_docs + %w[technical]
+        else
+          base_docs
+        end
       end
     end
   end

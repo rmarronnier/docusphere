@@ -1,0 +1,417 @@
+<div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+  <div class="sm:flex sm:items-start">
+    <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-green-100 sm:mx-0 sm:h-10 sm:w-10">
+      <svg class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 12l2 2 4-4" />
+      </svg>
+    </div>
+    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+      <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+        Téléchargement groupé
+      </h3>
+      <div class="mt-2">
+        <p class="text-sm text-gray-500">
+          Téléchargez plusieurs documents pour <%= documentable_name %>
+        </p>
+      </div>
+      
+      <!-- Bulk Upload Form -->
+      <form id="bulkUploadForm" action="<%= bulk_upload_path %>" method="post" enctype="multipart/form-data" class="mt-4">
+        <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+        
+        <!-- Default Category -->
+        <div class="mb-4">
+          <label for="bulk-category" class="block text-sm font-medium text-gray-700 mb-1">
+            Catégorie par défaut
+          </label>
+          <select id="bulk-category" 
+                  name="document_category" 
+                  class="shadow-sm focus:ring-green-500 focus:border-green-500 block w-full sm:text-sm border-gray-300 rounded-md">
+            <option value="project">Projet (par défaut)</option>
+            <% document_categories.each do |category| %>
+              <option value="<%= category %>">
+                <%= category.humanize %>
+              </option>
+            <% end %>
+          </select>
+          <p class="mt-1 text-xs text-gray-500">
+            Cette catégorie sera appliquée à tous les fichiers sélectionnés
+          </p>
+        </div>
+
+        <!-- File Upload Area -->
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Fichiers (maximum <%= max_files_count %>)
+          </label>
+          <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-gray-400 transition-colors duration-200">
+            <div class="space-y-1 text-center">
+              <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+              <div class="flex text-sm text-gray-600">
+                <label for="files-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-green-600 hover:text-green-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-green-500">
+                  <span>Sélectionnez des fichiers</span>
+                  <input id="files-upload" 
+                         name="files[]" 
+                         type="file" 
+                         class="sr-only" 
+                         multiple
+                         accept="<%= accepted_file_extensions %>"
+                         data-max-size="<%= max_file_size_mb * 1024 * 1024 %>"
+                         data-max-files="<%= max_files_count %>">
+                </label>
+                <p class="pl-1">ou glissez-déposez</p>
+              </div>
+              <p class="text-xs text-gray-500">
+                PDF, DOC, XLS, PPT, images jusqu'à <%= max_file_size_mb %>MB chacun
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Selected Files List -->
+        <div id="selected-files" class="mb-6 hidden">
+          <h4 class="text-sm font-medium text-gray-700 mb-3">Fichiers sélectionnés</h4>
+          <div id="files-list" class="space-y-2 max-h-40 overflow-y-auto"></div>
+          <div class="mt-3 flex justify-between text-sm text-gray-600">
+            <span>Total: <span id="files-count">0</span> fichier(s)</span>
+            <span>Taille: <span id="total-size">0 B</span></span>
+          </div>
+        </div>
+
+        <!-- Upload Progress -->
+        <div id="bulk-upload-progress" class="mb-4 hidden">
+          <div class="flex justify-between text-sm text-gray-600 mb-2">
+            <span>Téléchargement en cours...</span>
+            <span id="bulk-progress-percent">0%</span>
+          </div>
+          <div class="w-full bg-gray-200 rounded-full h-3">
+            <div id="bulk-progress-bar" class="bg-green-600 h-3 rounded-full transition-all duration-300" style="width: 0%"></div>
+          </div>
+          <div id="upload-status" class="mt-2 text-sm text-gray-600"></div>
+        </div>
+
+        <!-- Error Messages -->
+        <div id="bulk-upload-errors" class="mb-4 hidden">
+          <div class="rounded-md bg-red-50 p-4">
+            <div class="flex">
+              <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                </svg>
+              </div>
+              <div class="ml-3">
+                <h3 class="text-sm font-medium text-red-800">
+                  Erreurs lors du téléchargement
+                </h3>
+                <div class="mt-2 text-sm text-red-700">
+                  <ul id="bulk-error-list" class="list-disc pl-5 space-y-1"></ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Success Messages -->
+        <div id="bulk-upload-success" class="mb-4 hidden">
+          <div class="rounded-md bg-green-50 p-4">
+            <div class="flex">
+              <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                </svg>
+              </div>
+              <div class="ml-3">
+                <h3 class="text-sm font-medium text-green-800">
+                  Téléchargement réussi
+                </h3>
+                <div class="mt-2 text-sm text-green-700">
+                  <p id="success-message"></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Footer -->
+<div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+  <button type="submit" 
+          form="bulkUploadForm"
+          id="bulk-upload-button"
+          class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled>
+    Télécharger tout
+  </button>
+  <button type="button" 
+          onclick="closeBulkUploadModal()"
+          class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+    Annuler
+  </button>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const filesInput = document.getElementById('files-upload');
+    const selectedFilesContainer = document.getElementById('selected-files');
+    const filesList = document.getElementById('files-list');
+    const filesCount = document.getElementById('files-count');
+    const totalSize = document.getElementById('total-size');
+    const bulkUploadForm = document.getElementById('bulkUploadForm');
+    const bulkUploadButton = document.getElementById('bulk-upload-button');
+    const progressContainer = document.getElementById('bulk-upload-progress');
+    const progressBar = document.getElementById('bulk-progress-bar');
+    const progressPercent = document.getElementById('bulk-progress-percent');
+    const uploadStatus = document.getElementById('upload-status');
+    const errorsContainer = document.getElementById('bulk-upload-errors');
+    const errorList = document.getElementById('bulk-error-list');
+    const successContainer = document.getElementById('bulk-upload-success');
+    const successMessage = document.getElementById('success-message');
+
+    let selectedFiles = [];
+    const maxSize = parseInt(filesInput.dataset.maxSize);
+    const maxFiles = parseInt(filesInput.dataset.maxFiles);
+
+    // Files input change handler
+    filesInput.addEventListener('change', function(e) {
+      handleFileSelection(Array.from(e.target.files));
+    });
+
+    function handleFileSelection(files) {
+      const errors = [];
+      const validFiles = [];
+
+      // Check file count
+      if (files.length > maxFiles) {
+        errors.push(`Maximum ${maxFiles} fichiers autorisés`);
+        files = files.slice(0, maxFiles);
+      }
+
+      // Validate each file
+      files.forEach(file => {
+        if (file.size > maxSize) {
+          errors.push(`${file.name}: Fichier trop volumineux (max <%= max_file_size_mb %>MB)`);
+        } else {
+          validFiles.push(file);
+        }
+      });
+
+      if (errors.length > 0) {
+        showError(errors);
+      } else {
+        hideError();
+      }
+
+      selectedFiles = validFiles;
+      updateFilesList();
+      updateUploadButton();
+    }
+
+    function updateFilesList() {
+      if (selectedFiles.length === 0) {
+        selectedFilesContainer.classList.add('hidden');
+        return;
+      }
+
+      selectedFilesContainer.classList.remove('hidden');
+      filesList.innerHTML = '';
+
+      let totalSizeBytes = 0;
+      selectedFiles.forEach((file, index) => {
+        totalSizeBytes += file.size;
+        
+        const fileItem = document.createElement('div');
+        fileItem.className = 'flex items-center justify-between p-2 bg-gray-50 rounded';
+        fileItem.innerHTML = `
+          <div class="flex items-center min-w-0 flex-1">
+            <svg class="h-5 w-5 text-gray-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <div class="min-w-0 flex-1">
+              <p class="text-sm font-medium text-gray-900 truncate">${file.name}</p>
+              <p class="text-xs text-gray-500">${formatFileSize(file.size)}</p>
+            </div>
+          </div>
+          <button type="button" class="ml-2 text-red-600 hover:text-red-800" onclick="removeFile(${index})">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        `;
+        filesList.appendChild(fileItem);
+      });
+
+      filesCount.textContent = selectedFiles.length;
+      totalSize.textContent = formatFileSize(totalSizeBytes);
+    }
+
+    function updateUploadButton() {
+      bulkUploadButton.disabled = selectedFiles.length === 0;
+    }
+
+    window.removeFile = function(index) {
+      selectedFiles.splice(index, 1);
+      updateFilesList();
+      updateUploadButton();
+      
+      // Update file input
+      const dt = new DataTransfer();
+      selectedFiles.forEach(file => dt.items.add(file));
+      filesInput.files = dt.files;
+    };
+
+    // Form submission
+    bulkUploadForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      if (selectedFiles.length === 0) return;
+      
+      const formData = new FormData();
+      formData.append('authenticity_token', document.querySelector('input[name="authenticity_token"]').value);
+      formData.append('document_category', document.getElementById('bulk-category').value);
+      
+      selectedFiles.forEach(file => {
+        formData.append('files[]', file);
+      });
+      
+      // Disable form during upload
+      bulkUploadButton.disabled = true;
+      bulkUploadButton.textContent = 'Téléchargement...';
+      progressContainer.classList.remove('hidden');
+      hideError();
+      hideSuccess();
+
+      // Create XMLHttpRequest for progress tracking
+      const xhr = new XMLHttpRequest();
+
+      xhr.upload.addEventListener('progress', function(e) {
+        if (e.lengthComputable) {
+          const percentComplete = (e.loaded / e.total) * 100;
+          progressBar.style.width = percentComplete + '%';
+          progressPercent.textContent = Math.round(percentComplete) + '%';
+          uploadStatus.textContent = `Téléchargement de ${selectedFiles.length} fichier(s)...`;
+        }
+      });
+
+      xhr.addEventListener('load', function() {
+        if (xhr.status === 200 || xhr.status === 201) {
+          // Success
+          try {
+            const response = JSON.parse(xhr.responseText);
+            showSuccess(`${response.uploaded || selectedFiles.length} fichier(s) téléchargé(s) avec succès`);
+            
+            // Reset form after short delay
+            setTimeout(() => {
+              window.location.reload();
+            }, 2000);
+          } catch (e) {
+            // If no JSON response, assume success and reload
+            window.location.reload();
+          }
+        } else {
+          // Error
+          try {
+            const response = JSON.parse(xhr.responseText);
+            showError(response.errors || ['Une erreur est survenue lors du téléchargement']);
+          } catch (e) {
+            showError(['Une erreur est survenue lors du téléchargement']);
+          }
+          resetForm();
+        }
+      });
+
+      xhr.addEventListener('error', function() {
+        showError(['Erreur de connexion. Veuillez réessayer.']);
+        resetForm();
+      });
+
+      xhr.open('POST', bulkUploadForm.action);
+      xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+      xhr.send(formData);
+    });
+
+    function formatFileSize(bytes) {
+      if (bytes === 0) return '0 B';
+      const k = 1024;
+      const sizes = ['B', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+    }
+
+    function showError(errors) {
+      errorList.innerHTML = '';
+      errors.forEach(function(error) {
+        const li = document.createElement('li');
+        li.textContent = error;
+        errorList.appendChild(li);
+      });
+      errorsContainer.classList.remove('hidden');
+    }
+
+    function hideError() {
+      errorsContainer.classList.add('hidden');
+    }
+
+    function showSuccess(message) {
+      successMessage.textContent = message;
+      successContainer.classList.remove('hidden');
+    }
+
+    function hideSuccess() {
+      successContainer.classList.add('hidden');
+    }
+
+    function resetForm() {
+      bulkUploadButton.disabled = selectedFiles.length === 0;
+      bulkUploadButton.textContent = 'Télécharger tout';
+      progressContainer.classList.add('hidden');
+      progressBar.style.width = '0%';
+      progressPercent.textContent = '0%';
+    }
+
+    // Drag and drop functionality
+    const dropArea = filesInput.closest('.border-dashed');
+    
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+      dropArea.addEventListener(eventName, preventDefaults, false);
+    });
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropArea.addEventListener(eventName, highlight, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropArea.addEventListener(eventName, unhighlight, false);
+    });
+
+    dropArea.addEventListener('drop', handleDrop, false);
+
+    function preventDefaults(e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    function highlight(e) {
+      dropArea.classList.add('border-green-400', 'bg-green-50');
+    }
+
+    function unhighlight(e) {
+      dropArea.classList.remove('border-green-400', 'bg-green-50');
+    }
+
+    function handleDrop(e) {
+      const dt = e.dataTransfer;
+      const files = Array.from(dt.files);
+      handleFileSelection(files);
+      
+      // Update file input
+      const dataTransfer = new DataTransfer();
+      selectedFiles.forEach(file => dataTransfer.items.add(file));
+      filesInput.files = dataTransfer.files;
+    }
+  });
+</script>

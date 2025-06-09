@@ -1,0 +1,55 @@
+<% content_for :title, "Notifications urgentes" %>
+
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Header -->
+  <div class="md:flex md:items-center md:justify-between mb-8">
+    <div class="flex-1 min-w-0">
+      <div class="flex items-center space-x-3">
+        <%= link_to notifications_path, 
+            class: "inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-700" do %>
+          <%= render Ui::IconComponent.new(name: 'arrow-left', size: :sm, classes: 'mr-1') %>
+          Retour aux notifications
+        <% end %>
+      </div>
+      
+      <h1 class="mt-2 text-2xl font-bold leading-7 text-gray-900 sm:truncate">
+        <div class="flex items-center space-x-3">
+          <%= render Ui::IconComponent.new(name: 'alert-triangle', size: :md, classes: 'text-red-500') %>
+          <span>Notifications urgentes</span>
+        </div>
+      </h1>
+      
+      <p class="mt-1 text-sm text-gray-500">
+        Notifications nécessitant une attention immédiate
+      </p>
+    </div>
+  </div>
+
+  <!-- Urgent Notifications Alert -->
+  <% if @notifications.any? %>
+    <div class="rounded-md bg-red-50 p-4 mb-6">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <%= render Ui::IconComponent.new(name: 'alert-triangle', size: :sm, classes: 'text-red-400') %>
+        </div>
+        <div class="ml-3">
+          <h3 class="text-sm font-medium text-red-800">
+            <%= pluralize(@notifications.count, 'notification urgente') %>
+          </h3>
+          <div class="mt-2 text-sm text-red-700">
+            <p>Ces notifications nécessitent votre attention immédiate.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Notifications List -->
+  <div class="bg-white shadow rounded-lg overflow-hidden">
+    <%= render Notifications::NotificationListComponent.new(
+      notifications: @notifications,
+      show_actions: true,
+      compact: false
+    ) %>
+  </div>
+</div>

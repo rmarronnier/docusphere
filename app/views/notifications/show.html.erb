@@ -1,0 +1,183 @@
+<% content_for :title, @notification.title %>
+
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Breadcrumb -->
+  <nav class="flex mb-8" aria-label="Breadcrumb">
+    <ol class="inline-flex items-center space-x-1 md:space-x-3">
+      <li class="inline-flex items-center">
+        <%= link_to root_path, class: "inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600" do %>
+          <%= render Ui::IconComponent.new(name: 'home', size: :sm, classes: 'mr-2') %>
+          Accueil
+        <% end %>
+      </li>
+      <li>
+        <div class="flex items-center">
+          <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+          </svg>
+          <%= link_to notifications_path, class: "ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2" do %>
+            Notifications
+          <% end %>
+        </div>
+      </li>
+      <li aria-current="page">
+        <div class="flex items-center">
+          <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+          </svg>
+          <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 truncate">
+            <%= @notification.title %>
+          </span>
+        </div>
+      </li>
+    </ol>
+  </nav>
+
+  <!-- Header -->
+  <div class="md:flex md:items-center md:justify-between mb-8">
+    <div class="flex-1 min-w-0">
+      <div class="flex items-center space-x-3">
+        <%= link_to notifications_path, 
+            class: "inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-700" do %>
+          <%= render Ui::IconComponent.new(name: 'arrow-left', size: :sm, classes: 'mr-1') %>
+          Retour aux notifications
+        <% end %>
+      </div>
+    </div>
+    
+    <div class="mt-4 flex md:mt-0 md:ml-4 space-x-3">
+      <!-- Mark as Read -->
+      <% unless @notification.read? %>
+        <%= button_to mark_as_read_notification_path(@notification), 
+            method: :patch,
+            class: "inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" do %>
+          <%= render Ui::IconComponent.new(name: 'eye', size: :sm, classes: 'mr-2') %>
+          Marquer comme lu
+        <% end %>
+      <% end %>
+      
+      <!-- Delete -->
+      <%= button_to notification_path(@notification), 
+          method: :delete,
+          class: "inline-flex items-center px-4 py-2 border border-red-300 rounded-md shadow-sm bg-white text-sm font-medium text-red-700 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500",
+          confirm: "Êtes-vous sûr de vouloir supprimer cette notification ?" do %>
+        <%= render Ui::IconComponent.new(name: 'trash', size: :sm, classes: 'mr-2') %>
+        Supprimer
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Notification Detail -->
+  <div class="bg-white shadow rounded-lg">
+    <%= render Notifications::NotificationItemComponent.new(
+      notification: @notification,
+      show_actions: false,
+      layout: :detailed
+    ) %>
+  </div>
+
+  <!-- Related Content -->
+  <% if @notification.notifiable.present? %>
+    <div class="mt-8">
+      <div class="bg-white shadow rounded-lg p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Contenu associé</h3>
+        
+        <div class="border rounded-lg p-4 bg-gray-50">
+          <div class="flex items-start space-x-4">
+            <div class="flex-shrink-0">
+              <%= render Ui::IconComponent.new(
+                name: case @notification.notifiable
+                      when Document then 'file-text'
+                      when Space then 'folder'
+                      when Folder then 'folder'
+                      else 'link'
+                      end,
+                size: :md,
+                classes: 'text-gray-400'
+              ) %>
+            </div>
+            
+            <div class="min-w-0 flex-1">
+              <div class="text-sm font-medium text-gray-900">
+                <%= @notification.notifiable.class.name.humanize %>
+              </div>
+              
+              <div class="text-lg font-medium text-gray-900 mt-1">
+                <% if @notification.notifiable.respond_to?(:title) %>
+                  <%= @notification.notifiable.title %>
+                <% elsif @notification.notifiable.respond_to?(:name) %>
+                  <%= @notification.notifiable.name %>
+                <% else %>
+                  #<%= @notification.notifiable.id %>
+                <% end %>
+              </div>
+              
+              <% notifiable_url = case @notification.notifiable
+                                  when Document
+                                    ged_document_path(@notification.notifiable)
+                                  when Space
+                                    ged_space_path(@notification.notifiable)
+                                  when Folder
+                                    ged_folder_path(@notification.notifiable)
+                                  else
+                                    nil
+                                  end %>
+              
+              <% if notifiable_url.present? %>
+                <div class="mt-3">
+                  <%= link_to notifiable_url, 
+                      class: "inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" do %>
+                    <%= render Ui::IconComponent.new(name: 'external-link', size: :sm, classes: 'mr-2') %>
+                    Voir le contenu
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Actions History (if available) -->
+  <% if @notification.formatted_data['actions'].present? %>
+    <div class="mt-8">
+      <div class="bg-white shadow rounded-lg p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Historique des actions</h3>
+        
+        <div class="flow-root">
+          <ul class="-mb-8">
+            <% @notification.formatted_data['actions'].each_with_index do |action, index| %>
+              <li>
+                <div class="relative pb-8">
+                  <% unless index == @notification.formatted_data['actions'].length - 1 %>
+                    <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
+                  <% end %>
+                  
+                  <div class="relative flex space-x-3">
+                    <div>
+                      <span class="h-8 w-8 rounded-full bg-gray-400 flex items-center justify-center ring-8 ring-white">
+                        <%= render Ui::IconComponent.new(name: 'check', size: :xs, classes: 'text-white') %>
+                      </span>
+                    </div>
+                    
+                    <div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
+                      <div>
+                        <p class="text-sm text-gray-500">
+                          <%= action['description'] %>
+                        </p>
+                      </div>
+                      <div class="text-right text-sm whitespace-nowrap text-gray-500">
+                        <%= time_ago_in_words(Time.parse(action['timestamp'])) %> ago
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>

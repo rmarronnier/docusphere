@@ -1,0 +1,352 @@
+<div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+  <div class="sm:flex sm:items-start">
+    <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 sm:mx-0 sm:h-10 sm:w-10">
+      <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+      </svg>
+    </div>
+    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+      <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+        Ajouter un document
+      </h3>
+      <div class="mt-2">
+        <p class="text-sm text-gray-500">
+          Téléchargez un document pour <%= documentable_name %>
+        </p>
+      </div>
+      
+      <!-- Upload Form -->
+      <form id="uploadForm" action="<%= upload_path %>" method="post" enctype="multipart/form-data" class="mt-4">
+        <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+        
+        <!-- File Upload Area -->
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Fichier *
+          </label>
+          <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-gray-400 transition-colors duration-200">
+            <div class="space-y-1 text-center">
+              <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+              <div class="flex text-sm text-gray-600">
+                <label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                  <span>Téléchargez un fichier</span>
+                  <input id="file-upload" 
+                         name="document[file]" 
+                         type="file" 
+                         class="sr-only" 
+                         required
+                         accept="<%= accepted_file_extensions %>"
+                         data-max-size="<%= max_file_size_mb * 1024 * 1024 %>">
+                </label>
+                <p class="pl-1">ou glissez-déposez</p>
+              </div>
+              <p class="text-xs text-gray-500">
+                PDF, DOC, XLS, PPT, images jusqu'à <%= max_file_size_mb %>MB
+              </p>
+            </div>
+          </div>
+          <div id="file-info" class="mt-2 hidden">
+            <div class="flex items-center text-sm text-gray-600">
+              <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <span id="file-name"></span>
+              <span id="file-size" class="ml-2 text-gray-400"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Title Field -->
+        <div class="mb-4">
+          <label for="document-title" class="block text-sm font-medium text-gray-700 mb-1">
+            Titre *
+          </label>
+          <input type="text" 
+                 id="document-title" 
+                 name="document[title]" 
+                 class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                 placeholder="Titre du document"
+                 required>
+        </div>
+
+        <!-- Category Field -->
+        <div class="mb-4">
+          <label for="document-category" class="block text-sm font-medium text-gray-700 mb-1">
+            Catégorie *
+          </label>
+          <select id="document-category" 
+                  name="document[document_category]" 
+                  class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                  required>
+            <option value="">Sélectionnez une catégorie</option>
+            <% document_categories.each do |category| %>
+              <option value="<%= category %>" title="<%= category_description(category) %>">
+                <%= category.humanize %>
+              </option>
+            <% end %>
+          </select>
+          <p id="category-description" class="mt-1 text-xs text-gray-500"></p>
+        </div>
+
+        <!-- Description Field -->
+        <div class="mb-4">
+          <label for="document-description" class="block text-sm font-medium text-gray-700 mb-1">
+            Description
+          </label>
+          <textarea id="document-description" 
+                    name="document[description]" 
+                    rows="3"
+                    class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                    placeholder="Description du document (optionnel)"></textarea>
+        </div>
+
+        <!-- Tags Field -->
+        <div class="mb-6">
+          <label for="document-tags" class="block text-sm font-medium text-gray-700 mb-1">
+            Tags
+          </label>
+          <input type="text" 
+                 id="document-tags" 
+                 name="document[tag_list]" 
+                 class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                 placeholder="Séparez les tags par des virgules">
+          <p class="mt-1 text-xs text-gray-500">
+            Ex: urgent, révision, v2.0
+          </p>
+        </div>
+
+        <!-- Progress Bar -->
+        <div id="upload-progress" class="mb-4 hidden">
+          <div class="flex justify-between text-sm text-gray-600 mb-1">
+            <span>Téléchargement en cours...</span>
+            <span id="progress-percent">0%</span>
+          </div>
+          <div class="w-full bg-gray-200 rounded-full h-2">
+            <div id="progress-bar" class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <!-- Error Messages -->
+        <div id="upload-errors" class="mb-4 hidden">
+          <div class="rounded-md bg-red-50 p-4">
+            <div class="flex">
+              <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                </svg>
+              </div>
+              <div class="ml-3">
+                <h3 class="text-sm font-medium text-red-800">
+                  Erreur lors du téléchargement
+                </h3>
+                <div class="mt-2 text-sm text-red-700">
+                  <ul id="error-list" class="list-disc pl-5 space-y-1"></ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Footer -->
+<div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+  <button type="submit" 
+          form="uploadForm"
+          id="upload-button"
+          class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed">
+    Télécharger
+  </button>
+  <button type="button" 
+          onclick="closeUploadModal()"
+          class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+    Annuler
+  </button>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const fileInput = document.getElementById('file-upload');
+    const fileInfo = document.getElementById('file-info');
+    const fileName = document.getElementById('file-name');
+    const fileSize = document.getElementById('file-size');
+    const titleInput = document.getElementById('document-title');
+    const categorySelect = document.getElementById('document-category');
+    const categoryDescription = document.getElementById('category-description');
+    const uploadForm = document.getElementById('uploadForm');
+    const uploadButton = document.getElementById('upload-button');
+    const progressContainer = document.getElementById('upload-progress');
+    const progressBar = document.getElementById('progress-bar');
+    const progressPercent = document.getElementById('progress-percent');
+    const errorsContainer = document.getElementById('upload-errors');
+    const errorList = document.getElementById('error-list');
+
+    // Category descriptions
+    const categoryDescriptions = {
+      <% document_categories.each do |category| %>
+        '<%= category %>': '<%= category_description(category) %>',
+      <% end %>
+    };
+
+    // File input change handler
+    fileInput.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        // Validate file size
+        const maxSize = parseInt(fileInput.dataset.maxSize);
+        if (file.size > maxSize) {
+          showError(['Le fichier est trop volumineux. Taille maximum: <%= max_file_size_mb %>MB']);
+          fileInput.value = '';
+          return;
+        }
+
+        // Show file info
+        fileName.textContent = file.name;
+        fileSize.textContent = formatFileSize(file.size);
+        fileInfo.classList.remove('hidden');
+
+        // Auto-fill title if empty
+        if (!titleInput.value) {
+          titleInput.value = file.name.replace(/\.[^/.]+$/, "");
+        }
+
+        hideError();
+      } else {
+        fileInfo.classList.add('hidden');
+      }
+    });
+
+    // Category change handler
+    categorySelect.addEventListener('change', function(e) {
+      const category = e.target.value;
+      if (category && categoryDescriptions[category]) {
+        categoryDescription.textContent = categoryDescriptions[category];
+      } else {
+        categoryDescription.textContent = '';
+      }
+    });
+
+    // Form submission
+    uploadForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const formData = new FormData(uploadForm);
+      
+      // Disable form during upload
+      uploadButton.disabled = true;
+      uploadButton.textContent = 'Téléchargement...';
+      progressContainer.classList.remove('hidden');
+      hideError();
+
+      // Create XMLHttpRequest for progress tracking
+      const xhr = new XMLHttpRequest();
+
+      xhr.upload.addEventListener('progress', function(e) {
+        if (e.lengthComputable) {
+          const percentComplete = (e.loaded / e.total) * 100;
+          progressBar.style.width = percentComplete + '%';
+          progressPercent.textContent = Math.round(percentComplete) + '%';
+        }
+      });
+
+      xhr.addEventListener('load', function() {
+        if (xhr.status === 200 || xhr.status === 201) {
+          // Success - reload page or redirect
+          window.location.reload();
+        } else {
+          // Error
+          try {
+            const response = JSON.parse(xhr.responseText);
+            showError(response.errors || ['Une erreur est survenue lors du téléchargement']);
+          } catch (e) {
+            showError(['Une erreur est survenue lors du téléchargement']);
+          }
+          resetForm();
+        }
+      });
+
+      xhr.addEventListener('error', function() {
+        showError(['Erreur de connexion. Veuillez réessayer.']);
+        resetForm();
+      });
+
+      xhr.open('POST', uploadForm.action);
+      xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+      xhr.send(formData);
+    });
+
+    function formatFileSize(bytes) {
+      if (bytes === 0) return '0 B';
+      const k = 1024;
+      const sizes = ['B', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+    }
+
+    function showError(errors) {
+      errorList.innerHTML = '';
+      errors.forEach(function(error) {
+        const li = document.createElement('li');
+        li.textContent = error;
+        errorList.appendChild(li);
+      });
+      errorsContainer.classList.remove('hidden');
+    }
+
+    function hideError() {
+      errorsContainer.classList.add('hidden');
+    }
+
+    function resetForm() {
+      uploadButton.disabled = false;
+      uploadButton.textContent = 'Télécharger';
+      progressContainer.classList.add('hidden');
+      progressBar.style.width = '0%';
+      progressPercent.textContent = '0%';
+    }
+
+    // Drag and drop functionality
+    const dropArea = fileInput.closest('.border-dashed');
+    
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+      dropArea.addEventListener(eventName, preventDefaults, false);
+    });
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropArea.addEventListener(eventName, highlight, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropArea.addEventListener(eventName, unhighlight, false);
+    });
+
+    dropArea.addEventListener('drop', handleDrop, false);
+
+    function preventDefaults(e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    function highlight(e) {
+      dropArea.classList.add('border-blue-400', 'bg-blue-50');
+    }
+
+    function unhighlight(e) {
+      dropArea.classList.remove('border-blue-400', 'bg-blue-50');
+    }
+
+    function handleDrop(e) {
+      const dt = e.dataTransfer;
+      const files = dt.files;
+      
+      if (files.length > 0) {
+        fileInput.files = files;
+        fileInput.dispatchEvent(new Event('change'));
+      }
+    }
+  });
+</script>

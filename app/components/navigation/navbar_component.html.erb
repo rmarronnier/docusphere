@@ -56,20 +56,17 @@
       <div class="hidden sm:ml-6 sm:flex sm:items-center">
         <% if helpers.current_user %>
           <!-- Notifications -->
-          <div class="relative">
-            <button type="button" class="bg-white p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
-              <span class="sr-only">Voir les notifications</span>
-              <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5z" />
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19H6.5A2.5 2.5 0 014 16.5v-9A2.5 2.5 0 016.5 5h10A2.5 2.5 0 0119 7.5v3.5" />
-              </svg>
-            </button>
+          <%= helpers.link_to helpers.notifications_path, class: "relative bg-white p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500" do %>
+            <span class="sr-only">Voir les notifications</span>
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-3.5-3.5a50.367 50.367 0 0 0-.5-5.5A6.5 6.5 0 0 0 5 6.5c0 1.61.5 3.1 1.4 4.3L9 14h6z" />
+            </svg>
             <% if unread_notifications_count > 0 %>
               <span class="absolute -top-1 -right-1 h-4 w-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
                 <%= unread_notifications_count > 9 ? '9+' : unread_notifications_count %>
               </span>
             <% end %>
-          </div>
+          <% end %>
 
           <!-- Menu déroulant utilisateur -->
           <div class="ml-3 relative" data-controller="dropdown">
@@ -131,8 +128,8 @@
     <div class="px-4 pt-2 pb-3">
       <div class="relative" 
            data-controller="search-autocomplete" 
-           data-search-autocomplete-url-value="<%= search_suggestions_path %>">
-        <%= form_with url: search_path, method: :get, local: true, data: { "search-autocomplete-target": "form", action: "submit->search-autocomplete#submitForm" } do |f| %>
+           data-search-autocomplete-url-value="<%= helpers.search_suggestions_path rescue '/search/suggestions' %>">
+        <%= helpers.form_with url: helpers.search_path, method: :get, local: true, data: { "search-autocomplete-target": "form", action: "submit->search-autocomplete#submitForm" } do |f| %>
           <div class="relative">
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -160,7 +157,7 @@
     
     <div class="pt-2 pb-3 space-y-1">
       <% navigation_items.each do |item| %>
-        <%= link_to item[:path], 
+        <%= helpers.link_to item[:path], 
             class: "#{active_item?(item[:path]) ? 'bg-primary-50 border-primary-500 text-primary-700' : 'border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium" do %>
           <%= item[:name] %>
         <% end %>

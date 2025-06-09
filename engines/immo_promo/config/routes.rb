@@ -1,13 +1,66 @@
 ImmoPromo::Engine.routes.draw do
+  # Global document search route
+  get 'documents/search', to: 'immo/promo/documents#search', as: :search_documents
+  
+  # Individual document routes (for direct access)
+  resources :documents, controller: 'immo/promo/documents', only: [:show, :update, :destroy] do
+    member do
+      get :download
+      post :share
+      post :request_validation
+    end
+  end
+
+  # Notification Routes (ImmoPromo specific)
+  resources :notifications, controller: 'immo/promo/notifications', only: [:index, :show, :destroy] do
+    member do
+      patch :mark_as_read
+    end
+    collection do
+      patch :mark_all_as_read
+      patch :bulk_mark_as_read
+      delete :bulk_destroy
+      get :dropdown
+      get :urgent
+      get :stats
+    end
+  end
+
   # Define routes directly without scope module
   resources :projects, controller: 'immo/promo/projects' do
     member do
       get :dashboard
+      get :notifications, to: 'immo/promo/notifications#project_notifications'
+    end
+
+    # Document management routes for projects
+    resources :documents, controller: 'immo/promo/documents', except: [:new, :edit] do
+      collection do
+        post :bulk_upload
+        get :search
+      end
+      member do
+        get :download
+        post :share
+        post :request_validation
+      end
     end
 
     resources :phases, controller: 'immo/promo/phases' do
       member do
         patch :complete
+      end
+      
+      # Document management routes for phases
+      resources :documents, controller: 'immo/promo/documents', except: [:new, :edit] do
+        collection do
+          post :bulk_upload
+        end
+        member do
+          get :download
+          post :share
+          post :request_validation
+        end
       end
       
       resources :tasks, controller: 'immo/promo/tasks' do
@@ -18,6 +71,18 @@ ImmoPromo::Engine.routes.draw do
         collection do
           get :my_tasks
         end
+        
+        # Document management routes for tasks
+        resources :documents, controller: 'immo/promo/documents', except: [:new, :edit] do
+          collection do
+            post :bulk_upload
+          end
+          member do
+            get :download
+            post :share
+            post :request_validation
+          end
+        end
       end
     end
 
@@ -26,8 +91,33 @@ ImmoPromo::Engine.routes.draw do
         patch :approve
         patch :reject
       end
+      
+      # Document management routes for stakeholders
+      resources :documents, controller: 'immo/promo/documents', except: [:new, :edit] do
+        collection do
+          post :bulk_upload
+        end
+        member do
+          get :download
+          post :share
+          post :request_validation
+        end
+      end
     end
-    resources :permits, controller: 'immo/promo/permits'
+    
+    resources :permits, controller: 'immo/promo/permits' do
+      # Document management routes for permits
+      resources :documents, controller: 'immo/promo/documents', except: [:new, :edit] do
+        collection do
+          post :bulk_upload
+        end
+        member do
+          get :download
+          post :share
+          post :request_validation
+        end
+      end
+    end
     resources :budgets, controller: 'immo/promo/budgets' do
       member do
         post :duplicate

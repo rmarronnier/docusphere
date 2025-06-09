@@ -1,0 +1,108 @@
+<% content_for :title, "Notifications - #{@project.name}" %>
+
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Breadcrumb -->
+  <nav class="flex mb-8" aria-label="Breadcrumb">
+    <ol class="inline-flex items-center space-x-1 md:space-x-3">
+      <li class="inline-flex items-center">
+        <%= link_to immo_promo_engine.projects_path, 
+            class: "inline-flex items-center text-sm font-medium text-gray-700 hover:text-green-600" do %>
+          <%= render Ui::IconComponent.new(name: 'building', size: :sm, classes: 'mr-2') %>
+          ImmoPromo
+        <% end %>
+      </li>
+      <li>
+        <div class="flex items-center">
+          <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+          </svg>
+          <%= link_to immo_promo_engine.project_path(@project), 
+              class: "ml-1 text-sm font-medium text-gray-700 hover:text-green-600 md:ml-2" do %>
+            <%= @project.name %>
+          <% end %>
+        </div>
+      </li>
+      <li aria-current="page">
+        <div class="flex items-center">
+          <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+          </svg>
+          <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">
+            Notifications
+          </span>
+        </div>
+      </li>
+    </ol>
+  </nav>
+
+  <!-- Header -->
+  <div class="md:flex md:items-center md:justify-between mb-8">
+    <div class="flex-1 min-w-0">
+      <h1 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate">
+        <div class="flex items-center space-x-3">
+          <%= render Ui::IconComponent.new(name: 'bell', size: :md, classes: 'text-green-600') %>
+          <span>Notifications du projet</span>
+        </div>
+      </h1>
+      <p class="mt-1 text-sm text-gray-500">
+        Toutes les notifications liées au projet "<%= @project.name %>"
+      </p>
+    </div>
+    
+    <div class="mt-4 flex md:mt-0 md:ml-4 space-x-3">
+      <%= link_to immo_promo_engine.notifications_path, 
+          class: "inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500" do %>
+        <%= render Ui::IconComponent.new(name: 'arrow-left', size: :sm, classes: 'mr-2') %>
+        Toutes les notifications
+      <% end %>
+      
+      <%= link_to immo_promo_engine.project_path(@project), 
+          class: "inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500" do %>
+        <%= render Ui::IconComponent.new(name: 'folder-plus', size: :sm, classes: 'mr-2') %>
+        Voir le projet
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Project Info -->
+  <div class="bg-white shadow rounded-lg p-6 mb-8">
+    <div class="flex items-start space-x-4">
+      <div class="flex-shrink-0">
+        <%= render Ui::IconComponent.new(name: 'folder-plus', size: :lg, classes: 'text-green-600') %>
+      </div>
+      
+      <div class="min-w-0 flex-1">
+        <h3 class="text-lg font-medium text-gray-900"><%= @project.name %></h3>
+        <% if @project.description.present? %>
+          <p class="text-sm text-gray-600 mt-1"><%= @project.description %></p>
+        <% end %>
+        
+        <div class="flex items-center space-x-4 mt-3 text-sm text-gray-500">
+          <span>Statut: <span class="font-medium"><%= @project.status&.humanize %></span></span>
+          <% if @project.start_date.present? %>
+            <span>Début: <span class="font-medium"><%= @project.start_date.strftime('%d/%m/%Y') %></span></span>
+          <% end %>
+          <% if @project.end_date.present? %>
+            <span>Fin prévue: <span class="font-medium"><%= @project.end_date.strftime('%d/%m/%Y') %></span></span>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notifications List -->
+  <div class="bg-white shadow rounded-lg overflow-hidden">
+    <%= render Notifications::NotificationListComponent.new(
+      notifications: @notifications,
+      show_actions: true,
+      compact: false
+    ) %>
+    
+    <!-- Pagination -->
+    <% if @pagy.pages > 1 %>
+      <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+        <%== pagy_nav(@pagy) if respond_to?(:pagy_nav) %>
+      </div>
+    <% end %>
+  </div>
+</div>

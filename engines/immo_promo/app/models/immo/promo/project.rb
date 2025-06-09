@@ -7,6 +7,7 @@ module Immo
       include Schedulable
       # include WorkflowManageable # Temporarily disabled - model mismatch
       include Authorizable
+      include Immo::Promo::Documentable
       audited
 
       belongs_to :organization
@@ -280,6 +281,19 @@ module Immo
         when 'reception' then 3
         when 'delivery' then 2
         else 10
+        end
+      end
+
+      def required_document_types
+        case project_type
+        when 'residential', 'mixed'
+          %w[project technical administrative financial legal permit plan]
+        when 'commercial', 'office', 'retail'
+          %w[project technical administrative financial legal permit plan]
+        when 'industrial'
+          %w[project technical administrative financial legal permit plan environmental]
+        else
+          %w[project technical administrative financial]
         end
       end
     end

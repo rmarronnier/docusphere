@@ -5,6 +5,7 @@ module Immo
 
       include Schedulable
       include WorkflowManageable
+      include Immo::Promo::Documentable
       audited
 
       belongs_to :phase, class_name: 'Immo::Promo::Phase'
@@ -124,6 +125,25 @@ module Immo
 
       def schedule_required?
         true
+      end
+
+      def required_document_types
+        case task_type
+        when 'planning'
+          %w[project plan]
+        when 'execution'
+          %w[technical]
+        when 'review', 'approval'
+          %w[administrative]
+        when 'milestone'
+          %w[administrative]
+        when 'administrative'
+          %w[administrative]
+        when 'technical'
+          %w[technical plan]
+        else
+          %w[project]
+        end
       end
     end
   end

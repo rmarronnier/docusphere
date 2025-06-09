@@ -1,0 +1,367 @@
+<div class="document-list-container space-y-6">
+  <!-- Header with title and actions -->
+  <div class="flex justify-between items-center">
+    <div>
+      <h2 class="text-2xl font-bold text-gray-900">Documents - <%= documentable_name %></h2>
+      <p class="text-sm text-gray-600 mt-1">
+        <%= pluralize(documents.total_count || documents.count, 'document') %>
+      </p>
+    </div>
+    
+    <div class="flex space-x-3">
+      <% if can_upload? %>
+        <button type="button" 
+                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                onclick="openUploadModal()">
+          <%= render Immo::Promo::Shared::ActionButtonComponent.new(
+                icon: 'plus',
+                text: 'Ajouter un document',
+                variant: 'primary',
+                size: 'sm'
+              ) %>
+        </button>
+      <% end %>
+      
+      <% if can_bulk_upload? %>
+        <button type="button" 
+                class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                onclick="openBulkUploadModal()">
+          <%= render Immo::Promo::Shared::ActionButtonComponent.new(
+                icon: 'upload',
+                text: 'Upload groupé',
+                variant: 'secondary',
+                size: 'sm'
+              ) %>
+        </button>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Statistics Cards -->
+  <% if show_stats && document_statistics %>
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="p-5">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <svg class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </div>
+            <div class="ml-5 w-0 flex-1">
+              <dl>
+                <dt class="text-sm font-medium text-gray-500 truncate">Total documents</dt>
+                <dd class="text-lg font-medium text-gray-900"><%= document_statistics[:total_documents] %></dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="p-5">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <svg class="h-6 w-6 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div class="ml-5 w-0 flex-1">
+              <dl>
+                <dt class="text-sm font-medium text-gray-500 truncate">En attente validation</dt>
+                <dd class="text-lg font-medium text-gray-900"><%= document_statistics[:pending_validations] %></dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="p-5">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <svg class="h-6 w-6 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div class="ml-5 w-0 flex-1">
+              <dl>
+                <dt class="text-sm font-medium text-gray-500 truncate">Approuvés</dt>
+                <dd class="text-lg font-medium text-gray-900"><%= document_statistics[:approved_documents] %></dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="p-5">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <svg class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+              </svg>
+            </div>
+            <div class="ml-5 w-0 flex-1">
+              <dl>
+                <dt class="text-sm font-medium text-gray-500 truncate">Taille totale</dt>
+                <dd class="text-lg font-medium text-gray-900"><%= format_file_size(document_statistics[:total_size]) %></dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Missing Critical Documents Alert -->
+  <% if missing_documents.any? %>
+    <div class="rounded-md bg-yellow-50 p-4">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+          </svg>
+        </div>
+        <div class="ml-3">
+          <h3 class="text-sm font-medium text-yellow-800">Documents critiques manquants</h3>
+          <div class="mt-2 text-sm text-yellow-700">
+            <p>Les catégories de documents suivantes sont requises :</p>
+            <ul class="list-disc pl-5 space-y-1">
+              <% missing_documents.each do |category| %>
+                <li><%= category.humanize %></li>
+              <% end %>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Filters -->
+  <% if show_filters %>
+    <div class="bg-white shadow rounded-lg p-4">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label for="category-filter" class="block text-sm font-medium text-gray-700">Catégorie</label>
+          <select id="category-filter" name="category" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
+            <option value="">Toutes les catégories</option>
+            <% document_categories.each do |category| %>
+              <option value="<%= category %>"><%= category.humanize %></option>
+            <% end %>
+          </select>
+        </div>
+        
+        <div>
+          <label for="status-filter" class="block text-sm font-medium text-gray-700">Statut</label>
+          <select id="status-filter" name="status" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
+            <option value="">Tous les statuts</option>
+            <% document_statuses.each do |status| %>
+              <option value="<%= status %>"><%= status.humanize %></option>
+            <% end %>
+          </select>
+        </div>
+        
+        <div class="flex items-end">
+          <button type="button" 
+                  id="apply-filters"
+                  class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            Appliquer les filtres
+          </button>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Documents List -->
+  <div class="bg-white shadow overflow-hidden sm:rounded-md">
+    <% if documents.any? %>
+      <ul class="divide-y divide-gray-200">
+        <% documents.each do |document| %>
+          <li>
+            <div class="px-4 py-4 flex items-center justify-between">
+              <div class="flex items-center min-w-0 flex-1">
+                <div class="flex-shrink-0">
+                  <svg class="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <div class="ml-4 min-w-0 flex-1">
+                  <div class="flex items-center">
+                    <p class="text-sm font-medium text-blue-600 truncate">
+                      <%= link_to document.title, helpers.immo_promo_engine.document_path(document), class: "hover:text-blue-500" %>
+                    </p>
+                    <div class="ml-2 flex-shrink-0 flex">
+                      <% if document.document_category.present? %>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-<%= category_badge_color(document.document_category) %>-100 text-<%= category_badge_color(document.document_category) %>-800">
+                          <%= document.document_category.humanize %>
+                        </span>
+                      <% end %>
+                    </div>
+                  </div>
+                  <div class="flex items-center text-sm text-gray-500 mt-1">
+                    <span>Par <%= document.uploaded_by.full_name if document.uploaded_by %></span>
+                    <span class="mx-2">•</span>
+                    <span><%= time_ago_in_words(document.created_at) %> ago</span>
+                    <% if document.file.attached? %>
+                      <span class="mx-2">•</span>
+                      <span><%= format_file_size(document.file.blob.byte_size) %></span>
+                    <% end %>
+                  </div>
+                  <% if document.description.present? %>
+                    <p class="text-sm text-gray-600 mt-1"><%= truncate(document.description, length: 100) %></p>
+                  <% end %>
+                </div>
+              </div>
+              <div class="flex items-center space-x-2">
+                <!-- Status Badge -->
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-<%= status_color(document.status) %>-100 text-<%= status_color(document.status) %>-800">
+                  <%= document.status.humanize %>
+                </span>
+                
+                <!-- Actions Dropdown -->
+                <div class="relative">
+                  <button type="button" class="flex items-center text-gray-400 hover:text-gray-600" data-toggle="dropdown">
+                    <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                    </svg>
+                  </button>
+                  <div class="dropdown-menu absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 hidden">
+                    <%= link_to "Voir", helpers.immo_promo_engine.document_path(document), 
+                              class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
+                    <%= link_to "Télécharger", helpers.immo_promo_engine.download_document_path(document), 
+                              class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
+                    <% if Immo::Promo::DocumentPolicy.new(current_user, document).update? %>
+                      <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Modifier</a>
+                    <% end %>
+                    <% if Immo::Promo::DocumentPolicy.new(current_user, document).share? %>
+                      <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Partager</a>
+                    <% end %>
+                    <% if Immo::Promo::DocumentPolicy.new(current_user, document).destroy? %>
+                      <%= link_to "Supprimer", helpers.immo_promo_engine.document_path(document), 
+                                method: :delete,
+                                class: "block px-4 py-2 text-sm text-red-700 hover:bg-red-100",
+                                confirm: "Êtes-vous sûr de vouloir supprimer ce document ?" %>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </li>
+        <% end %>
+      </ul>
+      
+      <!-- Pagination -->
+      <% if documents.respond_to?(:total_pages) %>
+        <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+          <%= paginate documents if defined?(Kaminari) %>
+        </div>
+      <% end %>
+    <% else %>
+      <div class="text-center py-12">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900">Aucun document</h3>
+        <p class="mt-1 text-sm text-gray-500">Commencez par ajouter un document.</p>
+        <% if can_upload? %>
+          <div class="mt-6">
+            <button type="button" 
+                    class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    onclick="openUploadModal()">
+              <svg class="-ml-1 mr-2 h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+              </svg>
+              Ajouter un document
+            </button>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<!-- Upload Modal -->
+<div id="uploadModal" class="fixed inset-0 z-50 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+  <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+    <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+      <%= render Immo::Promo::Documents::DocumentUploadComponent.new(
+            documentable: documentable,
+            upload_path: upload_path
+          ) %>
+    </div>
+  </div>
+</div>
+
+<!-- Bulk Upload Modal -->
+<div id="bulkUploadModal" class="fixed inset-0 z-50 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+  <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+    <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+      <%= render Immo::Promo::Documents::BulkUploadComponent.new(
+            documentable: documentable,
+            bulk_upload_path: bulk_upload_path
+          ) %>
+    </div>
+  </div>
+</div>
+
+<script>
+  function openUploadModal() {
+    document.getElementById('uploadModal').classList.remove('hidden');
+  }
+
+  function closeUploadModal() {
+    document.getElementById('uploadModal').classList.add('hidden');
+  }
+
+  function openBulkUploadModal() {
+    document.getElementById('bulkUploadModal').classList.remove('hidden');
+  }
+
+  function closeBulkUploadModal() {
+    document.getElementById('bulkUploadModal').classList.add('hidden');
+  }
+
+  // Filter functionality
+  document.getElementById('apply-filters')?.addEventListener('click', function() {
+    const category = document.getElementById('category-filter').value;
+    const status = document.getElementById('status-filter').value;
+    
+    const url = new URL(window.location);
+    if (category) {
+      url.searchParams.set('category', category);
+    } else {
+      url.searchParams.delete('category');
+    }
+    
+    if (status) {
+      url.searchParams.set('status', status);
+    } else {
+      url.searchParams.delete('status');
+    }
+    
+    window.location = url;
+  });
+
+  // Dropdown toggle functionality
+  document.querySelectorAll('[data-toggle="dropdown"]').forEach(function(toggle) {
+    toggle.addEventListener('click', function(e) {
+      e.preventDefault();
+      const dropdown = this.parentElement.querySelector('.dropdown-menu');
+      dropdown.classList.toggle('hidden');
+    });
+  });
+
+  // Close dropdowns when clicking outside
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.relative')) {
+      document.querySelectorAll('.dropdown-menu').forEach(function(dropdown) {
+        dropdown.classList.add('hidden');
+      });
+    }
+  });
+</script>

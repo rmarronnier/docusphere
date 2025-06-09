@@ -1,0 +1,125 @@
+<!-- Notifications Dropdown -->
+<div class="relative" data-controller="dropdown" data-dropdown-auto-close-value="false">
+  <!-- Trigger Button -->
+  <button type="button" 
+          class="relative bg-white p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150"
+          data-action="click->dropdown#toggle"
+          aria-label="Notifications">
+    <span class="sr-only">Voir les notifications</span>
+    
+    <!-- Bell Icon -->
+    <svg class="<%= bell_classes %>" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+            d="M15 17h5l-3.5-3.5a50.367 50.367 0 0 0-.5-5.5A6.5 6.5 0 0 0 5 6.5c0 1.61.5 3.1 1.4 4.3L9 14h6z" />
+    </svg>
+    
+    <!-- Unread Count Badge -->
+    <span class="<%= badge_classes %>">
+      <%= display_count %>
+    </span>
+  </button>
+
+  <!-- Dropdown Panel -->
+  <div class="hidden origin-top-right absolute right-0 mt-2 w-96 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50" 
+       data-dropdown-target="menu"
+       role="menu" 
+       aria-orientation="vertical">
+    
+    <!-- Header -->
+    <div class="px-4 py-3 border-b border-gray-200">
+      <div class="flex items-center justify-between">
+        <h3 class="text-sm font-medium text-gray-900">Notifications</h3>
+        <% if unread_count > 0 %>
+          <%= link_to helpers.mark_all_as_read_notifications_path, 
+              method: :patch,
+              remote: true,
+              class: "text-xs text-blue-600 hover:text-blue-500 font-medium",
+              data: { action: "click->dropdown#close" } do %>
+            Tout marquer comme lu
+          <% end %>
+        <% end %>
+      </div>
+      <% if unread_count > 0 %>
+        <p class="text-xs text-gray-500 mt-1">
+          <%= pluralize(unread_count, 'notification non lue', 'notifications non lues') %>
+        </p>
+      <% end %>
+    </div>
+
+    <!-- Notifications List -->
+    <div class="max-h-96 overflow-y-auto">
+      <% if notifications.any? %>
+        <% notifications.each do |notification| %>
+          <div class="<%= notification_item_classes(notification) %>"
+               data-notification-id="<%= notification.id %>">
+            
+            <!-- Icon -->
+            <div class="flex-shrink-0">
+              <div class="flex items-center justify-center w-8 h-8 rounded-full <%= notification.urgent? ? 'bg-red-100' : 'bg-gray-100' %>">
+                <%= render Ui::IconComponent.new(
+                  name: notification.icon, 
+                  size: :xs, 
+                  classes: notification.color_class
+                ) %>
+              </div>
+            </div>
+
+            <!-- Content -->
+            <div class="min-w-0 flex-1">
+              <%= link_to notification_url(notification), 
+                  class: "block hover:no-underline",
+                  data: { action: "click->dropdown#close" } do %>
+                
+                <!-- Title -->
+                <div class="flex items-center justify-between">
+                  <p class="text-sm font-medium text-gray-900 truncate">
+                    <%= notification.title %>
+                  </p>
+                  <span class="text-xs text-gray-500 ml-2">
+                    <%= time_ago_short(notification) %>
+                  </span>
+                </div>
+
+                <!-- Message -->
+                <p class="text-xs text-gray-600 mt-1">
+                  <%= truncated_message(notification.message) %>
+                </p>
+
+                <!-- Indicators -->
+                <div class="flex items-center mt-1 space-x-2">
+                  <% if notification.urgent? %>
+                    <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                      Urgent
+                    </span>
+                  <% end %>
+                  
+                  <% unless notification.read? %>
+                    <span class="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="px-4 py-6 text-center">
+          <div class="flex justify-center">
+            <%= render Ui::IconComponent.new(name: 'bell', size: :md, classes: 'text-gray-400') %>
+          </div>
+          <p class="text-sm text-gray-500 mt-2">Aucune notification</p>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Footer -->
+    <% if notifications.any? %>
+      <div class="px-4 py-3 border-t border-gray-200 bg-gray-50">
+        <%= link_to helpers.notifications_path, 
+            class: "block text-center text-sm text-blue-600 hover:text-blue-500 font-medium",
+            data: { action: "click->dropdown#close" } do %>
+          Voir toutes les notifications
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>

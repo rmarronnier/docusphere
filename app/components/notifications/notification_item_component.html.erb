@@ -1,0 +1,142 @@
+<div class="<%= container_classes %>" 
+     data-notification-id="<%= notification.id %>"
+     data-controller="notification"
+     data-notification-read-value="<%= notification.read? %>"
+     data-notification-urgent-value="<%= notification.urgent? %>">
+
+  <!-- Icon -->
+  <div class="<%= icon_container_classes %> <%= icon_background_color %>">
+    <%= render Ui::IconComponent.new(
+      name: notification.icon,
+      size: layout == :detailed ? :md : :sm,
+      classes: notification.color_class
+    ) %>
+  </div>
+
+  <!-- Content -->
+  <div class="min-w-0 flex-1">
+    <!-- Header -->
+    <div class="flex items-start justify-between">
+      <div class="min-w-0 flex-1">
+        
+        <!-- Title and Badges -->
+        <div class="flex items-center space-x-2 mb-1">
+          <% if notification_url.present? %>
+            <%= link_to notification_url, class: "<%= title_classes %> hover:text-blue-600 truncate" do %>
+              <%= notification.title %>
+            <% end %>
+          <% else %>
+            <h3 class="<%= title_classes %> truncate">
+              <%= notification.title %>
+            </h3>
+          <% end %>
+          
+          <!-- Urgent Badge -->
+          <% if notification.urgent? %>
+            <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+              <span class="sr-only">Urgent: </span>
+              Urgent
+            </span>
+          <% end %>
+          
+          <!-- Category Badge -->
+          <% if notification.category.present? && layout != :compact %>
+            <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium <%= category_badge_color(notification.category) %>">
+              <%= notification.category.humanize %>
+            </span>
+          <% end %>
+        </div>
+
+        <!-- Message -->
+        <div class="<%= message_classes %> <%= layout == :detailed ? 'mb-3' : 'mb-2' %>">
+          <% if truncate_message? %>
+            <%= truncate(notification.message, length: 60) %>
+          <% else %>
+            <%= notification.message %>
+          <% end %>
+        </div>
+
+        <!-- Metadata -->
+        <div class="flex items-center space-x-4 <%= meta_classes %>">
+          <span><%= formatted_time %></span>
+          
+          <% unless notification.read? %>
+            <span class="flex items-center space-x-1">
+              <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
+              <span>Non lu</span>
+            </span>
+          <% end %>
+          
+          <% if notification.category.present? && layout == :compact %>
+            <span><%= notification.category.humanize %></span>
+          <% end %>
+        </div>
+
+        <!-- Notifiable Info (detailed layout only) -->
+        <% if layout == :detailed && notifiable_info.present? %>
+          <div class="mt-3 p-3 bg-gray-50 rounded-md">
+            <div class="text-sm">
+              <span class="font-medium text-gray-900"><%= notifiable_info[:type] %>:</span>
+              <% if notifiable_info[:url].present? %>
+                <%= link_to notifiable_info[:title], notifiable_info[:url], 
+                    class: "ml-1 text-blue-600 hover:text-blue-800" %>
+              <% else %>
+                <span class="ml-1 text-gray-700"><%= notifiable_info[:title] %></span>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+
+        <!-- Detailed Data (detailed layout only) -->
+        <% if show_detailed_data? %>
+          <div class="mt-3">
+            <details class="cursor-pointer">
+              <summary class="text-sm font-medium text-gray-700 hover:text-gray-900">
+                Données supplémentaires
+              </summary>
+              <div class="mt-2 p-3 bg-gray-50 rounded-md">
+                <pre class="text-xs text-gray-600 whitespace-pre-wrap overflow-auto"><%= JSON.pretty_generate(notification.formatted_data) %></pre>
+              </div>
+            </details>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- Actions -->
+      <% if show_actions && layout != :compact %>
+        <div class="ml-4 flex-shrink-0 flex items-center space-x-2">
+          <% unless notification.read? %>
+            <%= button_to helpers.mark_as_read_notification_path(notification), 
+                method: :patch,
+                remote: true,
+                class: action_button_classes,
+                title: "Marquer comme lu",
+                data: { 
+                  action: "click->notification#markAsRead",
+                  notification_target: "markReadButton"
+                } do %>
+              <%= render Ui::IconComponent.new(name: 'eye', size: :xs) %>
+              <span class="ml-1">Marquer comme lu</span>
+            <% end %>
+          <% end %>
+
+          <%= button_to helpers.notification_path(notification), 
+              method: :delete,
+              remote: true,
+              class: "#{action_button_classes} hover:bg-red-100 hover:text-red-700",
+              title: "Supprimer",
+              confirm: "Êtes-vous sûr de vouloir supprimer cette notification ?",
+              data: { 
+                action: "click->notification#delete",
+                notification_target: "deleteButton"
+              } do %>
+            <%= render Ui::IconComponent.new(name: 'trash', size: :xs) %>
+            <% if layout == :detailed %>
+              <span class="ml-1">Supprimer</span>
+            <% end %>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

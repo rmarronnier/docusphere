@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_06_09_074033) do
+ActiveRecord::Schema[7.1].define(version: 2025_06_09_074100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -229,8 +229,16 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_09_074033) do
     t.datetime "locked_at"
     t.datetime "unlock_scheduled_at"
     t.text "lock_reason"
+    t.string "documentable_type"
+    t.bigint "documentable_id"
+    t.string "document_category"
+    t.decimal "ai_confidence", precision: 5, scale: 4
+    t.jsonb "ai_entities", default: {}
+    t.index ["ai_entities"], name: "index_documents_on_ai_entities", using: :gin
     t.index ["archived_at"], name: "index_documents_on_archived_at"
+    t.index ["document_category"], name: "index_documents_on_document_category"
     t.index ["document_type"], name: "index_documents_on_document_type"
+    t.index ["documentable_type", "documentable_id"], name: "index_documents_on_documentable_type_and_documentable_id"
     t.index ["expires_at"], name: "index_documents_on_expires_at"
     t.index ["external_id"], name: "index_documents_on_external_id"
     t.index ["folder_id"], name: "index_documents_on_folder_id"

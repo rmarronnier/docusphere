@@ -18,9 +18,31 @@ module ViewComponentTestHelpers
           share?: true
         )
       },
-      link_to: ->(text, path, options = {}) { 
-        attrs = options.map{|k,v| k == :data ? v.map{|dk,dv| "data-#{dk.to_s.dasherize}='#{dv}'"}.join(' ') : "#{k}='#{v}'"}.join(' ')
-        %Q(<a href="#{path}" #{attrs}>#{text}</a>).html_safe 
+      link_to: ->(*args, &block) {
+        if block_given?
+          # link_to(url, options = {}, &block) 
+          path = args[0] || '/'
+          # Options could be passed as second argument or as keyword arguments
+          options = args[1] || {}
+          text = yield.to_s
+        else
+          # link_to(text, path, options = {})
+          text = args[0] || ''
+          path = args[1] || '/'
+          options = args[2] || {}
+        end
+        
+        attrs = options.map do |k, v|
+          if k == :data && v.is_a?(Hash)
+            v.map { |dk, dv| "data-#{dk.to_s.dasherize}='#{dv}'" }.join(' ')
+          elsif k == :method
+            "data-turbo-method='#{v}'"
+          else
+            "#{k}='#{v}'"
+          end
+        end.join(' ')
+        
+        %Q(<a href="#{path}"#{attrs.empty? ? '' : ' ' + attrs}>#{text}</a>).html_safe 
       },
       button_to: ->(text, path, options = {}) {
         method = options[:method] || 'post'
@@ -87,12 +109,43 @@ module ViewComponentTestHelpers
       new_user_session_path: '/users/sign_in',
       new_user_registration_path: '/users/sign_up',
       search_suggestions_path: '/search/suggestions',
-      form_with: ->(url:, method: :get, local: true, data: {}, &block) {
-        form_html = "<form action=\"#{url}\" method=\"#{method}\" #{ data.map{|k,v| "data-#{k.to_s.dasherize}='#{v}'"}.join(' ') }>"
+      notifications_path: '/notifications',
+      ged_dashboard_path: '/ged',
+      baskets_path: '/baskets',
+      tags_path: '/tags',
+      users_path: '/users',
+      user_groups_path: '/user_groups',
+      edit_user_registration_path: '/users/edit',
+      destroy_user_session_path: '/users/sign_out',
+      form_with: ->(*args, **options, &block) {
+        # Handle both form_with(model: x) and form_with(url: x) patterns
+        if args.length > 0
+          first_arg = args.first
+          if first_arg.is_a?(Hash)
+            options = first_arg.merge(options)
+          end
+        end
+        
+        url = options[:url]
+        model = options[:model]
+        action = url || (model ? "/#{model.class.name.downcase.pluralize}" : '/default')
+        method = options[:method] || 'post'
+        local = options[:local]
+        data_attrs = options[:data]&.map { |k, v| "data-#{k.to_s.dasherize}='#{v}'" }&.join(' ') || ''
+        
+        form_html = "<form action=\"#{action}\" method=\"#{method == :get ? 'get' : 'post'}\" #{data_attrs}>"
         if block_given?
-          form_html << yield(OpenStruct.new(text_field: ->(name, **options) {
-            "<input type=\"text\" name=\"#{name}\" #{ options.map{|k,v| k == :data ? v.map{|dk,dv| "data-#{dk.to_s.dasherize}='#{dv}'"}.join(' ') : "#{k}='#{v}'"}.join(' ') }/>"
-          }))
+          form_builder = OpenStruct.new(
+            text_field: ->(name, **field_options) {
+              field_data_attrs = field_options[:data]&.map { |k, v| "data-#{k.to_s.dasherize}='#{v}'" }&.join(' ') || ''
+              css_class = field_options[:class] || ''
+              placeholder = field_options[:placeholder] || ''
+              autocomplete = field_options[:autocomplete] || ''
+              
+              "<input type=\"text\" name=\"#{name}\" class=\"#{css_class}\" placeholder=\"#{placeholder}\" autocomplete=\"#{autocomplete}\" #{field_data_attrs}/>"
+            }
+          )
+          form_html << yield(form_builder)
         end
         form_html << "</form>"
         form_html.html_safe

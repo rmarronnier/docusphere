@@ -9,6 +9,7 @@ class Document < ApplicationRecord
   belongs_to :parent, class_name: 'Document', optional: true
   belongs_to :space
   belongs_to :folder, optional: true
+  belongs_to :documentable, polymorphic: true, optional: true
   
   has_many :children, class_name: 'Document', foreign_key: 'parent_id', dependent: :destroy
   has_many :shares, as: :shareable, dependent: :destroy
@@ -54,7 +55,7 @@ class Document < ApplicationRecord
   
   searchkick word_start: [:title, :description], 
              searchable: [:title, :description, :content, :metadata_text],
-             filterable: [:document_type, :created_at, :user_id, :space_id, :tags]
+             filterable: [:document_type, :document_category, :documentable_type, :created_at, :user_id, :space_id, :tags]
   
   audited
   has_paper_trail
@@ -131,6 +132,8 @@ class Document < ApplicationRecord
       content: extracted_content,
       metadata_text: metadata_text,
       document_type: document_type,
+      document_category: document_category,
+      documentable_type: documentable_type,
       created_at: created_at,
       user_id: uploaded_by_id,
       space_id: space_id,

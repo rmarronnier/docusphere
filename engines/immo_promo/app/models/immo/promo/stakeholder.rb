@@ -4,6 +4,7 @@ module Immo
       self.table_name = 'immo_promo_stakeholders'
 
       include Addressable
+      include Immo::Promo::Documentable
       audited
 
       belongs_to :project, class_name: 'Immo::Promo::Project'
@@ -190,6 +191,24 @@ module Immo
 
       def address_required?
         false
+      end
+
+      def required_document_types
+        base_docs = %w[administrative legal]
+        case stakeholder_type
+        when 'architect', 'engineer'
+          base_docs + %w[technical plan]
+        when 'contractor', 'subcontractor'
+          base_docs + %w[technical financial]
+        when 'consultant', 'control_office'
+          base_docs + %w[technical]
+        when 'client', 'investor'
+          base_docs + %w[financial]
+        when 'legal_advisor'
+          base_docs
+        else
+          base_docs
+        end
       end
     end
   end

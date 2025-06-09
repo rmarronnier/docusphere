@@ -7,6 +7,30 @@ Rails.application.routes.draw do
   get '/search/advanced', to: 'search#advanced', as: 'advanced_search'
   get '/search/suggestions', to: 'search#suggestions', as: 'search_suggestions'
   
+  # Notification Routes
+  resources :notifications, only: [:index, :show, :destroy] do
+    member do
+      patch :mark_as_read
+    end
+    collection do
+      patch :mark_all_as_read
+      patch :bulk_mark_as_read
+      delete :bulk_destroy
+      get :dropdown
+      get :urgent
+      get :stats
+    end
+  end
+  
+  # Notification Preferences Routes
+  resources :notification_preferences, only: [:index, :update] do
+    collection do
+      patch :bulk_update
+      patch :reset_to_defaults
+      get :preview
+    end
+  end
+  
   # Basket Routes
   resources :baskets do
     member do

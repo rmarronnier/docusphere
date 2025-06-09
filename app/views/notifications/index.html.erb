@@ -1,0 +1,229 @@
+<% content_for :title, "Notifications" %>
+
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Header -->
+  <div class="md:flex md:items-center md:justify-between mb-8">
+    <div class="flex-1 min-w-0">
+      <h1 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate">
+        Notifications
+      </h1>
+      <p class="mt-1 text-sm text-gray-500">
+        Gérez vos notifications et restez informé des dernières activités
+      </p>
+    </div>
+    
+    <div class="mt-4 flex md:mt-0 md:ml-4 space-x-3">
+      <!-- Mark All as Read -->
+      <% if @stats[:unread] > 0 %>
+        <%= button_to mark_all_as_read_notifications_path, 
+            method: :patch,
+            class: "inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" do %>
+          <%= render Ui::IconComponent.new(name: 'eye', size: :sm, classes: 'mr-2') %>
+          Tout marquer comme lu
+        <% end %>
+      <% end %>
+      
+      <!-- Filters Toggle -->
+      <button type="button" 
+              class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              data-action="click->filter#toggle">
+        <%= render Ui::IconComponent.new(name: 'filter', size: :sm, classes: 'mr-2') %>
+        Filtres
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats Overview -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+      <div class="p-5">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <%= render Ui::IconComponent.new(name: 'bell', size: :md, classes: 'text-gray-400') %>
+          </div>
+          <div class="ml-5 w-0 flex-1">
+            <dl>
+              <dt class="text-sm font-medium text-gray-500 truncate">Total</dt>
+              <dd class="text-lg font-medium text-gray-900"><%= @stats[:total] %></dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+      <div class="p-5">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <%= render Ui::IconComponent.new(name: 'eye-off', size: :md, classes: 'text-blue-400') %>
+          </div>
+          <div class="ml-5 w-0 flex-1">
+            <dl>
+              <dt class="text-sm font-medium text-gray-500 truncate">Non lues</dt>
+              <dd class="text-lg font-medium text-blue-600"><%= @stats[:unread] %></dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+      <div class="p-5">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <%= render Ui::IconComponent.new(name: 'alert-triangle', size: :md, classes: 'text-red-400') %>
+          </div>
+          <div class="ml-5 w-0 flex-1">
+            <dl>
+              <dt class="text-sm font-medium text-gray-500 truncate">Urgentes</dt>
+              <dd class="text-lg font-medium text-red-600"><%= @stats[:urgent] %></dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+      <div class="p-5">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <%= render Ui::IconComponent.new(name: 'calendar', size: :md, classes: 'text-green-400') %>
+          </div>
+          <div class="ml-5 w-0 flex-1">
+            <dl>
+              <dt class="text-sm font-medium text-gray-500 truncate">Aujourd'hui</dt>
+              <dd class="text-lg font-medium text-green-600"><%= @stats[:today] %></dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="lg:grid lg:grid-cols-4 lg:gap-8">
+    <!-- Filters Sidebar -->
+    <div class="lg:col-span-1">
+      <div class="bg-white shadow rounded-lg p-6" data-controller="filter" data-filter-target="panel">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Filtres</h3>
+        
+        <%= form_with url: notifications_path, method: :get, local: true, class: "space-y-4" do |form| %>
+          <!-- Show unread only -->
+          <div class="flex items-center">
+            <%= form.check_box :unread_only, 
+                checked: params[:unread_only] == 'true',
+                class: "h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded",
+                id: "unread_only" %>
+            <%= form.label :unread_only, "Non lues uniquement", 
+                class: "ml-2 block text-sm text-gray-900" %>
+          </div>
+
+          <!-- Category filter -->
+          <div>
+            <%= form.label :category, "Catégorie", class: "block text-sm font-medium text-gray-700" %>
+            <%= form.select :category, 
+                options_for_select(
+                  [['Toutes les catégories', '']] + 
+                  @categories.map { |cat| [cat.humanize, cat] },
+                  params[:category]
+                ),
+                {},
+                class: "mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md" %>
+          </div>
+
+          <!-- Submit button -->
+          <div>
+            <%= form.submit "Appliquer les filtres", 
+                class: "w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+          </div>
+
+          <!-- Clear filters -->
+          <% if params[:category].present? || params[:unread_only].present? %>
+            <div>
+              <%= link_to notifications_path, 
+                  class: "w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" do %>
+                Effacer les filtres
+              <% end %>
+            </div>
+          <% end %>
+        <% end %>
+
+        <!-- Category Stats -->
+        <div class="mt-6 pt-6 border-t border-gray-200">
+          <h4 class="text-sm font-medium text-gray-900 mb-3">Par catégorie</h4>
+          <div class="space-y-2">
+            <% @stats[:by_category].each do |category, count| %>
+              <% if count > 0 %>
+                <div class="flex items-center justify-between text-sm">
+                  <%= link_to notifications_path(category: category), 
+                      class: "text-gray-600 hover:text-blue-600 truncate" do %>
+                    <%= category.humanize %>
+                  <% end %>
+                  <span class="text-gray-500"><%= count %></span>
+                </div>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notifications List -->
+    <div class="lg:col-span-3 mt-8 lg:mt-0">
+      <div class="bg-white shadow rounded-lg overflow-hidden">
+        <!-- Bulk Actions -->
+        <% if @notifications.any? %>
+          <div class="bg-gray-50 px-6 py-3 border-b border-gray-200" 
+               data-controller="bulk-actions"
+               data-bulk-actions-target="toolbar"
+               style="display: none;">
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-gray-700">
+                <span data-bulk-actions-target="count">0</span> notifications sélectionnées
+              </span>
+              <div class="space-x-2">
+                <%= button_to bulk_mark_as_read_notifications_path,
+                    method: :patch,
+                    params: { notification_ids: [] },
+                    class: "inline-flex items-center px-3 py-1 border border-gray-300 rounded text-sm font-medium text-gray-700 bg-white hover:bg-gray-50",
+                    data: { 
+                      "bulk-actions-target": "markReadButton",
+                      action: "click->bulk-actions#markAsRead"
+                    } do %>
+                  Marquer comme lues
+                <% end %>
+                
+                <%= button_to bulk_destroy_notifications_path,
+                    method: :delete,
+                    params: { notification_ids: [] },
+                    class: "inline-flex items-center px-3 py-1 border border-gray-300 rounded text-sm font-medium text-gray-700 bg-white hover:bg-gray-50",
+                    confirm: "Êtes-vous sûr de vouloir supprimer ces notifications ?",
+                    data: { 
+                      "bulk-actions-target": "deleteButton",
+                      action: "click->bulk-actions#delete"
+                    } do %>
+                  Supprimer
+                <% end %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+
+        <!-- Notifications -->
+        <div data-controller="bulk-actions" data-bulk-actions-notifications-value="<%= @notifications.pluck(:id).to_json %>">
+          <%= render Notifications::NotificationListComponent.new(
+            notifications: @notifications,
+            show_actions: true,
+            compact: false
+          ) %>
+        </div>
+
+        <!-- Pagination -->
+        <% if @pagy.pages > 1 %>
+          <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+            <%== pagy_nav(@pagy) if respond_to?(:pagy_nav) %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

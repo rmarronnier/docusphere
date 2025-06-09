@@ -14,7 +14,7 @@ class Navigation::NavbarComponent < ApplicationComponent
 
   def navigation_items
     items = [
-      { name: 'Tableau de bord', path: root_path, icon: 'home' },
+      { name: 'Tableau de bord', path: helpers.root_path, icon: 'home' },
       { name: 'GED', path: helpers.ged_dashboard_path, icon: 'document' },
       { name: 'Bannettes', path: helpers.baskets_path, icon: 'inbox' },
       { name: 'Tags', path: helpers.tags_path, icon: 'tag' },
@@ -42,8 +42,10 @@ class Navigation::NavbarComponent < ApplicationComponent
 
   def user_items
     [
-      { name: 'Mon profil', path: edit_user_registration_path, icon: 'user' },
-      { name: 'Déconnexion', path: destroy_user_session_path, icon: 'logout', method: :delete }
+      { name: 'Mon profil', path: helpers.edit_user_registration_path, icon: 'user' },
+      { name: 'Notifications', path: helpers.notifications_path, icon: 'bell' },
+      { name: 'Paramètres', path: helpers.edit_user_registration_path, icon: 'cog' },
+      { name: 'Déconnexion', path: helpers.destroy_user_session_path, icon: 'logout', method: :delete }
     ]
   end
 

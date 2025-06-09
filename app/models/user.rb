@@ -11,6 +11,7 @@ class User < ApplicationRecord
   has_many :user_group_memberships, dependent: :destroy
   has_many :user_groups, through: :user_group_memberships
   has_many :notifications, dependent: :destroy
+  has_many :user_notification_preferences, dependent: :destroy
   has_many :search_queries, dependent: :destroy
   has_many :workflow_submissions, foreign_key: 'submitted_by_id', dependent: :destroy
   has_many :validation_requests, foreign_key: 'requester_id', dependent: :destroy
@@ -87,6 +88,37 @@ class User < ApplicationRecord
   
   def can_manage_project?(project)
     admin? || super_admin? || project.organization == organization
+  end
+  
+  # Notification preference methods
+  def notification_preference_for(notification_type)
+    user_notification_preferences.find_by(notification_type: notification_type) ||
+      user_notification_preferences.build(
+        notification_type: notification_type,
+        delivery_method: UserNotificationPreference.default_delivery_method_for(notification_type),
+        frequency: UserNotificationPreference.default_frequency_for(notification_type),
+        enabled: UserNotificationPreference.default_enabled_for(notification_type)
+      )
+  end
+  
+  def wants_notification?(notification_type, delivery_method = :in_app)
+    preference = notification_preference_for(notification_type)
+    return false unless preference.enabled?
+    
+    case delivery_method.to_sym
+    when :in_app
+      preference.should_deliver_in_app?
+    when :email
+      preference.should_deliver_email?
+    else
+      preference.enabled?
+    end
+  end
+  
+  def ensure_notification_preferences!
+    return if user_notification_preferences.count == Notification.notification_types.count
+    
+    UserNotificationPreference.create_default_preferences_for_user!(self)
   end
   
   private

@@ -1,0 +1,256 @@
+<% content_for :title, "Préférences de notifications" %>
+
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Header -->
+  <div class="md:flex md:items-center md:justify-between mb-8">
+    <div class="flex-1 min-w-0">
+      <h1 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate">
+        Préférences de notifications
+      </h1>
+      <p class="mt-1 text-sm text-gray-500">
+        Personnalisez vos notifications pour rester informé selon vos préférences
+      </p>
+    </div>
+    
+    <div class="mt-4 flex md:mt-0 md:ml-4 space-x-3">
+      <%= button_to reset_to_defaults_notification_preferences_path, 
+          method: :patch,
+          class: "inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500",
+          confirm: "Êtes-vous sûr de vouloir réinitialiser toutes vos préférences ?" do %>
+        <%= render Ui::IconComponent.new(name: 'refresh-cw', size: :sm, classes: 'mr-2') %>
+        Réinitialiser
+      <% end %>
+      
+      <%= link_to notifications_path, 
+          class: "inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" do %>
+        <%= render Ui::IconComponent.new(name: 'arrow-left', size: :sm, classes: 'mr-2') %>
+        Retour aux notifications
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Quick Settings -->
+  <div class="bg-white shadow rounded-lg p-6 mb-8">
+    <h3 class="text-lg font-medium text-gray-900 mb-4">Configuration rapide</h3>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <!-- Enable All -->
+      <button type="button" 
+              class="relative rounded-lg border border-gray-300 bg-white px-6 py-4 shadow-sm hover:border-gray-400 focus:ring-2 focus:ring-blue-500 text-left"
+              data-action="click->preferences#enableAll">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <%= render Ui::IconComponent.new(name: 'bell', size: :md, classes: 'text-green-500') %>
+          </div>
+          <div class="ml-4">
+            <h4 class="text-sm font-medium text-gray-900">Tout activer</h4>
+            <p class="text-sm text-gray-500">Recevoir toutes les notifications</p>
+          </div>
+        </div>
+      </button>
+
+      <!-- Essential Only -->
+      <button type="button" 
+              class="relative rounded-lg border border-gray-300 bg-white px-6 py-4 shadow-sm hover:border-gray-400 focus:ring-2 focus:ring-blue-500 text-left"
+              data-action="click->preferences#essentialOnly">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <%= render Ui::IconComponent.new(name: 'alert-triangle', size: :md, classes: 'text-yellow-500') %>
+          </div>
+          <div class="ml-4">
+            <h4 class="text-sm font-medium text-gray-900">Essentielles uniquement</h4>
+            <p class="text-sm text-gray-500">Notifications urgentes seulement</p>
+          </div>
+        </div>
+      </button>
+
+      <!-- Disable All -->
+      <button type="button" 
+              class="relative rounded-lg border border-gray-300 bg-white px-6 py-4 shadow-sm hover:border-gray-400 focus:ring-2 focus:ring-blue-500 text-left"
+              data-action="click->preferences#disableAll">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <%= render Ui::IconComponent.new(name: 'bell-off', size: :md, classes: 'text-red-500') %>
+          </div>
+          <div class="ml-4">
+            <h4 class="text-sm font-medium text-gray-900">Tout désactiver</h4>
+            <p class="text-sm text-gray-500">Aucune notification</p>
+          </div>
+        </div>
+      </button>
+    </div>
+  </div>
+
+  <!-- Preferences Form -->
+  <%= form_with url: bulk_update_notification_preferences_path, method: :patch, local: true, 
+      data: { controller: "preferences" }, class: "space-y-8" do |form| %>
+    
+    <% @categories.each do |category, preferences| %>
+      <% next if preferences.empty? %>
+      
+      <div class="bg-white shadow rounded-lg overflow-hidden">
+        <!-- Category Header -->
+        <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+              <% icon_name = case category
+                             when 'documents' then 'file-text'
+                             when 'projects' then 'folder-plus'
+                             when 'stakeholders' then 'users'
+                             when 'permits' then 'file-text'
+                             when 'budgets' then 'dollar-sign'
+                             when 'risks' then 'alert-triangle'
+                             when 'authorization' then 'key'
+                             when 'system' then 'settings'
+                             else 'circle'
+                             end %>
+              <%= render Ui::IconComponent.new(name: icon_name, size: :md, classes: 'text-gray-600') %>
+              <h3 class="text-lg font-medium text-gray-900">
+                <%= category.humanize %>
+              </h3>
+            </div>
+            
+            <!-- Category Toggle -->
+            <div class="flex items-center space-x-2">
+              <label class="text-sm text-gray-700">Tout</label>
+              <button type="button" 
+                      class="category-toggle relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                      data-category="<%= category %>"
+                      data-action="click->preferences#toggleCategory">
+                <span class="sr-only">Toggle <%= category %> notifications</span>
+                <span class="toggle-thumb pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"></span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Preferences List -->
+        <div class="divide-y divide-gray-200">
+          <% preferences.each do |preference| %>
+            <div class="p-6" data-category="<%= category %>" data-notification-type="<%= preference.notification_type %>">
+              <div class="flex items-start justify-between">
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-center space-x-3">
+                    <h4 class="text-sm font-medium text-gray-900">
+                      <%= preference.display_name %>
+                    </h4>
+                    <% if preference.urgent_notification? %>
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                        Urgent
+                      </span>
+                    <% end %>
+                  </div>
+                  
+                  <p class="text-sm text-gray-500 mt-1">
+                    <%= preference.description %>
+                  </p>
+
+                  <!-- Preview -->
+                  <div class="mt-3">
+                    <button type="button" 
+                            class="text-xs text-blue-600 hover:text-blue-500"
+                            data-action="click->preferences#showPreview"
+                            data-notification-type="<%= preference.notification_type %>">
+                      Aperçu de cette notification
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Controls -->
+                <div class="ml-6 flex-shrink-0 space-y-3">
+                  <!-- Enabled Toggle -->
+                  <div class="flex items-center justify-end">
+                    <%= form.fields_for "preferences[#{preference.notification_type}]" do |pref_form| %>
+                      <%= pref_form.hidden_field :enabled, value: "false" %>
+                      <%= pref_form.check_box :enabled, 
+                          checked: preference.enabled?,
+                          class: "preference-enabled h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded",
+                          data: { 
+                            category: category,
+                            notification_type: preference.notification_type,
+                            action: "change->preferences#updatePreference"
+                          } %>
+                      <%= pref_form.label :enabled, "Activé", class: "ml-2 text-sm text-gray-700" %>
+                    <% end %>
+                  </div>
+
+                  <!-- Delivery Method -->
+                  <div class="text-right">
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Mode de livraison</label>
+                    <%= form.fields_for "preferences[#{preference.notification_type}]" do |pref_form| %>
+                      <%= pref_form.select :delivery_method,
+                          options_for_select([
+                            ['Application uniquement', 'in_app'],
+                            ['Email uniquement', 'email'],
+                            ['Application et Email', 'both'],
+                            ['Désactivé', 'disabled']
+                          ], preference.delivery_method),
+                          {},
+                          class: "block w-full text-xs border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500",
+                          data: { 
+                            category: category,
+                            notification_type: preference.notification_type,
+                            action: "change->preferences#updatePreference"
+                          } %>
+                    <% end %>
+                  </div>
+
+                  <!-- Frequency (for non-urgent notifications) -->
+                  <% unless preference.urgent_notification? %>
+                    <div class="text-right">
+                      <label class="block text-xs font-medium text-gray-700 mb-1">Fréquence</label>
+                      <%= form.fields_for "preferences[#{preference.notification_type}]" do |pref_form| %>
+                        <%= pref_form.select :frequency,
+                            options_for_select([
+                              ['Immédiat', 'immediate'],
+                              ['Résumé quotidien', 'daily_digest'],
+                              ['Résumé hebdomadaire', 'weekly_digest'],
+                              ['Désactivé', 'disabled_frequency']
+                            ], preference.frequency),
+                            {},
+                            class: "block w-full text-xs border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500",
+                            data: { 
+                              category: category,
+                              notification_type: preference.notification_type,
+                              action: "change->preferences#updatePreference"
+                            } %>
+                      <% end %>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Submit Button -->
+    <div class="flex justify-end">
+      <%= form.submit "Sauvegarder les préférences", 
+          class: "inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+    </div>
+  <% end %>
+
+  <!-- Preview Modal -->
+  <div id="preview-modal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+      <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+      
+      <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-medium text-gray-900">Aperçu de la notification</h3>
+          <button type="button" 
+                  class="text-gray-400 hover:text-gray-600"
+                  data-action="click->preferences#closePreview">
+            <%= render Ui::IconComponent.new(name: 'x', size: :md) %>
+          </button>
+        </div>
+        
+        <div id="preview-content">
+          <!-- Preview content will be loaded here -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
