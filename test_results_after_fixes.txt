@@ -1,0 +1,107 @@
+🖥️  Detected ARM64 architecture
+🚀 Starting required services...
+ Container docusphere-redis-1  Running
+ Container docusphere-db-1  Running
+ Container docusphere-elasticsearch-1  Running
+ Container docusphere-web-1  Running
+ Container docusphere-selenium-1  Running
+⏳ Waiting for database to be ready...
+✅ Database is ready!
+⏳ Waiting for Selenium to be ready...
+✅ Selenium is ready!
+📦 Preparing test database...
+🧪 Running system tests...
+📡 Using existing web container...
+bin/rails aborted!
+ActiveRecord::EnvironmentMismatchError: You are attempting to modify a database that was last run in `development` environment. (ActiveRecord::EnvironmentMismatchError)
+You are running in `test` environment. If you are sure you want to continue, first set the environment using:
+
+        bin/rails db:environment:set RAILS_ENV=test
+
+
+Tasks: TOP => db:test:load_schema => db:test:purge => db:check_protected_environments
+(See full trace by running task with --trace)
+W, [2025-06-09T22:44:46.844970 #306]  WARN -- : Document: overriding method 'lock!'!
+
+Randomized with seed 24225
+..*.........**..*..2025-06-09T22:44:47.239Z pid=306 tid=4te INFO: Sidekiq 7.3.9 connecting to Redis with options {:size=>10, :pool_name=>"internal", :url=>"redis://redis:6379/0"}
+.*.....*******...F
+
+Pending: (Failures listed here are expected and do not affect your suite's status)
+
+  1) TagsController PATCH #update with valid parameters with AJAX request returns success JSON response
+     # Temporarily skipped with xcontext
+     # ./spec/controllers/tags_controller_spec.rb:179
+
+  2) TagsController POST #create with valid parameters with AJAX request returns JSON response
+     # Temporarily skipped with xcontext
+     # ./spec/controllers/tags_controller_spec.rb:100
+
+  3) TagsController POST #create with valid parameters with AJAX request includes tag data in response
+     # Temporarily skipped with xcontext
+     # ./spec/controllers/tags_controller_spec.rb:106
+
+  4) TagsController POST #create with invalid parameters with AJAX request returns error response
+     # Temporarily skipped with xcontext
+     # ./spec/controllers/tags_controller_spec.rb:130
+
+  5) TagsController DELETE #destroy with AJAX request returns success JSON response
+     # Temporarily skipped with xcontext
+     # ./spec/controllers/tags_controller_spec.rb:219
+
+  6) TagsController GET #index with format JSON returns JSON response
+     # Temporarily skipped with xcontext
+     # ./spec/controllers/tags_controller_spec.rb:36
+
+  7) TagsController GET #index with format JSON includes tag suggestions
+     # Temporarily skipped with xcontext
+     # ./spec/controllers/tags_controller_spec.rb:42
+
+  8) TagsController POST #merge merges tags successfully
+     # Temporarily skipped with xdescribe
+     # ./spec/controllers/tags_controller_spec.rb:254
+
+  9) TagsController POST #merge transfers document associations
+     # Temporarily skipped with xdescribe
+     # ./spec/controllers/tags_controller_spec.rb:264
+
+  10) TagsController POST #merge with AJAX request returns JSON response
+     # Temporarily skipped with xcontext
+     # ./spec/controllers/tags_controller_spec.rb:276
+
+  11) TagsController GET #usage_stats returns usage statistics
+     # Temporarily skipped with xdescribe
+     # ./spec/controllers/tags_controller_spec.rb:298
+
+  12) TagsController GET #usage_stats with JSON format returns JSON statistics
+     # Temporarily skipped with xdescribe
+     # ./spec/controllers/tags_controller_spec.rb:305
+
+Failures:
+
+  1) Ui::DataGridComponent responsive design applies responsive wrapper by default
+     Failure/Error: classes << "cursor-pointer select-none hover:text-gray-700" if column[:sortable]
+
+     NoMethodError:
+       undefined method `[]' for nil
+     # /usr/local/bundle/gems/view_component-3.23.2/lib/view_component/slot.rb:105:in `public_send'
+     # /usr/local/bundle/gems/view_component-3.23.2/lib/view_component/slot.rb:105:in `method_missing'
+     # ./app/components/ui/data_grid_component.rb:54:in `header_cell_classes'
+     # ./app/components/ui/data_grid_component.html.erb:16:in `block in call'
+     # ./app/components/ui/data_grid_component.html.erb:14:in `each'
+     # ./app/components/ui/data_grid_component.html.erb:14:in `call'
+     # /usr/local/bundle/gems/view_component-3.23.2/lib/view_component/compiler.rb:98:in `render_template_for'
+     # /usr/local/bundle/gems/view_component-3.23.2/lib/view_component/base.rb:116:in `render_in'
+     # /usr/local/bundle/gems/view_component-3.23.2/lib/view_component/test_helpers.rb:54:in `render_inline'
+     # ./spec/components/ui/data_grid_component_spec.rb:206:in `block (3 levels) in <main>'
+
+Finished in 0.2773 seconds (files took 1.75 seconds to load)
+37 examples, 1 failure, 12 pending
+
+Failed examples:
+
+rspec ./spec/components/ui/data_grid_component_spec.rb:205 # Ui::DataGridComponent responsive design applies responsive wrapper by default
+
+Randomized with seed 24225
+
+

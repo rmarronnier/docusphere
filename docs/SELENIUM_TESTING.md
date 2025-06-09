@@ -13,20 +13,49 @@ This project uses a dedicated Selenium service for running system tests, which p
 
 ## Running System Tests
 
-### Quick Start
+### 🚨 IMPORTANT: Always use the provided script
+
+**DO NOT** run system tests with plain `rspec` commands. **ALWAYS** use the `bin/system-test` script:
 
 ```bash
-# Run all system tests
+# ✅ CORRECT - Use the script
 ./bin/system-test
 
-# Run specific test file
+# ✅ CORRECT - Run specific test file
 ./bin/system-test spec/system/document_upload_workflow_spec.rb
 
-# Run with specific options
+# ✅ CORRECT - Run with specific RSpec options
 ./bin/system-test --fail-fast
+
+# ❌ WRONG - Do not use plain docker-compose commands
+# docker-compose run web rspec spec/system/
+
+# ❌ WRONG - Do not use exec without proper setup
+# docker-compose exec web rspec spec/system/
 ```
 
-### Manual Selenium Management
+### Why use the script?
+
+The `bin/system-test` script:
+1. Ensures all required services are running (DB, Redis, Elasticsearch, Selenium)
+2. Waits for services to be ready before running tests
+3. Sets up the test database correctly
+4. Configures the proper environment variables
+5. Handles architecture detection (ARM64 vs x86_64)
+
+### Script Behavior
+
+When you run `./bin/system-test`:
+
+1. **Service Startup**: Starts all required services (db, redis, elasticsearch, selenium)
+2. **Health Checks**: Waits for all services to be ready
+3. **Database Setup**: Prepares the test database
+4. **Test Execution**: Runs tests with proper Docker networking
+5. **Services Stay Running**: After tests complete, services remain running for debugging
+
+### Manual Selenium Management (Advanced)
+
+If you need to manage Selenium manually:
 
 ```bash
 # Start Selenium service
@@ -35,7 +64,7 @@ docker-compose up -d selenium
 # Check Selenium status
 curl http://localhost:4444/wd/hub/status
 
-# View browser session (VNC)
+# View browser session (VNC) - useful for debugging
 open http://localhost:7900
 
 # Stop Selenium
@@ -46,81 +75,177 @@ docker-compose stop selenium
 
 ### Capybara Configuration
 
-The Capybara configuration (`spec/support/capybara.rb`) automatically detects whether tests are running in Docker and configures the appropriate driver:
+The Capybara configuration (`spec/support/capybara.rb`) is optimized for Docker:
 
-- **In Docker**: Uses remote Selenium service
-- **Local Development**: Uses local Chrome installation
+- **Server Host**: Binds to `0.0.0.0` in Docker for network accessibility
+- **Server Port**: Uses port 3001 to avoid conflicts
+- **App Host**: Dynamically determined based on container hostname
+- **Driver**: Automatically uses remote Selenium when in Docker
+- **Timeouts**: Increased to 10 seconds for Docker environment
 
-All system tests automatically use Chrome headless by default. No need to specify `driven_by` in individual tests.
+### Chrome Options
+
+The Chrome browser is configured with these options for stability:
+- `--headless`: Runs without GUI
+- `--no-sandbox`: Required for Docker
+- `--disable-dev-shm-usage`: Prevents shared memory issues
+- `--disable-gpu`: Improves stability
+- `--window-size=1920,1080`: Consistent viewport size
 
 ### System Test Helper
 
-The `SystemTestHelper` module (`spec/support/system_test_helper.rb`) provides common functionality for all system tests:
-
-- `login_as_user(user)`: Login helper
-- `wait_for_ajax`: Wait for AJAX requests to complete
-- `take_screenshot(name)`: Take a named screenshot
+The `SystemTestHelper` module provides common functionality:
+- `login_as_user(user)`: Login helper using Warden
+- `wait_for_ajax`: Wait for AJAX requests
+- `capture_screenshot(name)`: Take named screenshots
 - `element_visible?(selector)`: Check element visibility
-- `debug_here`: Pause execution for debugging
+- `debug_here`: Pause execution when DEBUG=1
 
-### Override Driver per Test
+## Writing System Tests
 
-You can override the driver for specific tests:
+### Basic Structure
 
 ```ruby
-# Use rack_test (no JavaScript)
-it "does something", driver: :rack_test do
-  # test code
-end
+require 'rails_helper'
 
-# Use chrome debug (visible browser)
-it "needs debugging", driver: :chrome_debug do
-  # test code
-end
-
-# Or mark entire context for debugging
-context "complex feature", debug: true do
-  # all tests here will use chrome_debug
+RSpec.describe "Feature Name", type: :system do
+  let(:user) { create(:user) }
+  
+  before do
+    login_as(user, scope: :user)
+  end
+  
+  # Tests that require JavaScript
+  it "does something with JavaScript", js: true do
+    visit some_path
+    click_button "Action"
+    expect(page).to have_content("Result")
+  end
+  
+  # Tests without JavaScript (faster)
+  it "does something without JavaScript" do
+    visit some_path
+    expect(page).to have_content("Content")
+  end
 end
 ```
 
-### Environment Variables
+### Best Practices
 
-- `DOCKER_CONTAINER=true`: Indicates tests are running in Docker
-- `CAPYBARA_APP_HOST=web`: Tells Capybara where the Rails app is running
-- `DEBUG=1`: Enable debug pauses in tests
+1. **Use `js: true` only when needed**: Non-JS tests are faster
+2. **Wait for elements**: Use Capybara's built-in waiting
+3. **Avoid sleep**: Use `have_content` with wait instead
+4. **Clean state**: Each test should be independent
+5. **Screenshots**: Failed tests automatically save screenshots
 
-### Debugging Tests
+## Debugging Tests
 
-1. **View Live Browser**: Connect to http://localhost:7900 to see the browser in action
-2. **Use `debug: true` metadata**: Automatically uses visible Chrome
-3. **Use `debug_here` in tests**: Pauses execution when DEBUG=1
-4. **Screenshots**: Failed tests automatically save screenshots to `tmp/screenshots/`
+### View Live Browser
+
+1. Ensure Selenium is running: `docker-compose ps selenium`
+2. Open VNC viewer: `open http://localhost:7900`
+3. No password required
+4. You'll see the browser executing tests in real-time
+
+### Debug Mode
+
+Add `debug: true` to pause and see the browser:
+
+```ruby
+it "complex interaction", debug: true do
+  # Browser will be visible, not headless
+end
+```
+
+Or use `debug_here` in your test:
+
+```ruby
+it "needs debugging" do
+  visit some_path
+  debug_here  # Pauses when DEBUG=1 is set
+  click_button "Action"
+end
+```
+
+Run with DEBUG environment variable:
+```bash
+DEBUG=1 ./bin/system-test spec/system/specific_spec.rb
+```
+
+### Screenshots
+
+Failed tests automatically save screenshots to `tmp/screenshots/`.
 
 ## Troubleshooting
 
-### Common Issues
+### Common Issues and Solutions
 
-1. **Selenium not starting**: Check if port 4444 is already in use
-2. **Tests can't connect**: Ensure all services are on the same Docker network
-3. **Architecture mismatch**: The script automatically detects and uses the correct image
+#### 1. "Failed to open TCP connection to selenium:4444"
+**Solution**: Selenium service is not running. Use `./bin/system-test` script which handles this automatically.
 
-### Architecture-Specific Setup
+#### 2. "net::ERR_NAME_NOT_RESOLVED" or "net::ERR_CONNECTION_REFUSED"
+**Solution**: Network configuration issue. The script handles proper networking setup.
 
-For GitHub Actions or x86_64 systems:
+#### 3. "ActiveRecord::EnvironmentMismatchError"
+**Solution**: Database environment mismatch. The script runs `db:prepare` automatically.
+
+#### 4. Tests timeout frequently
+**Solution**: 
+- Check if services are healthy: `docker-compose ps`
+- Increase timeout in `spec/support/capybara.rb`
+- Ensure your computer has enough resources
+
+#### 5. Different behavior locally vs CI
+**Solution**: 
+- Check architecture (ARM64 vs x86_64)
+- Ensure same Chrome version
+- Use the script which handles architecture detection
+
+### Logs and Debugging
+
+View Selenium logs:
 ```bash
-docker-compose -f docker-compose.yml -f docker-compose.selenium-x86.yml up -d selenium
+docker-compose logs -f selenium
 ```
 
-For ARM64 (Apple Silicon):
+View Rails test logs:
 ```bash
-docker-compose up -d selenium  # Uses ARM64 image by default
+docker-compose exec web tail -f log/test.log
 ```
 
-## Benefits
+## CI/CD Integration
 
-1. **Isolation**: Chrome runs in its own container, avoiding profile conflicts
-2. **Parallel Execution**: Can run multiple sessions simultaneously
-3. **Debugging**: VNC access for visual debugging
-4. **Cross-Platform**: Works on both ARM64 and x86_64 architectures
-5. **CI/CD Ready**: Same setup works locally and in GitHub Actions
+For GitHub Actions, the script automatically detects and uses x86_64 configuration:
+
+```yaml
+- name: Run system tests
+  run: ./bin/system-test
+```
+
+## Architecture-Specific Notes
+
+### Apple Silicon (M1/M2)
+- Uses `seleniarm/standalone-chromium`
+- May need to pull image manually first time:
+  ```bash
+  docker pull seleniarm/standalone-chromium:latest
+  ```
+
+### Intel/GitHub Actions
+- Uses `selenium/standalone-chrome`
+- Handled automatically by docker-compose.selenium-x86.yml overlay
+
+## Performance Tips
+
+1. **Parallel Execution**: Not recommended for system tests due to port conflicts
+2. **Headless Mode**: Always used by default for speed
+3. **Service Reuse**: Keep services running between test runs
+4. **Database Cleaning**: Uses transactions for speed
+
+## Summary
+
+- **Always use `./bin/system-test`** for running system tests
+- Tests run in isolated Docker environment
+- Automatic screenshot on failure
+- VNC access for debugging at http://localhost:7900
+- Services stay running after tests for debugging

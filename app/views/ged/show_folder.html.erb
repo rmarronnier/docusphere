@@ -110,7 +110,7 @@
                           <div class="ml-4">
                             <p class="text-sm font-medium text-indigo-600 truncate"><%= document.title %></p>
                             <p class="text-sm text-gray-500">
-                              Par <%= document.user.display_name %>
+                              Par <%= document.uploaded_by.display_name %>
                               <% if document.description.present? %>
                                 • <%= truncate(document.description, length: 50) %>
                               <% end %>

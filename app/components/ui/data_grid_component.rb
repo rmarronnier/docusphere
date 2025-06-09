@@ -1,22 +1,52 @@
 class Ui::DataGridComponent < ApplicationComponent
-  renders_many :columns, lambda { |key:, label:, sortable: false, width: nil, align: :left, format: nil, **options|
-    {
-      key: key,
-      label: label,
-      sortable: sortable,
-      width: width,
-      align: align,
-      format: format,
-      options: options
-    }
-  }
+  renders_many :columns, Ui::DataGridComponent::ColumnComponent
   
   renders_one :empty_state
-  renders_many :actions, lambda { |item, **options, &block|
-    content_tag(:div, class: "flex items-center space-x-2") do
-      block.call(item)
-    end
-  }
+  
+  # Configuration for empty state
+  attr_reader :empty_state_config
+  
+  def configure_empty_state(message: nil, icon: "document", show_icon: true)
+    @empty_state_config = {
+      message: message,
+      icon: icon,
+      show_icon: show_icon
+    }
+  end
+  
+  # Configuration for row actions
+  attr_reader :row_actions_config
+  
+  def configure_actions(style: :inline, size: :small, show_labels: true, gap: 2, dropdown_label: "Actions")
+    @row_actions_config = {
+      style: style,
+      size: size,
+      show_labels: show_labels,
+      gap: gap,
+      dropdown_label: dropdown_label,
+      actions: []
+    }
+  end
+  
+  # Current sort state
+  attr_reader :current_sort_key, :current_sort_direction
+  
+  def set_sort(key:, direction: "asc")
+    @current_sort_key = key
+    @current_sort_direction = direction
+  end
+  
+  def with_action(label:, path: nil, **options, &block)
+    @row_actions_config ||= { style: :inline, size: :small, show_labels: true, gap: 2, dropdown_label: "Actions", actions: [] }
+    action = { label: label, **options }
+    action[:path] = path if path
+    action[:block] = block if block_given?
+    @row_actions_config[:actions] << action
+  end
+  
+  def actions?
+    @row_actions_config && @row_actions_config[:actions].any?
+  end
 
   def initialize(data:, striped: true, hover: true, loading: false, 
                  selectable: false, selected: [], bordered: true,
@@ -53,40 +83,6 @@ class Ui::DataGridComponent < ApplicationComponent
     classes.join(" ")
   end
 
-  def header_cell_classes(column)
-    classes = ["px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider"]
-    classes << "cursor-pointer select-none hover:text-gray-700" if column[:sortable]
-    
-    case column[:align]
-    when :center
-      classes << "text-center"
-    when :right
-      classes << "text-right"
-    else
-      classes << "text-left"
-    end
-    
-    classes << column[:options][:header_class] if column[:options][:header_class]
-    classes.join(" ")
-  end
-
-  def body_cell_classes(column)
-    classes = ["px-6 whitespace-nowrap text-sm"]
-    classes << "py-4" unless compact
-    classes << "py-2" if compact
-    
-    case column[:align]
-    when :center
-      classes << "text-center"
-    when :right
-      classes << "text-right"
-    else
-      classes << "text-left"
-    end
-    
-    classes << column[:options][:cell_class] if column[:options][:cell_class]
-    classes.join(" ")
-  end
 
   def row_classes(index)
     classes = []
@@ -96,36 +92,35 @@ class Ui::DataGridComponent < ApplicationComponent
     classes.join(" ")
   end
 
-  def format_value(value, format)
-    return value unless format
-    
-    case format
-    when :currency
-      number_to_currency(value)
-    when :percentage
-      number_to_percentage(value, precision: 1)
-    when :date
-      value.strftime("%Y-%m-%d") if value.respond_to?(:strftime)
-    when :datetime
-      value.strftime("%Y-%m-%d %H:%M") if value.respond_to?(:strftime)
-    when :boolean
-      value ? "✓" : "✗"
-    when Proc
-      format.call(value)
-    else
-      value
-    end
-  end
 
   def loading_rows
     5.times.map do
       content_tag(:tr) do
-        columns.size.times.map do
-          content_tag(:td, class: body_cell_classes({})) do
+        column_count = columns? ? columns.compact.size : 0
+        column_count.times.map do
+          content_tag(:td, class: "px-6 py-4 whitespace-nowrap text-sm") do
             content_tag(:div, nil, class: "h-4 bg-gray-200 rounded animate-pulse")
           end
         end.join.html_safe
       end
     end.join.html_safe
+  end
+
+  private
+
+  def build_actions_for_item(item)
+    return [] unless row_actions_config
+    
+    row_actions_config[:actions].map do |action|
+      if action[:block]
+        # If action has a block, evaluate it with the item
+        action.merge(path: helpers.instance_exec(item, &action[:block]))
+      elsif action[:path].is_a?(Proc)
+        # If path is a proc, evaluate it
+        action.merge(path: action[:path].call(item))
+      else
+        action
+      end
+    end
   end
 end

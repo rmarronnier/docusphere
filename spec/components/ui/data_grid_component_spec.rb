@@ -117,8 +117,9 @@ RSpec.describe Ui::DataGridComponent, type: :component do
         grid.with_column(key: :amount, label: "Amount", format: :currency)
       end
       
-      expect(page).to have_text("$1,000.00")
-      expect(page).to have_text("$2,000.00")
+      # The app seems to be using French locale (EUR)
+      expect(page).to have_text("1 000,00 €")
+      expect(page).to have_text("2 000,00 €")
     end
 
     it "formats boolean values" do
@@ -161,7 +162,15 @@ RSpec.describe Ui::DataGridComponent, type: :component do
   end
 
   describe "empty state" do
-    it "shows empty state when no data" do
+    it "shows default empty state when no data" do
+      render_inline(described_class.new(data: [])) do |grid|
+        grid.with_column(key: :name, label: "Name")
+      end
+      
+      expect(page).to have_text("Aucune donnée disponible")
+    end
+
+    it "shows custom empty state when no data" do
       render_inline(described_class.new(data: [])) do |grid|
         grid.with_column(key: :name, label: "Name")
         grid.with_empty_state do
@@ -170,6 +179,33 @@ RSpec.describe Ui::DataGridComponent, type: :component do
       end
       
       expect(page).to have_text("No data available")
+    end
+
+    it "uses empty state configuration" do
+      render_inline(described_class.new(data: [])) do |grid|
+        grid.with_column(key: :name, label: "Name")
+        grid.configure_empty_state(
+          message: "No results found",
+          icon: "search",
+          show_icon: true
+        )
+      end
+      
+      expect(page).to have_text("No results found")
+      expect(page).to have_css("svg") # search icon
+    end
+
+    it "prioritizes custom content over configuration" do
+      render_inline(described_class.new(data: [])) do |grid|
+        grid.with_column(key: :name, label: "Name")
+        grid.configure_empty_state(message: "This should not appear")
+        grid.with_empty_state do
+          "Custom empty state content"
+        end
+      end
+      
+      expect(page).to have_text("Custom empty state content")
+      expect(page).not_to have_text("This should not appear")
     end
   end
 
@@ -191,13 +227,55 @@ RSpec.describe Ui::DataGridComponent, type: :component do
     it "renders action buttons for each row" do
       render_inline(described_class.new(data: sample_data)) do |grid|
         grid.with_column(key: :name, label: "Name")
-        grid.with_actions do |item|
-          link_to "Edit", "#edit-#{item[:id]}", class: "text-blue-600"
-        end
+        grid.with_action(
+          label: "Edit",
+          path: ->(item) { "#edit-#{item[:id]}" },
+          class: "text-blue-600"
+        )
       end
       
       expect(page).to have_link("Edit", count: 3)
       expect(page).to have_css("a[href='#edit-1']")
+    end
+
+    it "supports multiple actions with different styles" do
+      render_inline(described_class.new(data: sample_data)) do |grid|
+        grid.with_column(key: :name, label: "Name")
+        grid.configure_actions(style: :dropdown, dropdown_label: "Options")
+        grid.with_action(label: "View", path: ->(item) { "#view-#{item[:id]}" })
+        grid.with_action(label: "Edit", path: ->(item) { "#edit-#{item[:id]}" })
+        grid.with_action(
+          label: "Delete", 
+          path: ->(item) { "#delete-#{item[:id]}" },
+          method: :delete,
+          confirm: "Are you sure?"
+        )
+      end
+      
+      expect(page).to have_button("Options", count: 3)
+      expect(page).to have_link("View", visible: false, count: 3)
+      expect(page).to have_link("Edit", visible: false, count: 3)
+      expect(page).to have_link("Delete", visible: false, count: 3)
+    end
+
+    it "supports conditional actions" do
+      render_inline(described_class.new(data: sample_data)) do |grid|
+        grid.with_column(key: :status, label: "Status")
+        grid.with_action(
+          label: "Activate",
+          path: ->(item) { "#activate-#{item[:id]}" },
+          condition: ->(item) { item[:status] == "Inactive" }
+        )
+        grid.with_action(
+          label: "Deactivate",
+          path: ->(item) { "#deactivate-#{item[:id]}" },
+          condition: ->(item) { item[:status] == "Active" }
+        )
+      end
+      
+      # John and Bob are Active, Jane is Inactive
+      expect(page).to have_link("Deactivate", count: 2)
+      expect(page).to have_link("Activate", count: 1)
     end
   end
 

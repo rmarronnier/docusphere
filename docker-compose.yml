@@ -29,7 +29,6 @@ services:
       - db
       - redis
       - elasticsearch
-      - selenium
     environment:
       DATABASE_URL: postgresql://docusphere:password@db:5432/docusphere_development
       REDIS_URL: redis://redis:6379/0
@@ -38,7 +37,6 @@ services:
       CLAMAV_HOST: clamav
       CLAMAV_PORT: 3310
       DOCKER_CONTAINER: 'true'
-      CAPYBARA_APP_HOST: web
 
   sidekiq:
     build:
@@ -121,6 +119,8 @@ services:
       - SE_OPTS=--log-level WARNING
     volumes:
       - /dev/shm:/dev/shm
+    depends_on:
+      - web
 
 volumes:
   postgres_data:

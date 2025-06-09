@@ -1,30 +1,20 @@
 require 'rails_helper'
 
 RSpec.describe Authorizable, type: :concern do
-  # Create a test class to include the concern
-  let(:test_class) do
-    Class.new(ActiveRecord::Base) do
-      self.table_name = 'documents' # Using documents table which should support authorizations
-      include Authorizable
-      
-      def self.name
-        'TestAuthorizable'
-      end
-    end
-  end
-
-  let(:authorizable_instance) { test_class.new }
+  # Use Document model which already includes Authorizable
   let(:organization) { create(:organization) }
   let(:user) { create(:user, organization: organization) }
   let(:other_user) { create(:user, organization: organization) }
   let(:user_group) { create(:user_group, organization: organization) }
   let(:super_admin) { create(:user, role: 'super_admin', organization: organization) }
+  let(:space) { create(:space, organization: organization) }
+  
+  # Create a Document instance to test the concern
+  let(:authorizable_instance) { create(:document, space: space, uploaded_by: user) }
 
   before do
-    # Skip tests if the table doesn't exist
-    skip "Tests require documents table" unless test_class.table_exists?
-    
-    authorizable_instance.save! if authorizable_instance.respond_to?(:save!)
+    # Ensure we have a clean state
+    Authorization.destroy_all
   end
 
   describe 'included module behavior' do
@@ -43,8 +33,8 @@ RSpec.describe Authorizable, type: :concern do
     end
 
     it 'adds scopes to the class' do
-      expect(test_class).to respond_to(:readable_by)
-      expect(test_class).to respond_to(:writable_by)
+      expect(Document).to respond_to(:readable_by)
+      expect(Document).to respond_to(:writable_by)
     end
   end
 
@@ -348,9 +338,9 @@ RSpec.describe Authorizable, type: :concern do
   end
 
   describe 'scope methods' do
-    let(:readable_item) { test_class.create! }
-    let(:writable_item) { test_class.create! }
-    let(:unreadable_item) { test_class.create! }
+    let(:readable_item) { create(:document, space: space, uploaded_by: user) }
+    let(:writable_item) { create(:document, space: space, uploaded_by: user) }
+    let(:unreadable_item) { create(:document, space: space, uploaded_by: user) }
 
     before do
       readable_item.authorize_user(user, 'read', granted_by: other_user)
@@ -359,13 +349,13 @@ RSpec.describe Authorizable, type: :concern do
     end
 
     it 'readable_by scope returns items user can read' do
-      readable_items = test_class.readable_by(user)
+      readable_items = Document.readable_by(user)
       expect(readable_items).to include(readable_item, writable_item)
       expect(readable_items).not_to include(unreadable_item)
     end
 
     it 'writable_by scope returns items user can write' do
-      writable_items = test_class.writable_by(user)
+      writable_items = Document.writable_by(user)
       expect(writable_items).to include(writable_item)
       expect(writable_items).not_to include(readable_item, unreadable_item)
     end

@@ -44,6 +44,51 @@ Docusphere transforme la gestion documentaire traditionnelle en plateforme méti
 - **Analytiques** : Tableaux de bord usage, performance, ROI
 - **Maintenance** : Monitoring proactif, optimisation automatique
 
+## 🧪 Tests
+
+### Running Tests
+
+#### Unit and Integration Tests
+```bash
+# Run all tests in parallel (faster)
+docker-compose run --rm -e PARALLEL_TEST_PROCESSORS=4 web bundle exec parallel_rspec
+
+# Run specific test file
+docker-compose run --rm web bundle exec rspec spec/models/user_spec.rb
+
+# Run with fail-fast
+docker-compose run --rm web bundle exec rspec --fail-fast
+```
+
+#### System Tests (Selenium)
+
+**🚨 IMPORTANT: Always use the provided script for system tests**
+
+```bash
+# Run all system tests
+./bin/system-test
+
+# Run specific system test
+./bin/system-test spec/system/document_upload_workflow_spec.rb
+
+# Run with RSpec options
+./bin/system-test --fail-fast
+
+# Debug mode (view browser)
+DEBUG=1 ./bin/system-test
+```
+
+The system test script:
+- Starts all required services (Selenium, DB, Redis, etc.)
+- Waits for services to be ready
+- Configures proper Docker networking
+- Handles ARM64 (Mac M1/M2) and x86_64 (Intel/CI) architectures
+- Keeps services running after tests for debugging
+
+View live browser during tests: `open http://localhost:7900`
+
+See `docs/SELENIUM_TESTING.md` for detailed testing documentation.
+
 ## 🏗️ Module ImmoPromo - Gestion Immobilière Intégrée
 
 Docusphere intègre **ImmoPromo**, un module métier complet pour les professionnels de l'immobilier développé comme Rails Engine. Cette intégration transforme Docusphere en plateforme immobilière complète avec gestion documentaire centralisée.

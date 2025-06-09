@@ -3,131 +3,97 @@ require 'capybara/rails'
 require 'capybara/rspec'
 require 'selenium-webdriver'
 
-# Configure Capybara
+# Detect if we're running in Docker
+def running_in_docker?
+  ENV['DOCKER_CONTAINER'].present?
+end
+
+# Configure Capybara server
+Capybara.server = :puma, { Silent: true }
+Capybara.server_host = running_in_docker? ? '0.0.0.0' : 'localhost'
+Capybara.server_port = 3001
+
+# Basic Capybara configuration
 Capybara.configure do |config|
-  config.server = :puma, { Silent: true }
-  config.default_max_wait_time = 5
+  config.default_max_wait_time = 10  # Increased timeout for Docker environment
   config.default_normalize_ws = true
-  config.ignore_hidden_elements = true
-  config.visible_text_only = true
-  config.match = :prefer_exact
-  config.exact = false
-  config.raise_server_errors = true
   config.save_path = Rails.root.join('tmp/screenshots')
-  # Important: Tell Capybara where the app is running
-  config.app_host = "http://#{ENV.fetch('CAPYBARA_APP_HOST', 'web')}:3000"
-  config.always_include_port = true
-  config.server_host = '0.0.0.0'
-  config.server_port = 3000
+  config.automatic_label_click = true
+  config.disable_animation = true
+  config.match = :prefer_exact
 end
 
 # Ensure screenshot directory exists
 FileUtils.mkdir_p(Capybara.save_path)
 
-# Detect if we're running in Docker
-def running_in_docker?
-  File.exist?('/.dockerenv') || ENV['DOCKER_CONTAINER'].present?
-end
-
-# Configure Selenium to use remote Chrome when in Docker
 if running_in_docker?
-  # Use remote Selenium service
-  Capybara.register_driver :chrome_headless do |app|
-    chrome_options = Selenium::WebDriver::Chrome::Options.new
-    chrome_options.add_argument('--headless=new')
-    chrome_options.add_argument('--no-sandbox')
-    chrome_options.add_argument('--disable-dev-shm-usage')
-    chrome_options.add_argument('--disable-gpu')
-    chrome_options.add_argument('--window-size=1920,1080')
-    chrome_options.add_argument('--disable-web-security')
+  # Remote Chrome driver for Docker
+  Capybara.register_driver :chrome do |app|
+    options = Selenium::WebDriver::Chrome::Options.new
+    options.add_argument('--headless')
+    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-dev-shm-usage')
+    options.add_argument('--disable-gpu')
+    options.add_argument('--disable-features=VizDisplayCompositor')
+    options.add_argument('--window-size=1920,1080')
     
+    # Additional stability options
+    options.add_preference('download.default_directory', '/tmp')
+    options.add_preference('download.prompt_for_download', false)
+    options.add_preference('plugins.plugins_disabled', ['Chrome PDF Viewer'])
+    
+    # Important: Tell Capybara where to find the app from Selenium's perspective
     Capybara::Selenium::Driver.new(
       app,
       browser: :remote,
       url: "http://selenium:4444/wd/hub",
-      options: chrome_options
+      options: options
     )
   end
+  
+  # Set the app_host to the container's IP address
+  # This is more reliable than using hostname in Docker networks
+  Capybara.app_host = "http://#{ENV['HOSTNAME'] || Socket.gethostname}:3001"
+  
+  # Always include port since we're using a non-standard port
+  Capybara.always_include_port = true
 else
-  # Local development - use local Chrome
-  Capybara.register_driver :chrome_headless do |app|
-    chrome_options = Selenium::WebDriver::Chrome::Options.new
-    chrome_options.add_argument('--headless=new')
-    chrome_options.add_argument('--no-sandbox')
-    chrome_options.add_argument('--disable-dev-shm-usage')
-    chrome_options.add_argument('--disable-gpu')
-    chrome_options.add_argument('--window-size=1920,1080')
+  # Local Chrome driver
+  Capybara.register_driver :chrome do |app|
+    options = Selenium::WebDriver::Chrome::Options.new
+    options.add_argument('--headless')
+    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-dev-shm-usage')
+    options.add_argument('--window-size=1920,1080')
     
-    Capybara::Selenium::Driver.new(
-      app,
-      browser: :chrome,
-      options: chrome_options
-    )
+    Capybara::Selenium::Driver.new(app, browser: :chrome, options: options)
   end
 end
 
-# Register Chrome visible driver for debugging
-if running_in_docker?
-  Capybara.register_driver :chrome_debug do |app|
-    chrome_debug_options = Selenium::WebDriver::Chrome::Options.new
-    chrome_debug_options.add_argument('--no-sandbox')
-    chrome_debug_options.add_argument('--disable-dev-shm-usage')
-    chrome_debug_options.add_argument('--window-size=1920,1080')
-    
-    Capybara::Selenium::Driver.new(
-      app,
-      browser: :remote,
-      url: "http://selenium:4444/wd/hub",
-      options: chrome_debug_options
-    )
-  end
-else
-  Capybara.register_driver :chrome_debug do |app|
-    chrome_debug_options = Selenium::WebDriver::Chrome::Options.new
-    chrome_debug_options.add_argument('--no-sandbox')
-    chrome_debug_options.add_argument('--disable-dev-shm-usage')
-    chrome_debug_options.add_argument('--window-size=1920,1080')
-    
-    Capybara::Selenium::Driver.new(
-      app,
-      browser: :chrome,
-      options: chrome_debug_options
-    )
-  end
-end
-
-# Use headless Chrome by default
+# Set default drivers
 Capybara.default_driver = :rack_test
-Capybara.javascript_driver = :chrome_headless
+Capybara.javascript_driver = :chrome
 
-# For debugging, you can temporarily change to :chrome_debug
-# Capybara.javascript_driver = :chrome_debug
-
+# RSpec configuration
 RSpec.configure do |config|
-  # Clean up screenshots after each test
+  config.before(:each, type: :system) do
+    driven_by :rack_test
+  end
+  
+  config.before(:each, type: :system, js: true) do
+    driven_by :chrome
+  end
+  
+  # Screenshot on failure
   config.after(:each, type: :system) do |example|
-    if example.metadata[:screenshot] && example.exception
-      # Keep screenshot for failed tests
-      screenshot_path = page.save_screenshot
-      puts "\n📷 Screenshot saved: #{screenshot_path}"
+    if example.exception && page.driver.respond_to?(:save_screenshot)
+      begin
+        timestamp = Time.now.strftime('%Y%m%d%H%M%S')
+        screenshot_path = page.save_screenshot("failure_#{timestamp}.png")
+        puts "\n📸 Screenshot: #{screenshot_path}"
+      rescue Capybara::NotSupportedByDriverError
+        # Silently skip screenshot for drivers that don't support it (like rack_test)
+      end
     end
-  end
-  
-  # Configure driver for system tests
-  config.before(:each, type: :system) do |example|
-    # By default, use Chrome headless for all system tests
-    driven_by :chrome_headless
-    
-    # Individual tests can override with metadata:
-    # it "test name", driver: :rack_test do ... end
-    # it "test name", driver: :chrome_debug do ... end
-    if example.metadata[:driver]
-      driven_by example.metadata[:driver]
-    end
-  end
-  
-  # Helper method for debugging specific tests
-  config.define_derived_metadata(debug: true) do |metadata|
-    metadata[:driver] = :chrome_debug
   end
 end

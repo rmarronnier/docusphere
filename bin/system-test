@@ -1,5 +1,11 @@
 #!/bin/bash
 # Script to run system tests with Selenium service
+#
+# Usage:
+#   ./bin/system-test                     # Run all system tests
+#   ./bin/system-test spec/system/foo.rb  # Run specific test
+#   ./bin/system-test --fail-fast         # Run with RSpec options
+#   DEBUG=1 ./bin/system-test             # Run with debug mode
 
 set -e
 
@@ -14,8 +20,26 @@ else
   echo "🖥️  Detected ARM64 architecture"
 fi
 
-echo "🚀 Starting Selenium service..."
-$COMPOSE_CMD up -d selenium
+echo "🚀 Starting required services..."
+$COMPOSE_CMD up -d db redis elasticsearch selenium
+
+echo "⏳ Waiting for database to be ready..."
+# Wait up to 30 seconds for database
+COUNTER=0
+while [ $COUNTER -lt 30 ]; do
+  if $COMPOSE_CMD exec -T db pg_isready -U docusphere >/dev/null 2>&1; then
+    break
+  fi
+  sleep 1
+  COUNTER=$((COUNTER + 1))
+done
+
+if [ $COUNTER -eq 30 ]; then
+  echo "❌ Database failed to start within 30 seconds"
+  exit 1
+fi
+
+echo "✅ Database is ready!"
 
 echo "⏳ Waiting for Selenium to be ready..."
 # Wait up to 30 seconds for Selenium
@@ -34,14 +58,50 @@ if [ $COUNTER -eq 30 ]; then
 fi
 
 echo "✅ Selenium is ready!"
+
+# Prepare test database if needed
+echo "📦 Preparing test database..."
+$COMPOSE_CMD run --rm \
+  -e RAILS_ENV=test \
+  web bundle exec rails db:prepare 2>/dev/null || \
+$COMPOSE_CMD run --rm \
+  -e RAILS_ENV=test \
+  web bundle exec rails db:environment:set RAILS_ENV=test db:prepare
+
 echo "🧪 Running system tests..."
 
-# Run tests with proper environment
-$COMPOSE_CMD run --rm \
-  -e DOCKER_CONTAINER=true \
-  -e CAPYBARA_APP_HOST=web \
-  web bundle exec rspec spec/system/ "$@"
+# Default to all system tests if no arguments provided
+TEST_ARGS="${@:-spec/system/}"
 
-echo "🛑 Tests completed. Selenium service is still running."
-echo "💡 To view Selenium browser: open http://localhost:7900"
-echo "💡 To stop Selenium: docker-compose stop selenium"
+# Run tests with proper environment variables
+# Use exec to run in existing web container for proper networking
+if $COMPOSE_CMD ps web | grep -q "Up"; then
+  echo "📡 Using existing web container..."
+  $COMPOSE_CMD exec \
+    -e RAILS_ENV=test \
+    -e DOCKER_CONTAINER=true \
+    web bundle exec rspec $TEST_ARGS
+else
+  echo "📡 Creating new test container..."
+  $COMPOSE_CMD run --rm \
+    -e RAILS_ENV=test \
+    -e DOCKER_CONTAINER=true \
+    web bundle exec rspec $TEST_ARGS
+fi
+
+TEST_RESULT=$?
+
+if [ $TEST_RESULT -eq 0 ]; then
+  echo "✅ All tests passed!"
+else
+  echo "❌ Some tests failed"
+fi
+
+echo ""
+echo "💡 Services are still running:"
+echo "   - View Selenium browser: open http://localhost:7900"
+echo "   - View Rails app: open http://localhost:3000"
+echo "   - Stop all services: docker-compose down"
+echo ""
+
+exit $TEST_RESULT

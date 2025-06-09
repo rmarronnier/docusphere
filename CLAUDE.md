@@ -95,26 +95,46 @@ For every new feature or functionality added to the codebase, you MUST:
 
 ### System Tests (Selenium Setup)
 
+**🚨 IMPORTANT: ALWAYS use the `bin/system-test` script for running system tests**
+
 System tests use Chromium with Selenium WebDriver in headless mode. The configuration is set up in `spec/support/capybara.rb`:
 
-- **Driver**: Chromium in headless mode (`:chrome_headless`)
+- **Driver**: Remote Selenium Chrome in headless mode
 - **Browser options**: Configured for Docker environment with `--no-sandbox`, `--disable-dev-shm-usage`
 - **Screenshots**: Automatically saved to `tmp/screenshots/` when tests fail
-- **Engine support**: Both main app and engine system tests are configured
+- **VNC Access**: View live browser at http://localhost:7900 for debugging
 
 **Running System Tests**:
 ```bash
-# Run all system tests
-docker-compose run --rm web bundle exec rspec spec/system/
+# ✅ CORRECT - Always use the script
+./bin/system-test
 
-# Run specific system test
-docker-compose run --rm web bundle exec rspec spec/system/document_upload_workflow_spec.rb
+# ✅ Run specific system test
+./bin/system-test spec/system/document_upload_workflow_spec.rb
 
-# Run engine system tests
-docker-compose run --rm web bundle exec rspec engines/immo_promo/spec/system/
+# ✅ Run with options
+./bin/system-test --fail-fast
+
+# ✅ Run engine system tests
+./bin/system-test engines/immo_promo/spec/system/
+
+# ❌ WRONG - Do not use plain docker-compose commands
+# docker-compose run --rm web bundle exec rspec spec/system/
 ```
 
-**Note**: The Dockerfile.dev includes Chromium and chromium-driver for system test support.
+**Why use the script?**
+- Ensures Selenium service is running
+- Waits for all services to be ready
+- Sets up test database correctly
+- Configures proper Docker networking
+- Handles architecture detection (ARM64 vs x86_64)
+
+**Debugging**:
+- View live browser: `open http://localhost:7900`
+- Use `debug: true` metadata to run tests with visible browser
+- Set `DEBUG=1` environment variable to pause tests
+
+See `docs/SELENIUM_TESTING.md` for detailed documentation.
 
 ## Running Ruby Commands
 
