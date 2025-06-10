@@ -21,6 +21,7 @@ RSpec.describe Immo::Promo::NavbarComponent, type: :component do
     context 'when on dashboard' do
       it 'highlights dashboard link' do
         allow_any_instance_of(described_class).to receive(:on_dashboard?).and_return(true)
+        allow_any_instance_of(Immo::Promo::Navbar::NavigationComponent).to receive(:on_dashboard?).and_return(true)
         
         component = described_class.new(current_user: user, current_project: nil)
         render_inline(component)
@@ -64,7 +65,8 @@ RSpec.describe Immo::Promo::NavbarComponent, type: :component do
 
     context 'when user cannot create projects' do
       it 'does not show new project button' do
-        allow_any_instance_of(described_class).to receive(:can_create_project?).and_return(false)
+        # Mock the NewProjectButtonComponent's permission check
+        allow_any_instance_of(Immo::Promo::Navbar::NewProjectButtonComponent).to receive(:can_create_project?).and_return(false)
         
         component = described_class.new(current_user: user, current_project: nil)
         render_inline(component)
@@ -75,8 +77,8 @@ RSpec.describe Immo::Promo::NavbarComponent, type: :component do
 
     context 'when user can edit project' do
       it 'shows edit button' do
-        allow_any_instance_of(described_class).to receive(:on_project_view?).and_return(true)
-        allow_any_instance_of(described_class).to receive(:can_edit_project?).and_return(true)
+        # Mock the ProjectActionsComponent's permission check
+        allow_any_instance_of(Immo::Promo::Navbar::ProjectActionsComponent).to receive(:can_edit_project?).and_return(true)
         
         component = described_class.new(current_user: user, current_project: project)
         render_inline(component)
@@ -87,8 +89,8 @@ RSpec.describe Immo::Promo::NavbarComponent, type: :component do
 
     context 'when user cannot manage stakeholders' do
       it 'does not show stakeholders link' do
-        allow_any_instance_of(described_class).to receive(:on_project_view?).and_return(true)
-        allow_any_instance_of(described_class).to receive(:can_manage_stakeholders?).and_return(false)
+        # Mock the ProjectActionsComponent's permission check
+        allow_any_instance_of(Immo::Promo::Navbar::ProjectActionsComponent).to receive(:can_manage_stakeholders?).and_return(false)
         
         component = described_class.new(current_user: user, current_project: project)
         render_inline(component)
@@ -142,9 +144,9 @@ RSpec.describe Immo::Promo::NavbarComponent, type: :component do
       component = described_class.new(current_user: user, current_project: project)
       render_inline(component)
       
-      # Check that links contain the engine prefix
-      expect(page).to have_link('Tableau de bord', href: /immo_promo/)
-      expect(page).to have_link('Projets', href: /immo_promo/)
+      # Check that links contain the engine prefix /immo/promo
+      expect(page).to have_link('Tableau de bord', href: /\/immo\/promo/)
+      expect(page).to have_link('Projets', href: /\/immo\/promo/)
     end
   end
 end

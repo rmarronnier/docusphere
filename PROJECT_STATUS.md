@@ -6,7 +6,19 @@ DocuSphere est une plateforme de gestion documentaire avancée avec un module sp
 
 ## ✅ Accomplissements Récents
 
-### Session du 10/06/2025
+### Session du 10/06/2025 (Après-midi)
+1. **Tests de composants complétés** :
+   - Tous les tests de composants de l'app principale passent (899 tests) ✅
+   - Tous les tests de composants ImmoPromo passent (71 tests) ✅
+   - Total : 970 tests de composants réussis
+   - Corrections apportées : StatusBadgeComponent, ProjectCardComponent, NavbarComponent, DataTableComponent, TimelineComponent
+
+2. **Nettoyage du repository** :
+   - Archivage des documents historiques dans `docs/archive/`
+   - Suppression de 5 fichiers d'analyse de tests obsolètes
+   - Organisation améliorée de la documentation
+
+### Session du 10/06/2025 (Matin)
 1. **Architecture ViewComponent refactorisée** :
    - DataGridComponent décomposé en 5 sous-composants modulaires
    - 102 tests unitaires pour les composants
@@ -39,7 +51,8 @@ DocuSphere est une plateforme de gestion documentaire avancée avec un module sp
 - **Models** : ✅ 100% passent
 - **Factories** : ✅ 49 factories valides
 - **Controllers** : ✅ 251 tests passent
-- **Components** : ✅ 102 tests passent
+- **Components (App)** : ✅ 899 tests passent
+- **Components (ImmoPromo)** : ✅ 71 tests passent
 - **System** : ⚠️ À mettre à jour pour nouvelle UI
 - **Coverage global** : ~85%
 

@@ -20,16 +20,15 @@ module Immo
 
         attr_reader :actions
 
-        # Override render_cell to handle ImmoPromo-specific status component
-        def render_cell(item, column)
+        # Override cell_value to handle ImmoPromo-specific status component
+        def cell_value(item, column)
           value = extract_value(item, column[:key])
           
           case column[:type]
           when :status
             # Use ImmoPromo's StatusBadgeComponent for French labels
             render Immo::Promo::Shared::StatusBadgeComponent.new(
-              status: value,
-              custom_text: column[:label]
+              status: value
             )
           when :progress
             # Use ImmoPromo's ProgressIndicatorComponent

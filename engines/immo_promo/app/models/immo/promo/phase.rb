@@ -72,6 +72,8 @@ module Immo
         is_critical
       end
       
+      alias_method :critical?, :critical_path?
+      
       def task_completion_percentage
         completion_percentage
       end

@@ -104,7 +104,7 @@ class Ui::DataTableComponent < BaseTableComponent
       items.each do |item|
         table_html << '<tr class="' + (hoverable ? 'hover:bg-gray-50' : '') + '">'
         columns.each do |column|
-          table_html << "<td class=\"whitespace-nowrap px-3 py-4 text-sm #{column[:td_class]}\">#{render_cell(item, column)}</td>"
+          table_html << "<td class=\"whitespace-nowrap px-3 py-4 text-sm #{column[:td_class]}\">#{cell_value(item, column)}</td>"
         end
         if content.present?
           table_html << '<td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">' + content.to_s + '</td>'

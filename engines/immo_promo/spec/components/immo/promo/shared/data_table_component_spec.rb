@@ -36,8 +36,8 @@ RSpec.describe Immo::Promo::Shared::DataTableComponent, type: :component do
   it "applies striped and hoverable by default" do
     rendered = render_inline(described_class.new(items: items, columns: columns))
     
-    expect(rendered).to have_css('.table-striped')
-    expect(rendered).to have_css('.hover\\:bg-gray-50')
+    expect(rendered).to have_css('table.striped')
+    expect(rendered).to have_css('tr.hover\\:bg-gray-50')
   end
 
   it "renders ImmoPromo-specific status badges" do

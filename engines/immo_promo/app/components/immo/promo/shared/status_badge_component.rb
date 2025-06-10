@@ -44,8 +44,14 @@ module Immo
                         else :medium
                         end
           
+          # Get preset for status
+          preset = PRESETS[status.to_sym] || {}
+          
+          # Use custom text or preset label or default
+          label = custom_text || preset[:label] || status.to_s.humanize
+          
           # Call parent initializer with mapped parameters
-          super(status: status, label: custom_text, size: size_mapped)
+          super(status: status, label: label, size: size_mapped, color: preset[:color])
           
           @extra_classes = extra_classes
         end

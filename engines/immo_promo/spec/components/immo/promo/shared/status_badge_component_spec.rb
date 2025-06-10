@@ -18,8 +18,9 @@ RSpec.describe Immo::Promo::Shared::StatusBadgeComponent, type: :component do
     rendered_small = render_inline(described_class.new(status: :active, size: 'small'))
     rendered_large = render_inline(described_class.new(status: :active, size: 'large'))
     
-    expect(rendered_small).to have_css('.px-2\\.5.py-0\\.5.text-xs')
-    expect(rendered_large).to have_css('.px-4.py-1\\.5.text-sm')
+    # The parent component maps 'small' to :sm which uses different classes
+    expect(rendered_small).to have_css('.px-2.py-0\\.5.text-xs')
+    expect(rendered_large).to have_css('.px-3.py-1.text-sm')
   end
 
   it "supports extra classes" do

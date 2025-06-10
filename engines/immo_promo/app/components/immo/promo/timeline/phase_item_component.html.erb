@@ -1,8 +1,8 @@
-<li>
+<li data-phase-id="<%= phase.id %>">
   <div class="relative pb-8">
     <!-- Connector line (except for last item) -->
     <% unless is_last %>
-      <span class="absolute left-4 top-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
+      <span class="absolute left-4 top-4 -ml-px h-full w-0.5 bg-gray-200 connection-line" aria-hidden="true"></span>
     <% end %>
     
     <div class="relative flex space-x-3">

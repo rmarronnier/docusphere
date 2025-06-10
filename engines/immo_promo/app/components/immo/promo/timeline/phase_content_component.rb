@@ -13,7 +13,7 @@ class Immo::Promo::Timeline::PhaseContentComponent < ApplicationComponent
   end
 
   def formatted_duration
-    return 'À définir' unless phase.start_date && phase.end_date
+    return 'Dates non définies' unless phase.start_date && phase.end_date
     
     duration = (phase.end_date.to_date - phase.start_date.to_date).to_i
     case duration
@@ -24,10 +24,14 @@ class Immo::Promo::Timeline::PhaseContentComponent < ApplicationComponent
   end
 
   def formatted_start_date
-    phase.start_date&.strftime('%d/%m/%Y') || 'À définir'
+    phase.start_date&.strftime('%d/%m/%Y') || 'Dates non définies'
   end
 
   def formatted_end_date
-    phase.end_date&.strftime('%d/%m/%Y') || 'À définir'
+    phase.end_date&.strftime('%d/%m/%Y') || 'Dates non définies'
+  end
+  
+  def has_dates?
+    phase.start_date.present? || phase.end_date.present?
   end
 end

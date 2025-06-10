@@ -8,14 +8,14 @@ class Immo::Promo::Timeline::SummaryComponent < ApplicationComponent
   attr_reader :phases
 
   def completed_count
-    phases.where(status: 'completed').count
+    phases.count { |phase| phase.status == 'completed' }
   end
 
   def in_progress_count
-    phases.where(status: 'in_progress').count
+    phases.count { |phase| phase.status == 'in_progress' }
   end
 
   def pending_count
-    phases.where(status: 'pending').count
+    phases.count { |phase| phase.status == 'pending' }
   end
 end

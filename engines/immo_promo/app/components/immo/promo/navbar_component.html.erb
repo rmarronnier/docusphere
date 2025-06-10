@@ -7,7 +7,7 @@
         <%= render Immo::Promo::Navbar::LogoComponent.new %>
         
         <!-- Navigation Links -->
-        <%= render Immo::Promo::Navbar::NavigationComponent.new(current_project: current_project) %>
+        <%= render Immo::Promo::Navbar::NavigationComponent.new(current_project: current_project, on_dashboard: on_dashboard?) %>
       </div>
 
       <!-- Right side - Actions -->
