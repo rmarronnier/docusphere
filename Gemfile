@@ -82,7 +82,7 @@ group :development, :test do
   gem "rspec-rails", "~> 7.1"
   gem "factory_bot_rails", "~> 6.4"
   gem "faker", "~> 3.5"
-  gem "parallel_tests", "~> 4.2"
+  gem "parallel_tests", "~> 5.3"
 end
 
 group :development do
