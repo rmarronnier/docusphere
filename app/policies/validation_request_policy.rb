@@ -16,6 +16,10 @@ class ValidationRequestPolicy < ApplicationPolicy
     user.present?
   end
 
+  def permitted_attributes
+    [:min_validations, :description, :due_date]
+  end
+
   class Scope < Scope
     def resolve
       if user.present?

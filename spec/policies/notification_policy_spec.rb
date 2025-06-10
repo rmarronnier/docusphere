@@ -243,4 +243,19 @@ RSpec.describe NotificationPolicy, type: :policy do
       end
     end
   end
+
+  describe '#permitted_attributes' do
+    let(:policy) { described_class.new(user, notification) }
+    let(:admin) { create(:user, :admin, organization: organization) }
+    
+    it "returns the correct permitted attributes" do
+      expect(policy.permitted_attributes).to contain_exactly(:read_at)
+    end
+    
+    it "returns the same attributes for all users" do
+      admin_policy = described_class.new(admin, notification)
+      
+      expect(admin_policy.permitted_attributes).to eq(policy.permitted_attributes)
+    end
+  end
 end

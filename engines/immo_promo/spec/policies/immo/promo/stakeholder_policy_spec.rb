@@ -204,4 +204,34 @@ RSpec.describe Immo::Promo::StakeholderPolicy, type: :policy do
       it { is_expected.not_to permit_action(:allocate) }
     end
   end
+
+  describe '#permitted_attributes' do
+    let(:policy) { described_class.new(admin_user, stakeholder) }
+    
+    it 'returns the expected attributes' do
+      expected_attributes = [
+        :name, :stakeholder_type, :contact_person, :email, :phone, 
+        :address, :notes, :specialization, :is_active, :role, 
+        :company_name, :siret, :is_primary
+      ]
+      
+      expect(policy.permitted_attributes).to eq(expected_attributes)
+    end
+    
+    context 'with different user types' do
+      it 'returns the same attributes for project manager' do
+        policy = described_class.new(project_manager, stakeholder_with_manager)
+        expect(policy.permitted_attributes).to include(:name, :stakeholder_type, :contact_person)
+      end
+      
+      it 'returns the same attributes for stakeholder manager' do
+        stakeholder_manager = create(:user, 
+          organization: organization, 
+          permissions: { 'immo_promo:stakeholders:manage' => true }
+        )
+        policy = described_class.new(stakeholder_manager, stakeholder)
+        expect(policy.permitted_attributes).to include(:name, :stakeholder_type, :contact_person)
+      end
+    end
+  end
 end

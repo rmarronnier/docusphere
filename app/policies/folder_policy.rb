@@ -19,6 +19,10 @@ class FolderPolicy < ApplicationPolicy
     user.present? && (same_organization_or_admin? || folder_writable?)
   end
 
+  def permitted_attributes
+    [:name, :description, :slug, :position, :is_active, metadata: {}]
+  end
+
   class Scope < Scope
     def resolve
       if user.blank?

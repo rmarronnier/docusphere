@@ -3,7 +3,7 @@ class SearchQuery < ApplicationRecord
   
   validates :name, presence: true
   
-  scope :recent, -> { order(created_at: :desc) }
+  scope :recent, -> { where(created_at: 30.days.ago..) }
   scope :most_used, -> { order(usage_count: :desc) }
   scope :favorites, -> { where(is_favorite: true) }
   

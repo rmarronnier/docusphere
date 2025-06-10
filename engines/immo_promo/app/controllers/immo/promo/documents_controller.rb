@@ -20,19 +20,21 @@ module Immo
       end
       
       def show
+        authorize @document
         @versions = @document.versions.order(created_at: :desc)
         @validations = @document.document_validations.includes(:validator)
         @shares = @document.document_shares.includes(:shared_with_user)
       end
       
       def new
-        authorize @project
         @document = @documentable.documents.build
+        authorize @document
         @categories = document_categories_for(@documentable)
       end
       
       def create
-        authorize @project
+        @document = @documentable.documents.build
+        authorize @document
         files = params[:documents][:files]
         category = params[:documents][:category]
         
@@ -57,23 +59,23 @@ module Immo
             @documents << doc
           end
           
-          redirect_to "/immo/promo/projects/#{@project.id}/documents", 
+          redirect_to immo_promo_engine.project_documents_path(@project), 
                       notice: "#{@documents.count} document(s) téléchargé(s) avec succès."
         else
-          redirect_to "/immo/promo/projects/#{@project.id}/documents/new", 
+          redirect_to immo_promo_engine.new_project_document_path(@project), 
                       alert: "Veuillez sélectionner au moins un fichier."
         end
       end
       
       def edit
-        authorize @project
+        authorize @document
         @categories = document_categories_for(@documentable)
       end
       
       def update
-        authorize @project
+        authorize @document
         if @document.update(document_params)
-          redirect_to "/immo/promo/projects/#{@project.id}/documents/#{@document.id}", 
+          redirect_to immo_promo_engine.project_document_path(@project, @document), 
                       notice: "Document mis à jour avec succès."
         else
           render :edit
@@ -81,43 +83,44 @@ module Immo
       end
       
       def destroy
-        authorize @project
+        authorize @document
         @document.destroy
-        redirect_to "/immo/promo/projects/#{@project.id}/documents", 
+        redirect_to immo_promo_engine.project_documents_path(@project), 
                     notice: "Document supprimé avec succès."
       end
       
       def download
-        authorize @project
+        authorize @document
         redirect_to rails_blob_path(@document.file, disposition: 'attachment')
       end
       
       def preview
-        authorize @project
+        authorize @document
         if @document.file.attached?
           redirect_to rails_blob_path(@document.file, disposition: 'inline')
         else
-          redirect_to "/immo/promo/projects/#{@project.id}/documents", alert: "Aucun fichier attaché"
+          redirect_to immo_promo_engine.project_documents_path(@project), alert: "Aucun fichier attaché"
         end
       end
       
       def share
-        authorize @project
+        authorize @document
         if request.post?
           stakeholder_ids = params[:stakeholder_ids] || []
           permission_level = params[:permission_level] || 'read'
           
           # Simplified sharing - just create document shares
           stakeholder_ids.each do |stakeholder_id|
+            stakeholder = Immo::Promo::Stakeholder.find(stakeholder_id)
             DocumentShare.create(
               document: @document,
-              stakeholder_id: stakeholder_id,
-              permission_level: permission_level,
+              email: stakeholder.email,
+              access_level: permission_level,
               shared_by: current_user
             )
           end
           
-          redirect_to "/immo/promo/projects/#{@project.id}/documents/#{@document.id}", 
+          redirect_to immo_promo_engine.project_document_path(@project, @document), 
                       notice: "Document partagé avec #{stakeholder_ids.count} intervenant(s)."
         else
           @stakeholders = @project.stakeholders
@@ -125,14 +128,14 @@ module Immo
       end
       
       def request_validation
-        authorize @project
+        authorize @document
         if request.post?
           validator_ids = params[:validator_ids] || []
           min_validations = params[:min_validations] || 1
           
           # Create a validation request
           validation_request = ValidationRequest.create!(
-            document: @document,
+            validatable: @document,
             requester: current_user,
             min_validations: min_validations,
             status: 'pending'
@@ -141,14 +144,14 @@ module Immo
           # Add validators via document_validations
           validator_ids.each do |validator_id|
             DocumentValidation.create!(
-              document: @document,
+              validatable: @document,
               validation_request: validation_request,
               validator_id: validator_id,
               status: 'pending'
             )
           end
           
-          redirect_to "/immo/promo/projects/#{@project.id}/documents/#{@document.id}", 
+          redirect_to immo_promo_engine.project_document_path(@project, @document), 
                       notice: "Demande de validation envoyée."
         else
           @potential_validators = User.where(organization: current_user.organization)
@@ -156,23 +159,24 @@ module Immo
       end
       
       def bulk_actions
-        authorize @project
+        # Pour les actions en lot, on vérifie que l'utilisateur peut accéder au projet
+        authorize @documentable, :update?
         document_ids = params[:document_ids] || []
         action = params[:bulk_action]
         
         case action
         when 'download'
-          redirect_to "/immo/promo/projects/#{@project.id}/documents", 
+          redirect_to immo_promo_engine.project_documents_path(@project), 
                       notice: "Téléchargement en cours..."
         when 'share'
           session[:bulk_document_ids] = document_ids
-          redirect_to "/immo/promo/projects/#{@project.id}/documents"
+          redirect_to immo_promo_engine.project_documents_path(@project)
         when 'delete'
           @documentable.documents.where(id: document_ids).destroy_all
-          redirect_to "/immo/promo/projects/#{@project.id}/documents", 
+          redirect_to immo_promo_engine.project_documents_path(@project), 
                       notice: "Documents supprimés avec succès."
         else
-          redirect_to "/immo/promo/projects/#{@project.id}/documents", 
+          redirect_to immo_promo_engine.project_documents_path(@project), 
                       alert: "Action non reconnue."
         end
       end
@@ -194,19 +198,19 @@ module Immo
       end
       
       def document_params
-        params.require(:document).permit(:title, :description, :document_category, :status)
+        permitted_attributes(@document || Document.new)
       end
       
       def authorize_document_access!
         unless can_access_document?(@document)
-          redirect_to "/immo/promo/projects/#{@project.id}/documents", 
+          redirect_to immo_promo_engine.project_documents_path(@project), 
                       alert: "Vous n'avez pas accès à ce document."
         end
       end
       
       def authorize_document_edit!
         unless can_edit_document?(@document)
-          redirect_to "/immo/promo/projects/#{@project.id}/documents", 
+          redirect_to immo_promo_engine.project_documents_path(@project), 
                       alert: "Vous ne pouvez pas modifier ce document."
         end
       end

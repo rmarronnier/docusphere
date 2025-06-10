@@ -76,10 +76,7 @@ module Immo
       end
 
       def phase_params
-        params.require(:immo_promo_phase).permit(
-          :name, :description, :phase_type, :position, :is_critical,
-          :start_date, :end_date, :budget_cents, :notes, :responsible_user_id
-        )
+        permitted_attributes(@phase || Immo::Promo::Phase.new)
       end
     end
   end

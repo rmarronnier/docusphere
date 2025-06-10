@@ -13,6 +13,7 @@ class Notification < ApplicationRecord
     document_shared: 'document_shared',
     document_processing_completed: 'document_processing_completed',
     document_processing_failed: 'document_processing_failed',
+    document_version_created: 'document_version_created',
     
     # Authorization notifications
     authorization_granted: 'authorization_granted',

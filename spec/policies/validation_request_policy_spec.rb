@@ -88,8 +88,8 @@ RSpec.describe ValidationRequestPolicy, type: :policy do
   end
 
   describe 'Scope' do
-    let!(:user_request) { create(:validation_request, document: document, requester: user) }
-    let!(:other_request) { create(:validation_request, document: document, requester: other_user) }
+    let!(:user_request) { create(:validation_request, validatable: document, requester: user) }
+    let!(:other_request) { create(:validation_request, validatable: document, requester: other_user) }
 
     it 'returns only requests for the user' do
       scope = ValidationRequestPolicy::Scope.new(user, ValidationRequest).resolve
@@ -100,6 +100,22 @@ RSpec.describe ValidationRequestPolicy, type: :policy do
     it 'returns empty scope for nil user' do
       scope = ValidationRequestPolicy::Scope.new(nil, ValidationRequest).resolve
       expect(scope).to be_empty
+    end
+  end
+
+  describe '#permitted_attributes' do
+    let(:policy) { described_class.new(requester, validation_request) }
+    
+    it "returns the correct permitted attributes" do
+      expect(policy.permitted_attributes).to contain_exactly(:min_validations, :description, :due_date)
+    end
+    
+    it "returns the same attributes for all users" do
+      validator_policy = described_class.new(validator, validation_request)
+      admin_policy = described_class.new(admin_user, validation_request)
+      
+      expect(validator_policy.permitted_attributes).to eq(policy.permitted_attributes)
+      expect(admin_policy.permitted_attributes).to eq(policy.permitted_attributes)
     end
   end
 end

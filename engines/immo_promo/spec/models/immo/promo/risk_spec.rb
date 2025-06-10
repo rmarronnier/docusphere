@@ -11,14 +11,14 @@ RSpec.describe Immo::Promo::Risk, type: :model do
 
   describe 'validations' do
     it { is_expected.to validate_presence_of(:title) }
-    it { is_expected.to validate_presence_of(:risk_category) }
+    it { is_expected.to validate_presence_of(:category) }
     it { is_expected.to validate_inclusion_of(:probability).in_range(1..5) }
     it { is_expected.to validate_inclusion_of(:impact).in_range(1..5) }
   end
 
   describe 'enums' do
-    it 'defines risk_category enum' do
-      expect(risk).to respond_to(:risk_category)
+    it 'defines category and status' do
+      expect(risk).to respond_to(:category)
       expect(risk).to respond_to(:status)
     end
   end

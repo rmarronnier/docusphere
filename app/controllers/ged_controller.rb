@@ -328,15 +328,15 @@ class GedController < ApplicationController
   end
 
   def space_params
-    params.require(:space).permit(:name, :description)
+    permitted_attributes(@space || Space.new)
   end
 
   def folder_params
-    params.require(:folder).permit(:name, :description)
+    permitted_attributes(@folder || Folder.new)
   end
 
   def document_params
-    params.require(:document).permit(:title, :description, :file, :space_id, :folder_id)
+    permitted_attributes(@document || Document.new)
   end
 
   def build_folder_breadcrumbs(folder)

@@ -6,6 +6,10 @@ class SearchPolicy < ApplicationPolicy
   def suggestions?
     user.present?
   end
+
+  def permitted_attributes
+    [:name, :is_favorite, query_params: {}]
+  end
   
   class Scope < ApplicationPolicy::Scope
     def resolve

@@ -41,13 +41,13 @@ module Immo
 
       describe 'GET #index' do
         it 'returns a success response' do
-          get :index, params: { project_id: project.id, budget_id: budget.id }
+          get :index, params: { project_id: project.id, budget_id: budget.id }, format: :json
           expect(response).to be_successful
         end
 
         it 'assigns budget lines' do
           budget_line
-          get :index, params: { project_id: project.id, budget_id: budget.id }
+          get :index, params: { project_id: project.id, budget_id: budget.id }, format: :json
           expect(assigns(:budget_lines)).to include(budget_line)
         end
 
@@ -291,7 +291,7 @@ module Immo
           end
 
           it 'allows viewing budget lines' do
-            get :index, params: { project_id: project.id, budget_id: budget.id }
+            get :index, params: { project_id: project.id, budget_id: budget.id }, format: :json
             expect(response).to be_successful
           end
 
@@ -311,7 +311,7 @@ module Immo
         before { sign_out user }
 
         it 'redirects to login for index' do
-          get :index, params: { project_id: project.id, budget_id: budget.id }
+          get :index, params: { project_id: project.id, budget_id: budget.id }, format: :json
           expect(response).to redirect_to("/users/sign_in")
         end
 

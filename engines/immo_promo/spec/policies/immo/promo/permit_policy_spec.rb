@@ -278,4 +278,32 @@ RSpec.describe Immo::Promo::PermitPolicy, type: :policy do
       end
     end
   end
+
+  describe '#permitted_attributes' do
+    let(:policy) { described_class.new(admin_user, permit) }
+    
+    it 'returns the expected attributes' do
+      expected_attributes = [
+        :permit_type, :permit_number, :status, :application_date, 
+        :submitted_date, :approval_date, :approved_date, :expiry_date, 
+        :issuing_authority, :conditions, :notes, :title, :reference, 
+        :fee_amount_cents, :description, :name, :cost, :expected_approval_date,
+        :workflow_status, documents: []
+      ]
+      
+      expect(policy.permitted_attributes).to eq(expected_attributes)
+    end
+    
+    context 'with different user types' do
+      it 'returns the same attributes for super admin' do
+        policy = described_class.new(super_admin, permit)
+        expect(policy.permitted_attributes).to include(:permit_type, :permit_number, :status)
+      end
+      
+      it 'returns the same attributes for project manager' do
+        policy = described_class.new(project_manager, permit)
+        expect(policy.permitted_attributes).to include(:permit_type, :permit_number, :status)
+      end
+    end
+  end
 end

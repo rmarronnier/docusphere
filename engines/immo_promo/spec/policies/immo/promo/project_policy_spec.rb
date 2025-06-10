@@ -538,4 +538,32 @@ RSpec.describe Immo::Promo::ProjectPolicy, type: :policy do
       end
     end
   end
+
+  describe '#permitted_attributes' do
+    let(:policy) { described_class.new(regular_user, project) }
+    let(:manager_policy) { described_class.new(project_manager, project) }
+    let(:admin_policy) { described_class.new(admin_user, project) }
+    
+    it "returns base attributes for regular users" do
+      expect(policy.permitted_attributes).to contain_exactly(
+        :name, :slug, :description, :reference_number, :project_type, 
+        :status, :address, :city, :postal_code, :country, :latitude, 
+        :longitude, :total_area, :land_area, :buildable_surface_area, 
+        :total_units, :start_date, :expected_completion_date, 
+        :building_permit_number, metadata: {}
+      )
+    end
+    
+    it "returns extended attributes for project managers" do
+      expect(manager_policy.permitted_attributes).to include(
+        :total_budget_cents, :current_budget_cents, :actual_end_date
+      )
+    end
+    
+    it "returns extended attributes for admins" do
+      expect(admin_policy.permitted_attributes).to include(
+        :total_budget_cents, :current_budget_cents, :actual_end_date
+      )
+    end
+  end
 end

@@ -1,23 +1,54 @@
 module Schedulable
   extend ActiveSupport::Concern
 
+  class_methods do
+    def schedulable_with(start_date: :start_date, end_date: :end_date)
+      # Store the field mappings
+      class_attribute :schedulable_start_field, :schedulable_end_field
+      self.schedulable_start_field = start_date
+      self.schedulable_end_field = end_date
+      
+      # Define alias methods if needed
+      if start_date != :start_date
+        alias_method :start_date, start_date
+        alias_method :start_date=, "#{start_date}="
+      end
+      
+      if end_date != :end_date
+        alias_method :end_date, end_date
+        alias_method :end_date=, "#{end_date}="
+      end
+      
+      # Add validations
+      validates start_date, presence: true, if: :schedule_required?
+      validates end_date, presence: true, if: :schedule_required?
+      validate :end_date_after_start_date, if: :schedule_required?
+      
+      # Add scopes using the actual field names
+      scope :current, -> { 
+        where("#{table_name}.#{schedulable_start_field} <= ? AND #{table_name}.#{schedulable_end_field} >= ?", Time.current, Time.current) 
+      }
+      scope :upcoming, -> { 
+        where("#{table_name}.#{schedulable_start_field} > ?", Time.current) 
+      }
+      scope :past, -> { 
+        where("#{table_name}.#{schedulable_end_field} < ?", Time.current) 
+      }
+      scope :between_dates, ->(start_date, end_date) {
+        where("#{table_name}.#{schedulable_start_field} <= ? AND #{table_name}.#{schedulable_end_field} >= ?", end_date, start_date)
+      }
+      scope :starting_between, ->(start_date, end_date) {
+        where(schedulable_start_field => start_date..end_date)
+      }
+      scope :ending_between, ->(start_date, end_date) {
+        where(schedulable_end_field => start_date..end_date)
+      }
+    end
+  end
+
   included do
-    validates :start_date, presence: true, if: :schedule_required?
-    validates :end_date, presence: true, if: :schedule_required?
-    validate :end_date_after_start_date, if: :schedule_required?
-    
-    scope :current, -> { where('start_date <= ? AND end_date >= ?', Time.current, Time.current) }
-    scope :upcoming, -> { where('start_date > ?', Time.current) }
-    scope :past, -> { where('end_date < ?', Time.current) }
-    scope :between_dates, ->(start_date, end_date) {
-      where('start_date <= ? AND end_date >= ?', end_date, start_date)
-    }
-    scope :starting_between, ->(start_date, end_date) {
-      where(start_date: start_date..end_date)
-    }
-    scope :ending_between, ->(start_date, end_date) {
-      where(end_date: start_date..end_date)
-    }
+    # Default configuration - can be overridden by calling schedulable_with
+    schedulable_with unless respond_to?(:schedulable_start_field)
   end
 
   def duration

@@ -5,6 +5,8 @@ RSpec.describe Immo::Promo::PermitCondition, type: :model do
   let(:project) { create(:immo_promo_project, organization: organization) }
   let(:permit) { create(:immo_promo_permit, project: project) }
   let(:permit_condition) { create(:immo_promo_permit_condition, permit: permit) }
+  
+  subject { build(:immo_promo_permit_condition, permit: permit, description: 'Test condition') }
 
   describe 'associations' do
     it { is_expected.to belong_to(:permit).class_name('Immo::Promo::Permit') }

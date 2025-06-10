@@ -91,7 +91,7 @@ class UserGroupsController < ApplicationController
   end
 
   def user_group_params
-    params.require(:user_group).permit(:name, :description, :group_type, :is_active, permissions: {})
+    permitted_attributes(@user_group || UserGroup.new)
   end
 
   def authorize_admin!

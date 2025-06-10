@@ -48,6 +48,10 @@ class NotificationPolicy < ApplicationPolicy
     user.present? && user.has_permission?('immo_promo:access')
   end
 
+  def permitted_attributes
+    [:read_at]
+  end
+
   class Scope < Scope
     def resolve
       if user.present?

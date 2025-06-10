@@ -7,7 +7,7 @@ RSpec.describe DocumentValidationPolicy, type: :policy do
   let(:other_user) { create(:user, organization: organization) }
   let(:space) { create(:space, organization: organization) }
   let(:document) { create(:document, space: space, uploaded_by: user) }
-  let(:validation_request) { create(:validation_request, document: document, requester: user) }
+  let(:validation_request) { create(:validation_request, validatable: document, requester: user) }
   let(:document_validation) { create(:document_validation, validation_request: validation_request, validator: validator, status: 'pending') }
   
   subject { described_class }
@@ -95,6 +95,20 @@ RSpec.describe DocumentValidationPolicy, type: :policy do
     it 'returns empty scope for nil user' do
       scope = DocumentValidationPolicy::Scope.new(nil, DocumentValidation).resolve
       expect(scope).to be_empty
+    end
+  end
+
+  describe '#permitted_attributes' do
+    let(:policy) { described_class.new(user, document_validation) }
+    
+    it "returns the correct permitted attributes" do
+      expect(policy.permitted_attributes).to contain_exactly(:status, :comment, validation_data: {})
+    end
+    
+    it "returns the same attributes for all users" do
+      other_policy = described_class.new(other_user, document_validation)
+      
+      expect(other_policy.permitted_attributes).to eq(policy.permitted_attributes)
     end
   end
 end

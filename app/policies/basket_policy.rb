@@ -47,6 +47,10 @@ class BasketPolicy < ApplicationPolicy
     user.present? && (basket_belongs_to_user? || user_is_admin_in_same_org? || user.super_admin?)
   end
 
+  def permitted_attributes
+    [:name, :description, :basket_type, :is_shared, settings: {}]
+  end
+
   class Scope < Scope
     def resolve
       if user.blank?

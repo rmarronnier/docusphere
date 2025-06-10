@@ -81,4 +81,20 @@ RSpec.describe SpacePolicy, type: :policy do
       end
     end
   end
+
+  describe '#permitted_attributes' do
+    let(:policy) { described_class.new(user, space) }
+    
+    it "returns the correct permitted attributes" do
+      expect(policy.permitted_attributes).to contain_exactly(:name, :slug, :description, :is_active, settings: {})
+    end
+    
+    it "returns the same attributes for all users" do
+      admin_policy = described_class.new(admin, space)
+      super_admin_policy = described_class.new(super_admin, space)
+      
+      expect(admin_policy.permitted_attributes).to eq(policy.permitted_attributes)
+      expect(super_admin_policy.permitted_attributes).to eq(policy.permitted_attributes)
+    end
+  end
 end

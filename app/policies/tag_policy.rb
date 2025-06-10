@@ -23,6 +23,10 @@ class TagPolicy < ApplicationPolicy
     true
   end
 
+  def permitted_attributes
+    [:name, :color]
+  end
+
   class Scope < Scope
     def resolve
       scope.where(organization: user.organization)

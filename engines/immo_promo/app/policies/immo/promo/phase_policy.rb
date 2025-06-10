@@ -39,6 +39,12 @@ class Immo::Promo::PhasePolicy < ApplicationPolicy
     complete_phase?
   end
 
+  def permitted_attributes
+    [:name, :description, :phase_type, :position, :status, :start_date, 
+     :end_date, :budget_cents, :is_critical, :workflow_status,
+     deliverables: []]
+  end
+
   class Scope < Scope
     def resolve
       # Phases are scoped through projects

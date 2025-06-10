@@ -114,14 +114,7 @@ module Immo
       end
 
       def budget_params
-        params.require(:budget).permit(
-          :name, :description, :status, :start_date, :end_date,
-          :total_amount, :contingency_percentage, :notes,
-          budget_lines_attributes: [
-            :id, :category, :description, :quantity, :unit_price,
-            :total_amount, :phase_id, :supplier, :notes, :_destroy
-          ]
-        )
+        permitted_attributes(@budget || Immo::Promo::Budget.new)
       end
 
       def calculate_budget_summary

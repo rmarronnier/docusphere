@@ -33,7 +33,7 @@ RSpec.describe Immo::Promo::ProjectScheduleService do
     
     let!(:phase_dependency) do
       create(:immo_promo_phase_dependency,
-        phase: phase2,
+        dependent_phase: phase2,
         prerequisite_phase: phase1
       )
     end
@@ -147,6 +147,10 @@ RSpec.describe Immo::Promo::ProjectScheduleService do
     end
     
     it 'suggests buffer time additions' do
+      # Add tasks to phases to trigger buffer time suggestions
+      create(:immo_promo_task, phase: phases.first)
+      create(:immo_promo_task, phase: phases.second)
+      
       suggestions = service.timeline_optimization_suggestions
       
       buffer_suggestion = suggestions.find { |s| s[:type] == 'buffer_time' }
@@ -203,7 +207,7 @@ RSpec.describe Immo::Promo::ProjectScheduleService do
     let!(:dependencies) do
       phases.each_cons(2) do |prereq, dependent|
         create(:immo_promo_phase_dependency,
-          phase: dependent,
+          dependent_phase: dependent,
           prerequisite_phase: prereq
         )
       end

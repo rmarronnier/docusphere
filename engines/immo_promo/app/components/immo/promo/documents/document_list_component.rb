@@ -16,14 +16,12 @@ module Immo
 
         def can_upload?
           temp_document = ::Document.new(documentable: documentable)
-          policy = Immo::Promo::DocumentPolicy.new(current_user, temp_document)
-          policy.create?
+          helpers.policy(temp_document).create?
         end
 
         def can_bulk_upload?
           temp_document = ::Document.new(documentable: documentable)
-          policy = Immo::Promo::DocumentPolicy.new(current_user, temp_document)
-          policy.bulk_upload?
+          helpers.policy(temp_document).bulk_upload?
         end
 
         def document_categories

@@ -191,4 +191,30 @@ RSpec.describe Immo::Promo::TaskPolicy, type: :policy do
       it { is_expected.not_to permit_action(:complete) }
     end
   end
+
+  describe '#permitted_attributes' do
+    let(:policy) { described_class.new(admin_user, task) }
+    
+    it 'returns the expected attributes' do
+      expected_attributes = [
+        :name, :description, :task_type, :status, :priority, 
+        :start_date, :end_date, :estimated_hours, :estimated_cost_cents, 
+        :workflow_status, checklist: []
+      ]
+      
+      expect(policy.permitted_attributes).to eq(expected_attributes)
+    end
+    
+    context 'with different user types' do
+      it 'returns the same attributes for project manager' do
+        policy = described_class.new(project_manager, task_with_manager)
+        expect(policy.permitted_attributes).to include(:name, :description, :task_type)
+      end
+      
+      it 'returns the same attributes for task assignee' do
+        policy = described_class.new(task_assignee, assigned_task)
+        expect(policy.permitted_attributes).to include(:name, :description, :task_type)
+      end
+    end
+  end
 end

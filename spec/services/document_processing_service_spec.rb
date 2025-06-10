@@ -159,7 +159,7 @@ RSpec.describe DocumentProcessingService do
     end
 
     it 'does not duplicate existing tags' do
-      document.tags.create!(name: 'contract')
+      document.tags.create!(name: 'contract', organization: organization)
       
       service.send(:apply_auto_tagging)
       

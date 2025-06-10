@@ -116,12 +116,7 @@ module Immo
   end
 
   def project_params
-    params.require(:immo_promo_project).permit(
-      :name, :reference_number, :description, :project_type, :status,
-      :address, :city, :postal_code, :country,
-      :start_date, :expected_completion_date, :total_budget_cents, :total_units,
-      :total_surface_area, :notes, :project_manager_id
-    )
+    permitted_attributes(@project || Immo::Promo::Project.new)
   end
 
   def create_default_phases

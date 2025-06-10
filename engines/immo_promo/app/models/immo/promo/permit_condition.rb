@@ -7,6 +7,7 @@ module Immo
       has_one_attached :compliance_document
 
       validates :description, presence: true
+      validates :condition_type, presence: true
 
       # Declare attribute type for enum
       attribute :condition_type, :string

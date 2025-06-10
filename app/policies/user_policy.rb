@@ -4,7 +4,11 @@ class UserPolicy < ApplicationPolicy
   end
 
   def show?
-    user.admin? || user.super_admin? || record == user
+    return true if user.super_admin? || record == user
+    return false unless user.admin?
+    
+    # Admin can only view users in their organization
+    record.organization_id == user.organization_id
   end
 
   def create?
@@ -12,11 +16,32 @@ class UserPolicy < ApplicationPolicy
   end
 
   def update?
-    user.admin? || user.super_admin? || record == user
+    return true if user.super_admin? || record == user
+    return false unless user.admin?
+    
+    # Admin can only update users in their organization
+    record.organization_id == user.organization_id
   end
 
   def destroy?
-    (user.admin? || user.super_admin?) && record != user
+    return false if record == user # Can't delete yourself
+    return true if user.super_admin?
+    return false unless user.admin?
+    
+    # Admin can only delete users in their organization
+    record.organization_id == user.organization_id
+  end
+
+  def permitted_attributes
+    if user.super_admin?
+      [:email, :first_name, :last_name, :role, :password, :password_confirmation, :organization_id, permissions: {}]
+    elsif user.admin?
+      [:email, :first_name, :last_name, :role, :password, :password_confirmation, permissions: {}]
+    elsif record == user
+      [:first_name, :last_name, :password, :password_confirmation]
+    else
+      []
+    end
   end
 
   class Scope < Scope

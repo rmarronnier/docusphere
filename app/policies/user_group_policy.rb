@@ -47,6 +47,10 @@ class UserGroupPolicy < ApplicationPolicy
     user.member_of_group?(record) && !user.admin_of_group?(record)
   end
 
+  def permitted_attributes
+    [:name, :slug, :description, :group_type, :is_active, permissions: {}]
+  end
+
   class Scope < Scope
     def resolve
       if user.super_admin?

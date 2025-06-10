@@ -206,9 +206,18 @@ RSpec.describe "Document Integration in ImmoPromo", type: :integration do
   
   describe "Document permissions" do
     let(:other_user) { create(:user, organization: organization) }
+    let(:space) { create(:space, organization: organization) }
     let!(:document) do
-      file = fixture_file_upload('spec/fixtures/test_document.pdf', 'application/pdf')
-      project.attach_document(file, category: 'legal', user: user)
+      # Create document directly with mocked file attachment
+      doc = create(:document, 
+        documentable: project,
+        uploaded_by: user,
+        document_category: 'legal',
+        space: space
+      )
+      # Mock file attachment
+      allow(doc).to receive_message_chain(:file, :attached?).and_return(true)
+      doc
     end
     
     it "respects document access permissions" do

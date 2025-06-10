@@ -47,4 +47,22 @@ RSpec.describe FolderPolicy, type: :policy do
       expect(scope).to be_empty
     end
   end
+
+  describe '#permitted_attributes' do
+    let(:policy) { described_class.new(user, folder) }
+    let(:admin_user) { create(:user, :admin, organization: organization) }
+    let(:super_admin) { create(:user, :super_admin) }
+    
+    it "returns the correct permitted attributes" do
+      expect(policy.permitted_attributes).to contain_exactly(:name, :description, :slug, :position, :is_active, metadata: {})
+    end
+    
+    it "returns the same attributes for all users" do
+      admin_policy = described_class.new(admin_user, folder)
+      super_admin_policy = described_class.new(super_admin, folder)
+      
+      expect(admin_policy.permitted_attributes).to eq(policy.permitted_attributes)
+      expect(super_admin_policy.permitted_attributes).to eq(policy.permitted_attributes)
+    end
+  end
 end

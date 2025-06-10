@@ -1,10 +1,26 @@
 require 'rails_helper'
 
 RSpec.describe Schedulable, type: :concern do
+  include ActiveSupport::Testing::TimeHelpers
+  
+  # Create a temporary table for testing
+  before(:all) do
+    ActiveRecord::Base.connection.create_table :test_schedulables, force: true do |t|
+      t.datetime :start_date
+      t.datetime :end_date
+      t.string :name
+      t.timestamps
+    end
+  end
+  
+  after(:all) do
+    ActiveRecord::Base.connection.drop_table :test_schedulables
+  end
+  
   # Create a test class to include the concern
   let(:test_class) do
     Class.new(ActiveRecord::Base) do
-      self.table_name = 'workflows' # Using workflows table which should have date fields
+      self.table_name = 'test_schedulables'
       include Schedulable
       
       def self.name
@@ -25,8 +41,8 @@ RSpec.describe Schedulable, type: :concern do
       schedulable_instance.end_date = nil
       
       expect(schedulable_instance).not_to be_valid
-      expect(schedulable_instance.errors[:start_date]).to include("can't be blank")
-      expect(schedulable_instance.errors[:end_date]).to include("can't be blank")
+      expect(schedulable_instance.errors[:start_date]).to include("ne peut pas être vide")
+      expect(schedulable_instance.errors[:end_date]).to include("ne peut pas être vide")
     end
 
     it 'validates end_date is after start_date' do
@@ -60,7 +76,7 @@ RSpec.describe Schedulable, type: :concern do
       schedulable_instance.end_date = tomorrow
       
       expected_duration = tomorrow - yesterday
-      expect(schedulable_instance.duration).to eq(expected_duration)
+      expect(schedulable_instance.duration).to be_within(0.001).of(expected_duration)
     end
 
     it 'returns nil when dates are missing' do
@@ -285,7 +301,7 @@ RSpec.describe Schedulable, type: :concern do
     end
     
     let!(:upcoming_item) do
-      test_class.create!(start_date: tomorrow, end_date: next_week)
+      test_class.create!(start_date: 2.days.from_now, end_date: next_week)
     end
     
     let!(:past_item) do

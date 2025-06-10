@@ -52,9 +52,10 @@ RSpec.describe SearchQuery, type: :model do
   end
 
   describe 'callbacks' do
-    it 'normalizes query before save' do
-      query = SearchQuery.create!(query: '  TEST QUERY  ', user: user)
-      expect(query.query).to eq('test query')
+    it 'stores query parameters as JSON' do
+      params = { term: 'test', category: 'document' }
+      query = SearchQuery.create!(name: 'Test Query', query_params: params, user: user)
+      expect(query.query_params).to eq(params.stringify_keys)
     end
   end
 end

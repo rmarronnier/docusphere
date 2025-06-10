@@ -122,7 +122,7 @@ class NotificationsController < ApplicationController
   end
 
   def notification_params
-    params.require(:notification).permit(:read_at)
+    permitted_attributes(@notification || Notification.new)
   end
 
   def notification_json(notification)

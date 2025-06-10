@@ -66,6 +66,12 @@ class Immo::Promo::TaskPolicy < ApplicationPolicy
     user.present?
   end
 
+  def permitted_attributes
+    [:name, :description, :task_type, :status, :priority, :start_date, 
+     :end_date, :estimated_hours, :estimated_cost_cents, :workflow_status,
+     checklist: []]
+  end
+
   class Scope < Scope
     def resolve
       # Include tasks assigned to the user OR tasks from projects they have access to

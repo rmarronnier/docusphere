@@ -121,4 +121,30 @@ RSpec.describe Immo::Promo::PhasePolicy, type: :policy do
       it { is_expected.not_to permit_action(:destroy) }
     end
   end
+
+  describe '#permitted_attributes' do
+    let(:policy) { described_class.new(admin_user, phase) }
+    
+    it 'returns the expected attributes' do
+      expected_attributes = [
+        :name, :description, :phase_type, :position, :status, 
+        :start_date, :end_date, :budget_cents, :is_critical, 
+        :workflow_status, deliverables: []
+      ]
+      
+      expect(policy.permitted_attributes).to eq(expected_attributes)
+    end
+    
+    context 'with different user types' do
+      it 'returns the same attributes for project manager' do
+        policy = described_class.new(project_manager, phase_with_manager)
+        expect(policy.permitted_attributes).to include(:name, :description, :phase_type)
+      end
+      
+      it 'returns the same attributes for regular user' do
+        policy = described_class.new(regular_user, phase)
+        expect(policy.permitted_attributes).to include(:name, :description, :phase_type)
+      end
+    end
+  end
 end

@@ -61,12 +61,12 @@ RSpec.describe UsersController, type: :controller do
     end
 
 
-    it 'allows access to users from other organizations for admin' do
+    it 'denies access to users from other organizations for admin' do
       other_org_user = create(:user, organization: create(:organization))
       
       get :show, params: { id: other_org_user.id }
-      expect(response).to be_successful
-      expect(assigns(:user)).to eq(other_org_user)
+      expect(response).to have_http_status(:found)  # Redirection due to Pundit
+      expect(response).to redirect_to(root_path)
     end
   end
 

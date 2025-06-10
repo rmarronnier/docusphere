@@ -34,6 +34,10 @@ class ApplicationPolicy
     false
   end
 
+  def permitted_attributes
+    []
+  end
+
   class Scope
     def initialize(user, scope)
       @user = user

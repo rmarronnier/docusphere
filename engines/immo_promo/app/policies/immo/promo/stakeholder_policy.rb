@@ -36,6 +36,24 @@ class Immo::Promo::StakeholderPolicy < ApplicationPolicy
     user_has_permission?('immo_promo:contracts:manage')
   end
 
+  def allocate?
+    return true if user_is_admin?
+    return true if record.project.project_manager_id == user.id
+
+    user.organization_id == record.project.organization_id &&
+    user_has_permission?('immo_promo:projects:manage')
+  end
+
+  def qualify?
+    allocate? # Same permissions as allocation
+  end
+
+  def permitted_attributes
+    [:name, :stakeholder_type, :contact_person, :email, :phone, :address, 
+     :notes, :specialization, :is_active, :role, :company_name, :siret, 
+     :is_primary]
+  end
+
   class Scope < Scope
     def resolve
       project_scope = Pundit.policy_scope(user, Immo::Promo::Project)

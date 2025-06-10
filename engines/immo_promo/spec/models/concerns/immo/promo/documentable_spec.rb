@@ -1,107 +1,186 @@
 require 'rails_helper'
 
-RSpec.describe Immo::Promo::Documentable, type: :concern do
-  # Create a test class to include the concern
-  let(:test_class) do
-    Class.new(ActiveRecord::Base) do
-      self.table_name = 'immo_promo_stakeholders'
-      include Immo::Promo::Documentable
+RSpec.describe Immo::Promo::Documentable do
+  # Create a test class that includes the concern
+  class ImmoPromoDocumentableTestModel < ApplicationRecord
+    self.table_name = 'immo_promo_projects' # Use an existing table
+    include Immo::Promo::Documentable
+    
+    def name
+      "Test Model"
+    end
+    
+    def organization
+      Organization.first || create(:organization)
+    end
+  end
+  
+  let(:organization) { create(:organization) }
+  let(:user) { create(:user, organization: organization) }
+  let(:project) { create(:immo_promo_project, name: "Test Project", organization: organization) }
+  let(:documentable) { project }
+  let(:space) { create(:space, organization: organization) }
+  
+  describe "includes main Documentable concern" do
+    it "includes all basic Documentable functionality" do
+      expect(documentable).to respond_to(:documents)
+      expect(documentable).to respond_to(:attach_document)
+      expect(documentable).to respond_to(:documents_by_category)
+      expect(documentable).to respond_to(:can_read_documents?)
+      expect(documentable).to respond_to(:can_manage_documents?)
+    end
+  end
+  
+  describe "#attach_document with ImmoPromo integration" do
+    let(:file) { double("file", original_filename: "test.pdf") }
+    
+    context "when DocumentIntegrationService is available" do
+      before do
+        # Create a stub class with the process_document method
+        document_integration_service_class = Class.new do
+          def initialize(document, documentable)
+            @document = document
+            @documentable = documentable
+          end
+          
+          def process_document
+            # stub implementation
+          end
+        end
+        
+        stub_const("Immo::Promo::DocumentIntegrationService", document_integration_service_class)
+        
+        # Skip DocumentProcessingService entirely since we're testing ImmoPromo integration
+        allow_any_instance_of(DocumentProcessingService).to receive(:process!).and_return(true)
+        
+        allow_any_instance_of(Document).to receive_message_chain(:file, :attach)
+        allow_any_instance_of(Document).to receive_message_chain(:file, :attached?).and_return(true)
+        allow_any_instance_of(Document).to receive_message_chain(:file, :blob, :byte_size).and_return(1024)
+      end
       
-      def self.name
-        'TestDocumentable'
+      it "uses ImmoPromo DocumentIntegrationService" do
+        expect_any_instance_of(Immo::Promo::DocumentIntegrationService).to receive(:process_document)
+        documentable.attach_document(file, category: 'project', user: user)
+      end
+    end
+    
+    context "when DocumentIntegrationService is not available" do
+      before do
+        allow_any_instance_of(DocumentProcessingService).to receive(:process!)
+        allow_any_instance_of(Document).to receive_message_chain(:file, :attach)
+        allow_any_instance_of(Document).to receive_message_chain(:file, :attached?).and_return(true)
+        allow_any_instance_of(Document).to receive_message_chain(:file, :blob, :byte_size).and_return(1024)
+      end
+      
+      it "falls back to standard document processing" do
+        expect_any_instance_of(DocumentProcessingService).to receive(:process!)
+        documentable.attach_document(file, category: 'project', user: user)
       end
     end
   end
-
-  let(:organization) { create(:organization) }
-  let(:space) { create(:space, organization: organization) }
-  let(:project) { create(:immo_promo_project, organization: organization) }
-  let(:documentable_instance) { create(:immo_promo_stakeholder, project: project) }
-
-  describe 'included module behavior' do
-    it 'adds document association' do
-      expect(documentable_instance).to respond_to(:documents)
+  
+  describe "#share_documents_with_stakeholder" do
+    let(:document) { create(:document, documentable: documentable, space: space) }
+    let(:stakeholder) { create(:immo_promo_stakeholder, project: project, email: "stakeholder@example.com") }
+    
+    it "creates document shares for stakeholder" do
+      expect {
+        documentable.share_documents_with_stakeholder(
+          stakeholder,
+          [document.id],
+          permission_level: 'read',
+          user: user
+        )
+      }.to change(DocumentShare, :count).by(1)
+      
+      share = DocumentShare.last
+      expect(share.email).to eq("stakeholder@example.com")
+      expect(share.access_level).to eq('read')
+      expect(share.shared_by).to eq(user)
+      expect(share.expires_at).to be_present
     end
-
-    it 'adds document methods' do
-      expect(documentable_instance).to respond_to(:attach_document)
-      expect(documentable_instance).to respond_to(:documents_by_type)
-      expect(documentable_instance).to respond_to(:has_required_documents?)
+    
+    it "handles stakeholder with user association" do
+      stakeholder_user = create(:user, email: "user.stakeholder@example.com")
+      stakeholder_with_user = create(:immo_promo_stakeholder, 
+        project: project, 
+        email: stakeholder_user.email
+      )
+      
+      # Instead of trying to mock a user method, we'll test what the code actually does
+      # The code checks if stakeholder responds_to? :user, which it doesn't by default
+      shares = documentable.share_documents_with_stakeholder(
+        stakeholder_with_user,
+        [document.id],
+        permission_level: 'write',
+        user: user
+      )
+      
+      # Since stakeholder doesn't have a user method, shared_with should be nil
+      expect(shares.first.shared_with).to be_nil
+      expect(shares.first.email).to eq(stakeholder_user.email)
     end
-  end
-
-  describe '#attach_document' do
-    it 'creates association with document' do
-      document = create(:document, space: space)
+    
+    it "shares multiple documents" do
+      document2 = create(:document, documentable: documentable, space: space)
       
       expect {
-        documentable_instance.attach_document(document, document_type: 'contract')
-      }.to change { documentable_instance.documents.count }.by(1)
-    end
-
-    it 'sets document type and metadata' do
-      document = create(:document, space: space)
-      documentable_instance.attach_document(document, document_type: 'insurance', metadata: { validity: '1 year' })
-      
-      attachment = documentable_instance.document_attachments.last
-      expect(attachment.document_type).to eq('insurance')
-      expect(attachment.metadata['validity']).to eq('1 year')
+        documentable.share_documents_with_stakeholder(
+          stakeholder,
+          [document.id, document2.id],
+          permission_level: 'read',
+          user: user
+        )
+      }.to change(DocumentShare, :count).by(2)
     end
   end
-
-  describe '#documents_by_type' do
-    it 'filters documents by type' do
-      doc1 = create(:document, space: space)
-      doc2 = create(:document, space: space)
-      
-      documentable_instance.attach_document(doc1, document_type: 'contract')
-      documentable_instance.attach_document(doc2, document_type: 'insurance')
-      
-      contracts = documentable_instance.documents_by_type('contract')
-      expect(contracts).to include(doc1)
-      expect(contracts).not_to include(doc2)
-    end
-  end
-
-  describe '#has_required_documents?' do
-    it 'checks if all required document types are present' do
-      # This method should be implemented based on the stakeholder type
-      # For now, just test that the method exists
-      expect(documentable_instance).to respond_to(:has_required_documents?)
-    end
-  end
-
-  describe '#document_summary' do
-    it 'provides summary of attached documents' do
-      doc1 = create(:document, space: space)
-      doc2 = create(:document, space: space)
-      
-      documentable_instance.attach_document(doc1, document_type: 'contract')
-      documentable_instance.attach_document(doc2, document_type: 'insurance')
-      
-      summary = documentable_instance.document_summary
-      expect(summary).to have_key('contract')
-      expect(summary).to have_key('insurance')
-      expect(summary['contract']).to eq(1)
-      expect(summary['insurance']).to eq(1)
-    end
-  end
-
-  describe 'scopes' do
+  
+  describe "#share_document_category_with_stakeholders" do
+    let(:technical_doc1) { create(:document, documentable: documentable, document_category: 'technical', space: space) }
+    let(:technical_doc2) { create(:document, documentable: documentable, document_category: 'technical', space: space) }
+    let(:financial_doc) { create(:document, documentable: documentable, document_category: 'financial', space: space) }
+    let(:stakeholder1) { create(:immo_promo_stakeholder, project: project, email: "stakeholder1@example.com") }
+    let(:stakeholder2) { create(:immo_promo_stakeholder, project: project, email: "stakeholder2@example.com") }
+    
     before do
-      skip "Scopes require actual database table" unless test_class.table_exists?
+      technical_doc1
+      technical_doc2
+      financial_doc
     end
-
-    describe '.with_documents' do
-      it 'returns instances that have attached documents' do
-        expect(test_class).to respond_to(:with_documents)
-      end
+    
+    it "shares all documents in category with all stakeholders" do
+      expect {
+        documentable.share_document_category_with_stakeholders(
+          'technical',
+          [stakeholder1, stakeholder2],
+          permission_level: 'read',
+          user: user
+        )
+      }.to change(DocumentShare, :count).by(4) # 2 docs x 2 stakeholders
     end
-
-    describe '.missing_document_type' do
-      it 'returns instances missing specific document type' do
-        expect(test_class).to respond_to(:missing_document_type)
-      end
+    
+    it "only shares documents from specified category" do
+      shares = documentable.share_document_category_with_stakeholders(
+        'technical',
+        [stakeholder1],
+        permission_level: 'read',
+        user: user
+      )
+      
+      document_ids = shares.map(&:document_id)
+      expect(document_ids).to include(technical_doc1.id, technical_doc2.id)
+      expect(document_ids).not_to include(financial_doc.id)
+    end
+    
+    it "respects permission level" do
+      shares = documentable.share_document_category_with_stakeholders(
+        'technical',
+        [stakeholder1],
+        permission_level: 'write',
+        user: user
+      )
+      
+      expect(shares.all? { |s| s.access_level == 'write' }).to be true
     end
   end
 end

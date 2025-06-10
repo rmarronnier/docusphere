@@ -85,11 +85,7 @@ module Immo
       end
 
       def budget_line_params
-        params.require(:immo_promo_budget_line).permit(
-          :category, :subcategory, :description, 
-          :planned_amount_cents, :actual_amount_cents, :committed_amount_cents,
-          :notes
-        )
+        permitted_attributes(@budget_line || Immo::Promo::BudgetLine.new)
       end
 
       def calculate_variance_trend

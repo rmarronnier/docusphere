@@ -79,10 +79,7 @@ class UsersController < ApplicationController
   end
 
   def user_params
-    params.require(:user).permit(
-      :email, :first_name, :last_name, :role, :password, :password_confirmation,
-      permissions: {}
-    )
+    permitted_attributes(@user || User.new)
   end
 
   def authorize_admin!

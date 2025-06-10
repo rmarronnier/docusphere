@@ -34,19 +34,15 @@ RSpec.describe MetadataTemplate, type: :model do
   describe 'instance methods' do
     let(:template) { create(:metadata_template, organization: organization) }
     
-    describe '#activate!' do
-      it 'sets active to true' do
-        template.update(active: false)
-        template.activate!
-        expect(template.reload.active).to be true
+    describe '#is_active' do
+      it 'has a default value of true' do
+        new_template = MetadataTemplate.new(name: 'Test', organization: organization)
+        expect(new_template.is_active).to be true
       end
-    end
-
-    describe '#deactivate!' do
-      it 'sets active to false' do
-        template.update(active: true)
-        template.deactivate!
-        expect(template.reload.active).to be false
+      
+      it 'can be set to false' do
+        template.update(is_active: false)
+        expect(template.reload.is_active).to be false
       end
     end
 

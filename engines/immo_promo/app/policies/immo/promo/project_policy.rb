@@ -84,6 +84,20 @@ class Immo::Promo::ProjectPolicy < ApplicationPolicy
     update? # If user can update the project, they can perform bulk actions
   end
 
+  def permitted_attributes
+    base_attributes = [:name, :slug, :description, :reference_number, :project_type, 
+                      :status, :address, :city, :postal_code, :country, :latitude, 
+                      :longitude, :total_area, :land_area, :buildable_surface_area, 
+                      :total_units, :start_date, :expected_completion_date, 
+                      :building_permit_number, metadata: {}]
+    
+    if user_is_admin? || record.project_manager == user
+      base_attributes + [:total_budget_cents, :current_budget_cents, :actual_end_date]
+    else
+      base_attributes
+    end
+  end
+
   class Scope < Scope
     def resolve
       if user.super_admin?

@@ -114,15 +114,7 @@ module Immo
       end
 
       def permit_params
-        params.require(:permit).permit(
-          :name, :permit_type, :description, :issuing_authority,
-          :submission_date, :expected_approval_date, :approval_date,
-          :expiry_date, :cost, :status, :reference_number, :notes,
-          conditions_attributes: [
-            :id, :description, :deadline, :status, :completion_date, 
-            :responsible_authority, :notes, :_destroy
-          ]
-        )
+        permitted_attributes(@permit || Immo::Promo::Permit.new)
       end
 
       def schedule_deadline_reminders

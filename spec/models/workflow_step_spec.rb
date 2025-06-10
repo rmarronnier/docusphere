@@ -5,7 +5,7 @@ RSpec.describe WorkflowStep, type: :model do
   
   describe 'associations' do
     it { should belong_to(:workflow) }
-    it { should belong_to(:assignee).class_name('User').optional }
+    it { should belong_to(:assigned_to).class_name('User').optional }
     it { should have_many(:workflow_submissions) }
   end
 
@@ -78,8 +78,8 @@ RSpec.describe WorkflowStep, type: :model do
 
     describe '#can_be_completed_by?' do
       let(:user) { create(:user) }
-      let(:assigned_step) { create(:workflow_step, assignee: user, workflow: workflow) }
-      let(:unassigned_step) { create(:workflow_step, assignee: nil, workflow: workflow) }
+      let(:assigned_step) { create(:workflow_step, assigned_to: user, workflow: workflow) }
+      let(:unassigned_step) { create(:workflow_step, assigned_to: nil, workflow: workflow) }
       
       it 'returns true if user is assignee' do
         expect(assigned_step.can_be_completed_by?(user)).to be true

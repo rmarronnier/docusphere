@@ -42,6 +42,14 @@ module Immo
       def reject?
         user.admin? || user.super_admin?
       end
+
+      def permitted_attributes
+        [:permit_type, :permit_number, :status, :application_date, :submitted_date, 
+         :approval_date, :approved_date, :expiry_date, :issuing_authority, 
+         :conditions, :notes, :title, :reference, :fee_amount_cents, 
+         :description, :name, :cost, :expected_approval_date, :workflow_status, 
+         documents: []]
+      end
     end
   end
 end

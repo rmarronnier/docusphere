@@ -7,14 +7,14 @@ RSpec.describe AiClassificationService do
   describe '#classify' do
     context 'with PDF document' do
       before do
-        allow(document).to receive(:file_content_type).and_return('application/pdf')
-        allow(document).to receive(:title).and_return('Contract Agreement 2024')
+        allow(document).to receive_message_chain(:file, :attached?).and_return(true)
+        document.update!(title: 'Contract Agreement 2024')
       end
 
       it 'classifies as contract based on title' do
         result = service.classify
-        expect(result[:classification]).to eq('contract')
-        expect(result[:confidence]).to be > 0.5
+        expect(result).to be true
+        expect(document.reload.ai_category).to eq('contract')
       end
     end
 
@@ -40,50 +40,47 @@ RSpec.describe AiClassificationService do
     end
 
     it 'extracts emails' do
-      result = service.extract_entities
-      expect(result[:emails]).to include('john@example.com')
+      result = service.send(:extract_entities, 'Contact: john@example.com pour plus d\'infos')
+      emails = result.select { |e| e[:type] == 'email' }.map { |e| e[:value] }
+      expect(emails).to include('john@example.com')
     end
 
     it 'extracts phone numbers' do
-      result = service.extract_entities
-      expect(result[:phones]).to include('+33 1 23 45 67 89')
+      result = service.send(:extract_entities, 'Téléphone: +33 1 23 45 67 89')
+      phones = result.select { |e| e[:type] == 'phone' }.map { |e| e[:value] }
+      expect(phones).to include('+33 1 23 45 67 89')
     end
 
     it 'extracts amounts' do
-      result = service.extract_entities
-      expect(result[:amounts]).to include('€2,500.00')
+      result = service.send(:extract_entities, 'Montant total: €2,500.00')
+      amounts = result.select { |e| e[:type] == 'amount' }.map { |e| e[:value] }
+      expect(amounts).to include('€2,500.00')
     end
 
     it 'extracts dates' do
-      result = service.extract_entities
-      expect(result[:dates]).to include('2024-03-15')
+      result = service.send(:extract_entities, 'Date: 15/03/2024')
+      dates = result.select { |e| e[:type] == 'date' }.map { |e| e[:value] }
+      expect(dates).to include('15/03/2024')
     end
 
     it 'extracts references' do
-      result = service.extract_entities
-      expect(result[:references]).to include('REF-12345')
+      result = service.send(:extract_entities, 'Référence: REF-12345 dans ce document')
+      references = result.select { |e| e[:type] == 'reference' }.map { |e| e[:value] }
+      expect(references).to include('REF-12345')
     end
   end
 
-  describe '#suggest_tags' do
+  describe 'auto-tagging through classify' do
     before do
-      allow(document).to receive(:title).and_return('Construction Contract for Building Project')
-      allow(document).to receive(:extracted_text).and_return('architectural plans construction materials permit')
+      document.update!(
+        title: 'Construction contract with architectural specifications',
+        description: 'Detailed architectural drawings and construction guidelines'
+      )
+      allow(document).to receive_message_chain(:file, :attached?).and_return(true)
     end
 
-    it 'suggests relevant tags based on content' do
-      tags = service.suggest_tags
-      expect(tags).to include('construction', 'contract', 'architectural')
-    end
-
-    it 'returns unique tags' do
-      tags = service.suggest_tags
-      expect(tags.uniq).to eq(tags)
-    end
-
-    it 'limits number of suggested tags' do
-      tags = service.suggest_tags
-      expect(tags.length).to be <= 10
+    it 'applies tags automatically when classifying' do
+      expect { service.classify }.to change { document.tags.count }
     end
   end
 

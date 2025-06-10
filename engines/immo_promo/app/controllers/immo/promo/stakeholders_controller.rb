@@ -105,11 +105,7 @@ module Immo
       end
 
       def stakeholder_params
-        params.require(:stakeholder).permit(
-          :user_id, :name, :email, :phone, :address, :role, :qualification_level,
-          :hourly_rate, :daily_rate, :company_name, :siret, :insurance_number,
-          :status, :notes
-        )
+        permitted_attributes(@stakeholder || Immo::Promo::Stakeholder.new)
       end
     end
   end

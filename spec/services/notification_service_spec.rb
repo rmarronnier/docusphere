@@ -6,10 +6,10 @@ RSpec.describe NotificationService, type: :service do
   let(:document) { create(:document, uploaded_by: user) }
 
   describe '.notify_validation_requested' do
-    let(:validation_request) { double('ValidationRequest', 
+    let(:validation_request) { create(:validation_request, 
                                     validators: [user, other_user],
                                     requester: other_user,
-                                    document: document,
+                                    validatable: document,
                                     min_validations: 2) }
 
     it 'creates notifications for all validators' do

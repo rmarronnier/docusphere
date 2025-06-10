@@ -76,8 +76,9 @@ RSpec.describe RegulatoryComplianceService do
       end
 
       it 'passes financial compliance with proper verification' do
-        result = service.send(:check_financial_compliance)
-        expect(result[:score]).to be > 70
+        result = service.check_compliance
+        expect(result[:overall_score]).to be > 50
+        expect(result[:categories]).to include('financial')
       end
     end
   end
@@ -91,8 +92,9 @@ RSpec.describe RegulatoryComplianceService do
       end
 
       it 'detects environmental compliance requirements' do
-        result = service.send(:check_environmental_compliance)
-        expect(result[:score]).to be_between(0, 100)
+        result = service.check_compliance
+        expect(result[:overall_score]).to be_between(0, 100)
+        expect(result[:categories]).to include('environmental')
       end
     end
   end

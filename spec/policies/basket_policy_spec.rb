@@ -227,6 +227,22 @@ RSpec.describe BasketPolicy, type: :policy do
     # Note: Expiration functionality not yet implemented
   end
 
+  describe "#permitted_attributes" do
+    let(:policy) { described_class.new(user, basket) }
+    
+    it "returns the correct permitted attributes" do
+      expect(policy.permitted_attributes).to contain_exactly(:name, :description, :basket_type, :is_shared, settings: {})
+    end
+    
+    it "returns the same attributes for all users" do
+      admin_policy = described_class.new(admin_user, basket)
+      super_admin_policy = described_class.new(super_admin_user, basket)
+      
+      expect(admin_policy.permitted_attributes).to eq(policy.permitted_attributes)
+      expect(super_admin_policy.permitted_attributes).to eq(policy.permitted_attributes)
+    end
+  end
+
   describe "private helper methods" do
     let(:policy) { described_class.new(user, basket) }
 

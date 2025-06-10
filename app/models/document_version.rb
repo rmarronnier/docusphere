@@ -176,11 +176,11 @@ class DocumentVersion < PaperTrail::Version
     
     # Notify document owner about new version
     if doc.uploaded_by_id != created_by_id
-      NotificationService.notify(
-        user: doc.uploaded_by,
-        type: 'document_version_created',
-        title: "Nouvelle version de '#{doc.title}'",
-        message: "#{created_by_name} a créé une nouvelle version du document",
+      Notification.notify_user(
+        doc.uploaded_by,
+        :document_version_created,
+        "Nouvelle version de '#{doc.title}'",
+        "#{created_by_name} a créé une nouvelle version du document",
         notifiable: doc
       )
     end

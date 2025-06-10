@@ -3,7 +3,8 @@ require 'rails_helper'
 RSpec.describe Notification, type: :model do
   let(:organization) { create(:organization) }
   let(:user) { create(:user, organization: organization) }
-  let(:document) { create(:document, organization: organization, uploaded_by: user) }
+  let(:space) { create(:space, organization: organization) }
+  let(:document) { create(:document, space: space, uploaded_by: user) }
 
   describe 'associations' do
     it { should belong_to(:user) }

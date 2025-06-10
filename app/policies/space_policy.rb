@@ -19,6 +19,10 @@ class SpacePolicy < ApplicationPolicy
     user.present? && same_organization_or_admin?
   end
 
+  def permitted_attributes
+    [:name, :slug, :description, :is_active, settings: {}]
+  end
+
   class Scope < Scope
     def resolve
       if user.blank?

@@ -231,13 +231,13 @@
                               class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
                     <%= link_to "Télécharger", helpers.immo_promo_engine.download_document_path(document), 
                               class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
-                    <% if Immo::Promo::DocumentPolicy.new(current_user, document).update? %>
+                    <% if policy(document).update? %>
                       <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Modifier</a>
                     <% end %>
-                    <% if Immo::Promo::DocumentPolicy.new(current_user, document).share? %>
+                    <% if policy(document).share? %>
                       <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Partager</a>
                     <% end %>
-                    <% if Immo::Promo::DocumentPolicy.new(current_user, document).destroy? %>
+                    <% if policy(document).destroy? %>
                       <%= link_to "Supprimer", helpers.immo_promo_engine.document_path(document), 
                                 method: :delete,
                                 class: "block px-4 py-2 text-sm text-red-700 hover:bg-red-100",

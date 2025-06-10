@@ -97,11 +97,7 @@ module Immo
       end
 
       def task_params
-        params.require(:immo_promo_task).permit(
-          :name, :description, :task_type, :priority,
-          :start_date, :end_date, :estimated_hours, :estimated_cost_cents,
-          :notes, :assigned_to_id, :stakeholder_id
-        )
+        permitted_attributes(@task || Immo::Promo::Task.new)
       end
     end
   end

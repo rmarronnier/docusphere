@@ -11,6 +11,10 @@ class DocumentValidationPolicy < ApplicationPolicy
     user.present? && record.validator == user && record.pending?
   end
 
+  def permitted_attributes
+    [:status, :comment, validation_data: {}]
+  end
+
   class Scope < Scope
     def resolve
       if user.present?
