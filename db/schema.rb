@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_06_09_172000) do
+ActiveRecord::Schema[7.1].define(version: 2025_06_10_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -164,7 +164,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_09_172000) do
 
   create_table "document_validations", force: :cascade do |t|
     t.bigint "validation_request_id", null: false
-    t.bigint "document_id", null: false
     t.bigint "validator_id", null: false
     t.string "status", default: "pending"
     t.text "comment"
@@ -172,8 +171,10 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_09_172000) do
     t.jsonb "validation_data", default: {}
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["document_id"], name: "index_document_validations_on_document_id"
+    t.string "validatable_type", null: false
+    t.bigint "validatable_id", null: false
     t.index ["status"], name: "index_document_validations_on_status"
+    t.index ["validatable_type", "validatable_id"], name: "index_document_validations_on_validatable"
     t.index ["validated_at"], name: "index_document_validations_on_validated_at"
     t.index ["validation_request_id", "validator_id"], name: "idx_unique_validator_per_request", unique: true
     t.index ["validation_request_id"], name: "index_document_validations_on_validation_request_id"
@@ -952,7 +953,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_09_172000) do
   end
 
   create_table "validation_requests", force: :cascade do |t|
-    t.bigint "document_id", null: false
     t.bigint "requester_id", null: false
     t.bigint "validation_template_id"
     t.integer "min_validations", default: 1
@@ -962,11 +962,13 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_09_172000) do
     t.datetime "completed_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "validatable_type", null: false
+    t.bigint "validatable_id", null: false
     t.index ["completed_at"], name: "index_validation_requests_on_completed_at"
-    t.index ["document_id"], name: "index_validation_requests_on_document_id"
     t.index ["due_date"], name: "index_validation_requests_on_due_date"
     t.index ["requester_id"], name: "index_validation_requests_on_requester_id"
     t.index ["status"], name: "index_validation_requests_on_status"
+    t.index ["validatable_type", "validatable_id"], name: "index_validation_requests_on_validatable"
     t.index ["validation_template_id"], name: "index_validation_requests_on_validation_template_id"
   end
 
@@ -1095,7 +1097,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_09_172000) do
   add_foreign_key "document_shares", "users", column: "shared_with_id"
   add_foreign_key "document_tags", "documents"
   add_foreign_key "document_tags", "tags"
-  add_foreign_key "document_validations", "documents"
   add_foreign_key "document_validations", "users", column: "validator_id"
   add_foreign_key "document_validations", "validation_requests"
   add_foreign_key "documents", "documents", column: "parent_id"
@@ -1159,7 +1160,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_09_172000) do
   add_foreign_key "user_group_memberships", "users"
   add_foreign_key "user_groups", "organizations"
   add_foreign_key "users", "organizations"
-  add_foreign_key "validation_requests", "documents"
   add_foreign_key "validation_requests", "users", column: "requester_id"
   add_foreign_key "validation_requests", "validation_templates"
   add_foreign_key "validation_templates", "organizations"

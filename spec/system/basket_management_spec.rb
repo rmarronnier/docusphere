@@ -100,7 +100,7 @@ RSpec.describe 'Basket Management', type: :system do
       visit basket_path(basket)
       
       expect(page).to have_content('Test Basket')
-      expect(page).to have_content('2 documents')
+      expect(page).to have_content('2 document')
       expect(page).to have_content('First Document')
       expect(page).to have_content('Second Document')
     end
@@ -197,8 +197,8 @@ RSpec.describe 'Basket Management', type: :system do
   end
   
   describe 'Basket list view' do
-    let!(:basket1) { create(:basket, user: user, name: 'Work Documents', color: 'bg-blue-100') }
-    let!(:basket2) { create(:basket, user: user, name: 'Personal Files', color: 'bg-green-100') }
+    let!(:basket1) { create(:basket, user: user, name: 'Work Documents') }
+    let!(:basket2) { create(:basket, user: user, name: 'Personal Files') }
     
     before do
       basket1.add_document(document1)
@@ -210,7 +210,7 @@ RSpec.describe 'Basket Management', type: :system do
       visit baskets_path
       
       expect(page).to have_content('Work Documents')
-      expect(page).to have_content('2 documents')
+      expect(page).to have_content('2 document')
       
       expect(page).to have_content('Personal Files')
       expect(page).to have_content('1 document')

@@ -159,4 +159,27 @@ find . -name "*.rb" -type f | xargs grep -l "include ConcernName" | grep -v spec
 
 ---
 
+## 9. Tests de Composants ViewComponent (Ajouté le 10/06/2025)
+
+### 9.1 Après Modification d'un Composant
+```bash
+# Tester le composant spécifique
+docker-compose run --rm web bundle exec rspec spec/components/ui/data_grid_component_spec.rb
+
+# Tester tous les sous-composants si extraction
+docker-compose run --rm web bundle exec rspec spec/components/ui/data_grid_component/
+
+# Si système de tests visuels (Lookbook) installé
+docker-compose run --rm --service-ports web
+# Puis vérifier visuellement à http://localhost:3000/rails/lookbook
+```
+
+### 9.2 Patterns ViewComponent
+- **Slots** : Utiliser `renders_many` et `renders_one` pour la composition
+- **Tests** : Toujours tester le rendu HTML ET le comportement
+- **Helpers** : Dans les tests, utiliser `helpers.` pour accéder aux helpers Rails
+- **Isolation** : Chaque composant doit être testable indépendamment
+
+---
+
 **⚠️ CE WORKFLOW EST OBLIGATOIRE - Le suivre évite 90% des régressions !**

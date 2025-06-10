@@ -1,4 +1,9 @@
 Rails.application.routes.draw do
+  # Component preview in development
+  if Rails.env.development?
+    mount Lookbook::Engine, at: "/rails/lookbook"
+  end
+  
   get 'home/index'
   devise_for :users
   

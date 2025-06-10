@@ -1,4 +1,4 @@
-<% if show_ai_insights? %>
+<% if document.present? && show_ai_insights? %>
   <div class="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg p-6 border border-purple-200">
     <div class="flex items-center mb-4">
       <div class="flex-shrink-0">
@@ -117,7 +117,7 @@
       </p>
     </div>
   </div>
-<% elsif document.supports_ai_processing? && !document.ai_processed? %>
+<% elsif document.present? && document.supports_ai_processing? && !document.ai_processed? %>
   <!-- Statut de traitement en cours -->
   <div class="bg-yellow-50 rounded-lg p-4 border border-yellow-200">
     <div class="flex items-center">
@@ -133,7 +133,7 @@
       </div>
     </div>
   </div>
-<% elsif !document.supports_ai_processing? %>
+<% elsif document.present? && !document.supports_ai_processing? %>
   <!-- Format non supporté -->
   <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
     <div class="flex items-center">

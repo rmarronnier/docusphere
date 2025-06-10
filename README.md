@@ -248,11 +248,12 @@ L'application sera accessible sur http://localhost:3000
 - **Recherche** : Elasticsearch 8.x avec indexation automatique
 - **Stockage** : Active Storage + traitement d'images/documents
 - **Monitoring** : Logs structurés, métriques application
+- **Tests visuels** : Lookbook pour prévisualisation des composants
 
 ### 🧩 Architecture Modulaire
 - **Core GED** : Fonctionnalités documentaires de base
 - **Rails Engines** : Modules métier isolés (ImmoPromo, futurs modules)
-- **ViewComponents** : Composants UI réutilisables et testables
+- **ViewComponents** : Composants UI réutilisables avec architecture modulaire (DataGrid, Actions, etc.)
 - **Service Objects** : Logique métier centralisée et testable
 - **API REST** : Endpoints versionnés pour intégrations tierces
 
@@ -270,6 +271,7 @@ L'application sera accessible sur http://localhost:3000
 - `redis` : Redis (port 6379)
 - `sidekiq` : Worker Sidekiq
 - `elasticsearch` : Moteur de recherche (port 9200)
+- `selenium` : Tests système avec navigateur (port 7900 pour VNC)
 
 ## Développement
 

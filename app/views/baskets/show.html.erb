@@ -97,9 +97,6 @@
                 </h3>
                 <div class="mt-2 text-sm text-green-700">
                   <p>Cette bannette est accessible via un lien de partage.</p>
-                  <% if @basket.share_expires_at %>
-                    <p class="mt-1">Le partage expire le <%= l(@basket.share_expires_at, format: :long) %></p>
-                  <% end %>
                 </div>
               </div>
             </div>

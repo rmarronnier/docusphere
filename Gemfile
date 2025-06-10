@@ -90,6 +90,8 @@ group :development do
   gem "listen", "~> 3.9"
   gem "spring"
   gem "spring-commands-rspec"
+  # Component preview and documentation
+  gem "lookbook", "~> 2.3"
 end
 
 group :test do

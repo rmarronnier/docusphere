@@ -118,7 +118,8 @@ RSpec.describe Ui::ChartComponent, type: :component do
         loading: true
       ))
       
-      expect(page).to have_css(".skeleton")
+      expect(page).to have_css(".animate-spin")
+      expect(page).to have_text("Chargement du graphique...")
     end
   end
 

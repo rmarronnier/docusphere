@@ -85,14 +85,20 @@
 ### 🔥 URGENT : Stabilisation Application
 **Priorité : CRITIQUE** 🔴🔴🔴
 
-Suite aux régressions massives découvertes le 09/06/2025, un plan de stabilisation complet est nécessaire. Voir **STABILIZATION_PLAN.md** pour les détails.
+Suite aux régressions découvertes le 09/06/2025, un plan de stabilisation est en cours.
 
-#### Actions Immédiates :
-- [ ] **Corriger TOUS les tests** : Controllers, System, Services, Components
+#### Actions Complétées (10/06/2025) :
+- ✅ **Tests Controllers** : Tous passent (251 exemples)
+- ✅ **Tests Components** : DataGrid refactoré et testé (102 tests)
+- ✅ **Architecture ViewComponent** : 5 composants extraits
+- ✅ **Documentation** : Lookbook installé pour tests visuels
+
+#### Actions Restantes :
 - [ ] **Refactorer Document model** : 580+ lignes → découper en concerns
 - [ ] **Nettoyer code mort** : Uploadable, Storable, document_version.rb
 - [ ] **Standardiser statuts** : AASM vs WorkflowManageable
 - [ ] **Optimiser performances** : Ajouter cache et index manquants
+- [ ] **Tests système** : Mettre à jour pour nouvelle UI
 
 ⚠️ **OBLIGATOIRE** : Suivre WORKFLOW.md pour éviter nouvelles régressions !
 
@@ -191,6 +197,6 @@ Interface d'administration système complète :
 
 ---
 
-**Dernière mise à jour** : 26 janvier 2025  
+**Dernière mise à jour** : 10 juin 2025  
 **Statut global** : 85% terminé, développement actif  
-**Priorité absolue** : Tests système multi-utilisateurs
+**Priorité absolue** : Finaliser stabilisation (Document model refactoring)

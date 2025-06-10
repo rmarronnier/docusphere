@@ -1,11 +1,11 @@
 class DocumentValidation < ApplicationRecord
-  belongs_to :document
+  belongs_to :validatable, polymorphic: true
   belongs_to :validator, class_name: 'User'
   belongs_to :validation_request
   
   validates :status, presence: true, inclusion: { in: %w[pending approved rejected] }
   validates :comment, presence: true, if: :rejected?
-  validates :validator_id, uniqueness: { scope: [:document_id, :validation_request_id] }
+  validates :validator_id, uniqueness: { scope: [:validatable_type, :validatable_id, :validation_request_id] }
   
   # Declare attribute type for enum
   attribute :status, :string

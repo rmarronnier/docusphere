@@ -1,10 +1,9 @@
 require 'rails_helper'
 
 RSpec.describe NotificationService, type: :service do
-  let(:organization) { create(:organization) }
-  let(:user) { create(:user, organization: organization) }
-  let(:other_user) { create(:user, organization: organization) }
-  let(:document) { create(:document, organization: organization, uploaded_by: user) }
+  let(:user) { create(:user) }
+  let(:other_user) { create(:user) }
+  let(:document) { create(:document, uploaded_by: user) }
 
   describe '.notify_validation_requested' do
     let(:validation_request) { double('ValidationRequest', 

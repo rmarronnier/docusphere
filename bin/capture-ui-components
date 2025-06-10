@@ -1,0 +1,65 @@
+#!/usr/bin/env ruby
+# Script pour capturer des screenshots des composants UI
+
+require_relative '../config/environment'
+require 'fileutils'
+
+# Créer le dossier de screenshots s'il n'existe pas
+screenshots_dir = Rails.root.join('tmp', 'screenshots', 'components')
+FileUtils.mkdir_p(screenshots_dir)
+
+puts "🎨 Capturing UI Components..."
+
+# Configuration Capybara pour les screenshots
+require 'capybara/dsl'
+include Capybara::DSL
+
+Capybara.current_driver = :chrome_headless
+Capybara.app_host = "http://localhost:3000"
+
+# Helper pour capturer et sauvegarder
+def capture_component(path, name)
+  visit path
+  filename = "tmp/screenshots/components/#{name}.png"
+  save_screenshot(filename, full: true)
+  puts "✅ Captured: #{name}"
+  filename
+end
+
+begin
+  # Démarrer une session
+  Capybara.current_session.driver.browser.manage.window.resize_to(1400, 900)
+  
+  # Capturer les pages principales
+  screenshots = {}
+  
+  # Page d'accueil
+  screenshots[:home] = capture_component("/", "01_home_page")
+  
+  # GED Dashboard
+  screenshots[:ged] = capture_component("/ged", "02_ged_dashboard")
+  
+  # Recherche
+  screenshots[:search] = capture_component("/search", "03_search_page")
+  
+  # Notifications
+  screenshots[:notifications] = capture_component("/notifications", "04_notifications")
+  
+  # Si Lookbook est installé
+  if defined?(Lookbook)
+    screenshots[:lookbook] = capture_component("/rails/lookbook", "00_component_gallery")
+  end
+  
+  puts "\n📁 Screenshots saved in: tmp/screenshots/components/"
+  puts "\n📋 Summary:"
+  screenshots.each do |key, path|
+    size = File.size(path) / 1024
+    puts "  - #{key}: #{path} (#{size}KB)"
+  end
+  
+rescue => e
+  puts "❌ Error: #{e.message}"
+  puts e.backtrace.first(5)
+ensure
+  Capybara.reset_sessions!
+end

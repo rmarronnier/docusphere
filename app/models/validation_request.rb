@@ -1,5 +1,5 @@
 class ValidationRequest < ApplicationRecord
-  belongs_to :document
+  belongs_to :validatable, polymorphic: true
   belongs_to :requester, class_name: 'User'
   has_many :document_validations, dependent: :destroy
   has_many :validators, through: :document_validations, source: :validator
@@ -28,7 +28,7 @@ class ValidationRequest < ApplicationRecord
   def add_validators(users)
     users.each do |user|
       document_validations.create!(
-        document: document,
+        validatable: validatable,
         validator: user,
         status: 'pending'
       )
@@ -121,12 +121,12 @@ class ValidationRequest < ApplicationRecord
   def notify_approval
     # Send notification to requester about approval
     NotificationService.notify_validation_approved(self)
-    Rails.logger.info "Validation request #{id} approved for document #{document.title}"
+    Rails.logger.info "Validation request #{id} approved for #{validatable_type} #{validatable_id}"
   end
   
   def notify_rejection
     # Send notification to requester about rejection  
     NotificationService.notify_validation_rejected(self)
-    Rails.logger.info "Validation request #{id} rejected for document #{document.title}"
+    Rails.logger.info "Validation request #{id} rejected for #{validatable_type} #{validatable_id}"
   end
 end

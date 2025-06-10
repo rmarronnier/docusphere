@@ -1,0 +1,129 @@
+#!/usr/bin/env ruby
+# Script pour capturer des screenshots de Lookbook
+
+require_relative '../config/environment'
+require 'fileutils'
+
+# Créer le dossier de screenshots s'il n'existe pas
+screenshots_dir = Rails.root.join('tmp', 'screenshots', 'lookbook')
+FileUtils.mkdir_p(screenshots_dir)
+
+puts "🎨 Capturing Lookbook Components..."
+
+# Configuration Capybara
+require 'capybara'
+require 'capybara/dsl'
+
+class ScreenshotCapture
+  include Capybara::DSL
+  
+  def initialize
+    Capybara.app_host = "http://web:3000"
+    Capybara.default_driver = :selenium_chrome_headless
+    configure_selenium
+  end
+  
+  def configure_selenium
+    Capybara.register_driver :selenium_chrome_headless do |app|
+      options = Selenium::WebDriver::Chrome::Options.new
+      options.add_argument('--headless')
+      options.add_argument('--no-sandbox')
+      options.add_argument('--disable-dev-shm-usage')
+      options.add_argument('--disable-gpu')
+      options.add_argument('--window-size=1400,900')
+      
+      Capybara::Selenium::Driver.new(app,
+        browser: :chrome,
+        options: options,
+        url: "http://selenium:4444/wd/hub"
+      )
+    end
+  end
+  
+  def capture_screenshots
+    capture_all
+  ensure
+    Capybara.reset_sessions!
+    Capybara.use_default_driver
+  end
+
+  # Helper pour capturer
+  def capture_component(path, name, viewport_width = 1400)
+    filename = "tmp/screenshots/lookbook/#{name}.png"
+    
+    # Ajuster la taille de la fenêtre
+    page.driver.browser.manage.window.resize_to(viewport_width, 900)
+    
+    visit path
+    sleep 2 # Attendre que la page se charge complètement
+    
+    save_screenshot(filename, full: true)
+    puts "✅ Captured: #{name}"
+    filename
+  end
+
+  def capture_all
+  # D'abord, capturer la page d'accueil de Lookbook
+  capture_component("/rails/lookbook", "00_lookbook_home")
+  
+  # Capturer les composants principaux
+  components = [
+    # DataGrid Component
+    ["/rails/lookbook/preview/ui/data_grid_component/default", "01_data_grid_default"],
+    ["/rails/lookbook/preview/ui/data_grid_component/with_inline_actions", "02_data_grid_actions"],
+    ["/rails/lookbook/preview/ui/data_grid_component/with_formatting", "03_data_grid_formatting"],
+    ["/rails/lookbook/preview/ui/data_grid_component/empty_default", "04_data_grid_empty"],
+    
+    # Button Component
+    ["/rails/lookbook/preview/ui/button_component/variants", "05_button_variants"],
+    ["/rails/lookbook/preview/ui/button_component/sizes", "06_button_sizes"],
+    
+    # Card Component
+    ["/rails/lookbook/preview/ui/card_component/default", "07_card_default"],
+    ["/rails/lookbook/preview/ui/card_component/with_footer", "08_card_footer"],
+    
+    # Alert Component
+    ["/rails/lookbook/preview/ui/alert_component/types", "09_alert_types"],
+    
+    # Modal Component
+    ["/rails/lookbook/preview/ui/modal_component/default", "10_modal_default"],
+    
+    # Empty State
+    ["/rails/lookbook/preview/ui/empty_state_component/icon_variations", "11_empty_states"]
+  ]
+  
+  components.each do |path, name|
+    begin
+      capture_component(path, name)
+    rescue => e
+      puts "❌ Error capturing #{name}: #{e.message}"
+    end
+  end
+  
+  # Capturer aussi en mobile
+  puts "\n📱 Capturing mobile views..."
+  mobile_components = [
+    ["/rails/lookbook/preview/ui/data_grid_component/default", "12_data_grid_mobile", 375],
+    ["/rails/lookbook/preview/ui/button_component/variants", "13_button_mobile", 375]
+  ]
+  
+  mobile_components.each do |path, name, width|
+    begin
+      capture_component(path, name, width)
+    rescue => e
+      puts "❌ Error capturing #{name}: #{e.message}"
+    end
+  end
+  
+    puts "\n📁 Screenshots saved in: tmp/screenshots/lookbook/"
+    puts "\nTo view the screenshots:"
+    puts "open tmp/screenshots/lookbook/"
+  rescue => e
+    puts "❌ Error: #{e.message}"
+    puts e.backtrace.first(5)
+  end
+end
+
+# Exécuter
+capture = ScreenshotCapture.new
+capture.capture_screenshots

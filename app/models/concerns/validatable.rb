@@ -3,30 +3,10 @@ module Validatable
   extend ActiveSupport::Concern
 
   included do
-    # Only add associations if they don't already exist
-    unless reflect_on_association(:validation_requests)
-      if self.name == 'Document'
-        # Document has direct foreign key relationship
-        has_many :validation_requests, foreign_key: :document_id, dependent: :destroy
-      else
-        # Other models might use polymorphic association in the future
-        has_many :validation_requests, as: :validatable, dependent: :destroy
-      end
-    end
-    
-    unless reflect_on_association(:document_validations)
-      if self.name == 'Document'
-        # Document has direct foreign key relationship
-        has_many :document_validations, foreign_key: :document_id, dependent: :destroy
-      else
-        # Other models might use polymorphic association in the future
-        has_many :document_validations, as: :validatable, dependent: :destroy
-      end
-    end
-    
-    unless reflect_on_association(:validators)
-      has_many :validators, through: :document_validations, source: :validator
-    end
+    # All models use polymorphic associations now
+    has_many :validation_requests, as: :validatable, dependent: :destroy
+    has_many :document_validations, as: :validatable, dependent: :destroy
+    has_many :validators, through: :document_validations, source: :validator
     
     scope :pending_validation, -> { joins(:validation_requests).where(validation_requests: { status: 'pending' }) }
     scope :validated, -> { joins(:validation_requests).where(validation_requests: { status: 'approved' }) }
@@ -37,30 +17,20 @@ module Validatable
   def request_validation(requester:, validators:, min_validations: 1, due_date: nil, notes: nil)
     return false if validation_pending?
     
-    validation_request_params = {
+    validation_request = validation_requests.create!(
       requester: requester,
       min_validations: min_validations,
       due_date: due_date,
       description: notes,
       status: 'pending'
-    }
-    
-    # Add document_id for Document model
-    validation_request_params[:document_id] = self.id if self.is_a?(Document)
-    
-    validation_request = validation_requests.create!(validation_request_params)
+    )
     
     validators.each do |validator|
-      validation_params = {
+      document_validations.create!(
         validation_request: validation_request,
         validator: validator,
         status: 'pending'
-      }
-      
-      # Add document_id for Document model
-      validation_params[:document_id] = self.id if self.is_a?(Document)
-      
-      document_validations.create!(validation_params)
+      )
     end
     
     validation_request
@@ -158,5 +128,16 @@ module Validatable
       status: 'rejected',
       completed_at: Time.current
     )
+  end
+  
+  # Get display title for validatable item
+  def validatable_title
+    if respond_to?(:title)
+      title
+    elsif respond_to?(:name)
+      name
+    else
+      "#{self.class.name} ##{id}"
+    end
   end
 end

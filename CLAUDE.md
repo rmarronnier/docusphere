@@ -25,6 +25,23 @@ When running on GitHub Actions (x86_64-linux), you may need to add the platform 
 docker-compose run --rm web bundle lock --add-platform x86_64-linux
 ```
 
+## Recent Changes (June 10, 2025)
+
+### 1. ViewComponent Architecture Refactoring
+- **DataGridComponent** refactorisé en 5 sous-composants modulaires :
+  - `ColumnComponent` : Configuration des colonnes
+  - `CellComponent` : Rendu et formatage des cellules  
+  - `HeaderCellComponent` : En-têtes avec tri
+  - `ActionComponent` : Actions flexibles (inline/dropdown/buttons)
+  - `EmptyStateComponent` : États vides personnalisables
+- Tests complets pour tous les composants (102 tests passants)
+- Architecture facilitant la réutilisation et la maintenance
+
+### 2. Documentation Visual Testing
+- Création de `VISUAL_TESTING_SETUP.md` avec stratégies pour feedback visuel
+- Script `bin/capture-ui-components` pour screenshots automatiques
+- Plan d'intégration de Lookbook pour prévisualisation des composants
+
 ## Recent Changes (June 2025)
 
 ### 1. Selenium Testing Infrastructure

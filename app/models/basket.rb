@@ -7,7 +7,6 @@ class Basket < ApplicationRecord
   validates :name, presence: true
   
   scope :shared, -> { where(is_shared: true) }
-  scope :active, -> { where('share_expires_at IS NULL OR share_expires_at > ?', Time.current) }
   
   def add_document(document)
     basket_items.find_or_create_by(item: document) do |item|

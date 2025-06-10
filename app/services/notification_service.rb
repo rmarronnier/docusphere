@@ -6,10 +6,11 @@ class NotificationService
           validator,
           :document_validation_requested,
           "Validation demandée",
-          "#{validation_request.requester.full_name} demande votre validation pour le document '#{validation_request.document.title}'",
+          "#{validation_request.requester.full_name} demande votre validation pour '#{validatable_title(validation_request.validatable)}'",
           notifiable: validation_request,
           data: {
-            document_id: validation_request.document.id,
+            validatable_type: validation_request.validatable_type,
+            validatable_id: validation_request.validatable_id,
             requester_id: validation_request.requester.id,
             min_validations: validation_request.min_validations
           }
@@ -22,10 +23,11 @@ class NotificationService
         validation_request.requester,
         :document_validation_approved,
         "Validation approuvée",
-        "Votre demande de validation pour le document '#{validation_request.document.title}' a été approuvée",
+        "Votre demande de validation pour '#{validatable_title(validation_request.validatable)}' a été approuvée",
         notifiable: validation_request,
         data: {
-          document_id: validation_request.document.id,
+          validatable_type: validation_request.validatable_type,
+          validatable_id: validation_request.validatable_id,
           approved_count: validation_request.document_validations.approved.count,
           total_validators: validation_request.document_validations.count
         }
@@ -39,10 +41,11 @@ class NotificationService
         validation_request.requester,
         :document_validation_rejected,
         "Validation refusée",
-        "Votre demande de validation pour le document '#{validation_request.document.title}' a été refusée par #{rejecting_validation.validator.full_name}",
+        "Votre demande de validation pour '#{validatable_title(validation_request.validatable)}' a été refusée par #{rejecting_validation.validator.full_name}",
         notifiable: validation_request,
         data: {
-          document_id: validation_request.document.id,
+          validatable_type: validation_request.validatable_type,
+          validatable_id: validation_request.validatable_id,
           rejected_by: rejecting_validation.validator.full_name,
           rejection_comment: rejecting_validation.comment
         }
@@ -664,6 +667,18 @@ class NotificationService
         authorizable.name
       else
         "##{authorizable.id}"
+      end
+    end
+    
+    def validatable_title(validatable)
+      if validatable.respond_to?(:validatable_title)
+        validatable.validatable_title
+      elsif validatable.respond_to?(:title)
+        validatable.title
+      elsif validatable.respond_to?(:name)
+        validatable.name
+      else
+        "#{validatable.class.name} ##{validatable.id}"
       end
     end
   end

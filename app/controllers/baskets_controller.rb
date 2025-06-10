@@ -5,7 +5,7 @@ class BasketsController < ApplicationController
   def index
     skip_authorization
     @baskets = current_user.baskets.includes(:basket_items)
-    @shared_baskets = Basket.shared.active.where.not(user: current_user)
+    @shared_baskets = Basket.shared.where.not(user: current_user)
   end
   
   def show
@@ -99,6 +99,6 @@ class BasketsController < ApplicationController
   end
   
   def basket_params
-    params.require(:basket).permit(:name, :description, :color)
+    params.require(:basket).permit(:name, :description)
   end
 end

@@ -4,6 +4,13 @@ Ce guide vous accompagne pour réaliser une démonstration complète et percutan
 
 ## 🚀 Préparation Rapide (5 minutes)
 
+### État actuel (10/06/2025)
+- ✅ Docker services configurés et testés
+- ✅ 300+ documents pré-chargés
+- ✅ 3 projets ImmoPromo de démonstration
+- ✅ Comptes utilisateurs fonctionnels
+- ✅ Lookbook disponible pour preview composants
+
 ### 1. Lancer l'environnement de démonstration
 ```bash
 # Démarrer tous les services
@@ -258,6 +265,22 @@ Une démo réussie doit :
 
 ---
 
+## 🆕 Bonus : Preview des Composants avec Lookbook
+
+Pour montrer l'architecture technique moderne :
+```bash
+# Accéder à Lookbook
+open http://localhost:3000/rails/lookbook
+```
+
+Points à montrer :
+- Architecture ViewComponent modulaire
+- Composants réutilisables (DataGrid, Actions, etc.)
+- Documentation vivante des composants
+- Tests visuels intégrés
+
+---
+
 💡 **Conseil Pro** : Pratiquez le scénario au moins une fois avant la vraie démo. La fluidité fait la différence !
 
-📞 **Support** : En cas de problème pendant une démo client, appelez le support technique au +33 1 XX XX XX XX
+📞 **Support** : En cas de problème technique, consultez PROJECT_STATUS.md pour l'état actuel du système.

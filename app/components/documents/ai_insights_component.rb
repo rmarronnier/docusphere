@@ -8,7 +8,7 @@ class Documents::AiInsightsComponent < ApplicationComponent
   attr_reader :document
 
   def show_ai_insights?
-    document.ai_processed?
+    document&.ai_processed? == true
   end
 
   def classification_badge_color

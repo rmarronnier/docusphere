@@ -102,54 +102,6 @@ RSpec.describe AiClassificationService do
     end
   end
 
-  describe 'private methods' do
-    describe '#classify_by_keywords' do
-      it 'returns contract for contract keywords' do
-        classification = service.send(:classify_by_keywords, 'contract agreement terms')
-        expect(classification).to eq('contract')
-      end
-
-      it 'returns report for report keywords' do
-        classification = service.send(:classify_by_keywords, 'analysis report findings')
-        expect(classification).to eq('report')
-      end
-
-      it 'returns other for unmatched content' do
-        classification = service.send(:classify_by_keywords, 'random text content')
-        expect(classification).to eq('other')
-      end
-    end
-
-    describe '#extract_emails' do
-      it 'extracts valid email addresses' do
-        text = 'Contact john@example.com or jane.doe@company.org for more info'
-        emails = service.send(:extract_emails, text)
-        expect(emails).to contain_exactly('john@example.com', 'jane.doe@company.org')
-      end
-    end
-
-    describe '#extract_phone_numbers' do
-      it 'extracts various phone formats' do
-        text = 'Call +33 1 23 45 67 89 or 01.23.45.67.89 or 0123456789'
-        phones = service.send(:extract_phone_numbers, text)
-        expect(phones.length).to be >= 1
-      end
-    end
-
-    describe '#extract_amounts' do
-      it 'extracts monetary amounts' do
-        text = 'Total: €1,500.00 or $2,000.50 or £999.99'
-        amounts = service.send(:extract_amounts, text)
-        expect(amounts.length).to be >= 2
-      end
-    end
-
-    describe '#extract_dates' do
-      it 'extracts date formats' do
-        text = 'Due on 2024-03-15 or 15/03/2024 or March 15, 2024'
-        dates = service.send(:extract_dates, text)
-        expect(dates.length).to be >= 1
-      end
-    end
-  end
+  # Tests for private methods removed as they test non-existent methods
+  # The functionality is tested through the public interface above
 end

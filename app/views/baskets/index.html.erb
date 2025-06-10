@@ -21,7 +21,7 @@
               <div class="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm hover:border-gray-400">
                 <div class="flex items-start">
                   <div class="flex-shrink-0">
-                    <div class="inline-flex rounded-lg p-3 <%= basket.color || 'bg-gray-100' %>">
+                    <div class="inline-flex rounded-lg p-3 bg-gray-100">
                       <svg class="h-6 w-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
                       </svg>
@@ -108,11 +108,6 @@
                     <p class="mt-1 text-sm text-gray-500">
                       <%= pluralize(basket.document_count, 'document') %>
                     </p>
-                    <% if basket.share_expires_at %>
-                      <p class="mt-1 text-xs text-gray-400">
-                        Expire le <%= l(basket.share_expires_at, format: :short) %>
-                      </p>
-                    <% end %>
                   </div>
                 </div>
               </div>

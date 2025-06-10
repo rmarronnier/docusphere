@@ -51,9 +51,9 @@ if running_in_docker?
     )
   end
   
-  # Set the app_host to the container's IP address
-  # This is more reliable than using hostname in Docker networks
-  Capybara.app_host = "http://#{ENV['HOSTNAME'] || Socket.gethostname}:3001"
+  # Set the app_host to the web container name in Docker network
+  # This allows Selenium to connect to the Rails app
+  Capybara.app_host = "http://web:3001"
   
   # Always include port since we're using a non-standard port
   Capybara.always_include_port = true
