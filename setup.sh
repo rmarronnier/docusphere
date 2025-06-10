@@ -9,7 +9,7 @@ if [ ! -f .env ]; then
 fi
 
 # Créer les fichiers lock vides s'ils n'existent pas
-touch Gemfile.lock yarn.lock
+touch Gemfile.lock bun.lock
 
 # Construire les images Docker
 echo "Construction des images Docker..."
@@ -25,9 +25,9 @@ sleep 15
 
 # Copier les fichiers lock générés par Docker
 echo "Récupération des fichiers de dépendances..."
-docker-compose run --rm web sh -c "cp Gemfile.lock /tmp/ && cp yarn.lock /tmp/" || true
+docker-compose run --rm web sh -c "cp Gemfile.lock /tmp/ && cp bun.lock /tmp/" || true
 docker cp $(docker-compose ps -q web):/tmp/Gemfile.lock . 2>/dev/null || true
-docker cp $(docker-compose ps -q web):/tmp/yarn.lock . 2>/dev/null || true
+docker cp $(docker-compose ps -q web):/tmp/bun.lock . 2>/dev/null || true
 
 # Créer les répertoires nécessaires
 echo "Création des répertoires..."

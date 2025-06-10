@@ -1,9 +1,23 @@
 <div class="dashboard-container" data-controller="dashboard">
-  <div class="dashboard-header mb-6">
-    <h1 class="text-3xl font-bold text-gray-900">Tableau de bord</h1>
-    <p class="mt-2 text-gray-600">
-      <%= I18n.t("dashboard.welcome", name: current_user.first_name) %>
-    </p>
+  <div class="dashboard-header mb-6 flex justify-between items-center">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900">Tableau de bord</h1>
+      <p class="mt-2 text-gray-600">
+        <%= I18n.t("dashboard.welcome", name: current_user.first_name) %>
+      </p>
+    </div>
+    
+    <button 
+      class="dashboard-edit-toggle"
+      data-action="click->dashboard-sortable#toggleEdit"
+      data-controller="dashboard-sortable"
+      data-dashboard-sortable-target="toggle"
+    >
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+      </svg>
+      <span>Personnaliser</span>
+    </button>
   </div>
   
   <% if @dashboard_data[:actions].any? %>
@@ -15,17 +29,32 @@
     </div>
   <% end %>
   
-  <div class="dashboard-widgets" data-dashboard-target="widgets">
+  <div class="dashboard-widgets" 
+       data-dashboard-target="widgets"
+       data-controller="dashboard-sortable"
+       data-dashboard-sortable-target="container"
+       data-action="dashboard-sortable:reorder-widgets->dashboard#reorderWidgets widget-resize:resize-end->dashboard#resizeWidget">
     <% @dashboard_data[:widgets].each do |widget_data| %>
-      <%= render Dashboard::WidgetComponent.new(
-        widget_data: widget_data,
-        user: current_user
-      ) do %>
-        <div class="widget-placeholder" data-widget-type="<%= widget_data[:type] %>">
-          <!-- Widget content will be loaded here -->
-          <%= widget_data[:data][:content] %>
-        </div>
-      <% end %>
+      <div class="dashboard-widget" 
+           data-widget-id="<%= widget_data[:id] %>"
+           data-widget-width="<%= widget_data[:width] || 1 %>"
+           data-widget-height="<%= widget_data[:height] || 1 %>"
+           data-dashboard-sortable-target="widget"
+           data-controller="widget-resize">
+        <div class="widget-drag-handle"></div>
+        <%= render Dashboard::WidgetComponent.new(
+          widget_data: widget_data
+        ) do %>
+          <div class="widget-placeholder" data-widget-type="<%= widget_data[:type] %>">
+            <!-- Widget content will be loaded here -->
+            <% if widget_data[:data] && widget_data[:data][:content] %>
+              <%= widget_data[:data][:content] %>
+            <% else %>
+              <p class="text-gray-500">Loading widget data...</p>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
     <% end %>
   </div>
   

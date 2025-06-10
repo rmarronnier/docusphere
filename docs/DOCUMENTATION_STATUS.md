@@ -1,4 +1,4 @@
-# État de la Documentation - 10 Juin 2025
+# État de la Documentation - 10 Juin 2025 (Soir)
 
 ## 📁 Organisation de la Documentation
 
@@ -36,6 +36,9 @@ Guides et documentation technique spécialisée :
 - **PERFORMANCE_OPTIMIZATIONS.md** - Optimisations de performance appliquées
 - **SELENIUM_TESTING.md** - Configuration et utilisation des tests Selenium
 - **SESSION_09_06_2025.md** - Notes de session de développement
+- **INTERFACE_REDESIGN_PLAN.md** - Plan de refonte de l'interface utilisateur
+- **SESSION_10_06_2025_PHASE2.md** - Documentation Phase 2 Interface Redesign
+- **JAVASCRIPT_RUNTIME_BUN.md** - Guide d'utilisation de Bun comme runtime JavaScript
 
 ### Documentation des Engines
 - **engines/immo_promo/README.md** - Documentation du module ImmoPromo
@@ -45,11 +48,20 @@ Guides et documentation technique spécialisée :
 
 - **Fichiers actifs** : 12 documents maintenus régulièrement
 - **Fichiers archivés** : 4 documents historiques (incluant DONE.md)
-- **Fichiers techniques** : 7 guides spécialisés
+- **Fichiers techniques** : 10 guides spécialisés (+3 ajoutés aujourd'hui)
 - **Fichiers supprimés** : 5 analyses de tests obsolètes
 - **Tâches archivées** : 85+ items dans DONE.md
 
 ## ✅ Actions Récentes (10/06/2025)
+
+### Session du Soir
+- Création de **JAVASCRIPT_RUNTIME_BUN.md** : Documentation complète sur l'utilisation de Bun
+- Création de **SESSION_10_06_2025_PHASE2.md** : Résumé détaillé de la Phase 2 complétée
+- Mise à jour de **README.md** : Ajout de Bun dans la stack technique
+- Mise à jour de **PROJECT_STATUS.md** : Ajout Phase 2 complétée et Phase 3 à venir
+- Mise à jour de **TODO.md** : Phase 2 marquée comme complétée, Phase 3 ajoutée
+- Mise à jour de **setup.sh** : Références à yarn.lock remplacées par bun.lock
+- Mise à jour de **Dockerfile.dev** : bun.lockb → bun.lock
 
 ### Archivage
 - Déplacement de 3 fichiers historiques vers `docs/archive/`

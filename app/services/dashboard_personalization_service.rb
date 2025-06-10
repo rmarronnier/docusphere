@@ -23,6 +23,9 @@ class DashboardPersonalizationService
   def active_widgets
     return [] unless profile
     
+    # Preload all widgets data in cache
+    WidgetCacheService.preload_dashboard(profile)
+    
     profile.dashboard_widgets.visible.includes(:user_profile).map do |widget|
       {
         id: widget.id,
@@ -72,7 +75,7 @@ class DashboardPersonalizationService
   private
   
   def load_widget_data(widget)
-    widget_data_for(widget)
+    WidgetCacheService.get_widget_data(widget, user)
   end
   
   def direction_priority_actions

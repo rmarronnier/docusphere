@@ -34,7 +34,7 @@ COPY engines/ ./engines/
 RUN bundle install
 
 # Copy package.json and bun lockfile
-COPY package.json bun.lockb* ./
+COPY package.json bun.lock* ./
 
 # Install node packages with Bun
 RUN bun install

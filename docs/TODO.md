@@ -10,18 +10,29 @@
 
 ## 🚧 EN COURS / À FAIRE
 
-### 🔥 URGENT : Stabilisation Application
+### 🔥 URGENT : Phase 4 - Seeding & Demo Complet
 **Priorité : CRITIQUE** 🔴🔴🔴
 
-Suite aux régressions découvertes le 09/06/2025, un plan de stabilisation est en cours.
+Suite au succès de la Phase 3 (10/06/2025), passer à Phase 4.
 
-#### Actions Complétées (10/06/2025) :
-- ✅ **Tests Controllers** : Tous passent (251 exemples)
-- ✅ **Tests Components (App)** : Tous passent (899 exemples)
-- ✅ **Tests Components (ImmoPromo)** : Tous passent (71 exemples)
-- ✅ **Architecture ViewComponent** : 5 composants extraits de DataGrid
-- ✅ **Documentation** : Lookbook installé pour tests visuels
-- ✅ **Nettoyage repository** : Documents obsolètes archivés/supprimés
+#### Actions Complétées (10/06/2025 - Phase 3) :
+- ✅ **UserProfile Model** : Persistance des préférences utilisateur avec tests complets
+- ✅ **DashboardController** : Vues personnalisées par profil avec autorisation
+- ✅ **Système de personnalisation** : Drag & drop widgets, resize, sauvegarde layout
+- ✅ **WidgetCacheService** : Cache Redis intelligent avec TTL adaptatifs
+- ✅ **Tests d'intégration** : Scénarios dashboard complets par profil
+- ✅ **Dashboard API** : Endpoints reorder/refresh/update widgets
+- ✅ **Services complets** : DashboardPersonalizationService + cache
+
+#### Phase 4 - Seeding Professionnel & Demo :
+- [ ] **Seeding utilisateurs varié** : 20+ profils avec rôles réalistes (directeurs, chefs projets, architectes, etc.)
+- [ ] **Documents métiers crédibles** : Télécharger exemples réels (permis, plans, budgets, contrats)
+- [ ] **Workflows partagés complexes** : Projets multi-intervenants avec permissions croisées
+- [ ] **Espaces organisés** : Structure hiérarchique réaliste par projet/département
+- [ ] **Demo interactive** : Scénarios métier complets utilisables en présentation
+
+### 🔧 Refactoring & Stabilisation
+**Priorité : HAUTE** 🔴
 
 #### Actions Restantes :
 - [ ] **Refactorer Document model** : 580+ lignes → découper en concerns

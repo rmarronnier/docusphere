@@ -3,6 +3,9 @@ class DashboardController < ApplicationController
   before_action :ensure_user_profile
   before_action :load_widget, only: [:update_widget, :refresh_widget]
   
+  # Skip CSRF protection for JSON API requests
+  protect_from_forgery except: [:update_widget, :refresh_widget, :reorder_widgets]
+  
   def show
     service = DashboardPersonalizationService.new(current_user)
     @dashboard_data = service.personalized_dashboard
@@ -17,6 +20,11 @@ class DashboardController < ApplicationController
   end
   
   def reorder_widgets
+    unless current_user
+      render json: { error: 'Authentication required' }, status: :unauthorized
+      return
+    end
+    
     widget_ids = params[:widget_ids] || []
     user_widget_ids = current_user.active_profile.dashboard_widgets.pluck(:id)
     
@@ -67,7 +75,7 @@ class DashboardController < ApplicationController
   end
   
   def widget_params
-    permitted = params.require(:widget).permit(:position, config: {})
+    permitted = params.require(:widget).permit(:position, :width, :height, config: {})
     
     # Convert config values to appropriate types
     if permitted[:config]
@@ -87,6 +95,8 @@ class DashboardController < ApplicationController
       id: widget.id,
       widget_type: widget.widget_type,
       position: widget.position,
+      width: widget.width,
+      height: widget.height,
       config: widget.config
     }
   end

@@ -6,6 +6,25 @@ DocuSphere est une plateforme de gestion documentaire avancée avec un module sp
 
 ## ✅ Accomplissements Récents
 
+### Session du 10/06/2025 (Soir)
+1. **Phase 2 Interface Redesign complétée** :
+   - NavigationService et MetricsService créés avec tests complets ✅
+   - 5 widgets de dashboard implémentés (RecentDocuments, PendingTasks, Notifications, QuickAccess, Statistics) ✅
+   - ProfileSwitcherComponent créé pour basculer entre profils utilisateur ✅
+   - NavigationComponent mis à jour pour s'adapter aux profils ✅
+   - WidgetLoaderController (Stimulus) avec lazy loading et auto-refresh ✅
+   - Total : 75+ nouveaux tests passants
+
+2. **Infrastructure JavaScript modernisée** :
+   - Bun utilisé comme runtime JavaScript (remplace Node.js)
+   - Tests JavaScript migrés vers Bun test runner
+   - Performance améliorée pour builds et tests
+
+3. **Documentation mise à jour** :
+   - README.md actualisé pour mentionner Bun
+   - JAVASCRIPT_RUNTIME_BUN.md créé avec guide complet
+   - Phase 2 documentée dans SESSION_10_06_2025_PHASE2.md
+
 ### Session du 10/06/2025 (Après-midi)
 1. **Tests de composants complétés** :
    - Tous les tests de composants de l'app principale passent (899 tests) ✅
@@ -71,11 +90,16 @@ DocuSphere est une plateforme de gestion documentaire avancée avec un module sp
 ## 🚧 Travaux en Cours
 
 ### Priorité HAUTE
-1. **Refactoring Document model** (580+ lignes)
+1. **Phase 3 Interface Redesign** - Optimisations et Personnalisation
+   - Créer le modèle UserProfile pour persistance des préférences
+   - Implémenter DashboardController avec vues par profil
+   - Créer système de personnalisation des widgets
+
+2. **Refactoring Document model** (580+ lignes)
    - Découper en concerns spécialisés
    - Document::Lockable, Document::AIProcessable, etc.
 
-2. **Tests système**
+3. **Tests système**
    - Mettre à jour pour nouvelle UI
    - Créer scénarios multi-utilisateurs
 
@@ -101,17 +125,20 @@ DocuSphere est une plateforme de gestion documentaire avancée avec un module sp
 - PostgreSQL 15
 - Redis + Sidekiq
 - Elasticsearch 8.x
+- **Bun** (JavaScript runtime)
 
 ### Frontend
 - ViewComponent 3.7
 - Turbo + Stimulus
 - Tailwind CSS
 - Lookbook 2.3
+- **Interfaces adaptatives** par profil utilisateur
 
 ### Testing
 - RSpec 7.1
 - Capybara + Selenium
 - FactoryBot + Faker
+- **Bun test runner** pour JavaScript
 - 85%+ coverage
 
 ### DevOps
@@ -165,6 +192,9 @@ docusphere/
 - **COMPONENTS_ARCHITECTURE.md** : Architecture ViewComponent
 - **LOOKBOOK_GUIDE.md** : Guide d'utilisation Lookbook
 - **VISUAL_TESTING_SETUP.md** : Configuration tests visuels
+- **JAVASCRIPT_RUNTIME_BUN.md** : Guide Bun runtime
+- **INTERFACE_REDESIGN_PLAN.md** : Plan refonte interface
+- **SESSION_10_06_2025_PHASE2.md** : Détails Phase 2 complétée
 
 ### Plans et Stratégies
 - **STABILIZATION_PLAN.md** : Plan de stabilisation

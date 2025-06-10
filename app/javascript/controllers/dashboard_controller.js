@@ -101,4 +101,35 @@ export default class extends Controller {
       widgetElement.classList.remove('loading')
     }
   }
+  
+  async resizeWidget(event) {
+    const { widgetId, width, height } = event.detail
+    
+    try {
+      const response = await fetch(`/dashboard/widgets/${widgetId}/update`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': this.csrfToken,
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ 
+          widget: { 
+            width: width,
+            height: height
+          } 
+        })
+      })
+      
+      if (!response.ok) {
+        console.error(`Server error: ${response.status} ${response.statusText}`)
+        return
+      }
+      
+      const data = await response.json()
+      this.dispatch("widget-resized", { detail: { widgetId, data } })
+    } catch (error) {
+      console.error('Error resizing widget:', error)
+    }
+  }
 }

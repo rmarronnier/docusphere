@@ -97,6 +97,32 @@ RSpec.describe DashboardController, type: :controller do
       end
     end
     
+    context 'with width and height params' do
+      let(:resize_params) do
+        {
+          id: widget.id,
+          widget: {
+            width: 3,
+            height: 2
+          }
+        }
+      end
+      
+      it 'updates the widget dimensions' do
+        post :update_widget, params: resize_params
+        widget.reload
+        expect(widget.width).to eq(3)
+        expect(widget.height).to eq(2)
+      end
+      
+      it 'returns updated widget data with dimensions' do
+        post :update_widget, params: resize_params, format: :json
+        json_response = JSON.parse(response.body)
+        expect(json_response['widget']['width']).to eq(3)
+        expect(json_response['widget']['height']).to eq(2)
+      end
+    end
+    
     context 'with invalid widget id' do
       it 'returns not found status' do
         post :update_widget, params: { id: 99999 }, format: :json
@@ -154,12 +180,14 @@ RSpec.describe DashboardController, type: :controller do
       end
       
       it 'ignores the other user widget' do
+        initial_position = other_widget.position
+        
         post :reorder_widgets, params: params, format: :json
         
         expect(widget1.reload.position).to eq(1)
         expect(widget2.reload.position).to eq(2)
-        # Other widget should remain at its original position (default from factory is 0)
-        expect(other_widget.reload.position).to eq(0) # unchanged
+        # Other widget should remain at its original position
+        expect(other_widget.reload.position).to eq(initial_position)
       end
     end
   end

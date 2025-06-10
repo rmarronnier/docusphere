@@ -10,7 +10,7 @@ Rails.application.routes.draw do
   # Dashboard Routes
   resource :dashboard, controller: 'dashboard', only: [:show] do
     member do
-      post 'widgets/:id/update', to: 'dashboard#update_widget', as: 'update_widget'
+      patch 'widgets/:id/update', to: 'dashboard#update_widget', as: 'update_widget'
       post 'widgets/:id/refresh', to: 'dashboard#refresh_widget', as: 'refresh_widget'
       post 'widgets/reorder', to: 'dashboard#reorder_widgets', as: 'reorder_widgets'
     end
