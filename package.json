@@ -10,7 +10,7 @@
     "@rails/ujs": "^7.1.2",
     "alpinejs": "^3.13.3",
     "dropzone": "^6.0.0-beta.2",
-    "pdfjs-dist": "^3.11.174",
+    "pdfjs-dist": "^5.3.31",
     "sortablejs": "^1.15.6",
     "trix": "^2.0.7"
   },
