@@ -1,0 +1,118 @@
+#!/bin/bash
+
+# Development environment setup script
+# Usage: ./bin/setup-dev
+
+set -e
+
+# Color output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
+log_info() {
+  echo -e "${BLUE}[INFO]${NC} $1"
+}
+
+log_success() {
+  echo -e "${GREEN}[SUCCESS]${NC} $1"
+}
+
+log_warning() {
+  echo -e "${YELLOW}[WARNING]${NC} $1"
+}
+
+echo "🚀 DocuSphere Development Environment Setup"
+echo "==========================================="
+
+# 1. Check prerequisites
+log_info "Checking prerequisites..."
+
+if ! command -v docker &> /dev/null; then
+  echo "❌ Docker is required but not installed"
+  echo "Install Docker from: https://docs.docker.com/get-docker/"
+  exit 1
+fi
+
+if ! command -v docker-compose &> /dev/null; then
+  echo "❌ Docker Compose is required but not installed"
+  exit 1
+fi
+
+log_success "Prerequisites OK"
+
+# 2. Build and start services
+log_info "Building Docker images..."
+docker-compose build
+
+log_info "Starting core services..."
+docker-compose up -d postgres redis
+
+log_info "Waiting for PostgreSQL to be ready..."
+sleep 5
+
+# 3. Install dependencies
+log_info "Installing Ruby dependencies..."
+docker-compose run --rm web bundle install
+
+log_info "Installing JavaScript dependencies..."
+docker-compose run --rm web bun install
+
+# 4. Add CI platform to Gemfile.lock
+log_info "Adding x86_64-linux platform for CI compatibility..."
+docker-compose run --rm web bundle lock --add-platform x86_64-linux
+
+# 5. Setup databases
+log_info "Creating and setting up databases..."
+docker-compose run --rm web rails db:create
+docker-compose run --rm web rails db:schema:load
+
+log_info "Setting up parallel test databases..."
+docker-compose run --rm -e PARALLEL_TEST_PROCESSORS=4 web rails parallel:create
+docker-compose run --rm -e PARALLEL_TEST_PROCESSORS=4 web rails parallel:load_schema
+
+# 6. Seed development data
+log_info "Seeding development data..."
+docker-compose run --rm web rails db:seed
+
+# 7. Build assets
+log_info "Building JavaScript and CSS assets..."
+docker-compose run --rm web bun run build
+docker-compose run --rm web bun run build:css
+
+# 8. Run a quick health check
+log_info "Running health check..."
+if docker-compose run --rm web rails runner "puts 'Rails application loaded successfully'"; then
+  log_success "Rails application is healthy"
+else
+  log_warning "Rails application health check failed"
+fi
+
+# 9. Show status
+echo ""
+echo "📊 Environment Status"
+echo "===================="
+
+echo "Services running:"
+docker-compose ps
+
+echo ""
+echo "🎉 Setup Complete!"
+echo ""
+echo "Available commands:"
+echo "  Start development server:    docker-compose up web"
+echo "  Run console:                 docker-compose run --rm web rails console"
+echo "  Run tests:                   ./bin/pre-ci"
+echo "  Quick validation:            ./bin/quick-check"
+echo "  Environment diagnosis:       ./bin/ci-doctor"
+echo ""
+echo "Development URLs:"
+echo "  Application:                 http://localhost:3000"
+echo "  Lookbook (components):       http://localhost:3000/lookbook"
+echo ""
+echo "💡 Next steps:"
+echo "  1. Run: docker-compose up web"
+echo "  2. Open: http://localhost:3000"
+echo "  3. Start coding! 🚀"

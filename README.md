@@ -2,6 +2,22 @@
 
 Docusphere est une application collaborative avancée de gestion documentaire développée avec Ruby on Rails, intégrant un module métier spécialisé pour l'immobilier. La plateforme combine une GED (Gestion Électronique de Documents) performante avec des outils métier spécialisés.
 
+## 🚀 Quick Start
+
+```bash
+# First time setup
+./bin/test setup
+
+# Development workflow  
+./bin/test quick --fix    # Before every commit
+./bin/test ci --fix       # Before push/PR
+
+# Start development
+docker-compose up web
+```
+
+**Use `./bin/test` for ALL testing and validation - it's the unified, performant tool that replaces individual docker-compose and rspec commands.**
+
 ## 🎯 Vision Produit
 
 Docusphere transforme la gestion documentaire traditionnelle en plateforme métier intelligente, avec un focus initial sur l'immobilier via le module **ImmoPromo**. L'objectif est de fournir une solution complète pour les professionnels nécessitant à la fois une GED robuste et des workflows métier spécialisés.
@@ -46,42 +62,46 @@ Docusphere transforme la gestion documentaire traditionnelle en plateforme méti
 
 ## 🧪 Tests
 
-### Running Tests
+**🚀 USE THE UNIFIED TEST SCRIPT `./bin/test` FOR ALL TESTING**
 
-#### Unit and Integration Tests
+### Quick Testing Commands
+
 ```bash
-# Run all tests in parallel (faster)
-docker-compose run --rm -e PARALLEL_TEST_PROCESSORS=4 web bundle exec parallel_rspec
+# Before every commit
+./bin/test quick --fix
 
-# Run specific test file
+# Full test suite
+./bin/test ci --fix
+
+# Specific test categories
+./bin/test units              # Unit & integration tests
+./bin/test system             # Browser tests with Selenium
+./bin/test security           # Security scans
+./bin/test lint --fix         # Code quality with auto-fix
+
+# Diagnostics
+./bin/test doctor            # Environment health check
+```
+
+### Advanced Testing
+
+```bash
+# Run specific RSpec file (when needed)
 docker-compose run --rm web bundle exec rspec spec/models/user_spec.rb
 
-# Run with fail-fast
-docker-compose run --rm web bundle exec rspec --fail-fast
+# Debug system tests with visible browser
+DEBUG=1 ./bin/test system
+
+# Fast mode (skip slower tests)
+./bin/test ci --fast --fix
 ```
 
-#### System Tests (Selenium)
-
-**🚨 IMPORTANT: Always use the provided script for system tests**
-
-```bash
-# Run all system tests
-./bin/system-test
-
-# Run specific system test
-./bin/system-test spec/system/document_upload_workflow_spec.rb
-
-# Run with RSpec options
-./bin/system-test --fail-fast
-
-# Debug mode (view browser)
-DEBUG=1 ./bin/system-test
-```
-
-The system test script:
-- Starts all required services (Selenium, DB, Redis, etc.)
-- Waits for services to be ready
-- Configures proper Docker networking
+The `./bin/test` script provides:
+- Parallel test execution (4 processors)
+- Auto-fix capabilities for common issues
+- Clear progress reporting with timings
+- Smart service management (starts Selenium, Redis, etc.)
+- Consistent environment across all developers
 - Handles ARM64 (Mac M1/M2) and x86_64 (Intel/CI) architectures
 - Keeps services running after tests for debugging
 
@@ -220,14 +240,11 @@ cd docusphere
 2. Lancer le script de configuration initiale
 ```bash
 ./setup.sh
+# ou utiliser le script unifié
+./bin/test setup
 ```
 
-3. Une fois la construction Docker terminée, finaliser l'installation
-```bash
-./finalize_setup.sh
-```
-
-4. Démarrer l'application
+3. Démarrer l'application
 ```bash
 docker-compose up
 ```
@@ -237,6 +254,42 @@ L'application sera accessible sur http://localhost:3000
 **Compte administrateur par défaut :**
 - Email : admin@docusphere.fr
 - Mot de passe : password123
+
+## 📁 Organisation du Projet
+
+### Structure des Répertoires
+```
+docusphere/
+├── app/                    # Application Rails principale
+├── bin/                    # Scripts d'automatisation et utilitaires
+│   ├── test               # Script unifié pour tous les tests
+│   ├── setup-dev          # Configuration environnement développement
+│   └── ...                # Autres scripts utilitaires
+├── config/                 # Configuration Rails
+├── db/                     # Base de données et migrations
+├── docs/                   # Documentation détaillée du projet
+│   ├── COMPONENTS_ARCHITECTURE.md
+│   ├── PERFORMANCE_OPTIMIZATIONS.md
+│   ├── SELENIUM_TESTING.md
+│   └── ...                # Autres documentations techniques
+├── engines/               
+│   └── immo_promo/        # Module métier immobilier (Rails Engine)
+├── spec/                   # Tests RSpec
+└── storage/                # Stockage local des documents
+```
+
+### 📚 Documentation
+
+**Documentation principale :**
+- `README.md` - Ce fichier, vue d'ensemble du projet
+- `CLAUDE.md` - Instructions pour l'assistant IA et pièges connus
+- `WORKFLOW.md` - Procédures obligatoires pour éviter les régressions
+
+**Documentation technique (dans `docs/`) :**
+- Architecture des composants, stratégies de test
+- Guides de performance, configuration Selenium
+- Plans de stabilisation, status du projet
+- Documentation complète des modèles et workflows
 
 ## 🏗️ Architecture Technique
 

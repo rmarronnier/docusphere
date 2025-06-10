@@ -15,7 +15,7 @@ Ce fichier contient les procédures obligatoires pour éviter les régressions. 
 1. **Document#lock!** : Override la méthode PaperTrail - cause un warning au démarrage
 2. **Authorizable#owned_by?** : Vérifie différents attributs selon le modèle (user, uploaded_by, project_manager)
 3. **WorkflowManageable** : Incompatible avec Workflow model (utilise des statuts différents)
-4. **Tests parallèles** : Utiliser SEULEMENT en local, jamais sur GitHub Actions
+4. **Tests parallèles** : Maintenant utilisés en CI avec parallel_rspec et 4 processeurs
 5. **Factories avec associations** : Toujours vérifier le schema.rb pour les colonnes réelles
 6. **ValidationRequest polymorphic** : Utiliser `validatable:` au lieu de `document:` dans les tests/factories
 7. **Engine DocumentPolicy** : Supprimé - utiliser la policy principale via le concern Documentable
@@ -30,6 +30,88 @@ When running on GitHub Actions (x86_64-linux), you may need to add the platform 
 ```bash
 docker-compose run --rm web bundle lock --add-platform x86_64-linux
 ```
+
+### GitHub Actions Improvements (June 10, 2025)
+
+**CI/CD Pipeline Optimizations:**
+- **Parallel Testing**: Now uses `parallel_rspec` with 4 processors for faster test execution
+- **System Tests**: Added Selenium service with proper health checks and environment variables
+- **Caching**: Implemented Bun dependency caching across all jobs for better performance
+- **Timeouts**: Added appropriate timeouts to prevent hanging jobs (10-45 minutes)
+- **Permissions**: Added proper permissions for security events and content access
+- **Artifact Management**: Updated to upload-artifact@v4 with retention policies and failure artifacts
+- **Test Separation**: Separate execution of unit tests and system tests for better reliability
+
+**Dependabot Configuration Improvements:**
+- **Scheduling**: Optimized to weekly intervals with timezone support (Europe/Paris)
+- **Grouping**: Logical grouping of dependencies (Rails, testing, security, frontend, etc.)
+- **Engine Support**: Added support for Immo::Promo engine dependencies
+- **Multiple Ecosystems**: Support for Bundler, NPM, GitHub Actions, and Docker
+- **Commit Messages**: Structured commit message prefixes for better organization
+- **Review Limits**: Reduced PR limits to manageable numbers (3-5 per ecosystem)
+
+### Universal Test Runner (June 10, 2025)
+
+**🚀 ONE SCRIPT TO RULE THEM ALL: `./bin/test`**
+
+**This is THE primary tool for all testing and validation. Use it instead of individual docker-compose or rspec commands for consistent, fast, and reliable results.**
+
+**Commands:**
+- `quick` - Fast pre-commit checks (lint + sample tests)
+- `security` - Security scans (Brakeman, Bundle Audit, Bun Audit)  
+- `lint` - Code quality (RuboCop, ESLint, Stylelint)
+- `units` - Unit & integration tests (parallel execution)
+- `engine` - Engine tests (Immo::Promo module)
+- `system` - Browser integration tests (Selenium)
+- `ci` - Complete CI/CD simulation
+- `all` - Everything including diagnostics
+- `doctor` - Environment diagnostics
+- `setup` - Initial development environment setup
+
+**Options:**
+- `--fix` - Auto-fix issues when possible
+- `--fast` - Skip slower operations
+- `--quiet` - Minimal output
+- `--verbose` - Detailed debug output
+
+**Performance Features:**
+- Parallel test execution (4 processors)
+- Concurrent security scans  
+- Smart test environment detection
+- Detailed timing and progress reporting
+- Auto-fix capabilities for common issues
+
+**Recommended Usage (USE THESE):**
+```bash
+# 🔥 MOST COMMON - Development workflow
+./bin/test quick --fix           # Before every commit
+
+# 🚀 COMPLETE - Before push/PR
+./bin/test ci --fix              # Full CI simulation
+
+# ⚡ FAST - Quick feedback
+./bin/test ci --fast --fix       # Skip system tests
+
+# 🩺 DEBUG - When things break
+./bin/test doctor --verbose      # Diagnose issues
+
+# 🏗️ SETUP - First time only
+./bin/test setup                 # Environment setup
+```
+
+**Legacy scripts (prefer ./bin/test):**
+- `./bin/pre-ci` ← Use `./bin/test ci` instead
+- `./bin/quick-check` ← Use `./bin/test quick` instead  
+- `./bin/ci-doctor` ← Use `./bin/test doctor` instead
+
+## Recent Changes (June 10, 2025)
+
+### Repository Cleanup
+- **Root directory cleaned**: Moved 11 scripts to `bin/` directory
+- **Documentation organized**: Moved 10 .md files to `docs/` directory  
+- **Temporary files removed**: Deleted old test outputs and backup files
+- **Screenshots cleaned**: Removed old failure screenshots from `tmp/screenshots/`
+- **Result**: Root directory now contains only essential configuration files
 
 ## Recent Changes (June 10, 2025)
 

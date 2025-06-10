@@ -9,10 +9,16 @@ env:
   POSTGRES_VERSION: 15
   REDIS_VERSION: 7
   BUN_VERSION: latest
+  RAILS_ENV: test
+  CI: true
 
 jobs:
   scan_ruby:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      security-events: write
 
     steps:
       - name: Checkout code
@@ -34,6 +40,10 @@ jobs:
 
   scan_js:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      security-events: write
 
     steps:
       - name: Checkout code
@@ -44,6 +54,14 @@ jobs:
         with:
           bun-version: ${{ env.BUN_VERSION }}
 
+      - name: Cache Bun dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
       - name: Install JavaScript dependencies with Bun
         run: bun install
 
@@ -52,6 +70,7 @@ jobs:
 
   lint:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -67,6 +86,14 @@ jobs:
         with:
           bun-version: ${{ env.BUN_VERSION }}
 
+      - name: Cache Bun dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
       - name: Install JavaScript dependencies
         run: bun install
 
@@ -81,6 +108,10 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+      actions: read
     
     services:
       postgres:
@@ -106,6 +137,18 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+      
+      selenium:
+        image: seleniarm/standalone-chromium:latest
+        ports:
+          - 4444:4444
+          - 7900:7900
+        options: >-
+          --shm-size=2gb
+          --health-cmd "curl -f http://localhost:4444/wd/hub/status || exit 1"
+          --health-interval 30s
+          --health-timeout 10s
+          --health-retries 3
     
     steps:
       - name: Checkout code
@@ -135,6 +178,14 @@ jobs:
         with:
           bun-version: ${{ env.BUN_VERSION }}
 
+      - name: Cache Bun dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
       - name: Install JavaScript dependencies with Bun
         run: bun install
 
@@ -143,39 +194,66 @@ jobs:
           bun run build
           bun run build:css
 
-      - name: Setup test database
+      - name: Setup parallel test databases
         env:
           RAILS_ENV: test
           DATABASE_HOST: localhost
           REDIS_URL: redis://localhost:6379/0
+          PARALLEL_TEST_PROCESSORS: 4
         run: |
           bin/rails db:create
           bin/rails db:schema:load
-          bin/rails db:migrate
+          bin/rails parallel:create
+          bin/rails parallel:load_schema
 
-      - name: Run Ruby tests
+      - name: Run Ruby tests (excluding system tests)
         env:
           RAILS_ENV: test
           DATABASE_HOST: localhost
           REDIS_URL: redis://localhost:6379/0
+          PARALLEL_TEST_PROCESSORS: 4
         run: |
-          bundle exec rspec spec/ --format progress
+          bundle exec parallel_rspec spec/ --exclude-pattern "spec/system/**/*_spec.rb" --format progress
 
-      - name: Run Immo::Promo engine tests
+      - name: Run Immo::Promo engine tests (excluding system tests)
         env:
           RAILS_ENV: test
           DATABASE_HOST: localhost
           REDIS_URL: redis://localhost:6379/0
+          PARALLEL_TEST_PROCESSORS: 4
         run: |
-          cd engines/immo_promo && bundle exec rspec spec/ --format progress
+          cd engines/immo_promo && bundle exec parallel_rspec spec/ --exclude-pattern "spec/system/**/*_spec.rb" --format progress
 
       - name: Run JavaScript tests with Bun
         run: bun test
 
+      - name: Run system tests
+        env:
+          RAILS_ENV: test
+          DATABASE_HOST: localhost
+          REDIS_URL: redis://localhost:6379/0
+          SELENIUM_REMOTE_URL: http://localhost:4444/wd/hub
+          CAPYBARA_SERVER_HOST: 0.0.0.0
+        run: |
+          bundle exec rspec spec/system/ --format progress
+          cd engines/immo_promo && bundle exec rspec spec/system/ --format progress
+
+      - name: Upload test artifacts
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: test-artifacts
+          path: |
+            tmp/screenshots/
+            coverage/
+            log/test.log
+          retention-days: 7
+
       - name: Upload coverage reports
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: coverage
           path: coverage/
+          retention-days: 30
 

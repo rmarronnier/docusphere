@@ -1,0 +1,102 @@
+#!/bin/bash
+
+# DEPRECATED: Use ./bin/test quick instead
+# This script is kept for backward compatibility
+
+echo "⚠️  DEPRECATED: ./bin/quick-check is deprecated"
+echo "🚀  Use ./bin/test quick instead for better performance and features"
+echo ""
+echo "Migration guide:"
+echo "  ./bin/quick-check         →  ./bin/test quick"
+echo "  ./bin/quick-check --fix   →  ./bin/test quick --fix"
+echo ""
+echo "Running ./bin/test quick $@ instead..."
+echo ""
+
+exec ./bin/test quick "$@"
+
+set -e
+
+# Color output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
+FIX_MODE=false
+
+if [[ "$1" == "--fix" ]]; then
+  FIX_MODE=true
+fi
+
+log_info() {
+  echo -e "${BLUE}[INFO]${NC} $1"
+}
+
+log_success() {
+  echo -e "${GREEN}[SUCCESS]${NC} $1"
+}
+
+log_error() {
+  echo -e "${RED}[ERROR]${NC} $1"
+}
+
+echo "⚡ Quick Pre-Commit Checks"
+echo "========================"
+
+# 1. RuboCop check
+log_info "Checking Ruby code style..."
+if docker-compose run --rm web bin/rubocop --fail-level error; then
+  log_success "Ruby code style OK"
+else
+  if [[ "$FIX_MODE" == "true" ]]; then
+    log_info "Auto-fixing Ruby issues..."
+    docker-compose run --rm web bin/rubocop -A --fail-level error
+  else
+    log_error "Ruby style issues found. Run with --fix to auto-correct."
+    exit 1
+  fi
+fi
+
+# 2. JavaScript lint
+log_info "Checking JavaScript code..."
+if docker-compose run --rm web bun run lint:js; then
+  log_success "JavaScript code OK"
+else
+  if [[ "$FIX_MODE" == "true" ]]; then
+    log_info "Auto-fixing JavaScript issues..."
+    docker-compose run --rm web bun run lint:js --fix 2>/dev/null || true
+  else
+    log_error "JavaScript lint issues found. Run with --fix to auto-correct."
+    exit 1
+  fi
+fi
+
+# 3. CSS lint
+log_info "Checking CSS code..."
+if docker-compose run --rm web bun run lint:css; then
+  log_success "CSS code OK"
+else
+  if [[ "$FIX_MODE" == "true" ]]; then
+    log_info "Auto-fixing CSS issues..."
+    docker-compose run --rm web bun run lint:css --fix 2>/dev/null || true
+  else
+    log_error "CSS lint issues found. Run with --fix to auto-correct."
+    exit 1
+  fi
+fi
+
+# 4. Quick test run (fastest failing tests first)
+log_info "Running quick test sample..."
+if docker-compose run --rm web bundle exec rspec --fail-fast --format progress spec/models/ spec/controllers/ | head -20; then
+  log_success "Quick tests passing"
+else
+  log_error "Some tests are failing. Run ./bin/pre-ci for full analysis."
+  exit 1
+fi
+
+log_success "All quick checks passed! ✨"
+echo ""
+echo "💡 For full CI simulation, run: ./bin/pre-ci"
+echo "🚀 For auto-fixes, run: ./bin/quick-check --fix"

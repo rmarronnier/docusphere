@@ -1,0 +1,271 @@
+#!/bin/bash
+
+# DEPRECATED: Use ./bin/test doctor instead
+# This script is kept for backward compatibility
+
+echo "⚠️  DEPRECATED: ./bin/ci-doctor is deprecated"
+echo "🚀  Use ./bin/test doctor instead for better performance and features"
+echo ""
+echo "Migration guide:"
+echo "  ./bin/ci-doctor           →  ./bin/test doctor"
+echo "  (for verbose output)     →  ./bin/test doctor --verbose"
+echo ""
+echo "Running ./bin/test doctor $@ instead..."
+echo ""
+
+exec ./bin/test doctor "$@"
+
+set -e
+
+# Color output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
+log_info() {
+  echo -e "${BLUE}[INFO]${NC} $1"
+}
+
+log_success() {
+  echo -e "${GREEN}[✓]${NC} $1"
+}
+
+log_warning() {
+  echo -e "${YELLOW}[⚠]${NC} $1"
+}
+
+log_error() {
+  echo -e "${RED}[✗]${NC} $1"
+}
+
+check_section() {
+  echo ""
+  echo -e "${BLUE}$1${NC}"
+  echo "$(printf '=%.0s' {1..50})"
+}
+
+echo "🩺 CI Doctor - Environment Diagnostic"
+echo "====================================="
+
+# 1. Docker Environment
+check_section "Docker Environment"
+
+if command -v docker &> /dev/null; then
+  log_success "Docker is installed"
+  docker --version
+else
+  log_error "Docker is not installed"
+fi
+
+if command -v docker-compose &> /dev/null; then
+  log_success "Docker Compose is installed"
+  docker-compose --version
+else
+  log_error "Docker Compose is not installed"
+fi
+
+if docker info &> /dev/null; then
+  log_success "Docker daemon is running"
+else
+  log_error "Docker daemon is not running"
+fi
+
+# 2. Project Dependencies
+check_section "Project Dependencies"
+
+# Check Gemfile.lock platforms
+if [[ -f "Gemfile.lock" ]]; then
+  if grep -q "x86_64-linux" Gemfile.lock; then
+    log_success "Gemfile.lock has x86_64-linux platform"
+  else
+    log_warning "Missing x86_64-linux platform in Gemfile.lock"
+    echo "  Fix: docker-compose run --rm web bundle lock --add-platform x86_64-linux"
+  fi
+  
+  if grep -q "arm64-darwin" Gemfile.lock; then
+    log_success "Gemfile.lock has arm64-darwin platform"
+  fi
+else
+  log_error "Gemfile.lock not found"
+fi
+
+# Check package.json
+if [[ -f "package.json" ]]; then
+  log_success "package.json exists"
+  if [[ -f "bun.lock" ]]; then
+    log_success "bun.lock exists"
+  else
+    log_warning "bun.lock missing - run 'bun install'"
+  fi
+else
+  log_error "package.json not found"
+fi
+
+# 3. Configuration Files
+check_section "Configuration Files"
+
+config_files=(
+  ".github/workflows/ci.yml:GitHub Actions workflow"
+  ".github/dependabot.yml:Dependabot configuration"
+  "docker-compose.yml:Docker Compose configuration"
+  "Dockerfile:Main Dockerfile"
+  "config/database.yml:Database configuration"
+  "spec/rails_helper.rb:RSpec configuration"
+)
+
+for item in "${config_files[@]}"; do
+  file="${item%%:*}"
+  description="${item##*:}"
+  
+  if [[ -f "$file" ]]; then
+    log_success "$description exists"
+  else
+    log_error "$description missing: $file"
+  fi
+done
+
+# 4. Test Database Check
+check_section "Test Database Status"
+
+if docker-compose ps postgres 2>/dev/null | grep -q "Up"; then
+  log_success "PostgreSQL service is running"
+  
+  # Check if test databases exist
+  db_check=$(docker-compose run --rm web rails runner "
+    begin
+      ActiveRecord::Base.connection
+      puts 'Connected to test database'
+    rescue => e
+      puts \"Database connection failed: #{e.message}\"
+      exit 1
+    end
+  " 2>/dev/null || echo "Database check failed")
+  
+  if [[ "$db_check" == *"Connected"* ]]; then
+    log_success "Test database is accessible"
+  else
+    log_warning "Test database connection issues"
+    echo "  Fix: docker-compose run --rm web rails db:create db:schema:load"
+  fi
+else
+  log_warning "PostgreSQL service not running"
+  echo "  Fix: docker-compose up -d postgres"
+fi
+
+# 5. Parallel Test Setup
+check_section "Parallel Test Configuration"
+
+# Check if parallel test databases exist
+for i in {2..4}; do
+  db_name="docusphere_test$i"
+  db_exists=$(docker-compose run --rm web rails runner "
+    begin
+      config = ActiveRecord::Base.configurations.configs_for(env_name: 'test').find { |c| c.database.include?('$i') }
+      if config
+        ActiveRecord::Base.establish_connection(config.configuration_hash)
+        ActiveRecord::Base.connection.execute('SELECT 1')
+        puts 'exists'
+      else
+        puts 'missing'
+      end
+    rescue
+      puts 'missing'
+    end
+  " 2>/dev/null | tail -1)
+  
+  if [[ "$db_exists" == "exists" ]]; then
+    log_success "Parallel test database $i exists"
+  else
+    log_warning "Parallel test database $i missing"
+    echo "  Fix: docker-compose run --rm web rails parallel:create parallel:load_schema"
+  fi
+done
+
+# 6. Selenium Setup (for system tests)
+check_section "Selenium Configuration"
+
+if docker-compose config 2>/dev/null | grep -q "selenium:"; then
+  log_success "Selenium service configured in docker-compose.yml"
+  
+  if docker-compose ps selenium 2>/dev/null | grep -q "Up"; then
+    log_success "Selenium service is running"
+  else
+    log_warning "Selenium service not running"
+    echo "  Fix: docker-compose up -d selenium"
+  fi
+else
+  log_warning "Selenium service not configured"
+  echo "  This is needed for system tests in CI"
+fi
+
+# 7. Common Issues Check
+check_section "Common Issues Check"
+
+# Check for common problematic patterns
+issues_found=false
+
+# Check for binding.pry in code
+if find . -name "*.rb" -not -path "./vendor/*" -not -path "./.git/*" | xargs grep -l "binding\.pry" 2>/dev/null; then
+  log_error "Found binding.pry in code (will cause CI to hang)"
+  issues_found=true
+fi
+
+# Check for debugger statements in JS
+if find . -name "*.js" -not -path "./node_modules/*" -not -path "./.git/*" | xargs grep -l "debugger" 2>/dev/null; then
+  log_error "Found debugger statements in JavaScript"
+  issues_found=true
+fi
+
+# Check for focus: true in specs
+if find spec -name "*.rb" | xargs grep -l "focus: true" 2>/dev/null; then
+  log_error "Found focused specs (focus: true) - will only run those specs"
+  issues_found=true
+fi
+
+# Check for fit/fdescribe in specs
+if find spec -name "*.rb" | xargs grep -l -E "\b(fit|fdescribe|fcontext)\b" 2>/dev/null; then
+  log_error "Found focused specs (fit/fdescribe) - will only run those specs"
+  issues_found=true
+fi
+
+if ! $issues_found; then
+  log_success "No common issues found"
+fi
+
+# 8. Performance Recommendations
+check_section "Performance Recommendations"
+
+# Check if spring is running (can cause issues in CI)
+if pgrep -f spring &>/dev/null; then
+  log_warning "Spring is running - may cause issues in containerized environment"
+  echo "  Consider: spring stop"
+fi
+
+# Check Docker resources
+docker_info=$(docker system df 2>/dev/null || echo "")
+if [[ -n "$docker_info" ]]; then
+  log_info "Docker disk usage:"
+  echo "$docker_info"
+fi
+
+# 9. Final Recommendations
+check_section "Recommendations"
+
+echo "🚀 Quick Commands:"
+echo "  Fast check:     ./bin/quick-check"
+echo "  Full CI test:   ./bin/pre-ci"
+echo "  With auto-fix:  ./bin/pre-ci --fix"
+echo "  Fast mode:      ./bin/pre-ci --fast"
+echo ""
+echo "🔧 Common Fixes:"
+echo "  Add platform:   docker-compose run --rm web bundle lock --add-platform x86_64-linux"
+echo "  Setup DB:       docker-compose run --rm web rails db:create db:schema:load"
+echo "  Parallel DB:    docker-compose run --rm web rails parallel:create parallel:load_schema"
+echo "  Clean Docker:   docker system prune -f"
+echo ""
+echo "📊 CI Status Simulation:"
+echo "  Security:       ./bin/pre-ci --fast | grep 'Security'"
+echo "  Linting:        ./bin/quick-check"
+echo "  Tests:          ./bin/pre-ci"

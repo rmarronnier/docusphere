@@ -1,0 +1,584 @@
+#!/bin/bash
+
+# DocuSphere Universal Test Runner
+# ===============================
+# The ONE script to rule them all - handles all testing and validation needs
+# Usage: ./bin/test [COMMANDS] [OPTIONS]
+#
+# This script is designed to be your primary tool for testing and validation.
+# Use it instead of individual docker-compose or rspec commands for consistent,
+# fast, and reliable results with clear feedback.
+
+set -e
+
+# Performance and output configuration
+export PARALLEL_TEST_PROCESSORS=4
+export RAILS_ENV=test
+export CI=true
+
+# Color output
+readonly RED='\033[0;31m'
+readonly GREEN='\033[0;32m'
+readonly YELLOW='\033[1;33m'
+readonly BLUE='\033[0;34m'
+readonly PURPLE='\033[0;35m'
+readonly CYAN='\033[0;36m'
+readonly BOLD='\033[1m'
+readonly NC='\033[0m'
+
+# Global state
+VERBOSE=false
+FIX_MODE=false
+FAST_MODE=false
+QUIET_MODE=false
+START_TIME=$(date +%s)
+TOTAL_CHECKS=0
+PASSED_CHECKS=0
+FAILED_CHECKS=0
+FIXED_ISSUES=0
+
+# Results tracking
+declare -a RESULTS=()
+declare -a TIMINGS=()
+
+# Available commands
+readonly VALID_COMMANDS=(
+  "security" "lint" "units" "system" "engine" "all" "ci" "quick" "doctor" "setup"
+)
+
+# Utility functions
+log() {
+  local level="$1"
+  local message="$2"
+  local color="$3"
+  local timestamp=$(date '+%H:%M:%S')
+  
+  if [[ "$QUIET_MODE" == "false" || "$level" == "ERROR" || "$level" == "SUCCESS" ]]; then
+    echo -e "${color}[${timestamp}] ${level}:${NC} $message"
+  fi
+}
+
+log_info() { log "INFO" "$1" "$BLUE"; }
+log_success() { log "SUCCESS" "$1" "$GREEN"; ((PASSED_CHECKS++)); }
+log_warning() { log "WARNING" "$1" "$YELLOW"; }
+log_error() { log "ERROR" "$1" "$RED"; ((FAILED_CHECKS++)); }
+log_step() { log "STEP" "$1" "$PURPLE"; }
+log_debug() { [[ "$VERBOSE" == "true" ]] && log "DEBUG" "$1" "$CYAN"; }
+
+# Performance tracking
+start_timer() {
+  echo $(date +%s%3N)
+}
+
+end_timer() {
+  local start_time="$1"
+  local end_time=$(date +%s%3N)
+  echo $((end_time - start_time))
+}
+
+record_result() {
+  local command="$1"
+  local status="$2"
+  local duration="$3"
+  local message="$4"
+  
+  RESULTS+=("$command:$status:$duration:$message")
+  TIMINGS+=("$command took ${duration}ms")
+  ((TOTAL_CHECKS++))
+  
+  if [[ "$status" == "PASS" ]]; then
+    log_success "$command completed in ${duration}ms"
+  elif [[ "$status" == "FAIL" ]]; then
+    log_error "$command failed in ${duration}ms: $message"
+  elif [[ "$status" == "FIXED" ]]; then
+    log_success "$command auto-fixed in ${duration}ms"
+    ((FIXED_ISSUES++))
+  fi
+}
+
+# Command execution with performance tracking and error handling
+run_command() {
+  local cmd="$1"
+  local description="$2"
+  local can_fix="${3:-false}"
+  local fix_cmd="${4:-}"
+  
+  log_step "Running: $description"
+  log_debug "Command: $cmd"
+  
+  local timer=$(start_timer)
+  local output_file=$(mktemp)
+  local exit_code=0
+  
+  # Run command with timeout and capture output
+  if timeout 300 eval "$cmd" > "$output_file" 2>&1; then
+    local duration=$(end_timer $timer)
+    record_result "$description" "PASS" "$duration" ""
+    
+    if [[ "$VERBOSE" == "true" ]]; then
+      cat "$output_file"
+    fi
+  else
+    exit_code=$?
+    local duration=$(end_timer $timer)
+    local error_msg=$(tail -10 "$output_file" | tr '\n' ' ')
+    
+    if [[ "$can_fix" == "true" && "$FIX_MODE" == "true" && -n "$fix_cmd" ]]; then
+      log_warning "$description failed, attempting auto-fix..."
+      
+      if eval "$fix_cmd" > "$output_file" 2>&1; then
+        # Retry original command after fix
+        if eval "$cmd" > "$output_file" 2>&1; then
+          duration=$(end_timer $timer)
+          record_result "$description" "FIXED" "$duration" "Auto-fixed successfully"
+        else
+          record_result "$description" "FAIL" "$duration" "Fix failed: $error_msg"
+        fi
+      else
+        record_result "$description" "FAIL" "$duration" "Fix failed: $error_msg"
+      fi
+    else
+      record_result "$description" "FAIL" "$duration" "$error_msg"
+    fi
+  fi
+  
+  rm -f "$output_file"
+  return $exit_code
+}
+
+# Parallel command execution for maximum performance
+run_parallel() {
+  local -a pids=()
+  local -a cmd_names=()
+  
+  for i in $(seq 1 2 $#); do
+    local cmd="${!i}"
+    local name="${!((i+1))}"
+    
+    {
+      run_command "$cmd" "$name"
+      echo "PARALLEL_RESULT:$name:$?" > "/tmp/parallel_$name.result"
+    } &
+    
+    pids+=($!)
+    cmd_names+=("$name")
+  done
+  
+  # Wait for all parallel jobs
+  for pid in "${pids[@]}"; do
+    wait $pid
+  done
+  
+  # Collect results
+  for name in "${cmd_names[@]}"; do
+    if [[ -f "/tmp/parallel_$name.result" ]]; then
+      rm -f "/tmp/parallel_$name.result"
+    fi
+  done
+}
+
+# Command implementations
+cmd_security() {
+  log_step "🔍 Security Analysis"
+  
+  # Run security scans in parallel for speed
+  run_parallel \
+    "docker-compose run --rm web bin/brakeman --no-pager --quiet" "Brakeman-Security-Scan" \
+    "docker-compose run --rm web sh -c 'gem install bundler-audit >/dev/null 2>&1 && bundle-audit check --update'" "Bundle-Audit" \
+    "docker-compose run --rm web bun audit" "JavaScript-Security-Audit"
+}
+
+cmd_lint() {
+  log_step "🔧 Code Quality & Linting"
+  
+  local rubocop_fix="docker-compose run --rm web bin/rubocop -A --fail-level error"
+  local eslint_fix="docker-compose run --rm web bun run lint:js --fix"
+  local stylelint_fix="docker-compose run --rm web bun run lint:css --fix"
+  
+  run_command \
+    "docker-compose run --rm web bin/rubocop --fail-level error --format progress" \
+    "RuboCop-Ruby-Style" \
+    "true" \
+    "$rubocop_fix"
+  
+  run_command \
+    "docker-compose run --rm web bun run lint:js" \
+    "ESLint-JavaScript" \
+    "true" \
+    "$eslint_fix"
+  
+  run_command \
+    "docker-compose run --rm web bun run lint:css" \
+    "Stylelint-CSS" \
+    "true" \
+    "$stylelint_fix"
+}
+
+cmd_units() {
+  log_step "🧪 Unit & Integration Tests"
+  
+  # Ensure test environment is ready
+  ensure_test_environment
+  
+  if [[ "$FAST_MODE" == "true" ]]; then
+    # Fast mode: only critical paths
+    run_command \
+      "docker-compose run --rm -e PARALLEL_TEST_PROCESSORS=$PARALLEL_TEST_PROCESSORS web bundle exec parallel_rspec spec/models/ spec/policies/ --format progress" \
+      "Critical-Tests-Fast"
+  else
+    # Full unit test suite excluding system tests
+    run_command \
+      "docker-compose run --rm -e PARALLEL_TEST_PROCESSORS=$PARALLEL_TEST_PROCESSORS web bundle exec parallel_rspec spec/ --exclude-pattern 'spec/system/**/*_spec.rb' --format progress" \
+      "Main-App-Unit-Tests"
+  fi
+}
+
+cmd_engine() {
+  log_step "🏗️  Engine Tests (Immo::Promo)"
+  
+  if [[ "$FAST_MODE" == "true" ]]; then
+    run_command \
+      "cd engines/immo_promo && docker-compose run --rm -e PARALLEL_TEST_PROCESSORS=$PARALLEL_TEST_PROCESSORS web bundle exec parallel_rspec spec/models/ spec/policies/ --format progress" \
+      "Engine-Critical-Tests"
+  else
+    run_command \
+      "cd engines/immo_promo && docker-compose run --rm -e PARALLEL_TEST_PROCESSORS=$PARALLEL_TEST_PROCESSORS web bundle exec parallel_rspec spec/ --exclude-pattern 'spec/system/**/*_spec.rb' --format progress" \
+      "Engine-Unit-Tests"
+  fi
+}
+
+cmd_system() {
+  log_step "🌐 System Tests (Browser Integration)"
+  
+  if [[ "$FAST_MODE" == "true" ]]; then
+    log_info "Skipping system tests in fast mode"
+    return 0
+  fi
+  
+  ensure_selenium
+  
+  # Run system tests with proper environment
+  run_command \
+    "docker-compose run --rm -e SELENIUM_REMOTE_URL=http://selenium:4444/wd/hub -e CAPYBARA_SERVER_HOST=0.0.0.0 web bundle exec rspec spec/system/ --format progress" \
+    "Main-App-System-Tests"
+  
+  run_command \
+    "cd engines/immo_promo && docker-compose run --rm -e SELENIUM_REMOTE_URL=http://selenium:4444/wd/hub -e CAPYBARA_SERVER_HOST=0.0.0.0 web bundle exec rspec spec/system/ --format progress" \
+    "Engine-System-Tests"
+}
+
+cmd_doctor() {
+  log_step "🩺 Environment Diagnosis"
+  
+  local issues_found=0
+  
+  # Check Docker
+  if ! docker info >/dev/null 2>&1; then
+    log_error "Docker daemon not running"
+    ((issues_found++))
+  else
+    log_success "Docker environment OK"
+  fi
+  
+  # Check Gemfile.lock platform
+  if ! grep -q "x86_64-linux" Gemfile.lock; then
+    log_warning "Missing x86_64-linux platform in Gemfile.lock"
+    if [[ "$FIX_MODE" == "true" ]]; then
+      docker-compose run --rm web bundle lock --add-platform x86_64-linux
+      log_success "Added x86_64-linux platform"
+      ((FIXED_ISSUES++))
+    fi
+  else
+    log_success "Gemfile.lock platforms OK"
+  fi
+  
+  # Check for common problematic patterns
+  if find . -name "*.rb" -not -path "./vendor/*" | xargs grep -l "binding\.pry" 2>/dev/null | head -1; then
+    log_error "Found binding.pry in code (will cause CI to hang)"
+    ((issues_found++))
+  fi
+  
+  if find spec -name "*.rb" | xargs grep -l "focus: true" 2>/dev/null | head -1; then
+    log_error "Found focused specs (focus: true)"
+    ((issues_found++))
+  fi
+  
+  if [[ $issues_found -eq 0 ]]; then
+    log_success "No common issues detected"
+  fi
+  
+  # Test database connectivity
+  if docker-compose run --rm web rails runner "ActiveRecord::Base.connection" >/dev/null 2>&1; then
+    log_success "Database connectivity OK"
+  else
+    log_error "Database connection failed"
+    ((issues_found++))
+  fi
+  
+  return $issues_found
+}
+
+cmd_setup() {
+  log_step "🚀 Development Environment Setup"
+  
+  run_command "docker-compose build web" "Docker-Build"
+  run_command "docker-compose up -d postgres redis" "Start-Services"
+  
+  sleep 3  # Wait for services
+  
+  run_command "docker-compose run --rm web bundle install" "Ruby-Dependencies"
+  run_command "docker-compose run --rm web bun install" "JavaScript-Dependencies"
+  
+  # Add CI platform
+  run_command \
+    "docker-compose run --rm web bundle lock --add-platform x86_64-linux" \
+    "CI-Platform-Lock"
+  
+  # Database setup
+  run_command "docker-compose run --rm web rails db:create" "Create-Databases"
+  run_command "docker-compose run --rm web rails db:schema:load" "Load-Schema"
+  run_command "docker-compose run --rm -e PARALLEL_TEST_PROCESSORS=$PARALLEL_TEST_PROCESSORS web rails parallel:create" "Parallel-Test-DBs"
+  run_command "docker-compose run --rm -e PARALLEL_TEST_PROCESSORS=$PARALLEL_TEST_PROCESSORS web rails parallel:load_schema" "Parallel-Schema-Load"
+  
+  # Build assets
+  run_command "docker-compose run --rm web bun run build" "Build-JavaScript"
+  run_command "docker-compose run --rm web bun run build:css" "Build-CSS"
+  
+  log_success "Environment setup complete!"
+}
+
+cmd_quick() {
+  FAST_MODE=true
+  cmd_lint
+  
+  # Quick test sample for immediate feedback
+  run_command \
+    "docker-compose run --rm web bundle exec rspec --fail-fast spec/models/ | head -20" \
+    "Quick-Test-Sample"
+}
+
+cmd_ci() {
+  log_step "🔄 Complete CI/CD Simulation"
+  cmd_security
+  cmd_lint
+  cmd_units
+  cmd_engine
+  cmd_system
+}
+
+cmd_all() {
+  log_step "🎯 Complete Test Suite"
+  cmd_doctor
+  cmd_security
+  cmd_lint
+  cmd_units
+  cmd_engine
+  cmd_system
+}
+
+# Utility functions
+ensure_test_environment() {
+  # Check if test database exists and is accessible
+  if ! docker-compose run --rm web rails runner "ActiveRecord::Base.connection" >/dev/null 2>&1; then
+    log_info "Setting up test database..."
+    docker-compose run --rm web rails db:create >/dev/null 2>&1 || true
+    docker-compose run --rm web rails db:schema:load >/dev/null 2>&1 || true
+  fi
+  
+  # Ensure parallel test databases exist
+  if [[ "$PARALLEL_TEST_PROCESSORS" -gt 1 ]]; then
+    docker-compose run --rm -e PARALLEL_TEST_PROCESSORS=$PARALLEL_TEST_PROCESSORS web rails parallel:create >/dev/null 2>&1 || true
+    docker-compose run --rm -e PARALLEL_TEST_PROCESSORS=$PARALLEL_TEST_PROCESSORS web rails parallel:load_schema >/dev/null 2>&1 || true
+  fi
+}
+
+ensure_selenium() {
+  if ! docker-compose ps selenium 2>/dev/null | grep -q "Up"; then
+    log_info "Starting Selenium service..."
+    docker-compose up -d selenium >/dev/null 2>&1
+    sleep 5  # Wait for Selenium to be ready
+  fi
+}
+
+show_usage() {
+  cat << 'EOF'
+DocuSphere Universal Test Runner
+===============================
+
+USAGE:
+  ./bin/test COMMAND [OPTIONS]
+
+COMMANDS:
+  quick       Fast pre-commit checks (lint + sample tests)
+  security    Security scans (Brakeman, Bundle Audit, Bun Audit)
+  lint        Code quality (RuboCop, ESLint, Stylelint)
+  units       Unit & integration tests (models, controllers, services, etc.)
+  engine      Engine tests (Immo::Promo module)
+  system      Browser integration tests (Selenium)
+  ci          Complete CI/CD simulation (security + lint + units + engine + system)
+  all         Everything including diagnostics (doctor + ci)
+  doctor      Environment diagnostics and common issue detection
+  setup       Initial development environment setup
+
+OPTIONS:
+  --fix       Auto-fix issues when possible (RuboCop, lint, bundle lock)
+  --fast      Skip slower operations (system tests, detailed checks)
+  --quiet     Minimal output (errors and final results only)
+  --verbose   Detailed output including command details and debug info
+
+EXAMPLES:
+  ./bin/test quick --fix           # Fast pre-commit validation with auto-fix
+  ./bin/test ci --fast            # Full CI simulation, skip system tests
+  ./bin/test units --verbose      # Detailed unit test run
+  ./bin/test all --fix            # Complete validation with auto-fix
+  ./bin/test doctor               # Diagnose environment issues
+  ./bin/test setup                # First-time environment setup
+
+PERFORMANCE FEATURES:
+  - Parallel test execution (4 processors)
+  - Concurrent security scans
+  - Smart test environment detection
+  - Automatic service startup
+  - Detailed timing and progress reporting
+
+RECOMMENDED USAGE:
+  - Development: ./bin/test quick --fix
+  - Pre-commit: ./bin/test ci --fast --fix
+  - Pre-push:   ./bin/test ci --fix
+  - CI Debug:   ./bin/test all --verbose
+
+This script replaces individual docker-compose and rspec commands.
+Use it for consistent, fast, and reliable testing with clear feedback.
+EOF
+}
+
+show_results() {
+  local total_time=$(($(date +%s) - START_TIME))
+  
+  echo ""
+  echo -e "${BOLD}📊 EXECUTION SUMMARY${NC}"
+  echo "$(printf '=%.0s' {1..50})"
+  echo -e "Total time: ${CYAN}${total_time}s${NC}"
+  echo -e "Checks run: ${BLUE}$TOTAL_CHECKS${NC}"
+  echo -e "Passed: ${GREEN}$PASSED_CHECKS${NC}"
+  echo -e "Failed: ${RED}$FAILED_CHECKS${NC}"
+  echo -e "Auto-fixed: ${YELLOW}$FIXED_ISSUES${NC}"
+  
+  if [[ ${#TIMINGS[@]} -gt 0 ]]; then
+    echo ""
+    echo -e "${BOLD}⏱️  PERFORMANCE BREAKDOWN${NC}"
+    printf '%s\n' "${TIMINGS[@]}" | sort -t: -k2 -n
+  fi
+  
+  if [[ $FAILED_CHECKS -gt 0 ]]; then
+    echo ""
+    echo -e "${BOLD}❌ FAILED CHECKS${NC}"
+    for result in "${RESULTS[@]}"; do
+      IFS=':' read -r cmd status duration message <<< "$result"
+      if [[ "$status" == "FAIL" ]]; then
+        echo -e "${RED}  ✗ $cmd${NC}: $message"
+      fi
+    done
+    echo ""
+    echo -e "${YELLOW}💡 Try running with --fix to auto-resolve issues${NC}"
+    echo -e "${YELLOW}💡 Use --verbose for detailed error output${NC}"
+  else
+    echo ""
+    echo -e "${GREEN}🎉 ALL CHECKS PASSED!${NC}"
+    if [[ $FIXED_ISSUES -gt 0 ]]; then
+      echo -e "${YELLOW}✨ $FIXED_ISSUES issues were automatically fixed${NC}"
+    fi
+  fi
+}
+
+# Parse arguments
+if [[ $# -eq 0 ]]; then
+  show_usage
+  exit 1
+fi
+
+commands=()
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --fix)
+      FIX_MODE=true
+      shift
+      ;;
+    --fast)
+      FAST_MODE=true
+      shift
+      ;;
+    --quiet)
+      QUIET_MODE=true
+      shift
+      ;;
+    --verbose)
+      VERBOSE=true
+      shift
+      ;;
+    -h|--help)
+      show_usage
+      exit 0
+      ;;
+    security|lint|units|system|engine|all|ci|quick|doctor|setup)
+      commands+=("$1")
+      shift
+      ;;
+    *)
+      echo "Unknown option or command: $1"
+      echo "Use --help for usage information"
+      exit 1
+      ;;
+  esac
+done
+
+# Validate commands
+if [[ ${#commands[@]} -eq 0 ]]; then
+  echo "No command specified. Use --help for usage information"
+  exit 1
+fi
+
+for cmd in "${commands[@]}"; do
+  if [[ ! " ${VALID_COMMANDS[@]} " =~ " $cmd " ]]; then
+    echo "Invalid command: $cmd"
+    echo "Valid commands: ${VALID_COMMANDS[*]}"
+    exit 1
+  fi
+done
+
+# Show configuration
+if [[ "$QUIET_MODE" == "false" ]]; then
+  echo -e "${BOLD}🚀 DocuSphere Test Runner${NC}"
+  echo "$(printf '=%.0s' {1..30})"
+  echo "Commands: ${commands[*]}"
+  echo "Fix mode: $FIX_MODE"
+  echo "Fast mode: $FAST_MODE"
+  echo "Parallel processors: $PARALLEL_TEST_PROCESSORS"
+  echo ""
+fi
+
+# Execute commands
+for cmd in "${commands[@]}"; do
+  case $cmd in
+    security) cmd_security ;;
+    lint) cmd_lint ;;
+    units) cmd_units ;;
+    system) cmd_system ;;
+    engine) cmd_engine ;;
+    all) cmd_all ;;
+    ci) cmd_ci ;;
+    quick) cmd_quick ;;
+    doctor) cmd_doctor ;;
+    setup) cmd_setup ;;
+  esac
+done
+
+# Show final results
+show_results
+
+# Exit with appropriate code
+if [[ $FAILED_CHECKS -gt 0 ]]; then
+  exit 1
+else
+  exit 0
+fi
