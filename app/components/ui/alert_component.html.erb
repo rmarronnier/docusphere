@@ -1,4 +1,7 @@
-<div class="<%= container_classes %>" <%= tag.attributes(dismissible_data) %>>
+<div class="<%= container_classes %>" 
+     role="alert" 
+     aria-live="<%= aria_live_value %>" 
+     <%= tag.attributes(dismissible_data) %>>
   <div class="flex">
     <% if show_icon? %>
       <div class="flex-shrink-0">
@@ -38,6 +41,7 @@
       <div class="ml-3">
         <button type="button" 
                 class="-mx-1.5 -my-1.5 p-1.5 inline-flex rounded-md <%= type_config[:text_color] %> hover:bg-opacity-10 hover:bg-black focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-<%= @type %>-50 focus:ring-<%= @type %>-600"
+                aria-label="Dismiss alert"
                 data-action="click->alert#dismiss">
           <span class="sr-only">Dismiss</span>
           <%= render Ui::IconComponent.new(name: :x, size: 5) %>

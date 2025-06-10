@@ -62,18 +62,22 @@ docker-compose run --rm web bundle exec rspec spec/components/
 
 ## 🏗️ Phase 3 : Refactoring Prioritaire (3-4 jours)
 
-### 3.1 Décomposition du modèle Document (URGENT)
+### 3.1 Décomposition du modèle Document (URGENT) ✅
 Créer les concerns suivants :
-- [ ] `Document::Lockable` - Toute la logique de verrouillage
-- [ ] `Document::AIProcessable` - Classification et extraction IA
-- [ ] `Document::VirusScannable` - Scan antivirus
-- [ ] `Document::Versionable` - Configuration PaperTrail
-- [ ] `Document::Processable` - Pipeline de traitement
+- ✅ `Document::Lockable` - Toute la logique de verrouillage
+- ✅ `Document::AiProcessable` - Classification et extraction IA
+- ✅ `Document::VirusScannable` - Scan antivirus
+- ✅ `Document::Versionable` - Configuration PaperTrail
+- ✅ `Document::Processable` - Pipeline de traitement
 
-### 3.2 Standardisation des Statuts
-- [ ] Choisir entre AASM et WorkflowManageable
-- [ ] Migrer tous les modèles vers l'approche choisie
-- [ ] Créer des enums partagés pour les statuts communs
+**Résultat** : Document réduit de 538 à 247 lignes !
+
+### 3.2 Standardisation des Statuts ✅
+- ✅ Choisi AASM comme standard (déjà utilisé par 4 modèles core)
+- ✅ Créé Immo::Promo::WorkflowStates pour les modèles Immo::Promo
+- ✅ Migré Phase, Task et Permit vers le nouveau système
+- ✅ Supprimé WorkflowManageable (non utilisé)
+- ✅ Ajouté colonne workflow_status pour la compatibilité
 
 ### 3.3 Unification owned_by?
 - [ ] Créer une configuration par modèle

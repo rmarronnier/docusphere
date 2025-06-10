@@ -1,81 +1,88 @@
-class Ui::StatusBadgeComponent < ApplicationComponent
-  PRESETS = {
-    # Generic statuses
-    active: { color: :green, label: 'Active' },
-    inactive: { color: :gray, label: 'Inactive' },
-    pending: { color: :yellow, label: 'Pending' },
-    completed: { color: :green, label: 'Completed' },
-    in_progress: { color: :blue, label: 'In Progress' },
-    delayed: { color: :red, label: 'Delayed' },
-    cancelled: { color: :gray, label: 'Cancelled' },
-    draft: { color: :gray, label: 'Draft' },
-    published: { color: :green, label: 'Published' },
-    archived: { color: :gray, label: 'Archived' },
-    
-    # Project/Phase specific
-    not_started: { color: :gray, label: 'Not Started' },
-    on_hold: { color: :yellow, label: 'On Hold' },
-    at_risk: { color: :orange, label: 'At Risk' },
-    on_track: { color: :green, label: 'On Track' }
-  }.freeze
+class Ui::StatusBadgeComponent < BaseStatusComponent
+  # Additional status mappings specific to this component
+  add_status_colors(
+    at_risk: 'orange',
+    on_track: 'green',
+    on_hold: 'yellow',
+    not_started: 'gray',
+    delayed: 'red',
+    in_progress: 'blue'
+  )
   
-  COLORS = {
-    gray: 'bg-gray-100 text-gray-800',
-    red: 'bg-red-100 text-red-800',
-    yellow: 'bg-yellow-100 text-yellow-800',
-    green: 'bg-green-100 text-green-800',
-    blue: 'bg-blue-100 text-blue-800',
-    indigo: 'bg-indigo-100 text-indigo-800',
-    purple: 'bg-purple-100 text-purple-800',
-    pink: 'bg-pink-100 text-pink-800',
-    orange: 'bg-orange-100 text-orange-800'
-  }.freeze
-  
-  def initialize(status: nil, label: nil, color: nil, size: :medium, dot: false, removable: false)
-    if status && PRESETS[status.to_sym]
-      preset = PRESETS[status.to_sym]
-      @label = label || preset[:label]
-      @color = color || preset[:color]
-    else
-      @label = label || status&.to_s&.humanize || 'Unknown'
-      @color = color || :gray
-    end
+  def initialize(status: nil, label: nil, color: nil, size: :default, dot: false, removable: false)
+    # Map legacy size names
+    mapped_size = case size
+                  when :small then :sm
+                  when :medium then :default
+                  when :large then :lg
+                  else size
+                  end
     
-    @size = size
-    @dot = dot
     @removable = removable
+    
+    # Pass the full set of options to super, don't pass color directly
+    # since it will be computed automatically from status
+    super(
+      status: status || 'unknown',
+      label: label,
+      size: mapped_size,
+      dot: dot
+    )
+    
+    # Override color if explicitly provided
+    @color = color if color.present?
   end
   
   private
   
   def badge_classes
-    base = 'inline-flex items-center font-medium rounded-full'
-    size_classes = case @size
-                   when :small
-                     'px-2.5 py-0.5 text-xs'
-                   when :large
-                     'px-4 py-1.5 text-sm'
-                   else # :medium
-                     'px-3 py-1 text-xs'
-                   end
-    color_classes = COLORS[@color.to_sym] || COLORS[:gray]
+    base = "inline-flex items-center gap-1 font-medium rounded-full"
     
-    "#{base} #{size_classes} #{color_classes}"
+    size_classes = case @size
+    when :sm
+      "px-2 py-0.5 text-xs"
+    when :lg
+      "px-3 py-1 text-sm"
+    else
+      "px-2.5 py-0.5 text-xs"
+    end
+    
+    color_classes = "bg-#{@color}-100 text-#{@color}-800"
+    
+    [base, size_classes, color_classes].compact.join(' ')
   end
   
   def dot_color_class
-    case @color.to_sym
-    when :gray then 'bg-gray-400'
-    when :red then 'bg-red-400'
-    when :yellow then 'bg-yellow-400'
-    when :green then 'bg-green-400'
-    when :blue then 'bg-blue-400'
-    when :indigo then 'bg-indigo-400'
-    when :purple then 'bg-purple-400'
-    when :pink then 'bg-pink-400'
-    when :orange then 'bg-orange-400'
-    else 'bg-gray-400'
+    "bg-#{@color}-400"
+  end
+  
+  protected
+  
+  def status_color
+    custom_status_color || super
+  end
+  
+  def render_badge
+    content_tag :span, class: badge_classes do
+      safe_join([
+        render_dot_indicator,
+        render_icon,
+        @label,
+        render_remove_button
+      ].compact)
     end
   end
   
+  def render_remove_button
+    return unless @removable
+    
+    content_tag :button, type: 'button',
+                class: "ml-1.5 inline-flex flex-shrink-0 h-4 w-4 rounded-full hover:bg-black hover:bg-opacity-10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-black focus:ring-opacity-20",
+                'data-action': "click->remove",
+                'aria-label': "Remove #{@label}" do
+      content_tag :svg, class: "h-2 w-2", fill: "none", stroke: "currentColor", 'stroke-width': "2", viewbox: "0 0 24 24", 'aria-hidden': "true", xmlns: "http://www.w3.org/2000/svg" do
+        content_tag :path, '', 'stroke-linecap': "round", 'stroke-linejoin': "round", 'stroke-width': "2", d: "M6 18L18 6M6 6l12 12"
+      end
+    end
+  end
 end

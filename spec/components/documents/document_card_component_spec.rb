@@ -44,7 +44,10 @@ RSpec.describe Documents::DocumentCardComponent, type: :component do
   end
   
   it "shows document status" do
+    # Disable PaperTrail for this test to avoid foreign key issues
+    PaperTrail.enabled = false
     document.update!(status: 'archived')
+    PaperTrail.enabled = true
     
     rendered = render_inline(described_class.new(document: document))
     
@@ -99,8 +102,9 @@ RSpec.describe Documents::DocumentCardComponent, type: :component do
     it "displays document tags" do
       rendered = render_inline(described_class.new(document: document))
       
-      expect(rendered).to have_content("Important")
-      expect(rendered).to have_content("Contrat")
+      # Tags are normalized to lowercase by the Tag model
+      expect(rendered).to have_content("important")
+      expect(rendered).to have_content("contrat")
     end
   end
   

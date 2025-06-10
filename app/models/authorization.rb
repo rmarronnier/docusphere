@@ -14,8 +14,8 @@ class Authorization < ApplicationRecord
   scope :for_user, ->(user) { where(user: user) }
   scope :for_group, ->(group) { where(user_group: group) }
   scope :with_permission, ->(permission) { where(permission_level: permission) }
-  scope :active, -> { where(revoked_at: nil).where('expires_at IS NULL OR expires_at > ?', Time.current) }
-  scope :expired, -> { where('expires_at IS NOT NULL AND expires_at <= ?', Time.current) }
+  scope :active, -> { where(revoked_at: nil).where('authorizations.expires_at IS NULL OR authorizations.expires_at > ?', Time.current) }
+  scope :expired, -> { where('authorizations.expires_at IS NOT NULL AND authorizations.expires_at <= ?', Time.current) }
   scope :revoked, -> { where.not(revoked_at: nil) }
   scope :granted_by_user, ->(user) { where(granted_by: user) }
   

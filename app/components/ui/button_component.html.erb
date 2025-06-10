@@ -2,7 +2,7 @@
 <% wrapper_options = href.present? ? html_options.merge(href: href) : html_options %>
 
 <% if dropdown %>
-  <div <%= tag.attributes(html_options) %>>
+  <div <%= tag.attributes(html_options.slice("data-controller", "data-action", "class")) %>>
     <%= content_tag wrapper_tag, wrapper_options.except("data-controller", "data-action") do %>
       <%= render_spinner if loading %>
       <%= render_icon if icon && icon_position == :left && !loading %>

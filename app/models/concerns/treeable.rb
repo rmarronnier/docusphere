@@ -10,6 +10,9 @@ module Treeable
 
     before_validation :ensure_not_circular_reference
     validate :parent_cannot_be_self
+    
+    after_save :clear_tree_cache_if_parent_changed
+    after_destroy :clear_tree_cache
   end
 
   def root?
@@ -22,14 +25,7 @@ module Treeable
 
   def ancestors
     return [] if root?
-    
-    ancestors = []
-    current = parent
-    while current
-      ancestors.unshift(current)
-      current = current.parent
-    end
-    ancestors
+    TreePathCacheService.path_for(self)
   end
 
   def root
@@ -74,5 +70,15 @@ module Treeable
 
   def parent_cannot_be_self
     errors.add(:parent, "cannot be itself") if parent == self
+  end
+  
+  def clear_tree_cache_if_parent_changed
+    if saved_change_to_parent_id?
+      TreePathCacheService.clear_for_node(self)
+    end
+  end
+  
+  def clear_tree_cache
+    TreePathCacheService.clear_for_node(self)
   end
 end

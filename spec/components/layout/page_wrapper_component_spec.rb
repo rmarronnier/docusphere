@@ -4,9 +4,13 @@ RSpec.describe Layout::PageWrapperComponent, type: :component do
   let(:user) { create(:user) }
   
   before do
-    mock_component_helpers(described_class, user: user, additional_helpers: {
-      render: ''  # Mock render to avoid rendering NavbarComponent
-    })
+    # Mock the navbar component to avoid Devise issues
+    allow_any_instance_of(Layout::PageWrapperComponent).to receive(:render).with(
+      an_instance_of(Navigation::NavbarComponent)
+    ).and_return('')
+    
+    # Also provide the standard helpers
+    mock_component_helpers(described_class, user: user)
   end
   
   it "renders with navbar by default" do

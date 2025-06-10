@@ -110,7 +110,7 @@ RSpec.describe Ui::IconComponent, type: :component do
     it "uses default viewbox" do
       render_inline(described_class.new(name: :home))
       
-      expect(page).to have_css("svg[viewBox='0 0 24 24']")
+      expect(page).to have_css("svg[viewbox='0 0 24 24']")
     end
 
     it "accepts custom viewbox" do
@@ -119,7 +119,7 @@ RSpec.describe Ui::IconComponent, type: :component do
         viewbox: "0 0 32 32"
       ))
       
-      expect(page).to have_css("svg[viewBox='0 0 32 32']")
+      expect(page).to have_css("svg[viewbox='0 0 32 32']")
     end
   end
 

@@ -9,12 +9,12 @@ class DocumentValidationsController < ApplicationController
   def index
     # Show all validation requests for the current user (as validator)
     @pending_validations = policy_scope(DocumentValidation)
-                                      .includes(:document, :validation_request)
+                                      .includes(:validatable, :validation_request)
                                       .pending
                                       .page(params[:page])
     
     @completed_validations = policy_scope(DocumentValidation)
-                                        .includes(:document, :validation_request)
+                                        .includes(:validatable, :validation_request)
                                         .completed
                                         .order(validated_at: :desc)
                                         .page(params[:completed_page])
@@ -40,7 +40,7 @@ class DocumentValidationsController < ApplicationController
   end
   
   def create
-    authorize ValidationRequest.new(document: @document), :create?
+    authorize ValidationRequest.new(validatable: @document), :create?
     # Create a new validation request
     validator_ids = params[:validation_request][:validator_ids].reject(&:blank?)
     min_validations = params[:validation_request][:min_validations].to_i
@@ -118,7 +118,7 @@ class DocumentValidationsController < ApplicationController
     authorize :validation_request, :my_requests?
     # Show validation requests created by the current user
     @validation_requests = ValidationRequest.for_requester(current_user)
-                                          .includes(:document, :document_validations)
+                                          .includes(:validatable, :document_validations)
                                           .order(created_at: :desc)
                                           .page(params[:page])
   end

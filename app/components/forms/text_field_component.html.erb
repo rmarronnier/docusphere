@@ -1,0 +1,31 @@
+<div class="<%= wrapper_class %>">
+  <% if should_render_label? %>
+    <%= render_label %>
+  <% end %>
+  <% case @type %>
+  <% when :email %>
+    <%= @form.email_field @attribute, text_field_options %>
+  <% when :password %>
+    <%= @form.password_field @attribute, text_field_options %>
+  <% when :number %>
+    <%= @form.number_field @attribute, text_field_options %>
+  <% when :tel %>
+    <%= @form.telephone_field @attribute, text_field_options %>
+  <% when :url %>
+    <%= @form.url_field @attribute, text_field_options %>
+  <% when :date %>
+    <%= @form.date_field @attribute, text_field_options %>
+  <% when :time %>
+    <%= @form.time_field @attribute, text_field_options %>
+  <% when :datetime %>
+    <%= @form.datetime_field @attribute, text_field_options %>
+  <% else %>
+    <%= @form.text_field @attribute, text_field_options %>
+  <% end %>
+  <% if @hint.present? %>
+    <%= render_hint %>
+  <% end %>
+  <% if has_errors? %>
+    <%= render_errors %>
+  <% end %>
+</div>

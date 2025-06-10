@@ -1,0 +1,50 @@
+<% if alerts.any? %>
+  <div class="<%= container_classes %>" data-controller="<%= dismissible ? 'alert' : '' %>">
+    <% if dismissible %>
+      <button type="button" 
+              class="absolute top-4 right-4 <%= styles[:icon_color] %> <%= styles[:dismiss_hover] %> rounded-md p-1.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent focus:ring-<%= type %>-500"
+              data-action="click->alert#dismiss">
+        <span class="sr-only">Fermer</span>
+        <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+        </svg>
+      </button>
+    <% end %>
+    
+    <h2 class="text-lg font-semibold <%= styles[:title_color] %> mb-4">
+      <%= render Ui::IconComponent.new(name: icon, css_class: "h-5 w-5 inline mr-2 #{styles[:icon_color]}") %>
+      <%= title %>
+    </h2>
+    
+    <div class="<%= alerts.size > 1 ? 'grid grid-cols-1 md:grid-cols-2 gap-4' : '' %>">
+      <% alerts.each do |alert| %>
+        <% normalized = normalize_alert(alert) %>
+        <div class="<%= styles[:item_bg] %> rounded p-3">
+          <% if normalized[:title].present? %>
+            <h3 class="font-medium <%= styles[:text_color] %>"><%= normalized[:title] %></h3>
+          <% end %>
+          
+          <% if normalized[:message].present? %>
+            <p class="text-sm <%= styles[:subtitle_color] %> <%= 'mt-1' if normalized[:title].present? %>">
+              <%= normalized[:message] %>
+            </p>
+          <% end %>
+          
+          <% if normalized[:severity].present? %>
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium mt-2 <%= severity_badge_classes(normalized[:severity]) %>">
+              <%= normalized[:severity].to_s.humanize %>
+            </span>
+          <% end %>
+          
+          <% if normalized[:action].present? && normalized[:action][:path] %>
+            <div class="mt-2">
+              <%= link_to normalized[:action][:text] || 'Voir plus', 
+                  normalized[:action][:path],
+                  class: "text-sm font-medium #{styles[:icon_color]} hover:underline" %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>

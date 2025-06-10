@@ -128,14 +128,30 @@ RSpec.describe Documents::AiInsightsComponent, type: :component do
 
   describe 'rendering' do
     context 'when document is AI processed' do
-      before do
-        allow(document).to receive(:ai_processed?).and_return(true)
-        allow(document).to receive(:ai_classification_confidence_percent).and_return(85)
-      end
+      let(:document) { 
+        doc = create(:document)
+        allow(doc).to receive(:ai_processed?).and_return(true)
+        allow(doc).to receive(:ai_classification_confidence_percent).and_return(85)
+        allow(doc).to receive(:ai_summary).and_return('This is a test document summary')
+        allow(doc).to receive(:ai_classification_category).and_return('contract')
+        allow(doc).to receive(:ai_entities_by_type).and_return([])
+        allow(doc).to receive(:ai_confidence).and_return(0.85)
+        allow(doc).to receive(:ai_processed_at).and_return(Time.current)
+        allow(doc).to receive(:extracted_text).and_return('This is the extracted text from the document')
+        allow(doc).to receive(:supports_ai_processing?).and_return(true)
+        allow(doc).to receive_message_chain(:ai_entities, :present?).and_return(false)
+        doc
+      }
 
       it 'renders the component' do
-        rendered = render_inline(component)
-        expect(rendered).to be_present
+        render_inline(component)
+        
+        expect(page).to have_text('Analyse IA du document')
+        expect(page).to have_text('Contrat ou accord') # category description
+        expect(page).to have_text('85%') # confidence percentage
+        expect(page).to have_text('Très fiable') # confidence level
+        expect(page).to have_text('This is a test document summary') # ai summary
+        expect(page).to have_text('This is the extracted text') # extracted text
       end
     end
 

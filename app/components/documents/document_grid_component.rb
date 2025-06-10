@@ -28,7 +28,9 @@ class Documents::DocumentGridComponent < ApplicationComponent
   end
 
   def document_icon(document)
-    case document.document_type&.downcase
+    extension = document.file_extension&.delete('.')&.downcase
+    
+    case extension
     when 'pdf'
       { name: 'document-text', color: 'text-red-500' }
     when 'doc', 'docx'
@@ -64,7 +66,9 @@ class Documents::DocumentGridComponent < ApplicationComponent
   end
 
   def preview_available?(document)
-    document.file.attached? && 
-    ['jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf'].include?(document.document_type&.downcase)
+    return false unless document.file.attached?
+    
+    extension = document.file_extension&.delete('.')&.downcase
+    ['jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf'].include?(extension)
   end
 end

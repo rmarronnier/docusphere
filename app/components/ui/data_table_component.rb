@@ -1,25 +1,20 @@
-class Ui::DataTableComponent < ApplicationComponent
-  def initialize(items: nil, columns: nil, responsive: true, striped: false, hoverable: false, empty_message: nil)
-    @items = items
-    @columns = columns
-    @responsive = responsive
-    @striped = striped
-    @hoverable = hoverable
-    @empty_message = empty_message || "No data available"
-  end
-
-  private
-
+class Ui::DataTableComponent < BaseTableComponent
   attr_reader :items, :columns, :responsive, :striped, :hoverable, :empty_message
-
-  def table_classes
-    classes = ['min-w-full divide-y divide-gray-300']
-    classes << 'table-striped' if striped
-    classes << 'table-hover' if hoverable
-    classes.join(' ')
+  
+  def initialize(items: nil, columns: nil, responsive: true, striped: false, hoverable: false, empty_message: nil, **options)
+    super(
+      items: items || [],
+      columns: columns || [],
+      responsive: responsive,
+      striped: striped,
+      hoverable: hoverable,
+      empty_message: empty_message || "No data available",
+      **options
+    )
   end
 
-  def render_cell(item, column)
+  # Override base method for custom cell rendering
+  def cell_value(item, column)
     return yield(item, column) if block_given?
     
     value = extract_value(item, column[:key])

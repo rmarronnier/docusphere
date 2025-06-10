@@ -9,7 +9,7 @@ class ValidationRequestPolicy < ApplicationPolicy
   end
 
   def create?
-    user.present? && record.document.can_request_validation?(user)
+    user.present? && record.validatable.can_request_validation?(user)
   end
 
   def my_requests?

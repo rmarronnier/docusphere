@@ -9,6 +9,9 @@ module Immo
       include Authorizable
       include Immo::Promo::Documentable
       audited
+      
+      # Configure ownership
+      owned_by :project_manager
 
       belongs_to :organization
       belongs_to :project_manager, class_name: 'User', optional: true

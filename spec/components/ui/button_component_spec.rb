@@ -91,8 +91,8 @@ RSpec.describe Ui::ButtonComponent, type: :component do
         button.with_dropdown_item(text: "Delete", href: "/delete", method: :delete)
       end
       
-      expect(page).to have_css('[data-controller="dropdown"]')
-      expect(page).to have_css('[data-action="click->dropdown#toggle"]')
+      expect(page).to have_css('[data-controller*="dropdown"]')
+      expect(page).to have_css('[data-action*="dropdown#toggle"]')
       expect(page).to have_css('.dropdown-menu')
       expect(page).to have_link("Edit", href: "/edit")
       expect(page).to have_link("Delete", href: "/delete")

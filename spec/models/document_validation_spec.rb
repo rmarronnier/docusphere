@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe DocumentValidation, type: :model do
   let(:document) { create(:document) }
   let(:validator) { create(:user) }
-  let(:validation_request) { create(:validation_request, document: document) }
+  let(:validation_request) { create(:validation_request, validatable: document) }
   
   describe 'validations' do
     it { should validate_presence_of(:status) }
@@ -24,13 +24,13 @@ RSpec.describe DocumentValidation, type: :model do
     
     it 'validates uniqueness of validator per document and request' do
       create(:document_validation, 
-        document: document, 
+        validatable: document, 
         validator: validator, 
         validation_request: validation_request
       )
       
       duplicate = build(:document_validation,
-        document: document,
+        validatable: document,
         validator: validator, 
         validation_request: validation_request
       )
@@ -40,7 +40,7 @@ RSpec.describe DocumentValidation, type: :model do
   end
   
   describe 'associations' do
-    it { should belong_to(:document) }
+    it { should belong_to(:validatable) }
     it { should belong_to(:validator) }
     it { should belong_to(:validation_request) }
   end

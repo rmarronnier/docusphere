@@ -6,10 +6,21 @@ FactoryBot.define do
     status { "draft" }
     association :uploaded_by, factory: :user
     space
+    
+    transient do
+      file_size { nil }
+    end
 
-    after(:build) do |document|
+    after(:build) do |document, evaluator|
+      # Create file content with the specified size if file_size is provided
+      file_content = if evaluator.try(:file_size)
+        "A" * evaluator.file_size
+      else
+        "Test document content"
+      end
+      
       document.file.attach(
-        io: StringIO.new("Test document content"),
+        io: StringIO.new(file_content),
         filename: "test_document.pdf",
         content_type: "application/pdf"
       )

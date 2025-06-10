@@ -1,0 +1,12 @@
+<div class="<%= wrapper_class %>">
+  <% if should_render_label? %>
+    <%= render_label %>
+  <% end %>
+  <%= @form.text_area @attribute, text_area_options %>
+  <% if @hint.present? %>
+    <%= render_hint %>
+  <% end %>
+  <% if has_errors? %>
+    <%= render_errors %>
+  <% end %>
+</div>

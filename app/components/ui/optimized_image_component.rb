@@ -115,8 +115,8 @@ class Ui::OptimizedImageComponent < ApplicationComponent
 
     if lazy
       attrs[:"data-controller"] = "lazy-load"
-      attrs[:"data-src"] = src
       attrs[:"data-lazy-load-src-value"] = src
+      # Don't set src attribute for lazy loaded images
     else
       attrs[:src] = src
     end

@@ -14,11 +14,11 @@ class Navigation::NavbarComponent < ApplicationComponent
 
   def navigation_items
     items = [
-      { name: 'Tableau de bord', path: helpers.root_path, icon: 'home' },
-      { name: 'GED', path: helpers.ged_dashboard_path, icon: 'document' },
-      { name: 'Bannettes', path: helpers.baskets_path, icon: 'inbox' },
-      { name: 'Tags', path: helpers.tags_path, icon: 'tag' },
-      { name: 'Recherche', path: helpers.search_path, icon: 'search' }
+      { name: 'Tableau de bord', path: root_path, icon: 'home' },
+      { name: 'GED', path: ged_dashboard_path, icon: 'document' },
+      { name: 'Bannettes', path: baskets_path, icon: 'inbox' },
+      { name: 'Tags', path: tags_path, icon: 'tag' },
+      { name: 'Recherche', path: search_path, icon: 'search' }
     ]
     
     # Add ImmoPromo if user has access
@@ -27,8 +27,8 @@ class Navigation::NavbarComponent < ApplicationComponent
     end
     
     if helpers.current_user&.admin? || helpers.current_user&.super_admin?
-      items << { name: 'Utilisateurs', path: helpers.users_path, icon: 'users' }
-      items << { name: 'Groupes', path: helpers.user_groups_path, icon: 'user-group' }
+      items << { name: 'Utilisateurs', path: users_path, icon: 'users' }
+      items << { name: 'Groupes', path: user_groups_path, icon: 'user-group' }
     end
     
     items
@@ -42,10 +42,10 @@ class Navigation::NavbarComponent < ApplicationComponent
 
   def user_items
     [
-      { name: 'Mon profil', path: helpers.edit_user_registration_path, icon: 'user' },
-      { name: 'Notifications', path: helpers.notifications_path, icon: 'bell' },
-      { name: 'Paramètres', path: helpers.edit_user_registration_path, icon: 'cog' },
-      { name: 'Déconnexion', path: helpers.destroy_user_session_path, icon: 'logout', method: :delete }
+      { name: 'Mon profil', path: edit_user_registration_path, icon: 'user' },
+      { name: 'Notifications', path: notifications_path, icon: 'bell' },
+      { name: 'Paramètres', path: edit_user_registration_path, icon: 'cog' },
+      { name: 'Déconnexion', path: destroy_user_session_path, icon: 'logout', method: :delete }
     ]
   end
 

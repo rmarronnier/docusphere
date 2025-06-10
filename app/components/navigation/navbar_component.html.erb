@@ -4,17 +4,12 @@
       <!-- Logo et navigation principale -->
       <div class="flex">
         <div class="flex-shrink-0 flex items-center">
-          <%= helpers.link_to helpers.root_path, class: "text-xl font-bold text-primary-600" do %>
-            Docusphere
-          <% end %>
+          <%= link_to "Docusphere", root_path, class: "text-xl font-bold text-primary-600" %>
         </div>
         
         <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
           <% navigation_items.each do |item| %>
-            <%= helpers.link_to item[:path], 
-                class: "#{active_item?(item[:path]) ? 'border-primary-500 text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" do %>
-              <%= item[:name] %>
-            <% end %>
+            <%= link_to item[:name], item[:path], class: "#{active_item?(item[:path]) ? 'border-primary-500 text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
           <% end %>
         </div>
       </div>
@@ -24,8 +19,8 @@
         <div class="max-w-lg w-full lg:max-w-xs">
           <div class="relative" 
                data-controller="search-autocomplete" 
-               data-search-autocomplete-url-value="<%= helpers.search_suggestions_path rescue '/search/suggestions' %>">
-            <%= helpers.form_with url: helpers.search_path, method: :get, local: true, data: { "search-autocomplete-target": "form", action: "submit->search-autocomplete#submitForm" } do |f| %>
+               data-search-autocomplete-url-value="<%= search_suggestions_path rescue '/search/suggestions' %>">
+            <%= form_with url: search_path, method: :get, local: true, data: { "search-autocomplete-target": "form", action: "submit->search-autocomplete#submitForm" } do |f| %>
               <div class="relative">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -56,7 +51,7 @@
       <div class="hidden sm:ml-6 sm:flex sm:items-center">
         <% if helpers.current_user %>
           <!-- Notifications -->
-          <%= helpers.link_to helpers.notifications_path, class: "relative bg-white p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500" do %>
+          <%= link_to notifications_path, class: "relative bg-white p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500" do %>
             <span class="sr-only">Voir les notifications</span>
             <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-3.5-3.5a50.367 50.367 0 0 0-.5-5.5A6.5 6.5 0 0 0 5 6.5c0 1.61.5 3.1 1.4 4.3L9 14h6z" />
@@ -90,19 +85,14 @@
                  aria-orientation="vertical" 
                  aria-labelledby="user-menu-button">
               <% user_items.each do |item| %>
-                <%= helpers.link_to item[:path], 
-                    class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100",
-                    role: "menuitem",
-                    method: item[:method] do %>
-                  <%= item[:name] %>
-                <% end %>
+                <%= link_to item[:name], item[:path], class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100", role: "menuitem", method: item[:method] %>
               <% end %>
             </div>
           </div>
         <% else %>
           <div class="flex space-x-4">
-            <%= helpers.link_to "Connexion", helpers.new_user_session_path, class: "text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium" %>
-            <%= helpers.link_to "Inscription", helpers.new_user_registration_path, class: "btn btn-primary" %>
+            <%= link_to "Connexion", new_user_session_path, class: "text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium" %>
+            <%= link_to "Inscription", new_user_registration_path, class: "btn btn-primary" %>
           </div>
         <% end %>
       </div>
@@ -128,8 +118,8 @@
     <div class="px-4 pt-2 pb-3">
       <div class="relative" 
            data-controller="search-autocomplete" 
-           data-search-autocomplete-url-value="<%= helpers.search_suggestions_path rescue '/search/suggestions' %>">
-        <%= helpers.form_with url: helpers.search_path, method: :get, local: true, data: { "search-autocomplete-target": "form", action: "submit->search-autocomplete#submitForm" } do |f| %>
+           data-search-autocomplete-url-value="<%= search_suggestions_path rescue '/search/suggestions' %>">
+        <%= form_with url: search_path, method: :get, local: true, data: { "search-autocomplete-target": "form", action: "submit->search-autocomplete#submitForm" } do |f| %>
           <div class="relative">
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -157,10 +147,7 @@
     
     <div class="pt-2 pb-3 space-y-1">
       <% navigation_items.each do |item| %>
-        <%= helpers.link_to item[:path], 
-            class: "#{active_item?(item[:path]) ? 'bg-primary-50 border-primary-500 text-primary-700' : 'border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium" do %>
-          <%= item[:name] %>
-        <% end %>
+        <%= link_to item[:name], item[:path], class: "#{active_item?(item[:path]) ? 'bg-primary-50 border-primary-500 text-primary-700' : 'border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium" %>
       <% end %>
     </div>
   </div>

@@ -1,0 +1,47 @@
+<div class="document-component">
+  <% if has_preview? && @show_preview %>
+    <div class="document-preview mb-4">
+      <%= image_tag preview_url, class: 'w-full h-48 object-cover rounded-lg' %>
+    </div>
+  <% end %>
+  
+  <div class="document-content">
+    <div class="flex items-start justify-between">
+      <div class="flex items-center space-x-3">
+        <%= render_document_icon %>
+        <div>
+          <h3 class="text-sm font-medium text-gray-900">
+            <% if @clickable %>
+              <%= link_to @document.title, document_url, class: 'hover:underline' %>
+            <% else %>
+              <%= @document.title %>
+            <% end %>
+          </h3>
+          <%= render_document_metadata %>
+        </div>
+      </div>
+      
+      <% if @show_status %>
+        <%= render_document_status %>
+      <% end %>
+    </div>
+    
+    <% if @show_actions && (can_edit? || can_delete?) %>
+      <div class="mt-4 flex items-center space-x-4">
+        <% if can_edit? && !locked? %>
+          <%= link_to 'Modifier', '#', class: 'text-sm text-indigo-600 hover:text-indigo-500' %>
+        <% end %>
+        <% if can_delete? %>
+          <%= link_to 'Supprimer', '#', class: 'text-sm text-red-600 hover:text-red-500', data: { method: :delete, confirm: 'Êtes-vous sûr?' } %>
+        <% end %>
+      </div>
+    <% end %>
+    
+    <% if locked? %>
+      <div class="mt-2 text-sm text-yellow-600">
+        <i class="fas fa-lock"></i>
+        Verrouillé par <%= lock_info[:locked_by] %>
+      </div>
+    <% end %>
+  </div>
+</div>

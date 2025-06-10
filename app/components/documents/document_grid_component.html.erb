@@ -30,6 +30,7 @@
             <% if selectable %>
               <div class="absolute top-2 left-2">
                 <input type="checkbox" 
+                       role="checkbox"
                        class="form-checkbox h-4 w-4 text-primary-600 rounded border-gray-300 opacity-0 group-hover:opacity-100 transition-opacity"
                        value="<%= document.id %>"
                        data-action="change->document-grid#toggleSelection">
@@ -76,6 +77,15 @@
                 <%= document.uploaded_by&.display_name || "Unknown" %>
               </span>
             </div>
+            <% if document.tags.any? %>
+              <div class="mt-2 flex flex-wrap gap-1">
+                <% document.tags.limit(3).each do |tag| %>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                    <%= tag.name %>
+                  </span>
+                <% end %>
+              </div>
+            <% end %>
           </div>
         <% end %>
       </div>
@@ -91,6 +101,7 @@
         <div class="flex items-center space-x-4 p-4">
           <% if selectable %>
             <input type="checkbox" 
+                   role="checkbox"
                    class="form-checkbox h-4 w-4 text-primary-600 rounded border-gray-300"
                    value="<%= document.id %>"
                    data-action="change->document-grid#toggleSelection">
@@ -146,9 +157,8 @@
                 aria_label: "More options",
                 dropdown: true
               ) do |button| %>
-                <% button.with_dropdown_item(text: "View", href: ged_document_path(document), icon: "eye") %>
-                <% button.with_dropdown_item(text: "Edit", href: edit_ged_document_path(document), icon: "pencil") %>
-                <% button.with_dropdown_item(divider: true) %>
+                <% button.with_dropdown_item(text: "View", href: helpers.ged_document_path(document), icon: "eye") %>
+                <% button.with_dropdown_item(text: "Edit", href: "#", icon: "pencil") %>
                 <% button.with_dropdown_item(text: "Delete", href: "#", icon: "trash", method: :delete) %>
               <% end %>
             </div>
@@ -161,6 +171,7 @@
       <div class="flex items-center space-x-3 py-3 hover:bg-gray-50 px-4 group">
         <% if selectable %>
           <input type="checkbox" 
+                 role="checkbox"
                  class="form-checkbox h-4 w-4 text-primary-600 rounded border-gray-300"
                  value="<%= document.id %>"
                  data-action="change->document-grid#toggleSelection">
@@ -199,8 +210,6 @@
   <%= render Ui::EmptyStateComponent.new(
     title: "Aucun document",
     description: "Commencez par uploader votre premier document.",
-    icon: "document",
-    action_text: "Upload Document",
-    action_url: "#"
+    icon: "document"
   ) %>
 <% end %>

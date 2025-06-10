@@ -1,0 +1,36 @@
+<% if @layout == :horizontal %>
+  <div class="<%= wrapper_class %>">
+    <%= render_label %>
+    <div class="flex items-center space-x-4 mt-2">
+      <% formatted_options.each do |label_text, value| %>
+        <div class="flex items-center">
+          <%= @form.radio_button @attribute, value, { class: radio_classes, checked: @form.object.send(@attribute) == value }.compact %>
+          <%= @form.label "#{@attribute}_#{value.to_s.parameterize.underscore}", label_text, class: 'ml-3 text-sm font-medium text-gray-700' %>
+        </div>
+      <% end %>
+    </div>
+    <% if has_errors? %>
+      <%= render_errors %>
+    <% end %>
+  </div>
+<% else %>
+  <fieldset class="<%= wrapper_class %>">
+    <legend class="text-sm font-medium text-gray-700 mb-2">
+      <%= label_text %>
+      <% if @required %>
+        <span class="text-red-500">*</span>
+      <% end %>
+    </legend>
+    <div class="space-y-2">
+      <% formatted_options.each do |label_text, value| %>
+        <div class="flex items-center">
+          <%= @form.radio_button @attribute, value, { class: radio_classes, checked: @form.object.send(@attribute) == value }.compact %>
+          <%= @form.label "#{@attribute}_#{value.to_s.parameterize.underscore}", label_text, class: 'ml-3 text-sm font-medium text-gray-700' %>
+        </div>
+      <% end %>
+    </div>
+    <% if has_errors? %>
+      <%= render_errors %>
+    <% end %>
+  </fieldset>
+<% end %>

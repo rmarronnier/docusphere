@@ -1,97 +1,87 @@
+# Base component for all form fields with consistent styling and error handling
 class Forms::FieldComponent < ApplicationComponent
-  def initialize(form:, field:, type: :text, label: nil, required: false, help: nil, **options)
+  def initialize(form:, attribute:, label: nil, hint: nil, required: false, wrapper_class: nil, **options)
     @form = form
-    @field = field.to_sym
-    @type = type.to_sym
+    @attribute = attribute.to_sym
     @label = label
+    @hint = hint
     @required = required
-    @help = help
+    @wrapper_class = wrapper_class || 'mb-4'
     @options = options
   end
 
-  private
+  protected
 
-  attr_reader :form, :field, :type, :label, :required, :help, :options
+  attr_reader :form, :attribute, :label, :hint, :required, :wrapper_class, :options
 
-  def field_id
-    @field_id ||= "#{form.object_name}_#{field}"
+  def render_label
+    label_text = @label || @attribute.to_s.humanize
+    label_text += ' *' if @required
+    
+    @form.label @attribute, label_text, class: label_classes
   end
-
-  def label_text
-    @label_text ||= label.presence || field.to_s.humanize
+  
+  def render_field
+    raise NotImplementedError, "Subclasses must implement render_field"
+  end
+  
+  def render_hint
+    content_tag :p, @hint, class: 'mt-1 text-sm text-gray-500', id: hint_id
+  end
+  
+  def render_errors
+    content_tag :p, class: 'mt-1 text-sm text-red-600', id: error_id do
+      @form.object.errors[@attribute].join(', ')
+    end
+  end
+  
+  def should_render_label?
+    true
+  end
+  
+  def has_errors?
+    @form.object.errors[@attribute].present?
   end
 
   def label_classes
-    "block text-sm font-medium text-gray-700"
+    'block text-sm font-medium text-gray-700 mb-1'
+  end
+  
+  def field_classes
+    base = 'block w-full rounded-md shadow-sm sm:text-sm'
+    base += ' border-gray-300 focus:border-indigo-500 focus:ring-indigo-500'
+    base += ' border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500' if has_errors?
+    base += " #{@options[:class]}" if @options[:class]
+    base
   end
 
-  def input_classes
-    base_classes = "mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-    focus_classes = "focus:ring-indigo-500 focus:border-indigo-500"
-    error_classes = has_errors? ? "border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500" : ""
-    
-    merged_classes = [base_classes, focus_classes, error_classes].reject(&:blank?).join(" ")
-    
-    # Merge avec les classes personnalisées si fournies
-    if options[:class]
-      "#{merged_classes} #{options[:class]}"
-    else
-      merged_classes
-    end
+  def field_id
+    "#{@form.object_name}_#{@attribute}".gsub(/\[|\]/, '_').gsub(/__+/, '_').chomp('_')
   end
-
+  
+  def hint_id
+    "#{field_id}_hint"
+  end
+  
+  def error_id
+    "#{field_id}_error"
+  end
+  
+  def aria_describedby
+    ids = []
+    ids << hint_id if @hint.present?
+    ids << error_id if has_errors?
+    ids.join(' ') if ids.any?
+  end
+  
   def field_options
-    opts = options.dup
-    opts[:class] = input_classes
-    opts[:id] = field_id
-    opts[:required] = true if required
+    opts = @options.dup
+    opts[:id] ||= field_id
+    opts[:required] = true if @required
     opts[:aria] ||= {}
-    opts[:aria][:describedby] = help_id if help.present?
+    opts[:aria][:describedby] = aria_describedby if aria_describedby
     opts[:aria][:invalid] = true if has_errors?
     opts
   end
 
-  def help_id
-    "#{field_id}_help"
-  end
-
-  def has_errors?
-    form.object.errors[field].any?
-  end
-
-  def error_messages
-    form.object.errors[field]
-  end
-
-  def render_input
-    case type
-    when :text, :email, :password, :tel, :url
-      form.text_field(field, field_options.merge(type: type))
-    when :textarea
-      form.text_area(field, field_options.merge(rows: options[:rows] || 3))
-    when :select
-      form.select(field, options[:choices] || [], { prompt: options[:prompt] }, field_options)
-    when :file
-      form.file_field(field, field_options)
-    when :hidden
-      form.hidden_field(field, field_options)
-    when :number
-      form.number_field(field, field_options)
-    when :date
-      form.date_field(field, field_options)
-    when :datetime
-      form.datetime_local_field(field, field_options)
-    when :checkbox
-      checkbox_wrapper
-    else
-      form.text_field(field, field_options)
-    end
-  end
-
-  def checkbox_wrapper
-    content_tag :div, class: "flex items-center" do
-      form.check_box(field, field_options.merge(class: "h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded")) +
-      form.label(field, label_text, class: "ml-2 block text-sm text-gray-900")
-    end
-  end
 end

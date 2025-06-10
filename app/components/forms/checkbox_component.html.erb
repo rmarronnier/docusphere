@@ -1,0 +1,16 @@
+<div class="<%= wrapper_class %>">
+  <div class="flex items-start">
+    <div class="flex items-center h-5">
+      <%= @form.check_box @attribute, { class: checkbox_classes, checked: @checked, required: @required }.compact %>
+    </div>
+    <div class="ml-3">
+      <%= @form.label @attribute, @label_text, class: 'text-sm font-medium text-gray-700' %>
+      <% if @hint.present? %>
+        <p class="text-sm text-gray-500"><%= @hint %></p>
+      <% end %>
+    </div>
+  </div>
+  <% if has_errors? %>
+    <%= render_errors %>
+  <% end %>
+</div>

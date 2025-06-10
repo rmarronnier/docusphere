@@ -3,6 +3,9 @@ class Folder < ApplicationRecord
   include Authorizable
   include Linkable
   
+  # Folders don't have direct ownership - managed through space authorizations
+  owned_by :none
+  
   belongs_to :space
   has_many :documents, dependent: :destroy
   has_many :metadata, class_name: 'Metadatum', as: :metadatable, dependent: :destroy

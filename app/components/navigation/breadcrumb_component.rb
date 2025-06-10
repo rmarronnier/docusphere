@@ -66,9 +66,9 @@ class Navigation::BreadcrumbComponent < ApplicationComponent
 
   def display_items
     @display_items ||= begin
-      all_items = []
-      all_items << { name: "Home", path: root_path, icon: "home" } if show_home
-      all_items + (truncate ? truncated_items : items)
+      home_item = show_home ? [{ name: "Home", path: root_path, icon: "home" }] : []
+      breadcrumb_items = truncate && items.length > 3 ? truncated_items : items
+      home_item + breadcrumb_items
     end
   end
 

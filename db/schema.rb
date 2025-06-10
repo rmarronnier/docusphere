@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_06_10_000001) do
+ActiveRecord::Schema[7.1].define(version: 2025_06_10_080000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -79,6 +79,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_10_000001) do
     t.boolean "is_active", default: true
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["authorizable_type", "authorizable_id", "user_group_id"], name: "index_authorizations_on_authorizable_and_group"
+    t.index ["authorizable_type", "authorizable_id", "user_id"], name: "index_authorizations_on_authorizable_and_user"
     t.index ["authorizable_type", "authorizable_id"], name: "index_authorizations_on_authorizable"
     t.index ["authorizable_type", "authorizable_id"], name: "index_authorizations_on_authorizable_type_and_authorizable_id"
     t.index ["expires_at"], name: "index_authorizations_on_expires_at"
@@ -174,6 +176,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_10_000001) do
     t.string "validatable_type", null: false
     t.bigint "validatable_id", null: false
     t.index ["status"], name: "index_document_validations_on_status"
+    t.index ["validatable_type", "validatable_id", "status"], name: "index_document_validations_on_validatable_and_status"
     t.index ["validatable_type", "validatable_id"], name: "index_document_validations_on_validatable"
     t.index ["validated_at"], name: "index_document_validations_on_validated_at"
     t.index ["validation_request_id", "validator_id"], name: "idx_unique_validator_per_request", unique: true
@@ -244,6 +247,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_10_000001) do
     t.index ["processing_completed_at"], name: "index_documents_on_processing_completed_at"
     t.index ["processing_started_at"], name: "index_documents_on_processing_started_at"
     t.index ["processing_status"], name: "index_documents_on_processing_status"
+    t.index ["space_id", "status"], name: "index_documents_on_space_id_and_status"
     t.index ["space_id"], name: "index_documents_on_space_id"
     t.index ["status"], name: "index_documents_on_status"
     t.index ["storage_path"], name: "index_documents_on_storage_path"
@@ -272,6 +276,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_10_000001) do
     t.index ["path"], name: "index_folders_on_path"
     t.index ["position"], name: "index_folders_on_position"
     t.index ["slug"], name: "index_folders_on_slug"
+    t.index ["space_id", "parent_id"], name: "index_folders_on_space_id_and_parent_id"
     t.index ["space_id"], name: "index_folders_on_space_id"
     t.index ["storage_path"], name: "index_folders_on_storage_path"
   end
@@ -445,12 +450,14 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_10_000001) do
     t.string "name"
     t.decimal "cost", precision: 10, scale: 2
     t.date "expected_approval_date"
+    t.string "workflow_status", default: "pending"
     t.index ["approved_by_id"], name: "index_immo_promo_permits_on_approved_by_id"
     t.index ["permit_number"], name: "index_immo_promo_permits_on_permit_number"
     t.index ["permit_type"], name: "index_immo_promo_permits_on_permit_type"
     t.index ["project_id"], name: "index_immo_promo_permits_on_project_id"
     t.index ["status"], name: "index_immo_promo_permits_on_status"
     t.index ["submitted_by_id"], name: "index_immo_promo_permits_on_submitted_by_id"
+    t.index ["workflow_status"], name: "index_immo_promo_permits_on_workflow_status"
   end
 
   create_table "immo_promo_phase_dependencies", force: :cascade do |t|
@@ -486,11 +493,13 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_10_000001) do
     t.date "actual_start_date"
     t.date "actual_end_date"
     t.decimal "task_completion_percentage", precision: 5, scale: 2, default: "0.0"
+    t.string "workflow_status", default: "pending"
     t.index ["phase_type"], name: "index_immo_promo_phases_on_phase_type"
     t.index ["project_id", "position"], name: "index_immo_promo_phases_on_project_id_and_position", unique: true
     t.index ["project_id"], name: "index_immo_promo_phases_on_project_id"
     t.index ["responsible_user_id"], name: "index_immo_promo_phases_on_responsible_user_id"
     t.index ["status"], name: "index_immo_promo_phases_on_status"
+    t.index ["workflow_status"], name: "index_immo_promo_phases_on_workflow_status"
   end
 
   create_table "immo_promo_progress_reports", force: :cascade do |t|
@@ -645,6 +654,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_10_000001) do
     t.date "actual_start_date"
     t.date "actual_end_date"
     t.datetime "completed_at"
+    t.string "workflow_status", default: "pending"
     t.index ["assigned_to_id"], name: "index_immo_promo_tasks_on_assigned_to_id"
     t.index ["end_date"], name: "index_immo_promo_tasks_on_end_date"
     t.index ["phase_id"], name: "index_immo_promo_tasks_on_phase_id"
@@ -652,6 +662,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_10_000001) do
     t.index ["stakeholder_id"], name: "index_immo_promo_tasks_on_stakeholder_id"
     t.index ["status"], name: "index_immo_promo_tasks_on_status"
     t.index ["task_type"], name: "index_immo_promo_tasks_on_task_type"
+    t.index ["workflow_status"], name: "index_immo_promo_tasks_on_workflow_status"
   end
 
   create_table "immo_promo_time_logs", force: :cascade do |t|
@@ -758,8 +769,10 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_10_000001) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["notifiable_type", "notifiable_id"], name: "index_notifications_on_notifiable"
+    t.index ["notification_type", "created_at"], name: "index_notifications_on_notification_type_and_created_at"
     t.index ["notification_type"], name: "index_notifications_on_notification_type"
     t.index ["read_at"], name: "index_notifications_on_read_at"
+    t.index ["user_id", "read_at"], name: "index_notifications_on_user_id_and_read_at"
     t.index ["user_id"], name: "index_notifications_on_user_id"
   end
 
@@ -898,6 +911,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_10_000001) do
     t.datetime "updated_at", null: false
     t.index ["role"], name: "index_user_group_memberships_on_role"
     t.index ["user_group_id"], name: "index_user_group_memberships_on_user_group_id"
+    t.index ["user_id", "role"], name: "index_user_group_memberships_on_user_id_and_role"
     t.index ["user_id", "user_group_id"], name: "index_user_group_memberships_on_user_id_and_user_group_id", unique: true
     t.index ["user_id"], name: "index_user_group_memberships_on_user_id"
   end
@@ -968,6 +982,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_10_000001) do
     t.index ["due_date"], name: "index_validation_requests_on_due_date"
     t.index ["requester_id"], name: "index_validation_requests_on_requester_id"
     t.index ["status"], name: "index_validation_requests_on_status"
+    t.index ["validatable_type", "validatable_id", "status"], name: "index_validation_requests_on_validatable_and_status"
     t.index ["validatable_type", "validatable_id"], name: "index_validation_requests_on_validatable"
     t.index ["validation_template_id"], name: "index_validation_requests_on_validation_template_id"
   end

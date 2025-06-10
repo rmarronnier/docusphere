@@ -8,43 +8,44 @@ Ce document doit être maintenu à jour après chaque modification de modèle ou
 
 This document provides a comprehensive analysis of all models in the Docusphere application, their business purposes, implementation details, traps, and evolution suggestions.
 
-## 🔥 Refactoring Prioritaire (Suite à l'analyse du 09/06/2025)
+## 🎉 Refactoring Complété (10/06/2025)
 
-### 1. **Problèmes Critiques à Corriger**
+### ✅ Phase 1 - Nettoyage (COMPLÉTÉ)
+1. ✅ Supprimé les concerns non utilisés (Uploadable, Storable)
+2. ✅ Conservé document_version.rb (utile pour PaperTrail)
+3. ✅ Refactoré Validatable pour utiliser des associations polymorphes
+4. ✅ Standardisé `owned_by?` avec le concern Ownership configurable
 
-#### Duplication de Code
-- **Gestion des statuts** : WorkflowManageable vs AASM - standardiser sur une approche
-- **Calcul de progression** : 4 implémentations différentes - créer concern `ProgressCalculable`
-- **Méthodes de permissions** : Doublons dans Authorizable (`readable_by?`/`can_read?`)
+### ✅ Phase 2 - Standardisation (COMPLÉTÉ)
+1. ✅ Choisi AASM comme standard (supprimé WorkflowManageable)
+2. ✅ Créé concern `Immo::Promo::WorkflowStates` pour les modèles Immo::Promo
+3. ✅ Extrait la complexité de Document en 5 concerns spécialisés
+4. ✅ Ajouté les index manquants pour les requêtes d'autorisation
 
-#### Incohérences
-- **Validatable concern** : Contient du code spécifique à Document - à refactorer
-- **owned_by?** : Vérifie différents attributs selon le modèle - à standardiser
-- **WorkflowManageable** : Incompatible avec ProjectWorkflowTransition actuel
+### ✅ Phase 3 - Optimisation (COMPLÉTÉ)
+1. ✅ Ajouté cache Redis pour les vérifications de permissions (PermissionCacheService)
+2. ✅ Ajouté cache pour les paths dans Treeable (TreePathCacheService)
+3. ✅ Ajouté cache pour les calculs de progression Immo::Promo (ProgressCacheService)
+4. ✅ Documenté dans docs/PERFORMANCE_OPTIMIZATIONS.md
 
-#### Code Mort
-- **Concerns non utilisés** : Uploadable, Storable - à supprimer ou implémenter
-- **document_version.rb** : Fichier obsolète (utilise PaperTrail) - à supprimer
+## Changements Majeurs
 
-### 2. **Plan de Refactoring Recommandé**
+### Document Model
+- **Avant** : 538 lignes, monolithique
+- **Après** : 247 lignes avec 5 concerns :
+  - `Document::Lockable` - Gestion du verrouillage
+  - `Document::AiProcessable` - Classification et extraction IA
+  - `Document::VirusScannable` - Scan antivirus
+  - `Document::Versionable` - Configuration PaperTrail
+  - `Document::Processable` - Pipeline de traitement
 
-#### Phase 1 - Nettoyage (Priorité HAUTE)
-1. Supprimer les concerns non utilisés (Uploadable, Storable)
-2. Supprimer les méthodes dupliquées dans Authorizable
-3. Refactorer Validatable pour retirer le code spécifique à Document
-4. Standardiser `owned_by?` avec une approche configurable
+### Nouveaux Concerns
+- **Ownership** : Gestion standardisée de la propriété avec `owned_by :attribute`
+- **Immo::Promo::WorkflowStates** : Synchronisation des statuts AASM/enum
 
-#### Phase 2 - Standardisation (Priorité MOYENNE)
-1. Choisir entre AASM et WorkflowManageable pour tous les modèles
-2. Créer concern `ProgressCalculable` pour unifier le calcul de progression
-3. Extraire la complexité de Document en plusieurs concerns
-4. Ajouter les index manquants pour les requêtes d'autorisation
-
-#### Phase 3 - Optimisation (Priorité BASSE)
-1. Ajouter cache pour les vérifications de permissions
-2. Implémenter les concerns manquants si nécessaire
-3. Créer des enums partagés pour les statuts communs
-4. Documenter les patterns de conception utilisés
+### Associations Polymorphes
+- ValidationRequest et DocumentValidation utilisent maintenant `validatable` polymorphe
+- Permet la validation de n'importe quel modèle, pas seulement Document
 
 ## Core Models
 

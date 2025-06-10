@@ -18,7 +18,7 @@ RSpec.describe Ui::ChartComponent, type: :component do
       render_inline(described_class.new(type: :line, data: sample_data))
       
       expect(page).to have_css(".chart-wrapper")
-      expect(page).to have_css("[data-chart-config]")
+      expect(page).to have_css("[data-chart-config-value]")
     end
 
     it "generates unique chart ID" do
@@ -170,7 +170,7 @@ RSpec.describe Ui::ChartComponent, type: :component do
         config: custom_config
       ))
       
-      expect(page).to have_css("[data-chart-config]")
+      expect(page).to have_css("[data-chart-config-value]")
     end
   end
 
@@ -213,7 +213,7 @@ RSpec.describe Ui::ChartComponent, type: :component do
         data: multi_series_data
       ))
       
-      expect(page).to have_css("[data-chart-config]")
+      expect(page).to have_css("[data-chart-config-value]")
     end
   end
 
@@ -238,7 +238,7 @@ RSpec.describe Ui::ChartComponent, type: :component do
       render_inline(described_class.new(type: :line, data: sample_data))
       
       expect(page).to have_css("[data-controller='chart']")
-      expect(page).to have_css("[data-chart-config]")
+      expect(page).to have_css("[data-chart-config-value]")
       expect(page).to have_css("[data-chart-id]")
     end
   end

@@ -23,6 +23,9 @@ class UserGroup < ApplicationRecord
   
   def remove_user(user)
     user_group_memberships.where(user: user).destroy_all
+    
+    # Clear permission cache for this user
+    PermissionCacheService.clear_for_user(user) if defined?(PermissionCacheService)
   end
   
   def has_user?(user)

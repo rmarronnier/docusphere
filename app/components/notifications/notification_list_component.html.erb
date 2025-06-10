@@ -1,7 +1,8 @@
-<div class="<%= list_classes %>">
+<div class="<%= list_classes %>" role="list" aria-live="polite">
   <% if notifications.any? %>
     <% notifications.each do |notification| %>
       <div class="<%= item_classes(notification) %>" 
+           role="listitem"
            data-notification-id="<%= notification.id %>"
            data-controller="notification"
            data-notification-read-value="<%= notification.read? %>">
@@ -12,7 +13,7 @@
             <%= render Ui::IconComponent.new(
               name: notification.icon, 
               size: :sm, 
-              classes: notification.color_class
+              css_class: notification.color_class
             ) %>
           </div>
         </div>
@@ -103,7 +104,7 @@
   <% else %>
     <div class="text-center py-12">
       <div class="flex justify-center">
-        <%= render Ui::IconComponent.new(name: 'bell', size: :lg, classes: 'text-gray-400') %>
+        <%= render Ui::IconComponent.new(name: 'bell', size: :lg, css_class: 'text-gray-400') %>
       </div>
       <h3 class="mt-2 text-sm font-medium text-gray-900">Aucune notification</h3>
       <p class="mt-1 text-sm text-gray-500">

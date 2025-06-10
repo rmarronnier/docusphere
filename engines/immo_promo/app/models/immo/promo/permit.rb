@@ -4,7 +4,7 @@ module Immo
       self.table_name = 'immo_promo_permits'
 
       include Schedulable
-      include WorkflowManageable
+      include Immo::Promo::WorkflowStates
       include Immo::Promo::Documentable
       audited
 

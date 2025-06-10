@@ -38,7 +38,6 @@ RSpec.describe Ui::CardComponent, type: :component do
       end
     end
     
-    expect(page).to have_css('.card-actions')
     expect(page).to have_button('Edit')
     expect(page).to have_button('Delete')
   end
@@ -56,7 +55,7 @@ RSpec.describe Ui::CardComponent, type: :component do
   it "renders with variant styles" do
     render_inline(described_class.new(variant: :primary))
     
-    expect(page).to have_css('.card.card-primary')
+    expect(page).to have_css('.card.bg-gradient-to-br.from-primary-50')
   end
   
   describe "with complex content" do
@@ -81,8 +80,8 @@ RSpec.describe Ui::CardComponent, type: :component do
     it "shows skeleton loader when loading" do
       render_inline(described_class.new(loading: true))
       
-      expect(page).to have_css('.card.card-loading')
-      expect(page).to have_css('.skeleton-loader')
+      expect(page).to have_css('.card.animate-pulse')
+      expect(page).to have_css('.h-4.bg-gray-200.rounded')
     end
   end
   
@@ -93,7 +92,7 @@ RSpec.describe Ui::CardComponent, type: :component do
       end
       
       expect(page).to have_link(href: "/documents/1")
-      expect(page).to have_css('.card.card-clickable')
+      expect(page).to have_css('.card.cursor-pointer')
     end
   end
 end

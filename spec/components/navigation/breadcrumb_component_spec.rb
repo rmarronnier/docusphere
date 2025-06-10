@@ -120,7 +120,8 @@ RSpec.describe Navigation::BreadcrumbComponent, type: :component do
     it "truncates long breadcrumbs by default" do
       render_inline(described_class.new(items: many_items))
       
-      expect(page).to have_text("...")
+      # The truncated indicator is shown as an icon, not text
+      expect(page).to have_css("span.text-gray-400") # Truncation indicator span
       expect(page).to have_text("Level 1") # First item
       expect(page).to have_text("Level 4") # Second to last
       expect(page).to have_text("Level 5") # Last item

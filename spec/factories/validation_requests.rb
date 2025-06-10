@@ -1,6 +1,6 @@
 FactoryBot.define do
   factory :validation_request do
-    document
+    association :validatable, factory: :document
     requester { association :user }
     min_validations { 1 }
     status { 'pending' }
@@ -13,7 +13,7 @@ FactoryBot.define do
       
       after(:create) do |validation_request, evaluator|
         create_list(:document_validation, evaluator.validator_count, 
-          document: validation_request.document,
+          validatable: validation_request.validatable,
           validation_request: validation_request
         )
       end

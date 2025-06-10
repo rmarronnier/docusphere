@@ -2,58 +2,79 @@ module Authorizable
   extend ActiveSupport::Concern
 
   included do
+    include Ownership
     has_many :authorizations, as: :authorizable, dependent: :destroy
     has_many :active_authorizations, -> { active }, as: :authorizable, class_name: 'Authorization'
     
     scope :readable_by, ->(user) {
-      joins(:active_authorizations).where(
-        authorizations: { 
-          user: user, 
+      # Get IDs of items user can read directly
+      direct_ids = joins(:active_authorizations)
+        .where(authorizations: { 
+          user_id: user.id, 
           permission_level: ['read', 'write', 'admin'] 
-        }
-      ).or(
-        joins(:active_authorizations).joins('JOIN user_group_memberships ON authorizations.user_group_id = user_group_memberships.user_group_id')
-                               .where(
-                                 user_group_memberships: { user: user },
-                                 authorizations: { permission_level: ['read', 'write', 'admin'] }
-                               )
-      )
+        })
+        .pluck(:id)
+      
+      # Get IDs of items user can read through groups
+      group_ids = joins(active_authorizations: { user_group: :users })
+        .where(users: { id: user.id })
+        .where(authorizations: { permission_level: ['read', 'write', 'admin'] })
+        .pluck(:id)
+      
+      # Return items with either direct or group permission
+      where(id: (direct_ids + group_ids).uniq)
     }
     
     scope :writable_by, ->(user) {
-      joins(:active_authorizations).where(
-        authorizations: { 
-          user: user, 
+      # Get IDs of items user can write directly
+      direct_ids = joins(:active_authorizations)
+        .where(authorizations: { 
+          user_id: user.id, 
           permission_level: ['write', 'admin'] 
-        }
-      ).or(
-        joins(:active_authorizations).joins('JOIN user_group_memberships ON authorizations.user_group_id = user_group_memberships.user_group_id')
-                               .where(
-                                 user_group_memberships: { user: user },
-                                 authorizations: { permission_level: ['write', 'admin'] }
-                               )
-      )
+        })
+        .pluck(:id)
+      
+      # Get IDs of items user can write through groups
+      group_ids = joins(active_authorizations: { user_group: :users })
+        .where(users: { id: user.id })
+        .where(authorizations: { permission_level: ['write', 'admin'] })
+        .pluck(:id)
+      
+      # Return items with either direct or group permission
+      where(id: (direct_ids + group_ids).uniq)
     }
   end
 
   def authorize_user(user, permission_level, granted_by: nil, expires_at: nil, comment: nil)
-    active_authorizations.create!(
+    authorization = active_authorizations.create!(
       user: user, 
       permission_level: permission_level,
       granted_by: granted_by,
       expires_at: expires_at,
       comment: comment
     )
+    
+    # Clear cache for this user and authorizable
+    PermissionCacheService.clear_for_user(user)
+    
+    authorization
   end
   
   def authorize_group(user_group, permission_level, granted_by: nil, expires_at: nil, comment: nil)
-    active_authorizations.create!(
+    authorization = active_authorizations.create!(
       user_group: user_group, 
       permission_level: permission_level,
       granted_by: granted_by,
       expires_at: expires_at,
       comment: comment
     )
+    
+    # Clear cache for all users in the group
+    user_group.users.each do |user|
+      PermissionCacheService.clear_for_user(user)
+    end
+    
+    authorization
   end
   
   def revoke_authorization(user_or_group, permission_level, revoked_by:, comment: nil)
@@ -63,7 +84,18 @@ module Authorizable
       active_authorizations.for_group(user_or_group).with_permission(permission_level).first
     end
     
-    auth&.revoke!(revoked_by, comment: comment)
+    if auth&.revoke!(revoked_by, comment: comment)
+      # Clear cache
+      if user_or_group.is_a?(User)
+        PermissionCacheService.clear_for_user(user_or_group)
+      else
+        user_or_group.users.each do |user|
+          PermissionCacheService.clear_for_user(user)
+        end
+      end
+    end
+    
+    auth
   end
 
   def readable_by?(user)
@@ -109,22 +141,8 @@ module Authorizable
   def authorized_for?(user, permission_level)
     return false unless user
     
-    # Check direct user permissions (active only)
-    user_authorized = active_authorizations
-                       .for_user(user)
-                       .with_permission(permission_level)
-                       .exists?
-    return true if user_authorized
-    
-    # Check group permissions (active only)
-    user_group_ids = user.user_group_memberships.pluck(:user_group_id)
-    return false if user_group_ids.empty?
-    
-    group_authorized = active_authorizations
-                        .where(user_group_id: user_group_ids)
-                        .with_permission(permission_level)
-                        .exists?
-    group_authorized
+    # Use cache service for performance
+    PermissionCacheService.authorized_for?(self, user, permission_level)
   end
 
   def grant_permission(subject, permission_level, granted_by: nil, expires_at: nil, comment: nil)
@@ -149,7 +167,7 @@ module Authorizable
     # Group permissions
     group_permissions = authorizations.joins(:user_group)
                                      .joins('JOIN user_group_memberships ON user_groups.id = user_group_memberships.user_group_id')
-                                     .where(user_group_memberships: { user: user })
+                                     .where(user_group_memberships: { user_id: user.id })
                                      .pluck(:permission_level)
     
     (direct_permissions + group_permissions).uniq
@@ -173,15 +191,4 @@ module Authorizable
     scope.distinct
   end
 
-  private
-
-  def owned_by?(user)
-    # Check if owned by user (general case)
-    return true if respond_to?(:user) && self.user == user
-    # Check if uploaded by user (for Document model)
-    return true if respond_to?(:uploaded_by) && self.uploaded_by == user
-    # Check if user is project manager (for Immo::Promo models)
-    return true if respond_to?(:project_manager) && self.project_manager == user
-    false
-  end
 end

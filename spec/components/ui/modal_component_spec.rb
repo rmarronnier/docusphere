@@ -305,9 +305,7 @@ RSpec.describe Ui::ModalComponent, type: :component do
     it "allows complex content in body" do
       render_inline(described_class.new(id: "test-modal")) do |modal|
         modal.with_body do
-          content_tag(:form) do
-            content_tag(:input, nil, type: "text", placeholder: "Enter name")
-          end
+          '<form><input type="text" placeholder="Enter name"></form>'.html_safe
         end
       end
       
@@ -319,12 +317,7 @@ RSpec.describe Ui::ModalComponent, type: :component do
       render_inline(described_class.new(id: "test-modal")) do |modal|
         modal.with_body { "Confirm this action?" }
         modal.with_footer do
-          content_tag(:div, class: "flex gap-2") do
-            safe_join([
-              content_tag(:button, "Cancel", class: "btn btn-secondary"),
-              content_tag(:button, "Confirm", class: "btn btn-primary")
-            ])
-          end
+          '<div class="flex gap-2"><button class="btn btn-secondary">Cancel</button><button class="btn btn-primary">Confirm</button></div>'.html_safe
         end
       end
       

@@ -1,8 +1,8 @@
 FactoryBot.define do
   factory :document_validation do
-    document
+    association :validatable, factory: :document
     validator { association :user }
-    validation_request { association :validation_request, document: document }
+    validation_request { association :validation_request, validatable: validatable }
     status { 'pending' }
     comment { nil }
     validated_at { nil }

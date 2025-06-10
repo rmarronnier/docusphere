@@ -41,7 +41,7 @@ class Ui::AlertComponent < ApplicationComponent
   end
   
   def container_classes
-    base = "p-3 #{type_config[:container]}"
+    base = "p-3 rounded-md overflow-hidden #{type_config[:container]}"
     border = case @border_position
              when :left then 'border-l-4'
              when :top then 'border-t-4'
@@ -53,11 +53,20 @@ class Ui::AlertComponent < ApplicationComponent
   
   def dismissible_data
     return {} unless @dismissible
-    { controller: 'alert', action: 'click->alert#dismiss' }
+    { 'data-controller': 'alert' }
   end
   
   def show_icon?
     true # Can be made configurable if needed
+  end
+  
+  def aria_live_value
+    case @type
+    when :error, :warning
+      'assertive'
+    else
+      'polite'
+    end
   end
   
 end

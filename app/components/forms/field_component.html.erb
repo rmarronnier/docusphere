@@ -1,26 +1,15 @@
-<div class="space-y-1">
-  <% unless type == :hidden || type == :checkbox %>
-    <%= form.label field, label_text, class: label_classes do %>
-      <%= label_text %>
-      <% if required %>
-        <span class="text-red-500">*</span>
-      <% end %>
-    <% end %>
+<div class="<%= wrapper_class %>">
+  <% if should_render_label? %>
+    <%= render_label %>
   <% end %>
   
-  <%= render_input %>
+  <%= render_field %>
   
-  <% if help.present? %>
-    <p id="<%= help_id %>" class="text-sm text-gray-500">
-      <%= help %>
-    </p>
+  <% if hint.present? %>
+    <%= render_hint %>
   <% end %>
   
   <% if has_errors? %>
-    <div class="text-sm text-red-600 space-y-1">
-      <% error_messages.each do |message| %>
-        <p><%= message %></p>
-      <% end %>
-    </div>
+    <%= render_errors %>
   <% end %>
 </div>

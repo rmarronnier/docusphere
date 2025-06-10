@@ -10,7 +10,8 @@ RSpec.describe Authorizable, type: :concern do
   let(:space) { create(:space, organization: organization) }
   
   # Create a Document instance to test the concern
-  let(:authorizable_instance) { create(:document, space: space, uploaded_by: user) }
+  let(:third_user) { create(:user, organization: organization) }
+  let(:authorizable_instance) { create(:document, space: space, uploaded_by: third_user) }
 
   before do
     # Ensure we have a clean state
@@ -101,7 +102,7 @@ RSpec.describe Authorizable, type: :concern do
       authorizable_instance.revoke_authorization(user, 'read', revoked_by: other_user, comment: comment)
       
       auth = authorizable_instance.authorizations.for_user(user).first
-      expect(auth.revocation_comment).to eq(comment)
+      expect(auth.comment).to include(comment)
     end
   end
 
@@ -224,7 +225,7 @@ RSpec.describe Authorizable, type: :concern do
     end
 
     it 'checks group permissions' do
-      user_group.add_member(user)
+      user_group.add_user(user)
       authorizable_instance.authorize_group(user_group, 'write', granted_by: other_user)
       
       expect(authorizable_instance.authorized_for?(user, 'write')).to be true
@@ -271,7 +272,7 @@ RSpec.describe Authorizable, type: :concern do
   describe '#permissions_for' do
     before do
       authorizable_instance.authorize_user(user, 'read', granted_by: other_user)
-      user_group.add_member(user)
+      user_group.add_user(user)
       authorizable_instance.authorize_group(user_group, 'write', granted_by: other_user)
     end
 
@@ -281,9 +282,16 @@ RSpec.describe Authorizable, type: :concern do
     end
 
     it 'returns unique permissions' do
-      authorizable_instance.authorize_user(user, 'read', granted_by: other_user) # Duplicate
+      # The before block already created a 'read' permission
+      # Try to create another 'read' permission through group
+      another_group = create(:user_group, organization: organization)
+      another_group.add_user(user)
+      authorizable_instance.authorize_group(another_group, 'read', granted_by: other_user)
+      
       permissions = authorizable_instance.permissions_for(user)
+      # Should have 'read' only once despite having it from both user and group
       expect(permissions.count('read')).to eq(1)
+      expect(permissions).to include('read', 'write')
     end
   end
 
@@ -338,9 +346,9 @@ RSpec.describe Authorizable, type: :concern do
   end
 
   describe 'scope methods' do
-    let(:readable_item) { create(:document, space: space, uploaded_by: user) }
-    let(:writable_item) { create(:document, space: space, uploaded_by: user) }
-    let(:unreadable_item) { create(:document, space: space, uploaded_by: user) }
+    let(:readable_item) { create(:document, space: space, uploaded_by: third_user) }
+    let(:writable_item) { create(:document, space: space, uploaded_by: third_user) }
+    let(:unreadable_item) { create(:document, space: space, uploaded_by: third_user) }
 
     before do
       readable_item.authorize_user(user, 'read', granted_by: other_user)
@@ -348,38 +356,61 @@ RSpec.describe Authorizable, type: :concern do
       # unreadable_item has no permissions for user
     end
 
-    it 'readable_by scope returns items user can read' do
-      readable_items = Document.readable_by(user)
-      expect(readable_items).to include(readable_item, writable_item)
-      expect(readable_items).not_to include(unreadable_item)
+    it 'readable_by scope filters documents by read permission' do
+      # Test that user can read readable_item
+      expect(readable_item.readable_by?(user)).to be true
+      expect(writable_item.readable_by?(user)).to be true  # write includes read
+      expect(unreadable_item.readable_by?(user)).to be false
+      
+      # Test the scope
+      readable_documents = Document.readable_by(user)
+      expect(readable_documents).to include(readable_item, writable_item)
+      expect(readable_documents).not_to include(unreadable_item)
     end
 
-    it 'writable_by scope returns items user can write' do
-      writable_items = Document.writable_by(user)
-      expect(writable_items).to include(writable_item)
-      expect(writable_items).not_to include(readable_item, unreadable_item)
+    it 'writable_by scope filters documents by write permission' do
+      # Test that user can write to writable_item only
+      expect(readable_item.writable_by?(user)).to be false
+      expect(writable_item.writable_by?(user)).to be true
+      expect(unreadable_item.writable_by?(user)).to be false
+      
+      # Test the scope
+      writable_documents = Document.writable_by(user)
+      expect(writable_documents).to include(writable_item)
+      expect(writable_documents).not_to include(readable_item, unreadable_item)
     end
   end
 
-  describe 'private #owned_by?' do
-    it 'returns true when object has user attribute matching the user' do
-      if authorizable_instance.respond_to?(:user=)
-        authorizable_instance.user = user
-        expect(authorizable_instance.send(:owned_by?, user)).to be true
-        expect(authorizable_instance.send(:owned_by?, other_user)).to be false
+  describe '#owned_by?' do
+    context 'with Document' do
+      let(:document) { create(:document, space: space, uploaded_by: user) }
+      
+      it 'returns true when user is the uploader' do
+        expect(document.owned_by?(user)).to be true
+        expect(document.owned_by?(other_user)).to be false
       end
     end
 
-    it 'returns true when object has project_manager attribute matching the user' do
-      if authorizable_instance.respond_to?(:project_manager=)
-        authorizable_instance.project_manager = user
-        expect(authorizable_instance.send(:owned_by?, user)).to be true
-        expect(authorizable_instance.send(:owned_by?, other_user)).to be false
+    context 'with Space' do
+      let(:space_instance) { create(:space, organization: organization) }
+      
+      it 'returns false for all users (no ownership)' do
+        expect(space_instance.owned_by?(user)).to be false
+        expect(space_instance.owned_by?(other_user)).to be false
       end
     end
 
-    it 'returns false when user is not the owner' do
-      expect(authorizable_instance.send(:owned_by?, user)).to be false
+    context 'with Folder' do
+      let(:folder) { create(:folder, space: space) }
+      
+      it 'returns false for all users (no ownership)' do
+        expect(folder.owned_by?(user)).to be false
+        expect(folder.owned_by?(other_user)).to be false
+      end
+    end
+
+    it 'returns false when user is nil' do
+      expect(authorizable_instance.owned_by?(nil)).to be false
     end
   end
 end

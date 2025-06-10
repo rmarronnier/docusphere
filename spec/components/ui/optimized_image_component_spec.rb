@@ -18,7 +18,8 @@ RSpec.describe Ui::OptimizedImageComponent, type: :component do
       
       expect(page).to have_css("[data-controller='lazy-load']")
       expect(page).to have_css("[data-lazy-load-src-value='#{test_image_src}']")
-      expect(page).not_to have_css("img[src='#{test_image_src}']")
+      # Check that the main img tag doesn't have src (noscript img will have it)
+      expect(page).not_to have_css("img[data-controller='lazy-load'][src]")
     end
 
     it "can disable lazy loading" do
@@ -310,7 +311,7 @@ RSpec.describe Ui::OptimizedImageComponent, type: :component do
       ))
       
       expect(page).to have_css("[data-controller='lazy-load']")
-      expect(page).to have_css("[data-src='#{test_image_src}']")
+      expect(page).to have_css("[data-lazy-load-src-value='#{test_image_src}']")
     end
   end
 end

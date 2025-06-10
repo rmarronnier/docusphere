@@ -6,7 +6,7 @@ RSpec.describe DocumentValidationsController, type: :controller do
   let(:validator) { create(:user, organization: organization) }
   let(:space) { create(:space, organization: organization) }
   let(:document) { create(:document, space: space, uploaded_by: user) }
-  let(:validation_request) { create(:validation_request, document: document, requester: user) }
+  let(:validation_request) { create(:validation_request, validatable: document, requester: user) }
   let(:document_validation) { create(:document_validation, validation_request: validation_request, validator: validator) }
   
   before do
@@ -16,7 +16,7 @@ RSpec.describe DocumentValidationsController, type: :controller do
   describe 'GET #index' do
     context 'when user is a validator' do
       let(:document2) { create(:document, space: space, uploaded_by: user) }
-      let(:validation_request2) { create(:validation_request, document: document2, requester: user) }
+      let(:validation_request2) { create(:validation_request, validatable: document2, requester: user) }
       
       let!(:pending_validation) { create(:document_validation, 
                                         validation_request: validation_request, 
@@ -267,8 +267,8 @@ RSpec.describe DocumentValidationsController, type: :controller do
   end
 
   describe 'GET #my_requests' do
-    let!(:user_request) { create(:validation_request, document: document, requester: user) }
-    let!(:other_request) { create(:validation_request, document: document, requester: validator) }
+    let!(:user_request) { create(:validation_request, validatable: document, requester: user) }
+    let!(:other_request) { create(:validation_request, validatable: document, requester: validator) }
 
     it 'returns a success response' do
       get :my_requests

@@ -222,7 +222,7 @@ class Notification < ApplicationRecord
   
   def time_ago
     return "à l'instant" if created_at > 1.minute.ago
-    return "il y a #{time_ago_in_words(created_at)}"
+    return "il y a #{ApplicationController.helpers.time_ago_in_words(created_at)}"
   end
   
   def formatted_data
