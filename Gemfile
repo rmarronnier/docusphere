@@ -46,7 +46,7 @@ gem "rtesseract", "~> 3.1"
 
 # Search
 gem "elasticsearch-model", "~> 7.2"
-gem "elasticsearch-rails", "~> 7.2"
+gem "elasticsearch-rails", "~> 8.0"
 gem "searchkick", "~> 5.3"
 
 # UI Components
