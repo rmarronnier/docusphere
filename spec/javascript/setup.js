@@ -9,6 +9,9 @@ global.navigator = dom.window.navigator
 global.HTMLElement = dom.window.HTMLElement
 global.Event = dom.window.Event
 global.CustomEvent = dom.window.CustomEvent
+global.MutationObserver = dom.window.MutationObserver
+global.Node = dom.window.Node
+global.KeyboardEvent = dom.window.KeyboardEvent
 
 // Mock fetch
 global.fetch = (() => {
@@ -28,6 +31,19 @@ global.fetch = (() => {
   }
   return fn
 })()
+
+// Mock IntersectionObserver
+global.IntersectionObserver = class IntersectionObserver {
+  constructor(callback, options) {
+    this.callback = callback
+    this.options = options
+  }
+  observe(target) {
+    // Can be overridden in tests
+  }
+  unobserve(target) {}
+  disconnect() {}
+}
 
 // Mock localStorage
 global.localStorage = {
@@ -84,9 +100,9 @@ global.createMockFunction = (implementation = () => {}) => {
   return fn
 }
 
-// Helper to reset mocks between tests
-global.beforeEach(() => {
+// Helper to reset mocks between tests - will be called manually if needed
+global.resetMocks = () => {
   fetch.mock.mockClear()
   localStorage.clear()
   sessionStorage.clear()
-})
+}

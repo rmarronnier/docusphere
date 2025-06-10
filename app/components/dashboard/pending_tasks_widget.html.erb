@@ -1,0 +1,94 @@
+<div class="pending-tasks-widget">
+  <h3 class="text-lg font-semibold mb-4"><%= widget_data[:title] || 'Tâches en attente' %></h3>
+  <% if loading? %>
+    <div class="loading-skeleton space-y-3">
+      <% 5.times do %>
+        <div class="animate-pulse">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 bg-gray-200 rounded"></div>
+            <div class="flex-1 space-y-2">
+              <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+              <div class="h-3 bg-gray-200 rounded w-1/2"></div>
+            </div>
+            <div class="w-20 h-6 bg-gray-200 rounded-full"></div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% elsif tasks.empty? %>
+    <div class="empty-state text-center py-8">
+      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <p class="mt-2 text-sm text-gray-600">Aucune tâche en attente</p>
+      <p class="mt-1 text-xs text-gray-500">Toutes vos tâches sont terminées !</p>
+    </div>
+  <% else %>
+    <div class="space-y-3">
+      <% tasks.first(task_limit).each do |task| %>
+        <div class="task-item p-3 bg-white rounded-lg border hover:shadow-sm transition-shadow" 
+             data-task-type="<%= task[:type] %>"
+             data-urgency="<%= task[:urgency] %>"
+             data-overdue="<%= overdue?(task[:due_date]) %>">
+          <div class="flex items-start">
+            <div class="flex-shrink-0 mr-3">
+              <div class="w-10 h-10 flex items-center justify-center rounded-lg <%= urgency_class(task[:urgency]) %>">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <% case task[:type] %>
+                  <% when 'validation' %>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  <% when 'review' %>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  <% when 'approval' %>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                  <% else %>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                  <% end %>
+                </svg>
+              </div>
+            </div>
+            
+            <div class="flex-1 min-w-0">
+              <%= link_to task[:title], task[:link], 
+                  class: "text-sm font-medium text-gray-900 hover:text-blue-600",
+                  title: task[:title] %>
+              <div class="mt-1 flex items-center text-xs text-gray-500">
+                <% if task[:assignee] %>
+                  <span class="inline-flex items-center">
+                    <svg class="mr-1 h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    <%= task[:assignee] %>
+                  </span>
+                  <span class="mx-2">•</span>
+                <% end %>
+                <span class="<%= overdue?(task[:due_date]) ? 'text-red-600 font-medium' : '' %>">
+                  <%= formatted_due_date(task[:due_date]) %>
+                </span>
+              </div>
+            </div>
+            
+            <div class="flex-shrink-0 ml-3">
+              <button class="text-gray-400 hover:text-gray-600" title="Actions">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+    
+    <% if has_more_tasks? %>
+      <div class="mt-4 text-center">
+        <%= link_to all_tasks_path, class: "text-sm text-blue-600 hover:text-blue-800 font-medium" do %>
+          Voir toutes les tâches
+          <svg class="inline-block w-4 h-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+</div>

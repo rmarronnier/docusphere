@@ -1,0 +1,73 @@
+<div class="recent-documents-widget">
+  <h3 class="text-lg font-semibold mb-4"><%= widget_data[:title] || 'Documents récents' %></h3>
+  <% if loading? %>
+    <div class="loading-skeleton space-y-3">
+      <% 5.times do %>
+        <div class="animate-pulse flex items-center space-x-3">
+          <div class="w-10 h-10 bg-gray-200 rounded"></div>
+          <div class="flex-1 space-y-2">
+            <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+            <div class="h-3 bg-gray-200 rounded w-1/2"></div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% elsif documents.empty? %>
+    <div class="empty-state text-center py-8">
+      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+      </svg>
+      <p class="mt-2 text-sm text-gray-600">Aucun document récent</p>
+      <div class="mt-4">
+        <%= link_to upload_path, class: "inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700" do %>
+          <svg class="-ml-0.5 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+          </svg>
+          Uploader un document
+        <% end %>
+      </div>
+    </div>
+  <% else %>
+    <div class="space-y-2">
+      <% documents.first(document_limit).each do |document| %>
+        <div class="document-item flex items-center p-3 hover:bg-gray-50 rounded-lg transition-colors">
+          <div class="flex-shrink-0 mr-3">
+            <div class="w-10 h-10 flex items-center justify-center rounded-lg bg-gray-100" data-file-type="<%= file_extension(document.title) %>">
+              <svg class="h-6 w-6 <%= file_icon_class(file_extension(document.title)) %>" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </div>
+          </div>
+          <div class="flex-1 min-w-0">
+            <%= link_to document.title, document_path(document), 
+                class: "text-sm font-medium text-gray-900 hover:text-blue-600 truncate block",
+                title: document.title %>
+            <div class="flex items-center text-xs text-gray-500 space-x-2">
+              <span><%= formatted_size(document.file_size) %></span>
+              <span>•</span>
+              <span><%= relative_time(document.created_at) %></span>
+            </div>
+          </div>
+          <div class="flex-shrink-0 ml-3">
+            <button class="text-gray-400 hover:text-gray-600" title="Actions">
+              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      <% end %>
+    </div>
+    
+    <% if has_more_documents? %>
+      <div class="mt-4 text-center">
+        <%= link_to my_documents_path, class: "text-sm text-blue-600 hover:text-blue-800 font-medium" do %>
+          Voir tous les documents
+          <svg class="inline-block w-4 h-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+</div>

@@ -16,6 +16,8 @@ class User < ApplicationRecord
   has_many :validation_requests, foreign_key: 'requester_id', dependent: :destroy
   has_many :document_validations, foreign_key: 'validator_id', dependent: :destroy
   has_many :authorizations, dependent: :destroy
+  has_many :user_profiles, dependent: :destroy
+  has_one :active_profile, -> { where(active: true) }, class_name: 'UserProfile'
 
   validates :email, presence: true, uniqueness: true
   validates :first_name, :last_name, presence: true

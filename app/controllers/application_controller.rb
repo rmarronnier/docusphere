@@ -33,11 +33,24 @@ class ApplicationController < ActionController::Base
   def skip_pundit?
     devise_controller? || 
     params[:controller] == 'home' ||
+    params[:controller] == 'dashboard' ||
     params[:controller] == 'rails/health'
   end
   
   def user_not_authorized
-    flash[:alert] = "Vous n'êtes pas autorisé à effectuer cette action."
-    redirect_to(request.referrer || root_path)
+    if request.format.json?
+      render json: { error: "Vous n'êtes pas autorisé à effectuer cette action." }, status: :forbidden
+    else
+      flash[:alert] = "Vous n'êtes pas autorisé à effectuer cette action."
+      redirect_to(request.referrer || root_path)
+    end
+  end
+  
+  def authenticate_user!
+    if request.format.json? && !user_signed_in?
+      render json: { error: 'Authentication required' }, status: :unauthorized
+    else
+      super
+    end
   end
 end

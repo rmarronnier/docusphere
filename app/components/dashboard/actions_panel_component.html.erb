@@ -1,0 +1,68 @@
+<div class="actions-panel <%= 'collapsed' if collapsed %>" data-controller="actions-panel">
+  <div class="flex items-center justify-between p-4 border-b">
+    <h2 class="text-lg font-semibold text-gray-900 <%= 'hidden' if collapsed %>">
+      Actions prioritaires
+    </h2>
+    <button 
+      data-action="click->actions-panel#toggle"
+      class="p-1 rounded hover:bg-gray-100"
+    >
+      <svg class="h-5 w-5 text-gray-500 transform <%= 'rotate-180' if collapsed %>" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+      </svg>
+    </button>
+  </div>
+  
+  <div class="p-4 space-y-3 <%= 'hidden' if collapsed %>">
+    <% if actions.empty? %>
+      <div class="text-center py-8">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <p class="mt-2 text-sm text-gray-600">Aucune action en attente</p>
+      </div>
+    <% else %>
+      <% grouped_actions.each do |type, type_actions| %>
+        <div class="space-y-2">
+          <% type_actions.each do |action| %>
+            <a 
+              href="<%= action[:link] %>" 
+              class="block p-3 rounded-lg border <%= urgency_classes(action[:urgency]) %> hover:shadow-md transition-shadow"
+            >
+              <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                  <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-<%= urgency_color(action[:urgency]) %>-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="<%= icon_path_for(action[:icon]) %>" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p class="text-sm font-medium"><%= action[:title] %></p>
+                    <% if action[:subtitle] %>
+                      <p class="text-xs text-gray-600"><%= action[:subtitle] %></p>
+                    <% end %>
+                  </div>
+                </div>
+                <% if action[:count] && action[:count] > 0 %>
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-<%= urgency_color(action[:urgency]) %>-600 text-white">
+                    <%= action[:count] %>
+                  </span>
+                <% end %>
+              </div>
+            </a>
+          <% end %>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+  
+  <% if collapsed && total_actions_count > 0 %>
+    <div class="p-2">
+      <div class="relative">
+        <span class="absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-red-600 rounded-full">
+          <%= total_actions_count %>
+        </span>
+      </div>
+    </div>
+  <% end %>
+</div>

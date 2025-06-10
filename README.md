@@ -300,6 +300,8 @@ docusphere/
 - **Cache & Queues** : Redis pour sessions, cache, et Sidekiq
 - **Recherche** : Elasticsearch 8.x avec indexation automatique
 - **Stockage** : Active Storage + traitement d'images/documents
+- **JavaScript Runtime** : Bun (remplacement de Node.js) pour rapidité et efficacité
+- **Tests JavaScript** : Bun test runner avec JSDOM pour les tests Stimulus
 - **Monitoring** : Logs structurés, métriques application
 - **Tests visuels** : Lookbook pour prévisualisation des composants
 
@@ -421,8 +423,10 @@ docusphere/                         # 🏠 Racine application
 
 - **Application principale** : >90% couverture
 - **Engine ImmoPromo** : >95% couverture  
-- **Types de tests** : Unit, Integration, System, Component
-- **Tools** : RSpec, FactoryBot, Capybara, Selenium
+- **Types de tests** : Unit, Integration, System, Component, JavaScript
+- **Tools Ruby** : RSpec, FactoryBot, Capybara, Selenium
+- **Tools JavaScript** : Bun test runner, JSDOM pour tests Stimulus controllers
+- **Architecture tests** : Tests parallèles (4 processeurs), fail-fast, auto-fix
 
 ### 📊 Métriques Qualité
 

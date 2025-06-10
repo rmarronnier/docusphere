@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_06_10_080000) do
+ActiveRecord::Schema[7.1].define(version: 2025_06_10_184607) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -120,6 +120,20 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_10_080000) do
     t.index ["basket_type"], name: "index_baskets_on_basket_type"
     t.index ["is_shared"], name: "index_baskets_on_is_shared"
     t.index ["user_id"], name: "index_baskets_on_user_id"
+  end
+
+  create_table "dashboard_widgets", force: :cascade do |t|
+    t.bigint "user_profile_id", null: false
+    t.string "widget_type", null: false
+    t.integer "position", null: false
+    t.integer "width", default: 1
+    t.integer "height", default: 1
+    t.jsonb "config", default: {}
+    t.boolean "visible", default: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_profile_id", "position"], name: "index_dashboard_widgets_on_user_profile_id_and_position"
+    t.index ["user_profile_id"], name: "index_dashboard_widgets_on_user_profile_id"
   end
 
   create_table "document_metadata", force: :cascade do |t|
@@ -933,6 +947,20 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_10_080000) do
     t.index ["organization_id"], name: "index_user_groups_on_organization_id"
   end
 
+  create_table "user_profiles", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "profile_type", null: false
+    t.jsonb "preferences", default: {}
+    t.jsonb "dashboard_config", default: {}
+    t.jsonb "notification_settings", default: {}
+    t.boolean "active", default: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["profile_type"], name: "index_user_profiles_on_profile_type"
+    t.index ["user_id", "active"], name: "index_user_profiles_on_user_id_and_active", unique: true, where: "(active = true)"
+    t.index ["user_id"], name: "index_user_profiles_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -1105,6 +1133,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_10_080000) do
   add_foreign_key "authorizations", "users", column: "revoked_by_id"
   add_foreign_key "basket_items", "baskets"
   add_foreign_key "baskets", "users"
+  add_foreign_key "dashboard_widgets", "user_profiles"
   add_foreign_key "document_metadata", "documents"
   add_foreign_key "document_metadata", "metadata_templates"
   add_foreign_key "document_shares", "documents"
@@ -1174,6 +1203,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_10_080000) do
   add_foreign_key "user_group_memberships", "user_groups"
   add_foreign_key "user_group_memberships", "users"
   add_foreign_key "user_groups", "organizations"
+  add_foreign_key "user_profiles", "users"
   add_foreign_key "users", "organizations"
   add_foreign_key "validation_requests", "users", column: "requester_id"
   add_foreign_key "validation_requests", "validation_templates"

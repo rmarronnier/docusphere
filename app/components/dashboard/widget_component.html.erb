@@ -1,0 +1,61 @@
+<div class="<%= widget_classes %>" data-widget-id="<%= widget_data[:id] %>">
+  <% if loading %>
+    <div class="space-y-3">
+      <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+      <div class="h-20 bg-gray-200 rounded"></div>
+      <div class="h-4 bg-gray-200 rounded w-1/2"></div>
+    </div>
+  <% elsif error %>
+    <div class="text-center py-8">
+      <svg class="mx-auto h-12 w-12 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <p class="mt-2 text-sm text-gray-600"><%= error %></p>
+    </div>
+  <% else %>
+    <% if render_header? %>
+      <div class="flex items-center justify-between mb-4 widget-header">
+        <h3 class="text-lg font-medium text-gray-900">
+          <%= widget_data[:title] %>
+        </h3>
+        <% if render_actions? %>
+          <div class="flex space-x-2">
+            <% widget_data[:actions].each do |action| %>
+              <%= render Ui::ButtonComponent.new(
+                size: :sm,
+                variant: :ghost,
+                icon: action[:icon],
+                aria_label: action[:type].humanize,
+                data: { action: action[:type] }
+              ) %>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+    
+    <div class="widget-content">
+      <%= content %>
+    </div>
+    
+    <% if widget_data[:footer] %>
+      <div class="mt-4 pt-4 border-t border-gray-200">
+        <%= widget_data[:footer] %>
+      </div>
+    <% end %>
+  <% end %>
+  
+  <% if widget_data[:refreshable] %>
+    <div class="absolute top-2 right-2">
+      <button 
+        class="text-gray-400 hover:text-gray-600" 
+        data-action="refresh-widget"
+        data-widget-id="<%= widget_data[:id] %>"
+      >
+        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+      </button>
+    </div>
+  <% end %>
+</div>

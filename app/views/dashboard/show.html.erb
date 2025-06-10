@@ -1,0 +1,43 @@
+<div class="dashboard-container" data-controller="dashboard">
+  <div class="dashboard-header mb-6">
+    <h1 class="text-3xl font-bold text-gray-900">Tableau de bord</h1>
+    <p class="mt-2 text-gray-600">
+      <%= I18n.t("dashboard.welcome", name: current_user.first_name) %>
+    </p>
+  </div>
+  
+  <% if @dashboard_data[:actions].any? %>
+    <div class="mb-6">
+      <%= render Dashboard::ActionsPanelComponent.new(
+        actions: @dashboard_data[:actions],
+        user: current_user
+      ) %>
+    </div>
+  <% end %>
+  
+  <div class="dashboard-widgets" data-dashboard-target="widgets">
+    <% @dashboard_data[:widgets].each do |widget_data| %>
+      <%= render Dashboard::WidgetComponent.new(
+        widget_data: widget_data,
+        user: current_user
+      ) do %>
+        <div class="widget-placeholder" data-widget-type="<%= widget_data[:type] %>">
+          <!-- Widget content will be loaded here -->
+          <%= widget_data[:data][:content] %>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+  
+  <% if @dashboard_data[:widgets].empty? %>
+    <div class="text-center py-12">
+      <svg class="mx-auto h-16 w-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
+      </svg>
+      <h3 class="mt-4 text-lg font-medium text-gray-900">Aucun widget configuré</h3>
+      <p class="mt-2 text-sm text-gray-600">
+        Votre tableau de bord personnalisé sera bientôt disponible.
+      </p>
+    </div>
+  <% end %>
+</div>

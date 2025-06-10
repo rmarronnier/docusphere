@@ -10,6 +10,14 @@ Ce fichier contient les procédures obligatoires pour éviter les régressions. 
 
 **⚠️ DOCUMENT VERSIONING**: Document model uses PaperTrail for versioning with a custom DocumentVersion class that inherits from PaperTrail::Version. This provides document-specific versioning features while leveraging PaperTrail's robust infrastructure. Access versions through `document.versions` which returns DocumentVersion instances.
 
+**🚨 RÈGLE FONDAMENTALE DE DÉVELOPPEMENT**: Si on crée ou on touche à du code (Ruby, JavaScript, CSS, etc.), alors on DOIT immédiatement :
+1. Écrire ou mettre à jour les tests associés
+2. Lancer les tests pour vérifier qu'ils passent
+3. Corriger les erreurs si nécessaire
+4. Ne considérer la tâche comme terminée QUE quand tous les tests passent
+
+Cette règle s'applique à TOUT le code : composants, services, contrôleurs, modèles, JavaScript, etc.
+
 ## ⚠️ Pièges Connus (Mis à jour 10/06/2025)
 
 1. **Document#lock!** : Override la méthode PaperTrail - cause un warning au démarrage
