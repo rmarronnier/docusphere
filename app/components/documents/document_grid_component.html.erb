@@ -5,7 +5,7 @@
       <!-- Grid View -->
       <div class="group relative" data-document-id="<%= document.id %>">
         <%= render Ui::CardComponent.new(
-          href: ged_document_path(document),
+          href: helpers.ged_document_path(document),
           clickable: true,
           hover: true,
           padded: false,
@@ -53,7 +53,7 @@
                   size: :sm,
                   variant: :primary,
                   aria_label: "Download",
-                  href: rails_blob_path(document.file, disposition: "attachment"),
+                  href: helpers.rails_blob_path(document.file, disposition: "attachment"),
                   onclick: "event.stopPropagation()"
                 ) if document.file.attached? %>
               </div>
@@ -93,7 +93,7 @@
     <% when :list %>
       <!-- List View -->
       <%= render Ui::CardComponent.new(
-        href: ged_document_path(document),
+        href: helpers.ged_document_path(document),
         clickable: true,
         hover: true,
         padded: false
@@ -147,7 +147,7 @@
                 size: :sm,
                 variant: :ghost,
                 aria_label: "Download",
-                href: rails_blob_path(document.file, disposition: "attachment")
+                href: helpers.rails_blob_path(document.file, disposition: "attachment")
               ) if document.file.attached? %>
               
               <%= render Ui::ButtonComponent.new(
@@ -180,7 +180,7 @@
         <% icon_info = document_icon(document) %>
         <%= render Ui::IconComponent.new(name: icon_info[:name], css_class: "h-5 w-5 #{icon_info[:color]} flex-shrink-0") %>
         
-        <%= link_to document.title, ged_document_path(document), class: "text-sm font-medium text-gray-900 hover:text-primary-600 truncate flex-1" %>
+        <%= link_to document.title, helpers.ged_document_path(document), class: "text-sm font-medium text-gray-900 hover:text-primary-600 truncate flex-1" %>
         
         <span class="text-xs text-gray-500">
           <%= document.file.attached? ? number_to_human_size(document.file.byte_size) : "-" %>
@@ -197,7 +197,7 @@
               size: :xs,
               variant: :ghost,
               aria_label: "Download",
-              href: rails_blob_path(document.file, disposition: "attachment")
+              href: helpers.rails_blob_path(document.file, disposition: "attachment")
             ) if document.file.attached? %>
           </div>
         <% end %>

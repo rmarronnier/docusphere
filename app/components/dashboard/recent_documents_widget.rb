@@ -102,11 +102,11 @@ class Dashboard::RecentDocumentsWidget < ApplicationComponent
   end
   
   def document_path(document)
-    "/ged/documents/#{document.id}"
+    helpers.ged_document_path(document)
   end
   
   def my_documents_path
-    '/ged/my-documents'
+    helpers.my_documents_path
   end
   
   def upload_path

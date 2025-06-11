@@ -7,6 +7,13 @@ Rails.application.routes.draw do
   get 'home/index'
   devise_for :users
   
+  # Document routes outside GED scope  
+  resources :documents, only: [:show, :edit, :update] do
+    member do
+      get :download
+    end
+  end
+  
   # Dashboard Routes
   resource :dashboard, controller: 'dashboard', only: [:show] do
     member do
@@ -72,6 +79,7 @@ Rails.application.routes.draw do
     get '/spaces/:id', to: 'ged#show_space', as: 'space'
     get '/folders/:id', to: 'ged#show_folder', as: 'folder'
     get '/documents/:id', to: 'ged#show_document', as: 'document'
+    get '/documents/:id/edit', to: 'ged#edit_document', as: 'edit_document'
     
     # AJAX routes for modals
     post '/spaces', to: 'ged#create_space', as: 'create_space'
@@ -99,6 +107,7 @@ Rails.application.routes.draw do
           post :reject
         end
       end
+      resources :shares, controller: 'document_shares', only: [:new, :create, :destroy], as: 'document_shares'
     end
     
     # My validation requests
@@ -115,6 +124,28 @@ Rails.application.routes.draw do
     get '/documents/:id/permissions', to: 'ged#document_permissions', as: 'document_permissions'
     patch '/documents/:id/permissions', to: 'ged#update_document_permissions', as: 'update_document_permissions'
   end
+  
+  # Additional application routes
+  scope '/user' do
+    post '/profiles/:id/activate', to: 'users#activate_profile', as: 'activate_profile'
+  end
+  
+  # API routes for frontend
+  scope '/api', as: 'api' do
+    get '/documents', to: 'api/documents#index', as: 'documents'
+    get '/notifications', to: 'api/notifications#index', as: 'notifications'
+    get '/tasks', to: 'api/tasks#index', as: 'tasks'
+    get '/my-documents', to: 'api/documents#my_documents', as: 'my_documents'
+    post '/upload', to: 'api/documents#upload', as: 'upload'
+  end
+  
+  # Additional navigation routes
+  get '/notifications', to: 'notifications#index', as: 'all_notifications'
+  get '/tasks', to: 'api/tasks#index', as: 'all_tasks'
+  get '/my-documents', to: 'api/documents#my_documents', as: 'my_documents'
+  
+  # PWA routes
+  get '/manifest', to: 'pwa#manifest', as: 'pwa_manifest'
   
   # Mount Immo Promo Engine
   mount ImmoPromo::Engine => "/immo/promo"

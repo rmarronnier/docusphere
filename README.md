@@ -107,6 +107,52 @@ The `./bin/test` script provides:
 
 View live browser during tests: `open http://localhost:7900`
 
+## 🛣️ Route Validation & Development
+
+### Automatic Route Validation
+
+The project includes comprehensive route validation tools to prevent broken links and navigation issues:
+
+```bash
+# Full route audit
+rake routes:audit
+
+# Auto-fix ViewComponent route issues
+rake routes:fix_common_issues
+
+# Complete development setup with route validation
+rake dev:setup
+
+# Comprehensive validation (audit + tests)
+rake dev:validate_routes
+```
+
+### Pre-commit Validation
+
+```bash
+# Manual pre-commit check
+./bin/pre-commit
+
+# Setup Git hooks (optional)
+./bin/setup-git-hooks
+```
+
+### Route Development Guidelines
+
+- ✅ **Never use hardcoded paths**: Use route helpers like `ged_document_path(doc)`
+- ✅ **ViewComponents**: Always use `helpers.route_path` syntax  
+- ✅ **Engine routes**: Use `engine_name.route_path` for cross-engine navigation
+- ✅ **Assets**: Use `asset_path()` for static files
+
+See [Route Guidelines](docs/DEVELOPMENT_ROUTE_GUIDELINES.md) for complete documentation.
+
+### Automated Validation
+
+- **GitHub Actions**: Automatic validation on every PR/push
+- **CI/CD Integration**: Route validation integrated in test pipeline  
+- **Auto-fix**: Common ViewComponent issues fixed automatically
+- **Navigation Tests**: System tests validate all internal links
+
 See `docs/SELENIUM_TESTING.md` for detailed testing documentation.
 
 ## 🏗️ Module ImmoPromo - Gestion Immobilière Intégrée

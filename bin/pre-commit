@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# Pre-commit hook for route validation
+
+set -e
+
+echo "🔍 Running pre-commit route validation..."
+
+# 1. Run route audit
+echo "📋 Auditing routes..."
+if ! docker-compose run --rm web rake routes:audit > /tmp/route_audit.log 2>&1; then
+  echo "❌ Route audit failed. See output below:"
+  cat /tmp/route_audit.log
+  echo ""
+  echo "💡 Try running: docker-compose run --rm web rake routes:fix_common_issues"
+  exit 1
+fi
+
+# Check for missing route helpers
+if grep -q "MISSING ROUTE HELPERS" /tmp/route_audit.log; then
+  echo "⚠️  Missing route helpers detected:"
+  grep -A 20 "MISSING ROUTE HELPERS" /tmp/route_audit.log | head -20
+  echo ""
+  echo "💡 Please add missing routes or fix references in views"
+fi
+
+# Check for hardcoded paths
+if grep -q "HARDCODED PATHS FOUND" /tmp/route_audit.log; then
+  echo "⚠️  Hardcoded paths detected:"
+  grep -A 20 "HARDCODED PATHS FOUND" /tmp/route_audit.log | head -20
+  echo ""
+  echo "💡 Please replace hardcoded paths with route helpers"
+fi
+
+# 2. Run route helper tests (quick)
+echo "🧪 Running route validation tests..."
+if ! docker-compose run --rm web bundle exec rspec spec/routing/route_helpers_spec.rb --format progress > /tmp/route_tests.log 2>&1; then
+  echo "❌ Route validation tests failed:"
+  tail -20 /tmp/route_tests.log
+  exit 1
+fi
+
+echo "✅ Route validation passed!"
+rm -f /tmp/route_audit.log /tmp/route_tests.log

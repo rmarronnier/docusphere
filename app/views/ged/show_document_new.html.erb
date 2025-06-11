@@ -74,7 +74,7 @@
             text: "Modifier",
             icon: "edit",
             variant: :secondary,
-            href: edit_ged_document_path(@document)
+            href: ged_edit_document_path(@document)
           ) %>
           
           <% if @document.locked? && @document.can_unlock?(current_user) %>

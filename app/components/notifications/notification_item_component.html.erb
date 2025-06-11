@@ -21,8 +21,8 @@
         
         <!-- Title and Badges -->
         <div class="flex items-center space-x-2 mb-1">
-          <% if notification_url.present? %>
-            <%= link_to notification_url, class: "#{title_classes} hover:text-blue-600 truncate" do %>
+          <% if helpers.notification_url.present? %>
+            <%= link_to helpers.notification_url, class: "#{title_classes} hover:text-blue-600 truncate" do %>
               <%= notification.title %>
             <% end %>
           <% else %>

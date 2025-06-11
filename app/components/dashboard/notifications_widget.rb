@@ -87,7 +87,7 @@ class Dashboard::NotificationsWidget < ApplicationComponent
   end
   
   def all_notifications_path
-    '/notifications'
+    helpers.all_notifications_path
   end
   
   def mark_as_read_path(notification)

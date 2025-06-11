@@ -9,21 +9,25 @@ FactoryBot.define do
     
     transient do
       file_size { nil }
+      attach_file { true }
     end
 
     after(:build) do |document, evaluator|
-      # Create file content with the specified size if file_size is provided
-      file_content = if evaluator.try(:file_size)
-        "A" * evaluator.file_size
-      else
-        "Test document content"
+      # Only attach file if requested (default true)
+      if evaluator.attach_file
+        # Create file content with the specified size if file_size is provided
+        file_content = if evaluator.try(:file_size)
+          "A" * evaluator.file_size
+        else
+          "Test document content"
+        end
+        
+        document.file.attach(
+          io: StringIO.new(file_content),
+          filename: "test_document.pdf",
+          content_type: "application/pdf"
+        )
       end
-      
-      document.file.attach(
-        io: StringIO.new(file_content),
-        filename: "test_document.pdf",
-        content_type: "application/pdf"
-      )
     end
 
     trait :published do
@@ -54,6 +58,30 @@ FactoryBot.define do
         document.update!(title: "#{document.title} - Version 2")
         document.update!(title: "#{document.title} - Version 3")
       end
+    end
+    
+    trait :with_image_file do
+      after(:build) do |document|
+        document.file.attach(
+          io: StringIO.new("Fake image content"),
+          filename: "test_image.jpg",
+          content_type: "image/jpeg"
+        )
+      end
+    end
+    
+    trait :with_pdf_file do
+      after(:build) do |document|
+        document.file.attach(
+          io: StringIO.new("%PDF-1.4 test content"),
+          filename: "test.pdf",
+          content_type: "application/pdf"
+        )
+      end
+    end
+    
+    trait :without_file do
+      attach_file { false }
     end
 
     factory :pdf_document do

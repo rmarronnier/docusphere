@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# Setup Git hooks for automatic route validation
+
+set -e
+
+echo "🔧 Setting up Git hooks for route validation..."
+
+# Create .git/hooks directory if it doesn't exist
+mkdir -p .git/hooks
+
+# Copy our pre-commit hook
+cp bin/pre-commit .git/hooks/pre-commit
+chmod +x .git/hooks/pre-commit
+
+# Create pre-push hook for more thorough validation
+cat > .git/hooks/pre-push << 'EOF'
+#!/usr/bin/env bash
+# Pre-push hook for comprehensive route validation
+
+set -e
+
+echo "🚀 Running pre-push route validation..."
+
+# Run comprehensive route validation
+echo "📋 Full route audit..."
+docker-compose run --rm web rake routes:audit
+
+echo "🧪 All route tests..."
+docker-compose run --rm web bundle exec rspec spec/routing/ --format progress
+
+echo "🌐 Navigation system tests..."
+docker-compose run --rm web bundle exec rspec spec/system/navigation_paths_spec.rb --format progress
+
+echo "✅ All route validations passed! Safe to push."
+EOF
+
+chmod +x .git/hooks/pre-push
+
+echo "✅ Git hooks installed successfully!"
+echo ""
+echo "📝 Hooks installed:"
+echo "   - pre-commit: Quick route validation"
+echo "   - pre-push: Comprehensive route testing"
+echo ""
+echo "💡 To bypass hooks temporarily: git commit --no-verify"

@@ -29,6 +29,9 @@ module Immo
       validates :priority, inclusion: { in: %w[low medium high critical] }
       validates :estimated_hours, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
 
+      # Aliases métier pour compatibilité tests
+      alias_attribute :actual_end_date, :completed_date
+
       monetize :estimated_cost_cents, allow_nil: true
       monetize :actual_cost_cents, allow_nil: true
       

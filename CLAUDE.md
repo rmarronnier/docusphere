@@ -30,6 +30,14 @@ Cette règle s'applique à TOUT le code : composants, services, contrôleurs, mo
 3. Si la tâche est entièrement terminée, la déplacer vers `docs/archive/DONE.md`
 4. Cette mise à jour DOIT être faite immédiatement après la complétion de la tâche
 
+**🛣️ RÈGLE FONDAMENTALE DES ROUTES**: Pour éviter les liens brisés et erreurs de navigation :
+1. **JAMAIS de chemins hardcodés** : Utiliser `ged_document_path(doc)` au lieu de `"/ged/documents/1"`
+2. **ViewComponents** : Toujours `helpers.route_path` au lieu de `route_path` direct
+3. **Engines** : Utiliser `immo_promo_engine.projects_path` pour naviguer vers les engines
+4. **Assets** : Utiliser `asset_path()` pour tous les fichiers statiques
+5. **Validation automatique** : Lancer `rake routes:audit` avant chaque commit
+6. **Auto-correction** : Utiliser `rake routes:fix_common_issues` pour corriger les ViewComponents
+
 ## ⚠️ Pièges Connus (Mis à jour 10/06/2025)
 
 1. **Document#lock!** : Override la méthode PaperTrail - cause un warning au démarrage

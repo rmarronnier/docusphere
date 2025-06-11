@@ -1,6 +1,14 @@
 class DocumentProcessingJob < ApplicationJob
   queue_as :document_processing
   
+  # Priorité haute pour le processing principal
+  self.priority = 5
+  
+  # Méthode pour accéder à la priorité dans les tests
+  def self.priority
+    5
+  end
+  
   def perform(document)
     return if document.processing? || document.completed?
     

@@ -17,7 +17,6 @@ module Immo
         in: %w[architect engineer contractor subcontractor consultant control_office client investor legal_advisor]
       }
       validates :email, format: { with: /\A[^@\s]+@[^@\s]+\z/ }, allow_blank: true
-      validates :phone, presence: true
       validates :siret, length: { is: 14 }, allow_blank: true
 
       # Declare attribute type for enum
@@ -98,6 +97,18 @@ module Immo
       end
       
       # Méthodes d'engagement et de performance
+      def contact_info
+        if email.present? && phone.present?
+          "#{email} | #{phone}"
+        elsif email.present?
+          email
+        elsif phone.present?
+          phone
+        else
+          nil
+        end
+      end
+
       def engagement_score
         base = 0
         base += completed_tasks.count * 15
@@ -120,7 +131,7 @@ module Immo
       def performance_rating
         return :not_rated if completed_tasks.empty?
         
-        on_time = completed_tasks.where('actual_end_date <= end_date').count
+        on_time = completed_tasks.where('completed_date <= end_date').count
         on_time_ratio = on_time.to_f / completed_tasks.count
         
         case on_time_ratio

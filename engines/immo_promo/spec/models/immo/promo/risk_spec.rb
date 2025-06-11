@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe Immo::Promo::Risk, type: :model do
   let(:organization) { create(:organization) }
   let(:project) { create(:immo_promo_project, organization: organization) }
-  let(:risk) { create(:immo_promo_risk, project: project) }
+  let(:risk) { build(:immo_promo_risk, project: project) }
 
   describe 'associations' do
     it { is_expected.to belong_to(:project).class_name('Immo::Promo::Project') }
@@ -12,8 +12,17 @@ RSpec.describe Immo::Promo::Risk, type: :model do
   describe 'validations' do
     it { is_expected.to validate_presence_of(:title) }
     it { is_expected.to validate_presence_of(:category) }
-    it { is_expected.to validate_inclusion_of(:probability).in_range(1..5) }
-    it { is_expected.to validate_inclusion_of(:impact).in_range(1..5) }
+    it 'validates probability range' do
+      expect {
+        build(:immo_promo_risk, project: project, probability: 6)
+      }.to raise_error(ArgumentError, /'6' is not a valid probability/)
+    end
+    
+    it 'validates impact range' do
+      expect {
+        build(:immo_promo_risk, project: project, impact: 0)
+      }.to raise_error(ArgumentError, /'0' is not a valid impact/)
+    end
   end
 
   describe 'enums' do
@@ -25,18 +34,24 @@ RSpec.describe Immo::Promo::Risk, type: :model do
 
   describe '#risk_score' do
     it 'calculates risk score as probability * impact' do
-      risk.update!(probability: 3, impact: 4)
-      expect(risk.risk_score).to eq(12)
+      valid_risk = build(:immo_promo_risk, project: project)
+      valid_risk.probability = :medium  # 3
+      valid_risk.impact = :high         # 4
+      expect(valid_risk.risk_score).to eq(12)
     end
   end
 
   describe '#severity_level' do
     it 'determines severity based on risk score' do
-      risk.update!(probability: 5, impact: 5)
-      expect(risk.severity_level).to eq(:critical)
+      critical_risk = build(:immo_promo_risk, project: project)
+      critical_risk.probability = :very_high  # 5
+      critical_risk.impact = :very_high       # 5
+      expect(critical_risk.severity_level).to eq(:critical)
       
-      risk.update!(probability: 2, impact: 2)
-      expect(risk.severity_level).to eq(:low)
+      low_risk = build(:immo_promo_risk, project: project)
+      low_risk.probability = :low  # 2
+      low_risk.impact = :low       # 2
+      expect(low_risk.severity_level).to eq(:low)
     end
   end
 end

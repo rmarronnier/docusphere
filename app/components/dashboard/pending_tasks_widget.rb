@@ -101,6 +101,6 @@ class Dashboard::PendingTasksWidget < ApplicationComponent
   end
   
   def all_tasks_path
-    '/tasks'
+    helpers.all_tasks_path
   end
 end

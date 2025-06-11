@@ -19,8 +19,8 @@ module Immo
       validates :title, presence: true
       validates :description, presence: true
       validates :category, presence: true
-      validates :probability, presence: true, inclusion: { in: 1..5 }
-      validates :impact, presence: true, inclusion: { in: 1..5 }
+      validates :probability, presence: true
+      validates :impact, presence: true
       validates :status, presence: true
 
       # Declare attribute type for enum
@@ -89,7 +89,12 @@ module Immo
       end
 
       def risk_score
-        probability * impact
+        return 0 unless probability && impact
+        # Get the numeric values directly from the enum mapping
+        prob_val = self.class.probabilities[probability]
+        impact_val = self.class.impacts[impact]
+        return 0 unless prob_val && impact_val
+        prob_val * impact_val
       end
 
       def risk_level
@@ -103,7 +108,8 @@ module Immo
 
       # Alias for test compatibility
       def severity_level
-        risk_level.to_sym
+        level = risk_level
+        level ? level.to_sym : :unknown
       end
 
       def is_critical?

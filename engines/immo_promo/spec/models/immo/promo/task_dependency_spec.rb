@@ -3,8 +3,9 @@ require 'rails_helper'
 RSpec.describe Immo::Promo::TaskDependency, type: :model do
   let(:organization) { create(:organization) }
   let(:project) { create(:immo_promo_project, organization: organization) }
-  let(:predecessor_task) { create(:immo_promo_task, project: project) }
-  let(:successor_task) { create(:immo_promo_task, project: project) }
+  let(:phase) { create(:immo_promo_phase, project: project) }
+  let(:predecessor_task) { create(:immo_promo_task, phase: phase) }
+  let(:successor_task) { create(:immo_promo_task, phase: phase) }
   let(:task_dependency) { create(:immo_promo_task_dependency, predecessor_task: predecessor_task, successor_task: successor_task) }
 
   describe 'associations' do

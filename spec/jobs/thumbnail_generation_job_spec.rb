@@ -57,9 +57,13 @@ RSpec.describe ThumbnailGenerationJob, type: :job do
     end
     
     context 'when document has no file attached' do
-      let(:document_without_file) { create(:document) }
+      let(:document_without_file) { create(:document, :with_image_file) }
       
       it 'skips thumbnail generation' do
+        # Mock file.attached? to return false
+        allow(document_without_file).to receive_message_chain(:file, :attached?).and_return(false)
+        allow(Document).to receive(:find).with(document_without_file.id).and_return(document_without_file)
+        
         expect(Rails.logger).to receive(:info).with(/No file attached/)
         
         ThumbnailGenerationJob.new.perform(document_without_file.id)

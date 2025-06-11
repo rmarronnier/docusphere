@@ -64,12 +64,20 @@ class UsersController < ApplicationController
     authorize @user
     
     if @user == current_user
-      redirect_to users_path, alert: 'Vous ne pouvez pas supprimer votre propre compte.'
+      redirect_to root_path, alert: 'Vous ne pouvez pas supprimer votre propre compte.'
       return
     end
     
     @user.destroy
     redirect_to users_path, notice: 'Utilisateur supprimé avec succès.'
+  end
+  
+  def activate_profile
+    @profile = current_user.user_profiles.find(params[:id])
+    authorize @profile, :activate?
+    current_user.update!(active_profile: @profile)
+    
+    redirect_back(fallback_location: dashboard_path, notice: 'Profil activé avec succès.')
   end
 
   private

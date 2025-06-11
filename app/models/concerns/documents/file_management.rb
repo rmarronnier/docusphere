@@ -55,5 +55,48 @@ module Documents
         content_type
       end
     end
+    
+    # Thumbnail status helpers (requis par tests)
+    def has_thumbnail?
+      thumbnail.attached?
+    end
+    
+    def thumbnail_generation_failed?
+      thumbnail_generation_status == 'failed'
+    end
+    
+    # File type helpers
+    def pdf?
+      file_content_type == 'application/pdf'
+    end
+    
+    def image?
+      file_content_type&.start_with?('image/')
+    end
+    
+    def video?
+      file_content_type&.start_with?('video/')
+    end
+    
+    def office_document?
+      office_mime_types.include?(file_content_type)
+    end
+    
+    def supported_format?
+      pdf? || image? || video? || office_document?
+    end
+    
+    private
+    
+    def office_mime_types
+      [
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document', # .docx
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', # .xlsx
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation', # .pptx
+        'application/msword', # .doc
+        'application/vnd.ms-excel', # .xls
+        'application/vnd.ms-powerpoint' # .ppt
+      ]
+    end
   end
 end

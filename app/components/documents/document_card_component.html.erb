@@ -14,7 +14,7 @@
       <div class="flex-1 min-w-0">
         <div class="flex items-center justify-between">
           <h3 class="text-sm font-medium text-gray-900 truncate">
-            <%= helpers.link_to document.title, helpers.document_path(document), class: "hover:text-primary-600" %>
+            <%= helpers.link_to document.title, helpers.ged_document_path(document), class: "hover:text-primary-600" %>
           </h3>
           <span class="<%= status_badge_classes %>">
             <%= helpers.t("documents.status.#{document.status}") %>
@@ -67,11 +67,11 @@
           <div class="py-1">
             <%= helpers.link_to "Voir", helpers.document_path(document), class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
             <% if helpers.policy(document).update? %>
-              <%= helpers.link_to "Modifier", helpers.edit_document_path(document), class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
+              <%= helpers.link_to "Modifier", helpers.ged_edit_document_path(document), class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
             <% end %>
             <%= helpers.link_to "Télécharger", helpers.document_path(document, format: :pdf), class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
             <% if helpers.policy(document).share? %>
-              <%= helpers.link_to "Partager", helpers.new_document_share_path(document_id: document.id), class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
+              <%= helpers.link_to "Partager", helpers.new_ged_document_document_shares_path(document), class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
             <% end %>
             <% if helpers.policy(document).destroy? %>
               <div class="border-t border-gray-100"></div>

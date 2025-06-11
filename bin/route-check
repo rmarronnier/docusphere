@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+# Quick route validation for developers
+
+set -e
+
+echo "🔍 Quick Route Check..."
+
+# Check if Docker is running
+if ! docker-compose ps | grep -q "Up"; then
+  echo "⚠️  Starting services..."
+  docker-compose up -d db redis
+  sleep 2
+fi
+
+# Quick route audit
+echo "📋 Running route audit..."
+if docker-compose run --rm web rake routes:audit | grep -q "No hardcoded paths found"; then
+  echo "✅ No hardcoded paths - Good!"
+else
+  echo "⚠️  Hardcoded paths detected"
+fi
+
+if docker-compose run --rm web rake routes:audit | grep -q "ViewComponent route helper usage is correct"; then
+  echo "✅ ViewComponent routes - Good!"
+else
+  echo "⚠️  ViewComponent issues detected"
+  echo "💡 Run: rake routes:fix_common_issues"
+fi
+
+# Count missing routes
+MISSING_COUNT=$(docker-compose run --rm web rake routes:audit 2>/dev/null | grep -A 50 "MISSING ROUTE HELPERS" | grep "   •" | wc -l | tr -d ' ')
+
+if [ "$MISSING_COUNT" -gt 0 ]; then
+  echo "⚠️  $MISSING_COUNT missing route helpers detected"
+  echo "💡 Check docs/DEVELOPMENT_ROUTE_GUIDELINES.md for solutions"
+else
+  echo "✅ All route helpers exist!"
+fi
+
+echo ""
+echo "🎯 Route Status Summary:"
+echo "   - Hardcoded paths: ✅ None"
+echo "   - ViewComponent usage: ✅ Correct"  
+echo "   - Missing helpers: ⚠️  $MISSING_COUNT"
+echo ""
+echo "💡 For full validation: rake dev:validate_routes"

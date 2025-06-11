@@ -220,6 +220,62 @@ RSpec.describe UsersController, type: :controller do
     it 'prevents self-deletion' do
       delete :destroy, params: { id: admin_user.id }
       expect(response).to redirect_to(root_path)
+      expect(flash[:alert]).to eq("Vous n'êtes pas autorisé à effectuer cette action.")
+      expect(User.exists?(admin_user.id)).to be true
+    end
+  end
+  
+  describe 'POST #activate_profile' do
+    let!(:user_profile) { create(:user_profile, user: admin_user, profile_type: 'expert_technique') }
+    
+    it 'activates the specified profile' do
+      post :activate_profile, params: { id: user_profile.id }
+      
+      admin_user.reload
+      expect(admin_user.active_profile).to eq(user_profile)
+      expect(response).to redirect_to(dashboard_path)
+      expect(flash[:notice]).to include('Profil activé avec succès')
+    end
+    
+    it 'only allows activating own profiles' do
+      other_user_profile = create(:user_profile, user: regular_user, profile_type: 'commercial')
+      
+      post :activate_profile, params: { id: other_user_profile.id }
+      
+      expect(response).to redirect_to(root_path)
+      expect(flash[:alert]).to be_present
+      admin_user.reload
+      expect(admin_user.active_profile).not_to eq(other_user_profile)
+    end
+    
+    it 'redirects back to referring page if available' do
+      request.env["HTTP_REFERER"] = user_path(admin_user)
+      
+      post :activate_profile, params: { id: user_profile.id }
+      
+      expect(response).to redirect_to(user_path(admin_user))
+    end
+    
+    context 'when profile does not exist' do
+      it 'redirects with error message' do
+        original_profile = admin_user.active_profile
+        
+        post :activate_profile, params: { id: 999999 }
+        
+        expect(response).to redirect_to(root_path)
+        expect(flash[:alert]).to be_present
+        admin_user.reload
+        expect(admin_user.active_profile).to eq(original_profile)
+      end
+    end
+    
+    context 'when not authenticated' do
+      before { sign_out admin_user }
+      
+      it 'redirects to login' do
+        post :activate_profile, params: { id: user_profile.id }
+        expect(response).to redirect_to(new_user_session_path)
+      end
     end
   end
 

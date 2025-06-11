@@ -4,7 +4,7 @@
       <!-- Logo et navigation principale -->
       <div class="flex">
         <div class="flex-shrink-0 flex items-center">
-          <%= link_to "Docusphere", root_path, class: "text-xl font-bold text-primary-600" %>
+          <%= link_to "Docusphere", helpers.root_path, class: "text-xl font-bold text-primary-600" %>
         </div>
         
         <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
@@ -19,8 +19,8 @@
         <div class="max-w-lg w-full lg:max-w-xs">
           <div class="relative" 
                data-controller="search-autocomplete" 
-               data-search-autocomplete-url-value="<%= search_suggestions_path rescue '/search/suggestions' %>">
-            <%= form_with url: search_path, method: :get, local: true, data: { "search-autocomplete-target": "form", action: "submit->search-autocomplete#submitForm" } do |f| %>
+               data-search-autocomplete-url-value="<%= helpers.search_suggestions_path rescue '/search/suggestions' %>">
+            <%= form_with url: helpers.search_path, method: :get, local: true, data: { "search-autocomplete-target": "form", action: "submit->search-autocomplete#submitForm" } do |f| %>
               <div class="relative">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -86,7 +86,7 @@
           <% end %>
           
           <!-- Notifications -->
-          <%= link_to notifications_path, class: "relative bg-white p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500" do %>
+          <%= link_to helpers.notifications_path, class: "relative bg-white p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500" do %>
             <span class="sr-only">Voir les notifications</span>
             <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
@@ -131,8 +131,8 @@
           </div>
         <% else %>
           <div class="flex space-x-4">
-            <%= link_to "Connexion", new_user_session_path, class: "text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium" %>
-            <%= link_to "Inscription", new_user_registration_path, class: "btn btn-primary" %>
+            <%= link_to "Connexion", helpers.new_user_session_path, class: "text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium" %>
+            <%= link_to "Inscription", helpers.new_user_registration_path, class: "btn btn-primary" %>
           </div>
         <% end %>
       </div>
@@ -184,8 +184,8 @@
     <div class="px-4 pt-2 pb-3">
       <div class="relative" 
            data-controller="search-autocomplete" 
-           data-search-autocomplete-url-value="<%= search_suggestions_path rescue '/search/suggestions' %>">
-        <%= form_with url: search_path, method: :get, local: true, data: { "search-autocomplete-target": "form", action: "submit->search-autocomplete#submitForm" } do |f| %>
+           data-search-autocomplete-url-value="<%= helpers.search_suggestions_path rescue '/search/suggestions' %>">
+        <%= form_with url: helpers.search_path, method: :get, local: true, data: { "search-autocomplete-target": "form", action: "submit->search-autocomplete#submitForm" } do |f| %>
           <div class="relative">
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">

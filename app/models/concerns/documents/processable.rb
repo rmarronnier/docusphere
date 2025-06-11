@@ -27,6 +27,9 @@ module Documents::Processable
       failed: 'failed'
     }
     
+    # Thumbnail generation status (requis par tests ThumbnailGenerationJob)
+    attr_accessor :thumbnail_generation_status
+    
     # Callbacks
     after_create_commit :enqueue_processing_job
     
