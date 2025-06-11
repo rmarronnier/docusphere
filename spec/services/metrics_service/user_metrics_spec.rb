@@ -4,10 +4,10 @@ RSpec.describe MetricsService::UserMetrics do
   let(:test_class) do
     Class.new do
       include MetricsService::UserMetrics
-      attr_accessor :current_user
+      attr_accessor :user
       
       def initialize(user = nil)
-        @current_user = user
+        @user = user
       end
     end
   end
@@ -17,7 +17,7 @@ RSpec.describe MetricsService::UserMetrics do
   let(:service) { test_class.new(user) }
 
   describe '#calculate_user_metrics' do
-    let!(:profile) { create(:user_profile, user: user, dashboard_layout: 'default') }
+    let!(:profile) { create(:user_profile, user: user, profile_type: 'assistant_rh') }
     let!(:documents) { create_list(:document, 5, uploaded_by: user) }
 
     it 'returns metrics based on user profile' do
@@ -30,7 +30,7 @@ RSpec.describe MetricsService::UserMetrics do
         :personalized_insights
       )
       
-      expect(metrics[:profile_type]).to eq('default')
+      expect(metrics[:profile_type]).to eq('assistant_rh')
     end
   end
 

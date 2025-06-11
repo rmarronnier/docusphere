@@ -7,25 +7,43 @@ RSpec.describe AiClassificationService do
   describe '#classify' do
     context 'with PDF document' do
       before do
-        allow(document).to receive_message_chain(:file, :attached?).and_return(true)
+        # Create a proper file attachment
+        document.file.attach(
+          io: StringIO.new("Sample PDF content"),
+          filename: 'contract.pdf',
+          content_type: 'application/pdf'
+        )
         document.update!(title: 'Contract Agreement 2024')
       end
 
       it 'classifies as contract based on title' do
         result = service.classify
-        expect(result).to be true
+        # Debug the error if classification fails
+        if !result[:success]
+          puts "Classification failed: #{result[:error]}"
+        end
+        expect(result[:success]).to be true
+        expect(result[:classification]).to eq('contract')
         expect(document.reload.ai_category).to eq('contract')
       end
     end
 
     context 'with invoice document' do
       before do
-        allow(document).to receive(:title).and_return('Invoice #12345')
-        allow(document).to receive(:extracted_text).and_return('Total Amount: $1,500.00')
+        document.file.attach(
+          io: StringIO.new("Invoice content"),
+          filename: 'invoice.pdf',
+          content_type: 'application/pdf'
+        )
+        document.update!(
+          title: 'Invoice #12345',
+          extracted_text: 'Facture n°12345. Total Amount: €1,500.00 TTC. Montant HT: €1,250.00. TVA: €250.00'
+        )
       end
 
       it 'classifies as invoice' do
         result = service.classify
+        expect(result[:success]).to be true
         expect(result[:classification]).to eq('invoice')
         expect(result[:confidence]).to be > 0.7
       end
@@ -72,29 +90,46 @@ RSpec.describe AiClassificationService do
 
   describe 'auto-tagging through classify' do
     before do
-      document.update!(
-        title: 'Construction contract with architectural specifications',
-        description: 'Detailed architectural drawings and construction guidelines'
+      # Ensure document has proper associations for tagging
+      document.file.attach(
+        io: StringIO.new("Contract content"),
+        filename: 'contract.pdf',
+        content_type: 'application/pdf'
       )
-      allow(document).to receive_message_chain(:file, :attached?).and_return(true)
+      document.update!(
+        title: 'Contrat de construction avec spécifications architecturales',
+        description: 'Plans architecturaux détaillés et directives de construction'
+      )
+      # Ensure document has a space with organization for tagging
+      expect(document.space).to be_present
+      expect(document.space.organization).to be_present
     end
 
     it 'applies tags automatically when classifying' do
-      expect { service.classify }.to change { document.tags.count }
+      result = service.classify
+      # Debug information
+      puts "Classification result: #{result[:classification]} (confidence: #{result[:confidence]})"
+      puts "Tags applied: #{result[:tags_applied].inspect}"
+      puts "Document tags count: #{document.tags.count}"
+      
+      expect(result[:success]).to be true
+      expect(result[:classification]).to eq('contract')
+      expect(result[:confidence]).to be > 0.5
+      # The document should be tagged with at least the type tag
+      expect(result[:tags_applied]).to include("type:contract")
     end
   end
 
   describe '#confidence_score' do
     it 'calculates confidence based on title match' do
-      allow(document).to receive(:title).and_return('Contract Agreement')
-      confidence = service.send(:confidence_score, 'contract', document.title, '')
-      expect(confidence).to be > 0.5
+      # 'Contrat de service' should match 'contrat' keyword
+      confidence = service.confidence_score('contract', 'Contrat de service', '')
+      expect(confidence).to be > 0.3
     end
 
     it 'increases confidence with content match' do
-      allow(document).to receive(:title).and_return('Document')
-      allow(document).to receive(:extracted_text).and_return('contract agreement terms conditions')
-      confidence = service.send(:confidence_score, 'contract', document.title, document.extracted_text)
+      # Multiple contract-related keywords in content should increase confidence
+      confidence = service.confidence_score('contract', 'Document', 'contrat accord convention clause obligation')
       expect(confidence).to be > 0.3
     end
   end

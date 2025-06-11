@@ -15,6 +15,9 @@ module Documents::Processable
   }.freeze
 
   included do
+    # Virtual attribute for content hash
+    attr_accessor :content_hash
+    
     # Processing status enum
     enum processing_status: {
       pending: 'pending',

@@ -24,5 +24,13 @@ module Documents
         expires_at: expires_at
       )
     end
+
+    # Get all users with access to this document
+    def users_with_access
+      users = [uploaded_by]
+      users += document_shares.active.includes(:shared_with).map(&:shared_with)
+      users += space.users if space
+      users.compact.uniq
+    end
   end
 end

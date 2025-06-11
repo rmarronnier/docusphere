@@ -43,8 +43,10 @@ class DocumentProcessingService
   end
 
   def extract_metadata
-    document.file_size = document.file.byte_size
-    document.content_hash = calculate_content_hash(document.file.download)
+    if document.file.attached?
+      document.file_size = document.file.byte_size
+      document.content_hash = calculate_content_hash(document.file.download)
+    end
     document.save
   end
 
@@ -61,8 +63,10 @@ class DocumentProcessingService
     result = scan_with_clamav(document.file.download)
     if result[:clean]
       document.virus_scan_status = 'clean'
+      document.virus_scan_result = 'No threats detected'
     else
       document.virus_scan_status = 'infected'
+      document.virus_scan_result = result[:signature] || 'Threat detected'
       document.quarantined = true
     end
     document.save
@@ -73,10 +77,14 @@ class DocumentProcessingService
 
     suggested_tags = suggest_tags_from_content(document.extracted_text)
     suggested_tags.each do |tag_name|
-      tag = Tag.find_or_create_by(name: tag_name.downcase.strip)
+      # Tags require organization - get it from document's space
+      organization = document.space.organization
+      tag = Tag.find_or_create_by(name: tag_name.downcase.strip, organization: organization)
       document.tags << tag unless document.tags.include?(tag)
     end
   end
+
+  private
 
   # Helper methods that would integrate with external services in production
   def extract_pdf_text(content)
@@ -112,7 +120,7 @@ class DocumentProcessingService
 
   def suggest_tags_from_content(content)
     # Simple keyword-based tagging
-    keywords = %w[contract invoice legal technical administrative financial]
+    keywords = %w[contract invoice legal technical administrative financial construction architecture plan permit budget]
     content_words = content.downcase.split(/\W+/)
     
     keywords.select do |keyword|

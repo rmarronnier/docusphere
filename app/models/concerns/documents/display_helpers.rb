@@ -30,5 +30,10 @@ module Documents
       items << { name: title, path: self }
       items
     end
+
+    # Alias for expires_at
+    def expiry_date
+      expires_at
+    end
   end
 end

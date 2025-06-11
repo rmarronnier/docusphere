@@ -170,5 +170,28 @@ module NotificationService::DocumentNotifications
         )
       end
     end
+
+    def notify_virus_detected(document)
+      # Notify administrators and document owner
+      admins = User.where(role: 'admin').or(User.where(role: 'super_admin'))
+      users_to_notify = admins.to_a
+      users_to_notify << document.uploaded_by if document.uploaded_by
+      users_to_notify.uniq!
+      
+      users_to_notify.each do |user|
+        Notification.notify_user(
+          user,
+          :virus_detected,
+          "Virus détecté",
+          "Un virus a été détecté dans le document '#{document.title}'",
+          notifiable: document,
+          data: {
+            document_id: document.id,
+            virus_scan_result: document.virus_scan_result,
+            priority: 'high'
+          }
+        )
+      end
+    end
   end
 end

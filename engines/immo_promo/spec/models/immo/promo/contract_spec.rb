@@ -21,15 +21,14 @@ RSpec.describe Immo::Promo::Contract, type: :model do
 
   describe 'validations' do
     it { is_expected.to validate_presence_of(:reference) }
-    it { is_expected.to validate_inclusion_of(:contract_type).in_array(%w[architecture engineering construction subcontract consulting insurance legal]) }
-    it { is_expected.to validate_inclusion_of(:status).in_array(%w[draft negotiation signed active completed terminated]) }
+    # Les enums sont testés dans la section 'enums' ci-dessous
 
     it 'validates reference uniqueness within project scope' do
       create(:immo_promo_contract, project: project, stakeholder: stakeholder, reference: 'CONTRACT-001')
       duplicate_contract = build(:immo_promo_contract, project: project, stakeholder: stakeholder, reference: 'CONTRACT-001')
       
       expect(duplicate_contract).not_to be_valid
-      expect(duplicate_contract.errors[:reference]).to include('has already been taken')
+      expect(duplicate_contract.errors[:reference]).to include('est déjà utilisé')
     end
   end
 

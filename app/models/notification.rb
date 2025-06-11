@@ -10,6 +10,7 @@ class Notification < ApplicationRecord
     document_validation_requested: 'document_validation_requested',
     document_validation_approved: 'document_validation_approved', 
     document_validation_rejected: 'document_validation_rejected',
+    document_validation_reminder: 'document_validation_reminder',
     document_shared: 'document_shared',
     document_processing_completed: 'document_processing_completed',
     document_processing_failed: 'document_processing_failed',

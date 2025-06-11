@@ -74,7 +74,9 @@ module RegulatoryComplianceService::ContractualCompliance
       # Vérifier la présence de dates et durées
       date_patterns = [
         /\b\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4}\b/,
-        /\b\d{1,2}\s+(?:janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)\s+\d{4}\b/i
+        /\b\d{4}[\/\-\.]\d{1,2}[\/\-\.]\d{1,2}\b/, # Format ISO YYYY-MM-DD
+        /\b\d{1,2}\s+(?:janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)\s+\d{4}\b/i,
+        /\b(?:january|february|march|april|may|june|july|august|september|october|november|december)\s+\d{1,2},?\s+\d{4}\b/i
       ]
       
       has_dates = date_patterns.any? { |pattern| content.match?(pattern) }
@@ -94,12 +96,29 @@ module RegulatoryComplianceService::ContractualCompliance
   
   # Instance methods for contractual compliance checking
   def check_contractual_compliance
-    return [] unless @content
+    return { score: 100, violations: [], passed: true } unless @content
     
     violations = []
     violations.concat(self.class.check_signatures(@document, @content))
     violations.concat(self.class.check_mandatory_clauses(@content))
     
-    violations
+    # Calculer le score basé sur le nombre et la gravité des violations
+    score = 100
+    violations.each do |violation|
+      case violation[:severity]
+      when 'high'
+        score -= 25
+      when 'medium'
+        score -= 15
+      when 'low'
+        score -= 10
+      end
+    end
+    
+    {
+      score: [score, 0].max,
+      violations: violations,
+      passed: violations.empty?
+    }
   end
 end

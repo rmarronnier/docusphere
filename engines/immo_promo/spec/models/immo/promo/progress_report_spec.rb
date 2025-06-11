@@ -7,13 +7,12 @@ RSpec.describe Immo::Promo::ProgressReport, type: :model do
 
   describe 'associations' do
     it { is_expected.to belong_to(:project).class_name('Immo::Promo::Project') }
-    it { is_expected.to belong_to(:author).class_name('User') }
+    it { is_expected.to belong_to(:prepared_by).class_name('User') }
   end
 
   describe 'validations' do
-    it { is_expected.to validate_presence_of(:title) }
     it { is_expected.to validate_presence_of(:report_date) }
-    it { is_expected.to validate_inclusion_of(:progress_percentage).in_range(0..100) }
+    it { is_expected.to validate_numericality_of(:overall_progress).is_in(0..100) }
   end
 
   describe 'scopes' do

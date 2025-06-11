@@ -64,6 +64,7 @@ module NotificationService::ValidationNotifications
           data: {
             document_id: document.id,
             shared_by_id: shared_by_user.id,
+            shared_by: shared_by_user.full_name,
             access_level: "read"
           }
         )
@@ -131,6 +132,50 @@ module NotificationService::ValidationNotifications
             error_message: error
           }
         )
+      end
+
+      # Notifie la complétion d'une validation (approuvée ou rejetée)
+      def notify_validation_completed(validation_request)
+        if validation_request.approved?
+          notify_validation_approved(validation_request)
+        elsif validation_request.rejected?
+          notify_validation_rejected(validation_request)
+        end
+      end
+
+      # Envoie un rappel aux validateurs qui n'ont pas encore validé
+      def notify_validation_reminder(validation_request)
+        # Trouver les validateurs qui n'ont pas encore validé
+        pending_validators = validation_request.pending_validators
+        
+        pending_validators.each do |validator|
+          days_until_due = if validation_request.due_date
+            ((validation_request.due_date - Time.current) / 1.day).round
+          else
+            nil
+          end
+          
+          message = if days_until_due && days_until_due > 0
+            "Rappel : Vous avez #{days_until_due} jours pour valider '#{validatable_title(validation_request.validatable)}'"
+          else
+            "Rappel : Merci de valider '#{validatable_title(validation_request.validatable)}' dès que possible"
+          end
+          
+          Notification.notify_user(
+            validator,
+            :document_validation_reminder,
+            "Rappel de validation",
+            message,
+            notifiable: validation_request,
+            data: {
+              validatable_type: validation_request.validatable_type,
+              validatable_id: validation_request.validatable_id,
+              requester_id: validation_request.requester.id,
+              due_date: validation_request.due_date,
+              days_until_due: days_until_due
+            }
+          )
+        end
       end
     end
 end

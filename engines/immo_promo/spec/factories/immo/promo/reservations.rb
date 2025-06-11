@@ -5,7 +5,7 @@ FactoryBot.define do
     client_phone { '+33 6 12 34 56 78' }
     reservation_date { Date.current }
     deposit_amount_cents { 5_000_00 }
-    final_price_cents { 250_000_00 }
+    # final_price is handled by the lot association
     expiry_date { Date.current + 1.month }
     status { 'pending' }
     association :lot, factory: :immo_promo_lot

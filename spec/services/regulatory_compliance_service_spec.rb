@@ -73,9 +73,13 @@ RSpec.describe RegulatoryComplianceService do
         allow(document).to receive(:extracted_text).and_return(
           'KYC verified transaction ID: ABC123 amount: €5,000.00. Nom: John Doe, Adresse: 123 Main St, Date de naissance: 01/01/1980, Pièce d\'identité: Passport 123456. ' +
           'GDPR consent provided. Data retention: 7 years. Durée de conservation: 7 ans. ' +
-          'Étude d\'impact environnemental incluse. Plan de gestion des déchets approuvé. ' +
-          'Contrat entre parties. Date d\'effet: 2024-01-01. Clause de résiliation incluse. Conditions de paiement: 30 jours. Limitation de responsabilité. ' +
-          'Mesures de sécurité et prévention des risques incluses.'
+          'Étude d\'impact environnemental incluse. Évaluation environnementale complète. Émissions de CO2 calculées. ' +
+          'Plan de gestion des déchets approuvé. Déchets dangereux, déchets organiques et déchets recyclables traités. ' +
+          'Mesures compensatoires environnementales définies. ' +
+          'Contrat signé entre parties. Date d\'effet: 2024-01-01. Clause de résiliation incluse. Conditions de paiement: 30 jours. ' +
+          'Limitation de responsabilité. Force majeure applicable. Clause de confidentialité. Propriété intellectuelle protégée. ' +
+          'Permis de construire n°12345 délivré par la mairie le 01/01/2024, validité jusqu\'au 01/01/2026. ' +
+          'Sécurité incendie conforme. Accessibilité PMR. Isolation thermique aux normes RT2020. Ventilation VMC. Installation électrique certifiée Consuel.'
         )
       end
 
@@ -120,7 +124,12 @@ RSpec.describe RegulatoryComplianceService do
     context 'with complete contract' do
       before do
         allow(document).to receive(:extracted_text).and_return(
-          'Contract between Party A and Party B. Effective date: 2024-01-01. Termination clause included. Payment terms: 30 days. Liability limitations apply.'
+          'Contract between Party A and Party B. Effective date: 2024-01-01. ' +
+          'Termination clause included. Payment terms: 30 days. Liability limitations apply. ' +
+          'Force majeure clause applies to circumstances beyond control. ' +
+          'All information shared under this agreement shall remain confidential. ' +
+          'Intellectual property rights remain with the original owner. ' +
+          'Signed by authorized representatives of both parties.'
         )
       end
 

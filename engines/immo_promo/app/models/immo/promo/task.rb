@@ -11,6 +11,9 @@ module Immo
       belongs_to :phase, class_name: 'Immo::Promo::Phase'
       belongs_to :assigned_to, class_name: 'User', optional: true
       belongs_to :stakeholder, class_name: 'Immo::Promo::Stakeholder', optional: true
+      
+      # Access project through phase
+      delegate :project, to: :phase
       has_many :task_dependencies, class_name: 'Immo::Promo::TaskDependency', foreign_key: 'dependent_task_id', dependent: :destroy
       has_many :prerequisite_tasks, through: :task_dependencies, source: :prerequisite_task
       has_many :inverse_task_dependencies, class_name: 'Immo::Promo::TaskDependency', foreign_key: 'prerequisite_task_id', dependent: :destroy

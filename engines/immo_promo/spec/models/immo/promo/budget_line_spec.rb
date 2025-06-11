@@ -11,7 +11,6 @@ RSpec.describe Immo::Promo::BudgetLine, type: :model do
   end
 
   describe 'validations' do
-    it { is_expected.to validate_inclusion_of(:category).in_array(%w[land_acquisition studies construction_work equipment marketing legal administrative contingency]) }
     it { is_expected.to validate_presence_of(:planned_amount_cents) }
     it { is_expected.to validate_numericality_of(:planned_amount_cents).is_greater_than(0) }
   end
@@ -116,13 +115,10 @@ RSpec.describe Immo::Promo::BudgetLine, type: :model do
       expect(budget_line.spending_percentage).to eq(25.0)
     end
 
-    it 'returns 0 when planned amount is 0' do
-      budget_line.update!(
-        planned_amount_cents: 0,
-        actual_amount_cents: 10_000_00
-      )
-      
-      expect(budget_line.spending_percentage).to eq(0)
+    it 'validates that planned amount cannot be 0' do
+      budget_line.planned_amount_cents = 0
+      expect(budget_line).not_to be_valid
+      expect(budget_line.errors[:planned_amount_cents]).to include("doit être supérieur à 0")
     end
 
     it 'handles nil actual_amount' do
@@ -227,9 +223,9 @@ RSpec.describe Immo::Promo::BudgetLine, type: :model do
     end
 
     it 'rejects invalid categories' do
-      budget_line.category = 'invalid_category'
-      expect(budget_line).not_to be_valid
-      expect(budget_line.errors[:category]).to be_present
+      expect {
+        budget_line.category = 'invalid_category'
+      }.to raise_error(ArgumentError, /'invalid_category' is not a valid category/)
     end
   end
 end

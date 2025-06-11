@@ -13,14 +13,21 @@ RSpec.describe Immo::Promo::TimeLog, type: :model do
   end
 
   describe 'validations' do
-    it { is_expected.to validate_presence_of(:hours_spent) }
-    it { is_expected.to validate_presence_of(:work_date) }
-    it { is_expected.to validate_numericality_of(:hours_spent).is_greater_than(0) }
+    it { is_expected.to validate_presence_of(:hours) }
+    it { is_expected.to validate_presence_of(:log_date) }
+    it { is_expected.to validate_numericality_of(:hours).is_greater_than(0) }
+    
+    # Test aliases also work
+    it 'validates work_date alias' do
+      time_log.work_date = nil
+      expect(time_log).not_to be_valid
+      expect(time_log.errors[:log_date]).to be_present
+    end
   end
 
   describe 'scopes' do
-    let!(:todays_log) { create(:immo_promo_time_log, task: task, user: user, work_date: Date.current) }
-    let!(:yesterdays_log) { create(:immo_promo_time_log, task: task, user: user, work_date: 1.day.ago) }
+    let!(:todays_log) { create(:immo_promo_time_log, task: task, user: user, log_date: Date.current) }
+    let!(:yesterdays_log) { create(:immo_promo_time_log, task: task, user: user, log_date: 1.day.ago) }
 
     describe '.for_date' do
       it 'returns time logs for specific date' do
@@ -33,13 +40,20 @@ RSpec.describe Immo::Promo::TimeLog, type: :model do
 
   describe '#billable_amount' do
     it 'calculates billable amount when hourly_rate is set' do
-      time_log.update!(hours_spent: 8.0, hourly_rate_cents: 5000_00)
+      time_log.update!(hours: 8.0, hourly_rate_cents: 5000_00)
       expect(time_log.billable_amount).to eq(Money.new(40000_00, 'EUR'))
     end
 
     it 'returns zero when no hourly_rate' do
-      time_log.update!(hours_spent: 8.0, hourly_rate_cents: nil)
+      time_log.update!(hours: 8.0, hourly_rate_cents: nil)
       expect(time_log.billable_amount).to eq(Money.new(0, 'EUR'))
+    end
+    
+    # Test aliases also work
+    it 'calculates billable amount using hours_spent alias' do
+      time_log.hours_spent = 4.0
+      time_log.hourly_rate_cents = 10000_00
+      expect(time_log.billable_amount).to eq(Money.new(40000_00, 'EUR'))
     end
   end
 end

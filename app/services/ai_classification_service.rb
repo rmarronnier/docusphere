@@ -67,11 +67,11 @@ class AiClassificationService
   end
   
   def classify
-    return unless @document.file.attached?
+    return { success: false, error: 'No file attached' } unless @document.file.attached?
     
     # Get document content
     content = extract_content
-    return if content.blank?
+    return { success: false, error: 'No content to analyze' } if content.blank?
     
     # Perform classification
     classification_result = classify_content(content)
@@ -88,11 +88,47 @@ class AiClassificationService
     # Auto-tag document based on classification
     auto_tag_document(classification_result, entities, compliance_flags)
     
-    true
+    # Return detailed result for transparency
+    {
+      success: true,
+      classification: classification_result[:category],
+      confidence: classification_result[:confidence],
+      entities: entities,
+      compliance_flags: compliance_flags,
+      tags_applied: @document.tags.pluck(:name)
+    }
   rescue => e
     Rails.logger.error "AI Classification failed for document #{@document.id}: #{e.message}"
     Rails.logger.error e.backtrace.join("\n")
-    false
+    { success: false, error: e.message }
+  end
+  
+  # Public method to calculate confidence score for a given category
+  # This helps understand why the AI made its classification decision
+  def confidence_score(category, title, content)
+    return 0.0 unless DOCUMENT_CATEGORIES.key?(category)
+    
+    config = DOCUMENT_CATEGORIES[category]
+    score = 0.0
+    
+    # Combine title and content for analysis
+    full_text = "#{title} #{content}".downcase
+    
+    # Check keywords
+    keyword_matches = config[:keywords].count { |keyword| full_text.include?(keyword.downcase) }
+    score += keyword_matches * 0.1
+    
+    # Check patterns
+    pattern_matches = config[:patterns].count { |pattern| full_text =~ pattern }
+    score += pattern_matches * 0.3
+    
+    # Apply confidence boost for strong indicators
+    if keyword_matches > 2 || pattern_matches > 0
+      score += config[:confidence_boost]
+    end
+    
+    # Normalize score (0-1)
+    [score, 1.0].min
   end
   
   private
@@ -174,12 +210,24 @@ class AiClassificationService
       }
     end
     
-    # Extract amounts/prices
-    amount_regex = /\d{1,3}(?:\s?\d{3})*(?:,\d{2})?\s*(?:€|EUR|euros?)/i
-    content.scan(amount_regex).each do |amount|
+    # Extract amounts/prices (supports both formats: 1,500.00 and 1 500,00)
+    # Format US/UK: 1,500.00
+    amount_regex_us = /(?:€|EUR\s?)?(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)\s*(?:€|EUR)?/i
+    # Format EU: 1 500,00 or 1.500,00
+    amount_regex_eu = /(?:€|EUR\s?)?(\d{1,3}(?:[\s.]\d{3})*(?:,\d{2})?)\s*(?:€|EUR)?/i
+    
+    # Try both formats
+    (content.scan(amount_regex_us) + content.scan(amount_regex_eu)).each do |match|
+      amount = match.is_a?(Array) ? match[0] : match
+      next if amount.nil? || amount.strip.empty?
+      
+      # Normalize format to include currency symbol
+      normalized_amount = amount.strip
+      normalized_amount = "€#{normalized_amount}" unless normalized_amount.include?('€') || normalized_amount.include?('EUR')
+      
       entities << {
         type: 'amount',
-        value: amount.strip,
+        value: normalized_amount,
         confidence: 0.9
       }
     end
@@ -236,15 +284,19 @@ class AiClassificationService
   end
   
   def update_document_ai_fields(classification_result, entities, compliance_flags)
+    # Store additional AI data in processing_metadata
+    processing_metadata = @document.processing_metadata || {}
+    processing_metadata['ai_classification'] = {
+      scores: classification_result[:all_scores],
+      compliance_flags: compliance_flags,
+      processed_at: Time.current
+    }
+    
     @document.update_columns(
       ai_category: classification_result[:category],
       ai_confidence: classification_result[:confidence],
       ai_entities: entities,
-      ai_classification_data: {
-        scores: classification_result[:all_scores],
-        compliance_flags: compliance_flags,
-        processed_at: Time.current
-      },
+      processing_metadata: processing_metadata,
       ai_processed_at: Time.current
     )
   end
@@ -274,8 +326,12 @@ class AiClassificationService
     end
     
     # Create or find tags and associate with document
+    # Tags require an organization as per the known pitfalls
+    organization = @document.space&.organization || @document.folder&.space&.organization
+    return unless organization
+    
     tags_to_add.uniq.each do |tag_name|
-      tag = Tag.find_or_create_by(name: tag_name)
+      tag = Tag.find_or_create_by(name: tag_name, organization: organization)
       @document.tags << tag unless @document.tags.include?(tag)
     end
   end

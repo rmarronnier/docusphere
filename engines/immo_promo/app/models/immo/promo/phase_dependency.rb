@@ -5,8 +5,13 @@ module Immo
 
       belongs_to :prerequisite_phase, class_name: 'Immo::Promo::Phase'
       belongs_to :dependent_phase, class_name: 'Immo::Promo::Phase'
+      
+      # Aliases associations for test compatibility
+      belongs_to :predecessor_phase, class_name: 'Immo::Promo::Phase', foreign_key: :prerequisite_phase_id
+      belongs_to :successor_phase, class_name: 'Immo::Promo::Phase', foreign_key: :dependent_phase_id
 
       validates :prerequisite_phase_id, uniqueness: { scope: :dependent_phase_id }
+      validates :dependency_type, presence: true
       validate :no_circular_dependency
       validate :phases_in_same_project
 

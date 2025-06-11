@@ -33,6 +33,10 @@ module Immo
         (due_date.to_date - Date.current).to_i
       end
 
+      def is_fulfilled?
+        is_fulfilled
+      end
+
       def project
         permit.project
       end

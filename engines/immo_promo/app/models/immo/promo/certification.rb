@@ -27,7 +27,8 @@ module Immo
       scope :by_type, ->(type) { where(certification_type: type) }
 
       def is_expired?
-        expiry_date && Date.current > expiry_date
+        return false unless expiry_date
+        Date.current > expiry_date
       end
 
       def days_until_expiry

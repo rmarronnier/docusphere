@@ -6,6 +6,24 @@ FactoryBot.define do
     status { 'pending' }
     completed_at { nil }
     
+    transient do
+      validators { [] }
+    end
+    
+    after(:create) do |validation_request, evaluator|
+      if evaluator.validators.any?
+        # Créer directement les document_validations sans passer par add_validators
+        # pour éviter les notifications automatiques dans les tests
+        evaluator.validators.each do |validator|
+          validation_request.document_validations.create!(
+            validatable: validation_request.validatable,
+            validator: validator,
+            status: 'pending'
+          )
+        end
+      end
+    end
+    
     trait :with_validators do
       transient do
         validator_count { 2 }

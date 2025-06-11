@@ -93,12 +93,29 @@ module RegulatoryComplianceService::RealEstateCompliance
   
   # Instance methods for real estate compliance checking
   def check_real_estate_compliance
-    return [] unless @content
+    return { score: 100, violations: [], passed: true } unless @content
     
     violations = []
     violations.concat(self.class.check_permit_validity(@document, @content))
     violations.concat(self.class.check_safety_requirements(@content))
     
-    violations
+    # Calculer le score basé sur le nombre et la gravité des violations
+    score = 100
+    violations.each do |violation|
+      case violation[:severity]
+      when 'high'
+        score -= 25
+      when 'medium'
+        score -= 15
+      when 'low'
+        score -= 10
+      end
+    end
+    
+    {
+      score: [score, 0].max,
+      violations: violations,
+      passed: violations.empty?
+    }
   end
 end

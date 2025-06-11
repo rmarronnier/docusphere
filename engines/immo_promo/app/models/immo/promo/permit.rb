@@ -66,6 +66,24 @@ module Immo
       scope :approved, -> { where(status: 'approved') }
       scope :overdue_response, -> { under_review.where('expected_decision_date < ?', Date.current) }
       scope :needs_submission, -> { draft.joins(:project).where('projects.start_date <= ?', 3.months.from_now) }
+      
+      # Business associations
+      def related_milestones
+        return Immo::Promo::Milestone.none unless project
+        milestone_types = milestone_types_for_permit_type
+        project.milestones.where(milestone_type: milestone_types)
+      end
+      
+      def responsible_stakeholders
+        return Immo::Promo::Stakeholder.none unless project
+        project.stakeholders.where(stakeholder_type: stakeholder_types_for_permit)
+      end
+      
+      def blocking_permits
+        return Immo::Promo::Permit.none unless project
+        prerequisite_types = prerequisite_permit_types
+        project.permits.where(permit_type: prerequisite_types).where.not(id: id)
+      end
 
       def days_until_expiry
         return nil unless expiry_date
@@ -246,6 +264,35 @@ module Immo
       
       def should_submit_within_month?
         project.phases.where(phase_type: 'construction').any? { |p| p.start_date && p.start_date <= 8.months.from_now }
+      end
+      
+      def milestone_types_for_permit_type
+        case permit_type
+        when 'urban_planning' then ['permit_submission', 'permit_approval']
+        when 'construction' then ['permit_approval', 'construction_start']
+        when 'demolition' then ['permit_approval', 'construction_start']
+        when 'environmental' then ['permit_submission', 'permit_approval']
+        else ['permit_submission']
+        end
+      end
+      
+      def stakeholder_types_for_permit
+        case permit_type
+        when 'urban_planning' then ['architect', 'urban_planner', 'consultant']
+        when 'construction' then ['architect', 'engineer', 'contractor']
+        when 'demolition' then ['engineer', 'contractor', 'environmental_consultant']
+        when 'environmental' then ['environmental_consultant', 'engineer']
+        else ['consultant', 'architect']
+        end
+      end
+      
+      def prerequisite_permit_types
+        case permit_type
+        when 'construction' then ['urban_planning']
+        when 'demolition' then ['environmental']
+        when 'modification' then ['construction']
+        else []
+        end
       end
 
       def required_document_types

@@ -46,7 +46,7 @@ module NotificationService::UserUtilities
       end
 
       def notifications_by_category_for_user(user, category, limit: 20)
-        user.notifications.where(notification_type: category).recent.limit(limit)
+        user.notifications.by_category(category).recent.limit(limit)
       end
 
       def urgent_notifications_for_user(user)

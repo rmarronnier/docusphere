@@ -30,6 +30,8 @@
   - ✅ FinancialDashboardController : 829 → 52 lignes (-94%)
   - ✅ RiskMonitoringController : 785 → 53 lignes (-93%)
   - ✅ ProjectResourceService : 634 → 70 lignes (-89%)
+- ✅ **Implémenter associations métier intelligentes** : Milestone, Contract, Risk, Permit avec navigation contextuelle (11/06/2025)
+- [ ] **Corriger Models Engine restants** : ~30 failures - TaskDependency, Risk enums, PermitCondition
 - [ ] **Tests système ImmoPromo** : Mettre à jour pour nouvelle UI avec workflows métier complets
 - [ ] **Workflows complexes** : Circuits validation multi-intervenants avec permissions croisées
 - [ ] **Demo interactive** : Scénarios métier complets utilisables en présentation
@@ -42,10 +44,14 @@
 - ✅ **Compléter tests manquants** : 12 contrôleurs avec couverture complète
 - ✅ **Extraction concerns fichiers longs** : 5 fichiers refactorisés avec tests
 - ✅ **Migration pagy vers Kaminari** : Cohérence dans la pagination
+- ✅ **Corriger TOUS tests Services App** : 166/166 tests passent (100%) - De 147 à 0 failures!
+- ✅ **Créer tests manquants** : 27 nouveaux fichiers de tests (Jobs, Services modules, Helpers)
 
 #### Actions Restantes :
+- ✅ **Corriger TimeLog et Milestone** : Modèles corrigés avec associations métier (11/06/2025)
+- [ ] **Corriger ~30 tests Models Engine restants** : TaskDependency, Risk enums, PermitCondition
 - [ ] **Tests d'intégration engine** : Workflows complets projets immobiliers
-- [ ] **Tests système engine** : Interfaces utilisateur Immo::Promo
+- [ ] **Tests système** : Mettre à jour pour nouvelle UI
 
 ### 🔧 Refactoring & Stabilisation
 **Priorité : HAUTE** 🔴
@@ -61,7 +67,6 @@
 - ✅ **Tests services engine manquants** : 6 services identifiés et tests créés (100% couverture)
 
 #### Actions Restantes :
-- [ ] **Refactorer Document model** : 580+ lignes → découper en concerns
 - [ ] **Nettoyer code mort** : Uploadable, Storable, document_version.rb
 - [ ] **Standardiser statuts** : AASM vs WorkflowManageable
 - [ ] **Optimiser performances** : Ajouter cache et index manquants
@@ -159,6 +164,6 @@ Interface d'administration système complète :
 
 ---
 
-**Dernière mise à jour** : 11 juin 2025  
-**Statut global** : 90% terminé, développement actif  
-**Priorité absolue** : Finaliser stabilisation (Document model refactoring et ajustement tests)
+**Dernière mise à jour** : 11 juin 2025 (Soir 4 - Associations Métier)
+**Statut global** : 96% terminé, développement actif  
+**Priorité absolue** : Corriger les ~30 tests Models Engine restants (TaskDependency, Risk, PermitCondition)

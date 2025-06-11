@@ -85,4 +85,18 @@ module Documents::Lockable
       Rails.logger.info "Auto-unlocked document ##{document.id} - lock expired"
     end
   end
+
+  # Users who have recently edited the document
+  def recent_editors
+    # Get users who have created versions in the last 30 days
+    user_ids = versions.where('created_at > ?', 30.days.ago).pluck(:whodunnit).compact.map(&:to_i)
+    User.where(id: user_ids).distinct
+  end
+
+  # Users waiting for the document to be unlocked
+  def users_waiting_for_unlock
+    # For now, return users who have access but aren't the lock holder
+    return [] unless locked?
+    users_with_access - [locked_by]
+  end
 end

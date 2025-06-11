@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_06_11_100001) do
+ActiveRecord::Schema[7.1].define(version: 2025_06_11_185550) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -670,6 +670,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_11_100001) do
     t.text "description"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "hourly_rate_cents"
     t.index ["log_date"], name: "index_immo_promo_time_logs_on_log_date"
     t.index ["task_id"], name: "index_immo_promo_time_logs_on_task_id"
     t.index ["user_id"], name: "index_immo_promo_time_logs_on_user_id"

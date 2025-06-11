@@ -67,7 +67,7 @@ module MetricsService::WidgetData
   end
 
   def widget_metrics(widget_type)
-    case widget_type.to_s
+    data = case widget_type.to_s
     when 'statistics'
       statistics_widget_data
     when 'activity'
@@ -76,6 +76,45 @@ module MetricsService::WidgetData
       performance_widget_data
     else
       default_widget_data
+    end
+    
+    # Format data as expected by tests
+    format_widget_response(widget_type, data)
+  end
+  
+  private
+  
+  def format_widget_response(widget_type, data)
+    title = case widget_type.to_s
+    when 'statistics'
+      'Statistiques'
+    when 'activity'
+      'Activité récente'
+    when 'performance'
+      'Performance'
+    else
+      'Métriques'
+    end
+    
+    # Convert hash data to metrics array format
+    metrics = data.map { |key, value| { name: key.to_s.humanize, value: value } }
+    
+    {
+      title: title,
+      metrics: metrics,
+      chart_data: generate_chart_data(widget_type, data)
+    }
+  end
+  
+  def generate_chart_data(widget_type, data)
+    # Generate appropriate chart data based on widget type
+    case widget_type.to_s
+    when 'activity'
+      activity_timeline
+    when 'performance'
+      performance_radar_data
+    else
+      data.map { |k, v| { label: k.to_s.humanize, value: v } }
     end
   end
 end

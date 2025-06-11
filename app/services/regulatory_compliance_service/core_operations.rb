@@ -57,9 +57,11 @@ module RegulatoryComplianceService::CoreOperations
   def check_compliance
     @compliance_results = {
       document_id: @document.id,
-      checks: [],
+      checks: {},
       violations: [],
       compliance_score: 0,
+      overall_score: 0,
+      recommendations: [],
       checked_at: Time.current
     }
     
@@ -68,17 +70,31 @@ module RegulatoryComplianceService::CoreOperations
     
     # Effectuer les vérifications pour chaque catégorie
     applicable_categories.each do |category|
-      violations = check_category_compliance(category, @content)
-      @compliance_results[:violations].concat(violations)
-      @compliance_results[:checks] << {
-        category: category,
-        violations_count: violations.count,
-        passed: violations.empty?
-      }
+      category_result = send("check_#{category}_compliance")
+      
+      # Si la méthode retourne un hash avec score et violations
+      if category_result.is_a?(Hash)
+        @compliance_results[:checks][category] = category_result
+        @compliance_results[:violations].concat(category_result[:violations] || [])
+      else
+        # Si elle retourne seulement des violations (ancien format)
+        violations = category_result
+        @compliance_results[:violations].concat(violations)
+        @compliance_results[:checks][category] = {
+          violations_count: violations.count,
+          passed: violations.empty?,
+          score: violations.empty? ? 100 : 50
+        }
+      end
     end
     
     # Calculer le score de conformité
     @compliance_results[:compliance_score] = calculate_compliance_score
+    @compliance_results[:overall_score] = calculate_overall_score(@compliance_results[:checks])
+    @compliance_results[:categories] = applicable_categories.map(&:to_s)
+    
+    # Générer les recommandations
+    @compliance_results[:recommendations] = generate_recommendations
     
     # Stocker les résultats
     store_compliance_results
@@ -89,7 +105,9 @@ module RegulatoryComplianceService::CoreOperations
   private
   
   def extract_document_content
-    @content = if @document.respond_to?(:content) && @document.content.present?
+    @content = if @document.respond_to?(:extracted_text) && @document.extracted_text.present?
+                 @document.extracted_text
+               elsif @document.respond_to?(:content) && @document.content.present?
                  @document.content
                elsif @document.respond_to?(:extracted_content) && @document.extracted_content.present?
                  @document.extracted_content
@@ -102,43 +120,8 @@ module RegulatoryComplianceService::CoreOperations
   end
   
   def determine_applicable_categories
-    categories = []
-    
-    # Analyser le contenu et le type de document pour déterminer les catégories
-    content_lower = @content.downcase
-    
-    # GDPR si données personnelles suspectées
-    if contains_personal_data?(@content)
-      categories << :gdpr
-    end
-    
-    # Financier si montants détectés
-    if extract_amounts(@content).any?
-      categories << :financial
-    end
-    
-    # Environnemental si mots-clés environnementaux
-    env_keywords = ['environnement', 'écologie', 'pollution', 'émission', 'déchets']
-    if env_keywords.any? { |keyword| content_lower.include?(keyword) }
-      categories << :environmental
-    end
-    
-    # Contractuel si structure de contrat
-    contract_keywords = ['contrat', 'accord', 'convention', 'clause', 'partie']
-    if contract_keywords.any? { |keyword| content_lower.include?(keyword) }
-      categories << :contractual
-    end
-    
-    # Immobilier si mots-clés immobiliers
-    real_estate_keywords = ['permis', 'construction', 'bâtiment', 'immobilier', 'terrain']
-    if real_estate_keywords.any? { |keyword| content_lower.include?(keyword) }
-      categories << :real_estate
-    end
-    
-    # Par défaut, au moins contractuel si rien d'autre n'est détecté
-    categories << :contractual if categories.empty?
-    
-    categories.uniq
+    # Always check all categories for comprehensive compliance
+    [:gdpr, :financial, :environmental, :contractual, :real_estate]
   end
   
   def check_category_compliance(category, content)
@@ -201,24 +184,84 @@ module RegulatoryComplianceService::CoreOperations
   def calculate_overall_score(checks)
     return 100 if checks.empty?
     
-    passed_checks = checks.count { |check| check[:passed] }
-    (passed_checks.to_f / checks.count * 100).round(2)
+    total_score = 0
+    checks.each do |category, check_data|
+      score = if check_data.is_a?(Hash) && check_data[:score]
+                check_data[:score]
+              elsif check_data.is_a?(Hash) && check_data[:passed]
+                check_data[:passed] ? 100 : 0
+              else
+                0
+              end
+      total_score += score
+    end
+    
+    (total_score.to_f / checks.count).round(2)
   end
   
   def get_severity(violation_type)
     severity_mapping = {
+      'personal_data_exposure' => 'high',
       'personal_data_detected' => 'high',
       'missing_kyc_element' => 'high',
       'missing_permit_reference' => 'high',
       'missing_signature' => 'high',
+      'large_cash_transaction' => 'high',
       'missing_consent' => 'medium',
       'missing_retention_policy' => 'medium',
       'cash_limit_exceeded' => 'medium',
       'missing_environmental_assessment' => 'medium',
       'missing_safety_requirement' => 'medium',
-      'missing_mandatory_clause' => 'medium'
+      'missing_mandatory_clause' => 'medium',
+      'missing_contract_term' => 'medium'
     }
     
     severity_mapping[violation_type] || 'low'
+  end
+  
+  def generate_recommendations
+    recommendations = []
+    
+    @compliance_results[:violations].each do |violation|
+      case violation[:type]
+      when 'personal_data_exposure'
+        recommendations << {
+          priority: 'high',
+          category: 'gdpr',
+          message: 'Anonymiser ou chiffrer les données personnelles identifiées',
+          action: 'apply_data_protection'
+        }
+      when 'missing_consent'
+        recommendations << {
+          priority: 'medium',
+          category: 'gdpr',
+          message: 'Ajouter une clause de consentement RGPD au document',
+          action: 'add_consent_clause'
+        }
+      when 'cash_limit_exceeded'
+        recommendations << {
+          priority: 'high',
+          category: 'financial',
+          message: 'Vérifier et justifier les transactions dépassant les limites',
+          action: 'verify_transactions'
+        }
+      when 'missing_environmental_assessment'
+        recommendations << {
+          priority: 'medium',
+          category: 'environmental',
+          message: 'Compléter l\'évaluation d\'impact environnemental',
+          action: 'complete_assessment'
+        }
+      when 'missing_mandatory_clause'
+        recommendations << {
+          priority: 'medium',
+          category: 'contractual',
+          message: 'Ajouter les clauses contractuelles obligatoires manquantes',
+          action: 'add_clauses'
+        }
+      end
+    end
+    
+    recommendations.uniq { |r| r[:action] }
   end
 end

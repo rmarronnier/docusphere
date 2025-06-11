@@ -3,6 +3,9 @@ module Documents::VirusScannable
   extend ActiveSupport::Concern
 
   included do
+    # Virtual attribute for quarantine status
+    attr_accessor :quarantined
+    
     # Virus scan status enum
     enum virus_scan_status: {
       scan_pending: 'pending',
@@ -49,10 +52,10 @@ module Documents::VirusScannable
   end
 
   # Mark virus scan as infected
-  def mark_virus_infected!(threat_details)
+  def mark_virus_infected!(threat_details = nil)
     update!(
       virus_scan_status: 'infected',
-      virus_scan_result: threat_details
+      virus_scan_result: threat_details || 'Threat detected'
     )
     
     # Quarantine the file
@@ -70,6 +73,15 @@ module Documents::VirusScannable
   # Check if file is safe to download
   def safe_to_download?
     virus_scan_clean? || virus_scan_status.nil?
+  end
+
+  # Alias methods for enum-style interface
+  def scan_clean!
+    mark_virus_clean!
+  end
+
+  def scan_infected!(threat_details = nil)
+    mark_virus_infected!(threat_details)
   end
 
   # Get virus scan summary

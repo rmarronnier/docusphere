@@ -46,5 +46,14 @@ module Documents
         "#{(file_size / (1024.0 * 1024 * 1024)).round(2)} GB"
       end
     end
+
+    # Get file content type
+    def file_content_type
+      if file.attached?
+        file.blob.content_type
+      else
+        content_type
+      end
+    end
   end
 end

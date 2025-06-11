@@ -7,14 +7,26 @@ RSpec.describe Immo::Promo::Milestone, type: :model do
   let(:milestone) { create(:immo_promo_milestone, project: project, phase: phase) }
 
   describe 'associations' do
-    it { is_expected.to belong_to(:project).class_name('Immo::Promo::Project') }
-    it { is_expected.to belong_to(:phase).class_name('Immo::Promo::Phase').optional }
+    it { is_expected.to belong_to(:phase).class_name('Immo::Promo::Phase') }
+    
+    it 'has access to project through phase' do
+      expect(milestone.project).to eq(project)
+    end
+    
+    it { is_expected.to have_many(:documents) }
   end
 
-  describe 'concerns' do
-    it 'includes Schedulable' do
-      expect(milestone).to respond_to(:start_date)
-      expect(milestone).to respond_to(:end_date)
+  describe 'business associations' do
+    it 'provides related permits method' do
+      expect(milestone).to respond_to(:related_permits)
+    end
+    
+    it 'provides related tasks method' do
+      expect(milestone).to respond_to(:related_tasks)
+    end
+    
+    it 'provides blocking dependencies method' do
+      expect(milestone).to respond_to(:blocking_dependencies)
     end
   end
 
@@ -45,18 +57,23 @@ RSpec.describe Immo::Promo::Milestone, type: :model do
 
   describe '#is_overdue?' do
     it 'checks if milestone is overdue' do
-      milestone.update!(due_date: 1.day.ago, status: 'pending')
+      milestone.update!(target_date: 1.day.ago, status: 'pending')
       expect(milestone.is_overdue?).to be true
       
-      milestone.update!(due_date: 1.day.from_now)
+      milestone.update!(target_date: 1.day.from_now)
       expect(milestone.is_overdue?).to be false
     end
   end
 
-  describe '#days_until_due' do
-    it 'calculates days until due date' do
-      milestone.update!(due_date: 5.days.from_now)
-      expect(milestone.days_until_due).to eq(5)
+  describe '#days_until_deadline' do
+    it 'calculates days until deadline' do
+      milestone.update!(target_date: 5.days.from_now)
+      expect(milestone.days_until_deadline).to eq(5)
+    end
+    
+    it 'has days_until_due alias' do
+      milestone.update!(target_date: 3.days.from_now)
+      expect(milestone.days_until_due).to eq(3)
     end
   end
 end

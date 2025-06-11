@@ -26,10 +26,10 @@ RSpec.describe Immo::Promo::PermitCondition, type: :model do
 
   describe '#is_fulfilled?' do
     it 'checks if condition is fulfilled' do
-      permit_condition.update!(status: 'fulfilled')
+      permit_condition.update!(is_fulfilled: true)
       expect(permit_condition.is_fulfilled?).to be true
       
-      permit_condition.update!(status: 'pending')
+      permit_condition.update!(is_fulfilled: false)
       expect(permit_condition.is_fulfilled?).to be false
     end
   end

@@ -5,8 +5,13 @@ module Immo
 
       belongs_to :prerequisite_task, class_name: 'Immo::Promo::Task'
       belongs_to :dependent_task, class_name: 'Immo::Promo::Task'
+      
+      # Aliases associations for test compatibility
+      belongs_to :predecessor_task, class_name: 'Immo::Promo::Task', foreign_key: :prerequisite_task_id
+      belongs_to :successor_task, class_name: 'Immo::Promo::Task', foreign_key: :dependent_task_id
 
       validates :prerequisite_task_id, uniqueness: { scope: :dependent_task_id }
+      validates :dependency_type, presence: true
       validate :no_circular_dependency
       validate :tasks_in_same_project
 

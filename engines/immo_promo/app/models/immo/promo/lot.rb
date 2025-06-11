@@ -12,14 +12,15 @@ module Immo
       has_many_attached :technical_sheets
 
       validates :lot_number, presence: true, uniqueness: { scope: :project_id }
-      validates :lot_type, inclusion: {
+      validates :lot_type, presence: true, inclusion: {
         in: %w[apartment house commercial_unit parking_space storage_unit office]
       }
       validates :status, inclusion: {
-        in: %w[planned under_construction completed reserved sold]
+        in: %w[planned under_construction completed available reserved sold]
       }
       validates :surface_area, presence: true, numericality: { greater_than: 0 }
       validates :floor, presence: true, numericality: { greater_than_or_equal_to: -3 }
+      validates :price_cents, numericality: { greater_than: 0 }, allow_nil: true
 
       monetize :price_cents, allow_nil: true
 
@@ -44,13 +45,14 @@ module Immo
         planned: 'planned',
         under_construction: 'under_construction',
         completed: 'completed',
+        available: 'available',
         reserved: 'reserved',
         sold: 'sold'
       }
 
       scope :by_type, ->(type) { where(lot_type: type) }
       scope :by_status, ->(status) { where(status: status) }
-      scope :available, -> { where(status: [ 'planned', 'under_construction', 'completed' ]) }
+      scope :available, -> { where(status: [ 'planned', 'under_construction', 'completed', 'available' ]) }
       scope :residential, -> { where(lot_type: [ 'apartment', 'house' ]) }
       scope :commercial, -> { where(lot_type: [ 'commercial_unit', 'office' ]) }
       scope :by_floor, ->(floor) { where(floor: floor) }
@@ -60,7 +62,7 @@ module Immo
       end
 
       def is_available?
-        %w[planned under_construction completed].include?(status)
+        %w[planned under_construction completed available].include?(status)
       end
 
       def available?

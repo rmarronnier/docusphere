@@ -1,14 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe NotificationService::DocumentNotifications do
-  # Create a test class that includes the module
-  let(:test_class) do
-    Class.new do
-      include NotificationService::DocumentNotifications
-    end
-  end
-  
-  let(:service) { test_class.new }
+  # Test the module as included in NotificationService
+  let(:service) { NotificationService }
   let(:organization) { create(:organization) }
   let(:user) { create(:user, organization: organization) }
   let(:other_user) { create(:user, organization: organization) }

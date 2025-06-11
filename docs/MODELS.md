@@ -30,14 +30,39 @@ This document provides a comprehensive analysis of all models in the Docusphere 
 
 ## Changements Majeurs
 
-### Document Model
+### Document Model Refactoring (10-11/06/2025)
 - **Avant** : 538 lignes, monolithique
-- **Après** : 247 lignes avec 5 concerns :
-  - `Document::Lockable` - Gestion du verrouillage
-  - `Document::AiProcessable` - Classification et extraction IA
-  - `Document::VirusScannable` - Scan antivirus
-  - `Document::Versionable` - Configuration PaperTrail
-  - `Document::Processable` - Pipeline de traitement
+- **Après** : 103 lignes avec 11 concerns modulaires :
+  - `Documents::Lockable` - Gestion du verrouillage
+  - `Documents::AiProcessable` - Classification et extraction IA
+  - `Documents::VirusScannable` - Scan antivirus
+  - `Documents::Versionable` - Configuration PaperTrail
+  - `Documents::Processable` - Pipeline de traitement
+  - `Documents::Searchable` - Intégration Elasticsearch
+  - `Documents::FileManagement` - Gestion fichiers attachés
+  - `Documents::Shareable` - Fonctionnalités de partage
+  - `Documents::Taggable` - Gestion des tags
+  - `Documents::DisplayHelpers` - Helpers d'affichage
+  - `Documents::ActivityTrackable` - Tracking vues/téléchargements
+
+### Associations Métier Intelligentes (11/06/2025)
+Implémentation d'associations contextuelles pour les modèles ImmoPromo :
+
+#### Polymorphisme Documentaire Universel
+- **Tous les modèles** ImmoPromo peuvent avoir des documents via `has_many :documents, as: :documentable`
+- **Intégration transparente** avec le système de GED existant
+
+#### Associations Intelligentes par Modèle
+- **Milestone** : `related_permits`, `related_tasks`, `blocking_dependencies`
+- **Contract** : `related_time_logs`, `related_budget_lines`, `payment_milestones`
+- **Risk** : `impacted_milestones`, `stakeholders_involved`, `mitigation_tasks`
+- **Permit** : `related_milestones`, `responsible_stakeholders`, `blocking_permits`
+
+#### Logique Métier Contextuelle
+- **Mapping par type/catégorie** : Associations adaptées selon les types métier
+- **Intelligence expertise** : Stakeholders suggérés selon spécialisation
+- **Cascade d'impacts** : Identification automatique des éléments impactés
+- **Dépendances réglementaires** : Gestion des prérequis permis
 
 ### Nouveaux Concerns
 - **Ownership** : Gestion standardisée de la propriété avec `owned_by :attribute`

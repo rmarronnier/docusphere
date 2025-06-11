@@ -4,10 +4,10 @@ RSpec.describe MetricsService::ActivityMetrics do
   let(:test_class) do
     Class.new do
       include MetricsService::ActivityMetrics
-      attr_accessor :current_user, :start_date, :end_date
+      attr_accessor :user, :start_date, :end_date
       
       def initialize(user = nil)
-        @current_user = user
+        @user = user
         @start_date = 30.days.ago
         @end_date = Date.current
       end

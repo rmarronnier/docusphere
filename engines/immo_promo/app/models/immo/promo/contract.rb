@@ -8,6 +8,11 @@ module Immo
 
       belongs_to :project, class_name: 'Immo::Promo::Project'
       belongs_to :stakeholder, class_name: 'Immo::Promo::Stakeholder'
+      
+      # Documents polymorphic association
+      has_many :documents, as: :documentable, dependent: :destroy
+      
+      # File attachments for specific contract documents
       has_many_attached :contract_documents
       has_many_attached :amendments
 
@@ -44,6 +49,22 @@ module Immo
 
       scope :active_contracts, -> { where(status: [ 'signed', 'active' ]) }
       scope :by_type, ->(type) { where(contract_type: type) }
+      
+      # Business associations
+      def related_time_logs
+        return Immo::Promo::TimeLog.none unless stakeholder
+        stakeholder.time_logs.where(task: project.tasks)
+      end
+      
+      def related_budget_lines
+        return Immo::Promo::BudgetLine.none unless project
+        project.budget_lines.where(category: budget_category_for_contract_type)
+      end
+      
+      def payment_milestones
+        return Immo::Promo::Milestone.none unless project
+        project.milestones.where(milestone_type: milestone_types_for_contract)
+      end
 
       def remaining_amount
         amount - (paid_amount || Money.new(0))
@@ -76,6 +97,28 @@ module Immo
 
       def schedule_required?
         signed? || active?
+      end
+      
+      def budget_category_for_contract_type
+        case contract_type
+        when 'architecture' then 'studies'
+        when 'engineering' then 'studies'
+        when 'construction' then 'construction'
+        when 'subcontract' then 'construction'
+        when 'consulting' then 'studies'
+        when 'insurance' then 'insurance'
+        when 'legal' then 'legal'
+        else 'other'
+        end
+      end
+      
+      def milestone_types_for_contract
+        case contract_type
+        when 'architecture', 'engineering' then ['permit_submission', 'permit_approval']
+        when 'construction', 'subcontract' then ['construction_start', 'construction_completion']
+        when 'consulting' then ['permit_submission']
+        else ['delivery']
+        end
       end
     end
   end

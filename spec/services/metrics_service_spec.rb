@@ -72,14 +72,33 @@ RSpec.describe MetricsService, type: :service do
     it 'returns activity data for the last 30 days' do
       summary = service.activity_summary
       
-      expect(summary).to be_an(Array)
-      expect(summary.size).to eq(31) # 30 days + today
-      expect(summary.first).to include(:date, :count, :type)
+      expect(summary).to be_a(Hash)
+      expect(summary[:period]).to eq("30 derniers jours")
+      expect(summary).to include(:documents, :tasks, :notifications, :activity_score)
+    end
+    
+    it 'includes document activity counts' do
+      summary = service.activity_summary
+      
+      expect(summary[:documents]).to include(:created, :modified, :shared)
+      expect(summary[:documents][:created]).to be >= 5 # We created 5 documents 1 day ago
+    end
+  end
+  
+  describe '#activity_by_day' do
+    let(:profile_type) { 'direction' }
+    
+    it 'returns daily activity data as an array' do
+      daily_data = service.activity_by_day
+      
+      expect(daily_data).to be_an(Array)
+      expect(daily_data.size).to eq(31) # 30 days + today
+      expect(daily_data.first).to include(:date, :count, :type)
     end
     
     it 'groups activities by day' do
-      summary = service.activity_summary
-      today_activity = summary.find { |s| s[:date] == Date.today }
+      daily_data = service.activity_by_day
+      today_activity = daily_data.find { |s| s[:date] == Date.today }
       
       expect(today_activity).to be_present
     end

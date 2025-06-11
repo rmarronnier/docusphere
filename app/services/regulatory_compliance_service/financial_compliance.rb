@@ -53,6 +53,9 @@ module RegulatoryComplianceService::FinancialCompliance
         declaration_limit: 10000  # Seuil de déclaration
       }
       
+      # Vérifier si c'est un paiement en espèces
+      is_cash_payment = content.downcase.include?('cash') || content.downcase.include?('espèces')
+      
       amounts.each do |amount|
         if amount > thresholds[:declaration_limit]
           violations << {
@@ -61,7 +64,17 @@ module RegulatoryComplianceService::FinancialCompliance
             severity: 'high',
             remediation: 'Vérifier les obligations déclaratives'
           }
-        elsif amount > thresholds[:cash_limit]
+          
+          # Si c'est un paiement cash de plus de 10000€, c'est aussi une violation spécifique
+          if is_cash_payment
+            violations << {
+              type: 'large_cash_transaction',
+              description: "Transaction en espèces importante: #{amount}€",
+              severity: 'high',
+              remediation: 'Les paiements en espèces supérieurs à 10,000€ nécessitent une déclaration'
+            }
+          end
+        elsif amount > thresholds[:cash_limit] && is_cash_payment
           violations << {
             type: 'cash_limit_exceeded',
             description: "Montant supérieur à la limite espèces: #{amount}€",
@@ -79,16 +92,46 @@ module RegulatoryComplianceService::FinancialCompliance
     def extract_amounts_from_content(content)
       # Extraire les montants en euros du contenu
       amount_patterns = [
-        /(\d{1,3}(?:\s*\d{3})*(?:[,\.]\d{2})?)\s*(?:€|euros?|EUR)/i,
-        /(\d{1,3}(?:\s*\d{3})*(?:[,\.]\d{2})?)\s*(?:dollars?|USD|\$)/i
+        # Format: €15,000.00 or €15.000,00
+        /€\s*(\d{1,3}(?:[,\.]\d{3})*(?:[,\.]\d{2})?)/i,
+        # Format: 15,000.00€ or 15.000,00 euros
+        /(\d{1,3}(?:[,\.]\d{3})*(?:[,\.]\d{2})?)\s*(?:€|euros?|EUR)/i,
+        # Format: $15,000.00
+        /\$\s*(\d{1,3}(?:[,\.]\d{3})*(?:[,\.]\d{2})?)/i,
+        # Format: 15,000.00 dollars
+        /(\d{1,3}(?:[,\.]\d{3})*(?:[,\.]\d{2})?)\s*(?:dollars?|USD|\$)/i
       ]
       
       amounts = []
       amount_patterns.each do |pattern|
         content.scan(pattern) do |match|
           # Nettoyer et convertir en nombre
-          clean_amount = match[0].gsub(/\s/, '').gsub(',', '.').to_f
-          amounts << clean_amount if clean_amount > 0
+          # Gérer les formats européens (1.000,00) et américains (1,000.00)
+          clean_amount = match[0].gsub(/\s/, '')
+          
+          # Si on a des virgules et des points, déterminer lequel est le séparateur décimal
+          if clean_amount.include?(',') && clean_amount.include?('.')
+            # Si le dernier est une virgule, c'est le format européen
+            if clean_amount.rindex(',') > clean_amount.rindex('.')
+              clean_amount = clean_amount.gsub('.', '').gsub(',', '.')
+            else
+              # Sinon c'est le format américain
+              clean_amount = clean_amount.gsub(',', '')
+            end
+          elsif clean_amount.include?(',')
+            # Si on n'a que des virgules, déterminer si c'est décimal ou milliers
+            parts = clean_amount.split(',')
+            if parts.last.length == 2 && parts.length == 2
+              # Probablement décimal
+              clean_amount = clean_amount.gsub(',', '.')
+            else
+              # Probablement milliers
+              clean_amount = clean_amount.gsub(',', '')
+            end
+          end
+          
+          amount = clean_amount.to_f
+          amounts << amount if amount > 0
         end
       end
       
@@ -98,13 +141,30 @@ module RegulatoryComplianceService::FinancialCompliance
   
   # Instance methods for financial compliance checking
   def check_financial_compliance
-    return [] unless @content
+    return { score: 100, violations: [] } unless @content
     
     violations = []
     violations.concat(self.class.check_kyc_requirements(@document, @content))
     violations.concat(self.class.check_transaction_limits(@content))
     
-    violations
+    # Calculer le score financier
+    score = 100
+    violations.each do |violation|
+      case violation[:severity]
+      when 'high'
+        score -= 30
+      when 'medium'
+        score -= 15
+      when 'low'
+        score -= 5
+      end
+    end
+    
+    {
+      score: [score, 0].max,
+      violations: violations,
+      passed: violations.empty?
+    }
   end
   
   private
@@ -112,12 +172,29 @@ module RegulatoryComplianceService::FinancialCompliance
   def extract_amounts(text)
     return [] unless text
     
-    # Pattern plus simple pour les montants
     amounts = []
     
-    # Recherche de montants en euros
-    text.scan(/(\d+(?:[,\.]\d{2})?)\s*(?:€|euros?)/i) do |match|
-      amount = match[0].gsub(',', '.').to_f
+    # Recherche de montants en euros avec format varié
+    text.scan(/€\s*(\d+(?:[,\.]\d{3})*(?:[,\.]\d{2})?)|(\d+(?:[,\.]\d{3})*(?:[,\.]\d{2})?)\s*(?:€|euros?)/i) do |before, after|
+      amount_str = (before || after).gsub(/[,\s]/, '').gsub('.', '')
+      # Gérer les centimes
+      if amount_str =~ /(\d+)(\d{2})$/
+        amount = "#{$1}.#{$2}".to_f
+      else
+        amount = amount_str.to_f
+      end
+      amounts << amount if amount > 0
+    end
+    
+    # Recherche de montants en dollars
+    text.scan(/\$\s*(\d+(?:[,\.]\d{3})*(?:[,\.]\d{2})?)|(\d+(?:[,\.]\d{3})*(?:[,\.]\d{2})?)\s*(?:\$|dollars?)/i) do |before, after|
+      amount_str = (before || after).gsub(/[,\s]/, '').gsub('.', '')
+      # Gérer les centimes
+      if amount_str =~ /(\d+)(\d{2})$/
+        amount = "#{$1}.#{$2}".to_f
+      else
+        amount = amount_str.to_f
+      end
       amounts << amount if amount > 0
     end
     

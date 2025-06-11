@@ -31,5 +31,18 @@ FactoryBot.define do
       status { 'in_progress' }
       end_date { Date.current - 2.days }
     end
+    
+    # For tests that expect project directly, build phase with project
+    transient do
+      project { nil }
+    end
+    
+    after(:build) do |task, evaluator|
+      if evaluator.project && !task.phase
+        task.phase = build(:immo_promo_phase, project: evaluator.project)
+      elsif evaluator.project && task.phase && !task.phase.project
+        task.phase.project = evaluator.project
+      end
+    end
   end
 end

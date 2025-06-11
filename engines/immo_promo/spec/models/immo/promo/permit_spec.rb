@@ -12,6 +12,8 @@ RSpec.describe Immo::Promo::Permit, type: :model do
   end
 
   describe 'validations' do
+    subject { build(:immo_promo_permit, project: project) }
+    
     it { should validate_presence_of(:permit_number) }
     it { should validate_uniqueness_of(:permit_number).scoped_to(:project_id) }
     it { should validate_presence_of(:permit_type) }
