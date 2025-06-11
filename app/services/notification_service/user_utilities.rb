@@ -68,7 +68,7 @@ module NotificationService::UserUtilities
       end
 
       def bulk_mark_as_read(notification_ids, user)
-        user.notifications.where(id: notification_ids).update_all(read_at: Time.current)
+        user.notifications.where(id: notification_ids).unread.update_all(read_at: Time.current)
       end
 
       def delete_notification(notification_id, user)
@@ -77,7 +77,10 @@ module NotificationService::UserUtilities
       end
 
       def bulk_delete_notifications(notification_ids, user)
-        user.notifications.where(id: notification_ids).destroy_all
+        notifications_to_delete = user.notifications.where(id: notification_ids)
+        count = notifications_to_delete.count
+        notifications_to_delete.destroy_all
+        count
       end
 
       # Statistiques des notifications pour un utilisateur
@@ -90,6 +93,7 @@ module NotificationService::UserUtilities
           today: notifications.where('created_at >= ?', Date.current.beginning_of_day).count,
           this_week: notifications.where('created_at >= ?', Date.current.beginning_of_week).count,
           by_type: notifications.group(:notification_type).count,
+          by_category: notifications.group(:notification_type).count, # Alias for consistency
           urgent: urgent_notifications_for_user(user).count
         }
       end

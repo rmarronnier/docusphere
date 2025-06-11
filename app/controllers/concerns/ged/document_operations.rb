@@ -52,25 +52,30 @@ module Ged
     end
 
     def upload_document
-      @space = policy_scope(Space).find(params[:space_id])
-      @folder = policy_scope(Folder).find(params[:folder_id]) if params[:folder_id].present?
+      # Extract space_id from params or document params
+      space_id = params[:space_id] || params.dig(:document, :space_id)
+      folder_id = params[:folder_id] || params.dig(:document, :folder_id)
+      
+      if space_id.present?
+        @space = policy_scope(Space).find(space_id)
+        @folder = policy_scope(Folder).find(folder_id) if folder_id.present?
+      end
       
       authorize Document.new(space: @space), :create?
       
       @document = Document.new(document_params)
-      @document.space = @space
-      @document.folder = @folder
+      @document.space = @space if @space
+      @document.folder = @folder if @folder
       @document.uploaded_by = current_user
-      @document.organization = current_user.organization
       
       if @document.save
         # Trigger background jobs
         DocumentProcessingJob.perform_later(@document)
-        VirusScanJob.perform_later(@document)
+        VirusScanJob.perform_later(@document) if @document.file.attached?
         
         render json: {
           success: true,
-          message: 'Document téléchargé avec succès',
+          message: 'Document uploadé avec succès. Le traitement est en cours...',
           document: {
             id: @document.id,
             title: @document.title,

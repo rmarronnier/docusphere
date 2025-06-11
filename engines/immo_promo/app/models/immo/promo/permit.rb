@@ -129,6 +129,26 @@ module Immo
         return true if permit_conditions.empty?
         permit_conditions.where(status: 'met').count == permit_conditions.count
       end
+      
+      # Méthodes ajoutées pour tests refactoring
+      def can_be_submitted?
+        draft? && required_documents_attached?
+      end
+      
+      def can_be_extended?
+        approved? && expiry_date.present? && !is_expired?
+      end
+      
+      def processing_overdue?
+        under_review? && overdue_days.to_i > 0
+      end
+      
+      private
+      
+      def required_documents_attached?
+        # Vérifie si les documents minimum sont attachés
+        permit_documents.any? || documents.any?
+      end
 
       # Méthodes pour compatibilité
       def reference

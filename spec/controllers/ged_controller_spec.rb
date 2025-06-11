@@ -67,9 +67,9 @@ RSpec.describe GedController, type: :controller do
     
     it 'denies access to spaces from other organizations' do
       other_space = create(:space, organization: create(:organization))
-      expect {
-        get :show_space, params: { id: other_space.id }
-      }.to raise_error(ActiveRecord::RecordNotFound)
+      get :show_space, params: { id: other_space.id }
+      expect(response).to redirect_to(root_path)
+      expect(flash[:alert]).to eq('Vous n\'êtes pas autorisé à effectuer cette action.')
     end
   end
   

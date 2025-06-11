@@ -7,7 +7,8 @@ class GedController < ApplicationController
   include Ged::BulkOperations
 
   before_action :authenticate_user!
-  before_action :set_space, only: [:show_space, :create_folder]
+  before_action :set_space, only: [:show_space]
+  before_action :set_space_for_folder, only: [:create_folder]
   before_action :set_folder, only: [:show_folder]
   before_action :set_document, only: [:show_document, :lock_document, :unlock_document]
   skip_after_action :verify_authorized, only: [:dashboard]
@@ -57,6 +58,7 @@ class GedController < ApplicationController
 
   def create_folder
     @folder = @space.folders.build(folder_params)
+    @folder.parent_id = params[:parent_id] if params[:parent_id].present?
     authorize @folder, :create?
     
     if @folder.save
@@ -130,6 +132,11 @@ class GedController < ApplicationController
 
   def set_space
     @space = policy_scope(Space).find(params[:id])
+    authorize @space, :show?
+  end
+  
+  def set_space_for_folder
+    @space = policy_scope(Space).find(params[:space_id])
     authorize @space, :show?
   end
 

@@ -21,7 +21,15 @@
   - ✅ Tests unitaires core : 1646 examples, 0 failures
   - ✅ Tests engine : 564 examples, 0 failures
   - ✅ **TOTAL : 2210 tests passants !**
-- [ ] **Extraire concerns/services longs** : Fichiers > 200 lignes à refactorer en modules
+- ✅ **Extraire concerns/services longs** : Fichiers > 200 lignes à refactorer en modules (COMPLÉTÉ)
+  - ✅ GedController : 732 → 176 lignes (-76%)
+  - ✅ NotificationService : 684 → 35 lignes (-95%)
+  - ✅ RegulatoryComplianceService : 579 → 130 lignes (-78%)
+  - ✅ MetricsService : 482 → 11 lignes (-98%)
+  - ✅ PermitWorkflowController : 842 → 253 lignes (-70%)
+  - ✅ FinancialDashboardController : 829 → 52 lignes (-94%)
+  - ✅ RiskMonitoringController : 785 → 53 lignes (-93%)
+  - ✅ ProjectResourceService : 634 → 70 lignes (-89%)
 - [ ] **Tests système ImmoPromo** : Mettre à jour pour nouvelle UI avec workflows métier complets
 - [ ] **Workflows complexes** : Circuits validation multi-intervenants avec permissions croisées
 - [ ] **Demo interactive** : Scénarios métier complets utilisables en présentation

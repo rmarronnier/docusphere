@@ -18,6 +18,7 @@ class ApplicationController < ActionController::Base
   
   # Handle authorization errors
   rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
+  rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
   
   private
   
@@ -44,6 +45,11 @@ class ApplicationController < ActionController::Base
       flash[:alert] = "Vous n'êtes pas autorisé à effectuer cette action."
       redirect_to(request.referrer || root_path)
     end
+  end
+  
+  def record_not_found
+    # Treat record not found as unauthorized access when it's filtered by policy scope
+    user_not_authorized
   end
   
   def authenticate_user!
