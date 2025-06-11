@@ -171,10 +171,25 @@ module Documents::Processable
   def ready_for_download?
     processing_completed? && safe_to_download?
   end
+  
+  # Helper methods for status checks (required by tests)
+  def processed?
+    processing_status == 'completed'
+  end
+  
+  def processing?
+    processing_status == 'processing'
+  end
+  
+  def failed?
+    processing_status == 'failed'
+  end
 
   private
 
   def enqueue_processing_job
+    # Only enqueue if file is attached
+    return unless file.attached?
     DocumentProcessingJob.perform_later(self)
   end
 end

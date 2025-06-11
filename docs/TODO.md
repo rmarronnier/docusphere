@@ -20,11 +20,17 @@
 - ✅ Méthodes resize_image, optimize_image, process_in_chunks
 - ✅ Gestion erreurs et priorités jobs
 
-#### 📌 Phase 2 : Preview Multi-tailles (JOUR 2-3 - À FAIRE)
-- [ ] PreviewGenerationJob avec sizes (thumbnail/medium/large)
-- [ ] Configuration Active Storage variants
-- [ ] Processors pour PDF (poppler) et images (mini_magick)
-- [ ] Tests d'intégration complète
+#### ✅ Phase 2 : Preview Multi-tailles (JOUR 2 COMPLÉTÉ - 11/06/2025)
+- ✅ PreviewGenerationJob avec sizes (thumbnail/medium/large)
+- ✅ Méthodes generate_preview_size() implémentées
+- ✅ Support PDF, Images, Office documents
+- ✅ Tests 100% passants (13/13)
+
+#### ✅ Phase 3 : Configuration Active Storage (JOUR 3 COMPLÉTÉ - 11/06/2025)
+- ✅ Configuration Active Storage variants
+- ✅ Processors pour PDF (poppler) et images (mini_magick)
+- ✅ Tests d'intégration complète (24 + 13 tests)
+- ✅ Création icônes fallback SVG (7 icônes)
 
 #### 📌 Phase 3 : UI Components Modernisés (JOUR 5-7 - À FAIRE)
 - [ ] DocumentGridComponent avec vraies vignettes

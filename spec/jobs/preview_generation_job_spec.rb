@@ -16,11 +16,12 @@ RSpec.describe PreviewGenerationJob, type: :job do
     
     context 'when document exists' do
       it 'generates preview images for the document' do
-        expect(document.file).to receive(:attached?).and_return(true)
-        expect(document.file).to receive(:blob).and_return(double(content_type: 'application/pdf'))
+        # Allow multiple calls to attached? since it's called in perform and generate_preview
+        allow(document.file).to receive(:attached?).and_return(true)
+        allow(document.file).to receive(:blob).and_return(double(content_type: 'application/pdf'))
         
-        # Mock preview generation
-        allow_any_instance_of(PreviewGenerationJob).to receive(:generate_preview).and_return(true)
+        # Mock the size generation methods
+        allow_any_instance_of(PreviewGenerationJob).to receive(:generate_preview_size).and_return(true)
         
         PreviewGenerationJob.new.perform(document.id)
         
@@ -28,10 +29,11 @@ RSpec.describe PreviewGenerationJob, type: :job do
       end
       
       it 'handles different document types' do
-        document.update!(file_content_type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+        # Create a document with office document type
+        office_doc = create(:word_document)
         
         expect {
-          PreviewGenerationJob.new.perform(document.id)
+          PreviewGenerationJob.new.perform(office_doc.id)
         }.not_to raise_error
       end
       
@@ -54,7 +56,7 @@ RSpec.describe PreviewGenerationJob, type: :job do
     end
     
     context 'when document has no file attached' do
-      let(:document_without_file) { create(:document) }
+      let(:document_without_file) { create(:document, :without_file) }
       
       it 'skips preview generation' do
         expect(Rails.logger).to receive(:info).with(/No file attached/)
@@ -69,7 +71,9 @@ RSpec.describe PreviewGenerationJob, type: :job do
         
         expect(Rails.logger).to receive(:error).with(/Preview generation failed/)
         
-        PreviewGenerationJob.new.perform(document.id)
+        expect {
+          PreviewGenerationJob.new.perform(document.id)
+        }.to raise_error(StandardError, 'Preview failed')
         
         expect(document.reload.failed?).to be true
       end
@@ -100,10 +104,9 @@ RSpec.describe PreviewGenerationJob, type: :job do
       it 'stores preview metadata' do
         PreviewGenerationJob.new.perform(document.id)
         
-        expect(document.reload.metadata).to include(
-          'preview_generated_at' => be_present,
-          'preview_sizes' => be_an(Array)
-        )
+        document.reload
+        expect(document.metadata.find_by(key: 'preview_generated_at')).to be_present
+        expect(document.metadata.find_by(key: 'preview_sizes')&.value).to eq(['thumbnail', 'medium', 'large'].to_json)
       end
     end
   end

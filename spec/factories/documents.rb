@@ -82,6 +82,7 @@ FactoryBot.define do
     
     trait :without_file do
       attach_file { false }
+      skip_file_validation { true }
     end
 
     factory :pdf_document do

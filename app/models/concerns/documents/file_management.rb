@@ -8,9 +8,12 @@ module Documents
       has_one_attached :file
       has_one_attached :preview
       has_one_attached :thumbnail
+      has_one_attached :preview_medium
       
-      validates :file, presence: true
+      validates :file, presence: true, unless: :skip_file_validation
       validates :file_size, numericality: { less_than_or_equal_to: 100.megabytes }, if: :file_attached?
+      
+      attr_accessor :skip_file_validation
     end
 
     # File validation helper
