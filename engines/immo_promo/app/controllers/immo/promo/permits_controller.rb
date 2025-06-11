@@ -18,7 +18,7 @@ module Immo
           @permits = @permits.where(permit_type: params[:permit_type])
         end
         
-        @pagy, @permits = pagy(@permits) if respond_to?(:pagy)
+        @permits = @permits.page(params[:page]).per(15)
       end
 
       def show

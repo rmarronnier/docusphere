@@ -49,6 +49,10 @@ class DocumentPolicy < ApplicationPolicy
       (record.documentable.present? && record.documentable.respond_to?(:can_manage_documents?) && 
        record.documentable.can_manage_documents?(user)))
   end
+  
+  def force_unlock?
+    user.admin? || user.super_admin?
+  end
 
   def request_validation?
     record.uploaded_by == user || 

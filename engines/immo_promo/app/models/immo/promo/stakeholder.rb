@@ -40,15 +40,14 @@ module Immo
       scope :with_valid_insurance, -> { joins(:certifications).where(certifications: { certification_type: 'insurance', is_valid: true }) }
       scope :overloaded, -> {
         joins(:tasks)
-          .where(tasks: { status: ['pending', 'in_progress'] })
+          .where(immo_promo_tasks: { status: ['pending', 'in_progress'] })
           .group('immo_promo_stakeholders.id')
           .having('COUNT(immo_promo_tasks.id) > 5')
       }
       scope :underutilized, -> {
         left_joins(:tasks)
-          .where(tasks: { status: ['pending', 'in_progress'] })
           .group('immo_promo_stakeholders.id')
-          .having('COUNT(immo_promo_tasks.id) < 2 OR COUNT(immo_promo_tasks.id) IS NULL')
+          .having('COUNT(CASE WHEN immo_promo_tasks.status IN (\'pending\', \'in_progress\') THEN 1 END) < 2')
       }
 
       def full_name

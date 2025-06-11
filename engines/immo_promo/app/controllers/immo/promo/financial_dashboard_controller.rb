@@ -5,7 +5,7 @@ module Immo
       before_action :authorize_financial_access
 
       def dashboard
-        @budget_service = ProjectBudgetService.new(@project)
+        @budget_service = Immo::Promo::ProjectBudgetService.new(@project)
         @budget_summary = @budget_service.budget_summary
         @cost_tracking = @budget_service.cost_tracking_report
         @forecast = @budget_service.budget_forecast
@@ -19,7 +19,7 @@ module Immo
       end
 
       def variance_analysis
-        @budget_service = ProjectBudgetService.new(@project)
+        @budget_service = Immo::Promo::ProjectBudgetService.new(@project)
         @variance_data = detailed_variance_analysis
         @trends = analyze_variance_trends
         @category_performance = analyze_category_performance
@@ -27,7 +27,7 @@ module Immo
       end
 
       def cost_control
-        @budget_service = ProjectBudgetService.new(@project)
+        @budget_service = Immo::Promo::ProjectBudgetService.new(@project)
         @cost_tracking = @budget_service.cost_tracking_report
         @overruns = @cost_tracking[:cost_overruns]
         @top_expenses = @cost_tracking[:top_expenses]
@@ -36,7 +36,7 @@ module Immo
       end
 
       def cash_flow_management
-        @budget_service = ProjectBudgetService.new(@project)
+        @budget_service = Immo::Promo::ProjectBudgetService.new(@project)
         @cash_flow = @budget_service.cash_flow_analysis
         @liquidity_forecast = forecast_liquidity_needs
         @payment_schedule = optimize_payment_schedule
@@ -44,7 +44,7 @@ module Immo
       end
 
       def budget_scenarios
-        @budget_service = ProjectBudgetService.new(@project)
+        @budget_service = Immo::Promo::ProjectBudgetService.new(@project)
         @base_forecast = @budget_service.budget_forecast
         @scenarios = generate_detailed_scenarios
         @risk_assessment = assess_budget_risks
@@ -112,7 +112,7 @@ module Immo
       end
 
       def generate_financial_report
-        @budget_service = ProjectBudgetService.new(@project)
+        @budget_service = Immo::Promo::ProjectBudgetService.new(@project)
         @report_data = compile_comprehensive_financial_report
         
         respond_to do |format|
@@ -130,7 +130,7 @@ module Immo
 
       def export_budget_data
         format = params[:format] || 'csv'
-        @budget_service = ProjectBudgetService.new(@project)
+        @budget_service = Immo::Promo::ProjectBudgetService.new(@project)
         
         case format
         when 'csv'

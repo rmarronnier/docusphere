@@ -3,6 +3,7 @@ module Immo
     class Budget < ApplicationRecord
       self.table_name = 'immo_promo_budgets'
 
+      include Validatable
       audited
 
       belongs_to :project, class_name: 'Immo::Promo::Project'
@@ -26,6 +27,7 @@ module Immo
 
       scope :current, -> { where(is_current: true) }
       scope :by_type, ->(type) { where(budget_type: type) }
+      scope :approved, -> { where(status: 'approved') }
 
       def remaining_amount
         total_amount - (spent_amount || Money.new(0))
@@ -50,6 +52,53 @@ module Immo
 
       def budget_line_by_category(category)
         budget_lines.where(category: category)
+      end
+      
+      # Méthodes pour les workflows utilisant Validatable
+      def can_be_deleted?
+        budget_lines.empty? && !validated?
+      end
+      
+      # Utilise le système Validatable pour l'approbation
+      def approved?
+        validated?
+      end
+      
+      def may_approve?
+        !validation_pending? && !validated?
+      end
+      
+      def approve!(user)
+        if validation_pending?
+          # Si une validation est en cours, l'approuver
+          validate_by!(user, approved: true)
+        else
+          # Sinon créer une auto-validation
+          request_validation(requester: user, validators: [user])
+          validate_by!(user, approved: true)
+        end
+        update!(status: 'approved', approved_date: Date.current)
+      end
+      
+      def may_reject?
+        validation_pending? || validated?
+      end
+      
+      def reject!(user, reason = nil)
+        if validation_pending?
+          validate_by!(user, approved: false, comment: reason)
+        end
+        update!(status: 'rejected')
+      end
+      
+      def duplicate_for_revision
+        new_budget = dup
+        new_budget.version = (version.to_i + 1).to_s
+        new_budget.status = 'draft'
+        new_budget.approved_date = nil
+        new_budget.approved_by_id = nil
+        new_budget.save!
+        new_budget
       end
     end
   end

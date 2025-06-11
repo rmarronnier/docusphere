@@ -2,9 +2,25 @@
 
 > **Note** : Ce fichier archive toutes les tâches complétées du projet. Les nouvelles tâches terminées doivent être déplacées ici depuis TODO.md.
 
-**Dernière mise à jour** : 10 juin 2025
+**Dernière mise à jour** : 11 juin 2025
 
 ---
+
+## 🔧 Refactoring Document Model ✅
+**Complété le** : 11 juin 2025 (Après-midi)
+
+- [x] **Analyse du modèle** : Document model identifié avec 232 lignes
+- [x] **Création de 6 nouveaux concerns** :
+  - [x] `Documents::Searchable` - Gestion recherche Elasticsearch
+  - [x] `Documents::FileManagement` - Gestion fichiers attachés
+  - [x] `Documents::Shareable` - Fonctionnalités de partage
+  - [x] `Documents::Taggable` - Gestion des tags
+  - [x] `Documents::DisplayHelpers` - Helpers d'affichage
+  - [x] `Documents::ActivityTrackable` - Tracking vues/téléchargements
+- [x] **Migration namespace** : `Document::` → `Documents::` pour tous les concerns
+- [x] **Tests complets** : 46 nouveaux tests pour les concerns créés
+- [x] **Résultat** : Document model réduit à 103 lignes (réduction de 56%)
+- [x] **Architecture finale** : 11 concerns modulaires et réutilisables
 
 ## 🎯 Menu utilisateur complet pour app et engine ✅
 **Complété le** : Mai 2025

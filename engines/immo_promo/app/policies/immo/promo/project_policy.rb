@@ -67,6 +67,33 @@ class Immo::Promo::ProjectPolicy < ApplicationPolicy
     )
   end
 
+  def manage_commercial?
+    return true if user_is_admin?
+    same_organization? && (
+      user_has_permission?('immo_promo:commercial:manage') ||
+      record.project_manager == user ||
+      user_has_permission?('immo_promo:sales:manage')
+    )
+  end
+
+  def coordinate?
+    return true if user_is_admin?
+    same_organization? && (
+      user_has_permission?('immo_promo:coordination:manage') ||
+      record.project_manager == user ||
+      user_has_permission?('immo_promo:stakeholders:coordinate')
+    )
+  end
+
+  def manage_finances?
+    return true if user_is_admin?
+    same_organization? && (
+      user_has_permission?('immo_promo:financial:manage') ||
+      record.project_manager == user ||
+      user_has_permission?('immo_promo:budget:manage')
+    )
+  end
+
   # Document-related permissions
   def preview?
     show? # If user can see the project, they can preview documents

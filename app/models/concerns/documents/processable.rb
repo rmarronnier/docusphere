@@ -1,5 +1,5 @@
 # Concern for document processing pipeline
-module Document::Processable
+module Documents::Processable
   extend ActiveSupport::Concern
 
   SUPPORTED_FORMATS = {

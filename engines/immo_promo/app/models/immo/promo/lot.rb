@@ -53,7 +53,7 @@ module Immo
       scope :available, -> { where(status: [ 'planned', 'under_construction', 'completed' ]) }
       scope :residential, -> { where(lot_type: [ 'apartment', 'house' ]) }
       scope :commercial, -> { where(lot_type: [ 'commercial_unit', 'office' ]) }
-      scope :by_floor, ->(floor) { where(floor_level: floor) }
+      scope :by_floor, ->(floor) { where(floor: floor) }
 
       def display_name
         "#{lot_type.humanize} #{reference}"
@@ -61,6 +61,10 @@ module Immo
 
       def is_available?
         %w[planned under_construction completed].include?(status)
+      end
+
+      def available?
+        is_available?
       end
 
       def price_per_sqm

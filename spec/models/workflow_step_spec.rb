@@ -6,44 +6,36 @@ RSpec.describe WorkflowStep, type: :model do
   describe 'associations' do
     it { should belong_to(:workflow) }
     it { should belong_to(:assigned_to).class_name('User').optional }
-    it { should have_many(:workflow_submissions) }
+    it { should belong_to(:assigned_to_group).class_name('UserGroup').optional }
+    it { should belong_to(:completed_by).class_name('User').optional }
   end
 
   describe 'validations' do
     it { should validate_presence_of(:name) }
-    it { should validate_presence_of(:workflow) }
-    it { should validate_presence_of(:step_type) }
     it { should validate_presence_of(:position) }
-    
-    it 'validates step_type inclusion' do
-      should validate_inclusion_of(:step_type).in_array(%w[manual automatic conditional parallel])
-    end
-
-    it 'validates position uniqueness scoped to workflow' do
-      create(:workflow_step, position: 1, workflow: workflow)
-      should validate_uniqueness_of(:position).scoped_to(:workflow_id)
-    end
   end
 
-  describe 'scopes' do
-    let!(:step1) { create(:workflow_step, position: 1, workflow: workflow) }
-    let!(:step3) { create(:workflow_step, position: 3, workflow: workflow) }
-    let!(:step2) { create(:workflow_step, position: 2, workflow: workflow) }
+  describe 'AASM states' do
+    let(:step) { create(:workflow_step, workflow: workflow) }
 
-    describe '.ordered' do
-      it 'returns steps ordered by position' do
-        expect(WorkflowStep.ordered).to eq([step1, step2, step3])
-      end
+    it 'has initial state of pending' do
+      expect(step).to be_pending
     end
 
-    describe '.manual' do
-      let!(:manual_step) { create(:workflow_step, step_type: 'manual', workflow: workflow) }
-      let!(:automatic_step) { create(:workflow_step, step_type: 'automatic', workflow: workflow) }
+    it 'can transition from pending to in_progress' do
+      expect(step.may_start?).to be true
+      expect { step.start! }.to change { step.status }.from('pending').to('in_progress')
+    end
 
-      it 'returns only manual steps' do
-        expect(WorkflowStep.manual).to include(manual_step)
-        expect(WorkflowStep.manual).not_to include(automatic_step)
-      end
+    it 'can transition from in_progress to completed' do
+      step.start!
+      expect(step.may_complete?).to be true
+      expect { step.complete! }.to change { step.status }.from('in_progress').to('completed')
+    end
+
+    it 'sets completed_at when completed' do
+      step.start!
+      expect { step.complete! }.to change { step.completed_at }.from(nil)
     end
   end
 

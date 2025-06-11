@@ -3,16 +3,15 @@ module Immo
     class NotificationsController < ApplicationController
       before_action :authenticate_user!
       before_action :set_notification, only: [:show, :mark_as_read, :destroy]
+      skip_after_action :verify_authorized
 
       def index
-        @pagy, @notifications = pagy(
-          current_user.notifications
-            .includes(:notifiable)
-            .by_category(immo_promo_categories)
-            .then { |scope| params[:unread_only] == 'true' ? scope.unread : scope }
-            .recent,
-          items: 20
-        )
+        @notifications = current_user.notifications
+                                    .includes(:notifiable)
+                                    .by_category(immo_promo_categories)
+                                    .then { |scope| params[:unread_only] == 'true' ? scope.unread : scope }
+                                    .recent
+                                    .page(params[:page]).per(20)
         
         @categories = immo_promo_categories
         @stats = immo_promo_notification_stats
@@ -118,14 +117,12 @@ module Immo
         @project = Immo::Promo::Project.find(params[:project_id])
         authorize @project, :show?
         
-        @pagy, @notifications = pagy(
-          current_user.notifications
-            .joins(:notifiable)
-            .where(notifiable: [@project, @project.phases, @project.tasks, @project.stakeholders, 
-                               @project.permits, @project.budgets, @project.risks])
-            .recent,
-          items: 20
-        )
+        @notifications = current_user.notifications
+                                    .joins(:notifiable)
+                                    .where(notifiable: [@project, @project.phases, @project.tasks, @project.stakeholders, 
+                                                       @project.permits, @project.budgets, @project.risks])
+                                    .recent
+                                    .page(params[:page]).per(20)
         
         respond_to do |format|
           format.html
@@ -217,10 +214,10 @@ module Immo
         {
           notifications: @notifications.map { |n| notification_json(n) },
           pagination: {
-            current_page: @pagy.page,
-            total_pages: @pagy.pages,
-            total_count: @pagy.count,
-            items_per_page: @pagy.items
+            current_page: @notifications.current_page,
+            total_pages: @notifications.total_pages,
+            total_count: @notifications.total_count,
+            items_per_page: @notifications.limit_value
           },
           stats: @stats,
           categories: @categories

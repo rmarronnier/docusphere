@@ -1,5 +1,5 @@
 # Concern for document versioning using PaperTrail
-module Document::Versionable
+module Documents::Versionable
   extend ActiveSupport::Concern
 
   included do

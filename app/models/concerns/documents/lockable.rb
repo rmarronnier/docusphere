@@ -1,5 +1,5 @@
 # Concern for document locking functionality
-module Document::Lockable
+module Documents::Lockable
   extend ActiveSupport::Concern
 
   included do

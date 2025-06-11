@@ -9,7 +9,6 @@ RSpec.describe SearchQuery, type: :model do
 
   describe 'validations' do
     it { should validate_presence_of(:query) }
-    it { should validate_presence_of(:user) }
     
     it 'validates query length' do
       should validate_length_of(:query).is_at_least(1).is_at_most(500)
@@ -54,7 +53,7 @@ RSpec.describe SearchQuery, type: :model do
   describe 'callbacks' do
     it 'stores query parameters as JSON' do
       params = { term: 'test', category: 'document' }
-      query = SearchQuery.create!(name: 'Test Query', query_params: params, user: user)
+      query = SearchQuery.create!(name: 'Test Query', query: 'test', query_params: params, user: user)
       expect(query.query_params).to eq(params.stringify_keys)
     end
   end

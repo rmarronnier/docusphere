@@ -263,9 +263,9 @@
         </div>
 
         <!-- Pagination -->
-        <% if @pagy.pages > 1 %>
+        <% if @notifications.total_pages > 1 %>
           <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
-            <%== pagy_nav(@pagy) if respond_to?(:pagy_nav) %>
+            <%= paginate @notifications %>
           </div>
         <% end %>
       </div>

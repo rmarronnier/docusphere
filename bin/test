@@ -31,6 +31,7 @@ VERBOSE=false
 FIX_MODE=false
 FAST_MODE=false
 QUIET_MODE=false
+FULL_OUTPUT=false
 START_TIME=$(date +%s)
 TOTAL_CHECKS=0
 PASSED_CHECKS=0
@@ -111,7 +112,17 @@ run_command() {
   local exit_code=0
   
   # Run command with timeout and capture output
-  if timeout 300 eval "$cmd" > "$output_file" 2>&1; then
+  if [[ "$FULL_OUTPUT" == "true" ]]; then
+    # Run command directly without capturing output
+    if timeout 600 eval "$cmd"; then
+      local duration=$(end_timer $timer)
+      record_result "$description" "PASS" "$duration" ""
+    else
+      exit_code=$?
+      local duration=$(end_timer $timer)
+      record_result "$description" "FAIL" "$duration" "Exit code: $exit_code"
+    fi
+  elif timeout 300 eval "$cmd" > "$output_file" 2>&1; then
     local duration=$(end_timer $timer)
     record_result "$description" "PASS" "$duration" ""
     
@@ -220,16 +231,33 @@ cmd_units() {
   # Ensure test environment is ready
   ensure_test_environment
   
-  if [[ "$FAST_MODE" == "true" ]]; then
+  # Check if specific directories were provided after the command
+  local test_dirs=""
+  if [[ -n "$TEST_DIRS" ]]; then
+    test_dirs="$TEST_DIRS"
+    log_info "Testing specific directories: $test_dirs"
+  elif [[ "$FAST_MODE" == "true" ]]; then
     # Fast mode: only critical paths
-    run_command \
-      "docker-compose run --rm -e PARALLEL_TEST_PROCESSORS=$PARALLEL_TEST_PROCESSORS web bundle exec parallel_rspec spec/models/ spec/policies/ --format progress" \
-      "Critical-Tests-Fast"
+    test_dirs="spec/models/ spec/policies/"
   else
-    # Full unit test suite excluding system tests
+    # Full unit test suite - excluding system and integration tests for true unit tests
+    test_dirs="spec/models spec/controllers spec/services spec/policies spec/components spec/helpers spec/jobs spec/mailers"
+  fi
+  
+  if [[ "$FULL_OUTPUT" == "true" ]]; then
+    # With full output, run directly without capturing
+    log_step "Running: Unit Tests (with full output)"
+    docker-compose run --rm -e PARALLEL_TEST_PROCESSORS=$PARALLEL_TEST_PROCESSORS web bundle exec parallel_rspec $test_dirs
+    exit_code=$?
+    if [[ $exit_code -eq 0 ]]; then
+      ((PASSED_CHECKS++))
+    else
+      ((FAILED_CHECKS++))
+    fi
+  else
     run_command \
-      "docker-compose run --rm -e PARALLEL_TEST_PROCESSORS=$PARALLEL_TEST_PROCESSORS web bundle exec parallel_rspec spec/ --exclude-pattern 'spec/system/**/*_spec.rb' --format progress" \
-      "Main-App-Unit-Tests"
+      "docker-compose run --rm -e PARALLEL_TEST_PROCESSORS=$PARALLEL_TEST_PROCESSORS web bundle exec parallel_rspec $test_dirs" \
+      "Unit-Tests"
   fi
 }
 
@@ -421,10 +449,12 @@ COMMANDS:
   setup       Initial development environment setup
 
 OPTIONS:
-  --fix       Auto-fix issues when possible (RuboCop, lint, bundle lock)
-  --fast      Skip slower operations (system tests, detailed checks)
-  --quiet     Minimal output (errors and final results only)
-  --verbose   Detailed output including command details and debug info
+  --fix         Auto-fix issues when possible (RuboCop, lint, bundle lock)
+  --fast        Skip slower operations (system tests, detailed checks)
+  --quiet       Minimal output (errors and final results only)
+  --verbose     Detailed output including command details and debug info
+  --full-output Show complete test output without capturing (useful for debugging)
+  --dirs "path" Specify test directories for units/engine commands (e.g. --dirs "spec/models")
 
 EXAMPLES:
   ./bin/test quick --fix           # Fast pre-commit validation with auto-fix
@@ -498,6 +528,7 @@ if [[ $# -eq 0 ]]; then
 fi
 
 commands=()
+TEST_DIRS=""
 while [[ $# -gt 0 ]]; do
   case $1 in
     --fix)
@@ -514,6 +545,15 @@ while [[ $# -gt 0 ]]; do
       ;;
     --verbose)
       VERBOSE=true
+      shift
+      ;;
+    --full-output)
+      FULL_OUTPUT=true
+      shift
+      ;;
+    --dirs)
+      shift
+      TEST_DIRS="$1"
       shift
       ;;
     -h|--help)

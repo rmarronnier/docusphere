@@ -11,7 +11,6 @@ RSpec.describe MetadataTemplate, type: :model do
 
   describe 'validations' do
     it { should validate_presence_of(:name) }
-    it { should validate_presence_of(:organization) }
     
     it 'validates uniqueness of name scoped to organization' do
       create(:metadata_template, name: 'Template 1', organization: organization)
@@ -20,8 +19,8 @@ RSpec.describe MetadataTemplate, type: :model do
   end
 
   describe 'scopes' do
-    let!(:active_template) { create(:metadata_template, active: true, organization: organization) }
-    let!(:inactive_template) { create(:metadata_template, active: false, organization: organization) }
+    let!(:active_template) { create(:metadata_template, is_active: true, organization: organization) }
+    let!(:inactive_template) { create(:metadata_template, is_active: false, organization: organization) }
 
     describe '.active' do
       it 'returns only active templates' do

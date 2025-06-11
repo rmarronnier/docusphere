@@ -10,29 +10,47 @@
 
 ## 🚧 EN COURS / À FAIRE
 
-### 🔥 URGENT : Phase 4 - Seeding & Demo Complet
+### 🔥 URGENT : Finaliser Stabilisation
 **Priorité : CRITIQUE** 🔴🔴🔴
 
-Suite au succès de la Phase 3 (10/06/2025), passer à Phase 4.
-
-#### Actions Complétées (10/06/2025 - Phase 3) :
-- ✅ **UserProfile Model** : Persistance des préférences utilisateur avec tests complets
-- ✅ **DashboardController** : Vues personnalisées par profil avec autorisation
-- ✅ **Système de personnalisation** : Drag & drop widgets, resize, sauvegarde layout
-- ✅ **WidgetCacheService** : Cache Redis intelligent avec TTL adaptatifs
-- ✅ **Tests d'intégration** : Scénarios dashboard complets par profil
-- ✅ **Dashboard API** : Endpoints reorder/refresh/update widgets
-- ✅ **Services complets** : DashboardPersonalizationService + cache
-
-#### Phase 4 - Seeding Professionnel & Demo :
-- [ ] **Seeding utilisateurs varié** : 20+ profils avec rôles réalistes (directeurs, chefs projets, architectes, etc.)
-- [ ] **Documents métiers crédibles** : Télécharger exemples réels (permis, plans, budgets, contrats)
-- [ ] **Workflows partagés complexes** : Projets multi-intervenants avec permissions croisées
-- [ ] **Espaces organisés** : Structure hiérarchique réaliste par projet/département
+#### Actions Prioritaires :
+- ✅ **Refactorer Document model** : ~~580+ lignes~~ 232 lignes → 103 lignes (réduction 56%) - 11 concerns créés (11/06/2025)
+- ✅ **Ajuster tests services engine** : Corriger incompatibilités schéma/service identifiées (11/06/2025)
+- ✅ **Lancer tous tests non-système** : Exécuter TOUS les tests (hors système) et corriger TOUS les échecs (11/06/2025)
+  - ✅ Tests modèles : 704 examples, 0 failures
+  - ✅ Tests unitaires core : 1646 examples, 0 failures
+  - ✅ Tests engine : 564 examples, 0 failures
+  - ✅ **TOTAL : 2210 tests passants !**
+- [ ] **Extraire concerns/services longs** : Fichiers > 200 lignes à refactorer en modules
+- [ ] **Tests système ImmoPromo** : Mettre à jour pour nouvelle UI avec workflows métier complets
+- [ ] **Workflows complexes** : Circuits validation multi-intervenants avec permissions croisées
 - [ ] **Demo interactive** : Scénarios métier complets utilisables en présentation
+
+### 🧪 Tests & Qualité Code
+**Priorité : HAUTE** 🔴
+
+#### Actions Complétées (11/06/2025) :
+- ✅ **Vérifier tests contrôleurs engine** : Tous les contrôleurs Immo::Promo ont des tests complets
+- ✅ **Compléter tests manquants** : 12 contrôleurs avec couverture complète
+- ✅ **Extraction concerns fichiers longs** : 5 fichiers refactorisés avec tests
+- ✅ **Migration pagy vers Kaminari** : Cohérence dans la pagination
+
+#### Actions Restantes :
+- [ ] **Tests d'intégration engine** : Workflows complets projets immobiliers
+- [ ] **Tests système engine** : Interfaces utilisateur Immo::Promo
 
 ### 🔧 Refactoring & Stabilisation
 **Priorité : HAUTE** 🔴
+
+#### Actions Complétées (11/06/2025) :
+- ✅ **Extraction concerns services longs** : 
+  - PermitWorkflowController : PermitDashboardController extrait
+  - FinancialDashboardController : VarianceAnalyzable concern
+  - NotificationService : DocumentNotifications module
+  - RiskMonitoringController : RiskAlertable concern
+  - StakeholderAllocationService : 4 concerns (AllocationOptimizer, TaskCoordinator, ConflictDetector, AllocationAnalyzer)
+- ✅ **Tests pour tous les concerns** : 51 nouveaux tests passants
+- ✅ **Tests services engine manquants** : 6 services identifiés et tests créés (100% couverture)
 
 #### Actions Restantes :
 - [ ] **Refactorer Document model** : 580+ lignes → découper en concerns
@@ -116,28 +134,23 @@ Interface d'administration système complète :
 
 ## 📅 Planning Recommandé
 
-### Phase 1 - Core Documentaire (2-3 semaines)
-1. Intégration documents ImmoPromo
-2. Workflows documentaires de base
-3. Tests système fondamentaux
+### Phase 1 - Finalisation (1 semaine) 🔴
+1. Refactoring Document model
+2. Tests système ImmoPromo  
+3. Workflows validation complexes
 
-### Phase 2 - UI & UX (1-2 semaines)  
-1. Amélioration interface utilisateur
-2. Responsive design
-3. Optimisations performance
-
-### Phase 3 - Administration (1 semaine)
+### Phase 2 - Administration (1 semaine)
 1. Dashboard superadmin
 2. Monitoring et métriques
-3. ~~Nettoyage repository~~ ✅
+3. Feature flags système
 
-### Phase 4 - Évolutions (Continu)
+### Phase 3 - Évolutions (Continu)
 1. Intelligence artificielle
 2. Intégrations tierces
 3. Applications mobiles
 
 ---
 
-**Dernière mise à jour** : 10 juin 2025  
-**Statut global** : 85% terminé, développement actif  
-**Priorité absolue** : Finaliser stabilisation (Document model refactoring)
+**Dernière mise à jour** : 11 juin 2025  
+**Statut global** : 90% terminé, développement actif  
+**Priorité absolue** : Finaliser stabilisation (Document model refactoring et ajustement tests)

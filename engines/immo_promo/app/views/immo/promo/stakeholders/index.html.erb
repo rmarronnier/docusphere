@@ -150,9 +150,9 @@
   </div>
 
   <!-- Pagination -->
-  <% if respond_to?(:pagy_nav) %>
+  <% if @stakeholders.total_pages > 1 %>
     <div class="flex justify-center">
-      <%== pagy_nav(@pagy) if @pagy.pages > 1 %>
+      <%= paginate @stakeholders %>
     </div>
   <% end %>
 

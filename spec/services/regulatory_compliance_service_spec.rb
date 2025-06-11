@@ -42,7 +42,7 @@ RSpec.describe RegulatoryComplianceService do
     context 'without personal data' do
       before do
         allow(document).to receive(:extracted_text).and_return(
-          'Technical specifications and requirements document'
+          'Technical specifications and requirements document. Data retention policy: 5 years. GDPR consent obtained.'
         )
       end
 
@@ -71,7 +71,11 @@ RSpec.describe RegulatoryComplianceService do
     context 'with transaction verification' do
       before do
         allow(document).to receive(:extracted_text).and_return(
-          'KYC verified transaction ID: ABC123 amount: €5,000.00'
+          'KYC verified transaction ID: ABC123 amount: €5,000.00. Nom: John Doe, Adresse: 123 Main St, Date de naissance: 01/01/1980, Pièce d\'identité: Passport 123456. ' +
+          'GDPR consent provided. Data retention: 7 years. Durée de conservation: 7 ans. ' +
+          'Étude d\'impact environnemental incluse. Plan de gestion des déchets approuvé. ' +
+          'Contrat entre parties. Date d\'effet: 2024-01-01. Clause de résiliation incluse. Conditions de paiement: 30 jours. Limitation de responsabilité. ' +
+          'Mesures de sécurité et prévention des risques incluses.'
         )
       end
 

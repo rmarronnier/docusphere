@@ -18,6 +18,18 @@ Ce fichier contient les procédures obligatoires pour éviter les régressions. 
 
 Cette règle s'applique à TOUT le code : composants, services, contrôleurs, modèles, JavaScript, etc.
 
+**🚨 RÈGLE FONDAMENTALE DES TESTS**: Si un test teste une méthode non existante :
+1. **NE JAMAIS** supprimer le test
+2. **TOUJOURS** faire une réflexion métier pour comprendre pourquoi cette méthode devrait exister
+3. **IMPLÉMENTER** la méthode manquante dans le service/contrôleur/modèle testé
+4. Cette règle garantit que les tests documentent le comportement attendu du système
+
+**📝 RÈGLE DE DOCUMENTATION AUTOMATIQUE**: Après CHAQUE tâche TODO complétée :
+1. Mettre à jour `docs/PROJECT_STATUS.md` avec les changements réalisés
+2. Mettre à jour `docs/TODO.md` pour marquer la tâche comme complétée (✅)
+3. Si la tâche est entièrement terminée, la déplacer vers `docs/archive/DONE.md`
+4. Cette mise à jour DOIT être faite immédiatement après la complétion de la tâche
+
 ## ⚠️ Pièges Connus (Mis à jour 10/06/2025)
 
 1. **Document#lock!** : Override la méthode PaperTrail - cause un warning au démarrage

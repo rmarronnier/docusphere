@@ -1,5 +1,5 @@
 # Concern for virus scanning functionality
-module Document::VirusScannable
+module Documents::VirusScannable
   extend ActiveSupport::Concern
 
   included do

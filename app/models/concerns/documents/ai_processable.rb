@@ -1,5 +1,5 @@
 # Concern for AI classification and entity extraction
-module Document::AiProcessable
+module Documents::AiProcessable
   extend ActiveSupport::Concern
 
   included do

@@ -125,6 +125,8 @@ ImmoPromo::Engine.routes.draw do
     resources :budgets, controller: 'immo/promo/budgets' do
       member do
         post :duplicate
+        post :approve
+        post :reject
       end
       resources :budget_lines, controller: 'immo/promo/budget_lines'
     end

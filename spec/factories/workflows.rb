@@ -31,7 +31,7 @@ FactoryBot.define do
     workflow
     sequence(:name) { |n| "Étape #{n}" }
     description { "Description de l'étape" }
-    step_type { "approval" }
+    step_type { "manual" }
     sequence(:position) { |n| n }
     association :assigned_to, factory: :user
     validation_rules { {} }

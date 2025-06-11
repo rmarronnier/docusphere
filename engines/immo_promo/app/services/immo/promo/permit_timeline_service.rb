@@ -39,40 +39,51 @@ module Immo
       def generate_permit_workflow
         workflow_steps = []
 
+        # Demolition permit if needed - must be first
+        if needs_demolition_permit?
+          workflow_steps << create_permit_workflow_step(
+            'demolition',
+            'Permis de démolir',
+            calculate_timeline_for(:demolition),
+            dependencies: []
+          )
+        end
+
         # Urban planning permit workflow
         if needs_urban_planning_permit?
           workflow_steps << create_permit_workflow_step(
             'urban_planning',
             'Permis d\'aménager',
-            calculate_timeline_for(:urban_planning)
+            calculate_timeline_for(:urban_planning),
+            dependencies: needs_demolition_permit? ? ['demolition'] : []
           )
         end
-
-        # Construction permit workflow
-        workflow_steps << create_permit_workflow_step(
-          'construction',
-          'Permis de construire',
-          calculate_timeline_for(:construction)
-        )
 
         # Environmental permits if needed
         if needs_environmental_permits?
           workflow_steps << create_permit_workflow_step(
             'environmental',
             'Autorisations environnementales',
-            calculate_timeline_for(:environmental)
+            calculate_timeline_for(:environmental),
+            dependencies: []
           )
         end
 
-        # Demolition permit if needed
-        if needs_demolition_permit?
-          workflow_steps << create_permit_workflow_step(
-            'demolition',
-            'Permis de démolir',
-            calculate_timeline_for(:demolition)
-          )
-        end
+        # Construction permit workflow - depends on others
+        dependencies = []
+        dependencies << 'demolition' if needs_demolition_permit?
+        dependencies << 'urban_planning' if needs_urban_planning_permit?
+        
+        workflow_steps << create_permit_workflow_step(
+          'construction',
+          'Permis de construire',
+          calculate_timeline_for(:construction),
+          dependencies: dependencies
+        )
 
+        # Mark critical path permits
+        mark_critical_path_permits(workflow_steps)
+        
         workflow_steps
       end
 
@@ -83,7 +94,13 @@ module Immo
           events.concat(permit_events_for(permit))
         end
         
-        events.sort_by { |e| e[:date] }
+        sorted_events = events.sort_by { |e| e[:date] }
+        
+        {
+          events: sorted_events,
+          milestones: extract_milestones(sorted_events),
+          statistics: calculate_timeline_statistics
+        }
       end
 
       def calculate_processing_times
@@ -105,7 +122,21 @@ module Immo
 
       def estimate_duration(permit)
         base = base_duration_for(permit.permit_type)
-        base * complexity_factor * seasonal_factor
+        estimated = (base * complexity_factor * seasonal_factor).round
+        
+        {
+          base_days: base,
+          estimated_days: estimated,
+          confidence_range: {
+            optimistic: (estimated * 0.8).round,
+            pessimistic: (estimated * 1.3).round
+          },
+          factors: {
+            base_duration: base,
+            complexity_factor: complexity_factor,
+            seasonal_factor: seasonal_factor
+          }
+        }
       end
 
       def critical_path_permits
@@ -127,6 +158,60 @@ module Immo
         required_permits.compact
       end
 
+      def critical_path_analysis
+        critical_permits = critical_path_permits
+        
+        # Calculate total duration for critical path
+        total_duration = 0
+        critical_permit_details = []
+        bottlenecks = []
+        
+        critical_permits.each do |permit|
+          duration_info = estimate_duration(permit)
+          duration = duration_info[:estimated_days]
+          
+          critical_permit_details << {
+            permit: permit,
+            duration: duration,
+            status: permit.status,
+            blocking: permit.status != 'approved'
+          }
+          
+          # Add to total if not yet approved
+          if permit.status != 'approved'
+            total_duration += duration
+            
+            # Identify bottlenecks
+            if permit.status == 'under_review' && permit.submitted_date
+              days_in_review = (Date.current - permit.submitted_date).to_i
+              if days_in_review > duration_info[:base_days]
+                bottlenecks << {
+                  permit: permit,
+                  delay: days_in_review - duration_info[:base_days],
+                  impact: 'high'
+                }
+              end
+            end
+          end
+        end
+        
+        # Calculate buffer days based on project complexity
+        buffer_percentage = needs_environmental_permits? ? 0.2 : 0.15
+        buffer_days = (total_duration * buffer_percentage).round
+        
+        # Generate recommendations
+        recommendations = generate_critical_path_recommendations(critical_permit_details, bottlenecks)
+        
+        {
+          critical_permits: critical_permit_details,
+          total_duration_days: total_duration,
+          buffer_days: buffer_days,
+          estimated_completion: Date.current + (total_duration + buffer_days).days,
+          bottlenecks: bottlenecks,
+          recommendations: recommendations
+        }
+      end
+
       private
 
       def calculate_timeline_for(permit_type)
@@ -145,7 +230,7 @@ module Immo
         config = PERMIT_DURATIONS[type.to_sym]
         return 60 unless config
         
-        if type.to_s == 'construction' && project.total_surface_area && project.total_surface_area > config[:threshold]
+        if type.to_s == 'construction' && project.buildable_surface_area && project.buildable_surface_area > config[:threshold]
           config[:large_project]
         else
           config[:base]
@@ -156,8 +241,8 @@ module Immo
         factors = []
         
         # Surface complexity
-        if project.total_surface_area
-          factors << case project.total_surface_area
+        if project.buildable_surface_area
+          factors << case project.buildable_surface_area
                     when 0..500 then 0.9
                     when 501..2000 then 1.0
                     when 2001..5000 then 1.1
@@ -192,21 +277,28 @@ module Immo
       end
 
       def needs_environmental_permits?
-        project.total_surface_area && project.total_surface_area > 10000
+        project.buildable_surface_area && project.buildable_surface_area > 10000
       end
 
       def needs_demolition_permit?
-        # Simplified logic - would check for existing buildings
-        false
+        # Check if project has existing structures to demolish
+        project.permits.exists?(permit_type: 'demolition') ||
+        (project.metadata && project.metadata['has_existing_buildings'] == true) ||
+        (project.project_type == 'mixed' && project.buildable_surface_area && project.buildable_surface_area > 500)
       end
 
-      def create_permit_workflow_step(type, name, timeline)
+      def create_permit_workflow_step(type, name, timeline, dependencies: [])
         {
           type: type,
           name: name,
           timeline: timeline,
+          dependencies: dependencies,
           required: true,
-          status: permit_status_for(type)
+          critical_path: false, # Will be set by mark_critical_path_permits
+          status: permit_status_for(type),
+          estimated_submission: calculate_optimal_submission_date(type),
+          estimated_approval: calculate_estimated_approval_date(type),
+          requirements: get_permit_requirements(type)
         }
       end
 
@@ -257,10 +349,9 @@ module Immo
           }
         end
         
-        if permit.approval_date || permit.approved_date
-          approval_date = permit.approval_date || permit.approved_date
+        if permit.approved_date
           events << {
-            date: approval_date,
+            date: permit.approved_date,
             type: 'approval',
             permit: permit,
             description: "#{permit.permit_type.humanize} approuvé",
@@ -324,6 +415,141 @@ module Immo
           fastest_type: fastest&.first&.to_s,
           slowest_type: slowest&.first&.to_s
         }
+      end
+
+      def extract_milestones(events)
+        milestones = {}
+        
+        submission_events = events.select { |e| e[:type] == 'submission' }
+        approval_events = events.select { |e| e[:type] == 'approval' }
+        
+        milestones[:submission_phase] = submission_events.first if submission_events.any?
+        milestones[:approval_phase] = approval_events.first if approval_events.any?
+        
+        # Construction start milestone
+        construction_permit = project.permits.find_by(permit_type: 'construction', status: 'approved')
+        if construction_permit
+          milestones[:construction_start] = {
+            date: construction_permit.approved_date + 30.days,
+            description: 'Démarrage possible des travaux'
+          }
+        end
+        
+        milestones
+      end
+
+      def calculate_timeline_statistics
+        permits = project.permits
+        
+        {
+          total_permits: permits.count,
+          submitted: permits.where.not(submitted_date: nil).count,
+          approved: permits.approved.count,
+          pending: permits.pending.count,
+          average_processing_time: calculate_average_processing_time
+        }
+      end
+
+      def calculate_average_processing_time
+        approved_with_dates = project.permits.approved.where.not(submitted_date: nil, approved_date: nil)
+        return 0 if approved_with_dates.empty?
+        
+        total_days = approved_with_dates.sum { |p| (p.approved_date - p.submitted_date).to_i }
+        (total_days.to_f / approved_with_dates.count).round
+      end
+
+      def mark_critical_path_permits(workflow_steps)
+        critical_types = ['construction']
+        critical_types << 'urban_planning' if needs_urban_planning_permit?
+        critical_types << 'environmental' if needs_environmental_permits?
+        
+        workflow_steps.each do |step|
+          step[:critical_path] = critical_types.include?(step[:type])
+        end
+      end
+
+      def calculate_optimal_submission_date(type)
+        case type
+        when 'demolition'
+          project.start_date - 120.days
+        when 'urban_planning'
+          project.start_date - 150.days
+        when 'environmental'
+          project.start_date - 180.days
+        when 'construction'
+          urban_permit = project.permits.find_by(permit_type: 'urban_planning')
+          if urban_permit&.approved_date
+            urban_permit.approved_date + 7.days
+          else
+            project.start_date - 90.days
+          end
+        else
+          project.start_date - 60.days
+        end
+      end
+
+      def calculate_estimated_approval_date(type)
+        submission_date = calculate_optimal_submission_date(type)
+        duration = base_duration_for(type)
+        submission_date + duration.days
+      end
+
+      def get_permit_requirements(type)
+        case type.to_s
+        when 'environmental'
+          ['impact_study', 'public_consultation', 'environmental_assessment']
+        when 'urban_planning'
+          ['site_plan', 'landscape_plan', 'urban_integration_study']
+        when 'construction'
+          ['architectural_plans', 'structural_calculations', 'thermal_study']
+        when 'demolition'
+          ['asbestos_diagnostic', 'waste_management_plan', 'structural_survey']
+        else
+          ['basic_documentation']
+        end
+      end
+
+      def generate_critical_path_recommendations(critical_permits, bottlenecks)
+        recommendations = []
+        
+        # Recommendations based on permit status
+        critical_permits.each do |permit_detail|
+          permit = permit_detail[:permit]
+          
+          case permit.status
+          when 'draft'
+            recommendations << "Préparer et soumettre le #{permit.permit_type.humanize} au plus vite"
+          when 'pending'
+            recommendations << "Assurer le suivi du #{permit.permit_type.humanize} en cours d'instruction"
+          when 'under_review'
+            if bottlenecks.any? { |b| b[:permit].id == permit.id }
+              recommendations << "Relancer l'administration pour le #{permit.permit_type.humanize} - retard détecté"
+            else
+              recommendations << "Suivre l'avancement du #{permit.permit_type.humanize}"
+            end
+          when 'denied'
+            recommendations << "Analyser les raisons du refus et préparer un recours pour le #{permit.permit_type.humanize}"
+          when 'approved'
+            if permit.permit_type == 'construction' && !permit.persisted?
+              recommendations << "Préparer le dossier de demande pour le #{permit.permit_type.humanize}"
+            end
+          end
+        end
+        
+        # General recommendations
+        if bottlenecks.any?
+          recommendations << "#{bottlenecks.count} permis présentent des retards - action urgente requise"
+        elsif critical_permits.all? { |p| p[:status] == 'approved' }
+          recommendations << "Tous les permis critiques sont approuvés - prêt pour le démarrage des travaux"
+        elsif critical_permits.any? { |p| p[:status] == 'draft' }
+          recommendations << "Finaliser la préparation des permis non soumis"
+        end
+        
+        if needs_environmental_permits? && !project.permits.exists?(permit_type: 'environmental')
+          recommendations << "Lancer l'étude d'impact environnemental sans délai - délai long"
+        end
+        
+        recommendations
       end
     end
   end

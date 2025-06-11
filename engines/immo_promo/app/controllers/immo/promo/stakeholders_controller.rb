@@ -19,7 +19,7 @@ module Immo
           @stakeholders = @stakeholders.where(status: params[:status])
         end
         
-        @pagy, @stakeholders = pagy(@stakeholders)
+        @stakeholders = @stakeholders.page(params[:page]).per(15)
       end
 
       def show

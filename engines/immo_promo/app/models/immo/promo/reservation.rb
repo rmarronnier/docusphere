@@ -12,7 +12,6 @@ module Immo
       validate :expiry_after_reservation
 
       monetize :deposit_amount_cents, allow_nil: true
-      monetize :final_price_cents
 
       enum status: {
         pending: 'pending',
@@ -24,6 +23,9 @@ module Immo
 
       scope :active_reservations, -> { where(status: [ 'pending', 'active', 'confirmed' ]) }
       scope :expiring_soon, -> { where(expiry_date: Date.current..1.week.from_now) }
+      scope :expired_last_30_days, -> { where(expiry_date: 30.days.ago..Date.current, status: 'expired') }
+      scope :expiring_within, ->(period) { where(expiry_date: Date.current..period.from_now) }
+      scope :by_stage, -> { group(:status) }
 
       def is_expired?
         Date.current > expiry_date && !confirmed?
@@ -39,12 +41,17 @@ module Immo
       end
 
       def deposit_percentage
-        return 0 unless deposit_amount && final_price && final_price.cents > 0
-        (deposit_amount / final_price * 100).round(2)
+        return 0 unless deposit_amount && lot.price && lot.price.cents > 0
+        (deposit_amount / lot.price * 100).round(2)
       end
 
       def remaining_amount
-        final_price - (deposit_amount || Money.new(0))
+        return Money.new(0) unless lot.price
+        lot.price - (deposit_amount || Money.new(0))
+      end
+
+      def expired?
+        is_expired?
       end
 
       private

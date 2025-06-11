@@ -25,6 +25,7 @@ module Immo
       has_many :risks, class_name: 'Immo::Promo::Risk', dependent: :destroy
       has_many :milestones, through: :phases, class_name: 'Immo::Promo::Milestone'
       has_many :progress_reports, class_name: 'Immo::Promo::ProgressReport', dependent: :destroy
+      has_many :reservations, through: :lots, class_name: 'Immo::Promo::Reservation'
 
       has_many_attached :technical_documents
       has_many_attached :administrative_documents

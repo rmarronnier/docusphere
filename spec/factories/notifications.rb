@@ -112,6 +112,7 @@ FactoryBot.define do
   factory :search_query do
     user
     name { "recherche test" }
+    query { "test query" }
     query_params { {} }
     usage_count { 0 }
     is_favorite { false }

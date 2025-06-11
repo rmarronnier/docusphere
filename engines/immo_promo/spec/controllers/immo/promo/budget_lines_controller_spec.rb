@@ -58,7 +58,7 @@ module Immo
           let!(:studies_line) { create(:immo_promo_budget_line, budget: budget, category: 'studies') }
 
           it 'filters by category' do
-            get :index, params: { project_id: project.id, budget_id: budget.id, category: 'construction_work' }
+            get :index, params: { project_id: project.id, budget_id: budget.id, category: 'construction_work' }, format: :json
             expect(assigns(:budget_lines)).to include(construction_line)
             expect(assigns(:budget_lines)).not_to include(studies_line)
           end
