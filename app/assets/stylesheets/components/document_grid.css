@@ -1,0 +1,179 @@
+/* Document Grid Component Styles */
+
+/* Grid mode styles */
+.document-grid-container {
+  @apply w-full;
+}
+
+.document-grid {
+  /* Mobile first approach */
+  @apply grid gap-4;
+  
+  /* Default: 1 column on mobile */
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
+/* Tablet (md) */
+@media (min-width: 768px) {
+  .document-grid.grid-mode {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Desktop (lg) */
+@media (min-width: 1024px) {
+  .document-grid.grid-mode {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Wide desktop (xl) */
+@media (min-width: 1280px) {
+  .document-grid.grid-mode {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* Ultra-wide (2xl) */
+@media (min-width: 1536px) {
+  .document-grid.grid-mode {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+/* List mode styles */
+.document-grid.list-mode {
+  @apply block space-y-3;
+}
+
+/* Compact mode styles */
+.document-grid.compact-mode {
+  @apply block divide-y divide-gray-200;
+}
+
+/* Thumbnail container */
+.document-thumbnail {
+  @apply relative bg-gray-50 overflow-hidden;
+  
+  /* Maintain aspect ratio */
+  aspect-ratio: 16 / 9;
+}
+
+.document-thumbnail img {
+  @apply w-full h-full object-cover transition-transform duration-200;
+}
+
+.document-thumbnail:hover img {
+  @apply scale-105;
+}
+
+/* Loading state */
+.document-thumbnail.loading {
+  @apply animate-pulse;
+}
+
+.document-thumbnail.loading::after {
+  content: '';
+  @apply absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-20;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Error state */
+.document-thumbnail.error {
+  @apply bg-red-50;
+}
+
+/* Overlay elements positioning */
+.document-grid-item {
+  @apply relative;
+}
+
+/* Ensure checkbox is above thumbnail */
+.document-grid-item .selection-checkbox {
+  @apply relative z-10;
+}
+
+/* Status badge positioning */
+.document-grid-item .status-badge {
+  @apply relative z-10;
+}
+
+/* Quick actions positioning */
+.document-grid-item .quick-actions {
+  @apply relative z-20;
+}
+
+/* Responsive text truncation */
+.document-title {
+  @apply truncate;
+  
+  /* Allow 2 lines on larger screens */
+  @media (min-width: 768px) {
+    @apply line-clamp-2;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+/* Touch-friendly targets on mobile */
+@media (max-width: 767px) {
+  .document-grid-item a,
+  .document-grid-item button {
+    @apply min-h-[44px] min-w-[44px];
+  }
+  
+  /* Show actions on mobile without hover */
+  .document-grid-item .quick-actions {
+    @apply opacity-100;
+  }
+}
+
+/* High DPI screens optimization */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .document-thumbnail img {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .dark .document-thumbnail {
+    @apply bg-gray-800;
+  }
+  
+  .dark .document-grid.compact-mode {
+    @apply divide-gray-700;
+  }
+  
+  .dark .document-grid-item:hover {
+    @apply bg-gray-800;
+  }
+}
+
+/* Print styles */
+@media print {
+  .document-grid {
+    @apply grid-cols-3 gap-2;
+  }
+  
+  .document-grid-item .quick-actions,
+  .document-grid-item .selection-checkbox {
+    @apply hidden;
+  }
+  
+  .document-thumbnail {
+    @apply border border-gray-300;
+  }
+}

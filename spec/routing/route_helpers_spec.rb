@@ -24,8 +24,12 @@ RSpec.describe "Route Helpers Validation", type: :routing do
         next if ['root_path', 'root_url', 'rails_blob_path', 'rails_blob_url'].include?(helper)
         next if helper.match(/^rails_/)
         
+        # Ignorer les routes d'engine (qui sont préfixées par l'engine)
+        engine_routes = ['projects_path', 'project_path', 'project_phases_path']
+        next if engine_routes.include?(helper)
+        
         # Ignorer les méthodes de composants qui ne sont pas des routes
-        component_methods = ['icon_path', 'document_url', 'item_path', 'form_url', 'full_path']
+        component_methods = ['icon_path', 'document_url', 'item_path', 'form_url', 'full_path', 'thumbnail_url', 'preview_url']
         next if component_methods.include?(helper)
         
         # Ignorer les helpers Rails standards

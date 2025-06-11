@@ -71,7 +71,7 @@
             <% end %>
             <%= helpers.link_to "Télécharger", helpers.document_path(document, format: :pdf), class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
             <% if helpers.policy(document).share? %>
-              <%= helpers.link_to "Partager", helpers.new_ged_document_document_shares_path(document), class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
+              <%= helpers.link_to "Partager", helpers.new_ged_document_document_share_path(document), class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
             <% end %>
             <% if helpers.policy(document).destroy? %>
               <div class="border-t border-gray-100"></div>

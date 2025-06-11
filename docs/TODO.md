@@ -8,6 +8,16 @@
 > 3. Ajoutez la date de complétion dans DONE.md
 > 4. Gardez ce fichier focalisé sur les tâches EN COURS et À FAIRE
 
+## ✅ Récemment Complété
+
+### Route Helper Fixes (12/06/2025) ✅
+- ✅ Corrigé `new_ged_document_document_shares_path` → `new_ged_document_document_share_path` (singulier)
+- ✅ Corrigé appels de méthodes ViewComponent préfixés avec `helpers.`
+- ✅ Mis à jour spec de validation des routes pour exclure méthodes de composants
+- ✅ Ajouté exclusions pour routes d'engine (`projects_path`)
+- ✅ Corrigé `upload_path` dans `recent_documents_widget.rb`
+- ✅ Tous les tests de route helpers passent
+
 ## 🚧 EN COURS / À FAIRE
 
 ### 🚀 TRANSFORMATION GED MODERNE (11/06/2025 Soir 5 - EN COURS)
@@ -32,11 +42,14 @@
 - ✅ Tests d'intégration complète (24 + 13 tests)
 - ✅ Création icônes fallback SVG (7 icônes)
 
-#### 📌 Phase 3 : UI Components Modernisés (JOUR 5-7 - À FAIRE)
-- [ ] DocumentGridComponent avec vraies vignettes
-- [ ] Modal prévisualisation intelligente
-- [ ] DocumentCardComponent modernisé
-- [ ] Tests ViewComponent
+#### 📌 Phase 2 : UI Components Modernisés (JOUR 5 COMPLÉTÉ - 11/06/2025)
+- ✅ DocumentGridComponent avec vraies vignettes
+  - ✅ Méthodes thumbnail_url() et preview_url() implémentées
+  - ✅ Template avec images réelles et lazy loading
+  - ✅ Styles CSS responsive (mobile → ultra-wide)
+  - ✅ Tests refactorisés et 100% passants (32 tests)
+- [ ] Modal prévisualisation intelligente (JOUR 6)
+- [ ] DocumentCardComponent modernisé (JOUR 7)
 
 #### 📌 Phase 4 : Dashboard GED (JOUR 8-10 - À FAIRE)
 - [ ] Transformation page d'accueil en dashboard

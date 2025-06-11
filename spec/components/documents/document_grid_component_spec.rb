@@ -53,53 +53,42 @@ RSpec.describe Documents::DocumentGridComponent, type: :component do
     end
   end
 
-  describe "document icons" do
-    it "shows appropriate icon for PDF files" do
-      pdf_doc = create(:document)
-      allow(pdf_doc).to receive(:file_extension).and_return('.pdf')
+  describe "document thumbnails" do
+    it "shows thumbnail image for documents with files" do
+      pdf_doc = create(:document, :with_pdf_file)
       render_inline(described_class.new(documents: [pdf_doc]))
       
-      expect(page).to have_css(".text-red-500")
+      expect(page).to have_css("img[alt='#{pdf_doc.title}']")
     end
 
-    it "shows appropriate icon for Word documents" do
-      word_doc = create(:document)
-      allow(word_doc).to receive(:file_extension).and_return('.docx')
-      render_inline(described_class.new(documents: [word_doc]))
+    it "shows fallback icon for documents without files" do
+      doc_without_file = create(:document, :without_file)
+      render_inline(described_class.new(documents: [doc_without_file]))
       
-      expect(page).to have_css(".text-blue-500")
+      # Should show icon instead of image
+      expect(page).to have_selector("svg") # or have_css(".h-16.w-16")
     end
 
-    it "shows appropriate icon for Excel files" do
-      excel_doc = create(:document)
-      allow(excel_doc).to receive(:file_extension).and_return('.xlsx')
-      render_inline(described_class.new(documents: [excel_doc]))
-      
-      expect(page).to have_css(".text-green-500")
-    end
-
-    it "shows appropriate icon for PowerPoint files" do
-      ppt_doc = create(:document)
-      allow(ppt_doc).to receive(:file_extension).and_return('.pptx')
-      render_inline(described_class.new(documents: [ppt_doc]))
-      
-      expect(page).to have_css(".text-orange-500")
-    end
-
-    it "shows appropriate icon for image files" do
-      image_doc = create(:document)
-      allow(image_doc).to receive(:file_extension).and_return('.jpg')
+    it "includes lazy loading attribute on images" do
+      image_doc = create(:document, :with_image_file)
       render_inline(described_class.new(documents: [image_doc]))
       
-      expect(page).to have_css(".text-purple-500")
+      expect(page).to have_css("img[loading='lazy']")
     end
 
-    it "shows default icon for unknown file types" do
-      unknown_doc = create(:document)
-      allow(unknown_doc).to receive(:file_extension).and_return('.xyz')
-      render_inline(described_class.new(documents: [unknown_doc]))
+    it "includes error handler for broken images" do
+      doc = create(:document, :with_pdf_file)
+      render_inline(described_class.new(documents: [doc]))
       
-      expect(page).to have_css(".text-gray-400")
+      expect(page).to have_css("img[onerror]")
+    end
+
+    it "sets preview data attributes" do
+      doc = create(:document, :with_image_file)
+      render_inline(described_class.new(documents: [doc]))
+      
+      expect(page).to have_css("img[data-document-id='#{doc.id}']")
+      expect(page).to have_css("img[data-preview-url]")
     end
   end
 
@@ -135,23 +124,11 @@ RSpec.describe Documents::DocumentGridComponent, type: :component do
 
   describe "actions" do
     it "shows actions by default" do
-      # Create documents with file attachments
-      docs_with_files = documents.map do |doc|
-        file_double = double('file', 
-          attached?: true, 
-          filename: double('filename', to_s: "file.#{doc.document_type}"),
-          byte_size: doc.file_size
-        )
-        allow(doc).to receive(:file).and_return(file_double)
-        # Mock rails_blob_path
-        allow_any_instance_of(described_class).to receive(:rails_blob_path).and_return("#")
-        doc
-      end
+      # Use factory traits for proper file attachments
+      doc = create(:document, :with_pdf_file)
+      render_inline(described_class.new(documents: [doc]))
       
-      render_inline(described_class.new(documents: docs_with_files))
-      
-      # Look for download buttons (they are rendered as links with button styling)
-      expect(page).to have_css("a[aria-label='Download']", minimum: documents.count)
+      expect(page).to have_css("a[aria-label='Download']")
     end
 
     it "can hide actions" do
@@ -182,62 +159,27 @@ RSpec.describe Documents::DocumentGridComponent, type: :component do
     end
   end
 
-  describe "preview availability" do
-    it "indicates preview available for images" do
-      image_doc = create(:document, document_type: "jpg", file_size: 500.kilobytes)
-      blob_double = double('blob')
-      file_double = double('file', 
-        attached?: true, 
-        filename: double('filename', to_s: 'image.jpg'), 
-        blob: blob_double,
-        byte_size: 500.kilobytes
-      )
-      allow(image_doc).to receive(:file).and_return(file_double)
-      # Mock rails_blob_path
-      allow_any_instance_of(described_class).to receive(:rails_blob_path).and_return("#")
+  describe "preview functionality" do
+    it "renders thumbnail for documents with attached files" do
+      doc = create(:document, :with_image_file)
+      render_inline(described_class.new(documents: [doc]))
       
-      render_inline(described_class.new(documents: [image_doc]))
-      
-      # Preview availability is determined by icon opacity in the template
-      expect(page).to have_css(".opacity-20") # Preview available shows faded icon
+      expect(page).to have_css("img[src]")
     end
 
-    it "indicates preview available for PDFs" do
-      pdf_doc = create(:document, document_type: "pdf", file_size: 1.megabyte)
-      blob_double = double('blob')
-      file_double = double('file', 
-        attached?: true, 
-        filename: double('filename', to_s: 'document.pdf'), 
-        blob: blob_double,
-        byte_size: 1.megabyte
-      )
-      allow(pdf_doc).to receive(:file).and_return(file_double)
-      # Mock rails_blob_path
-      allow_any_instance_of(described_class).to receive(:rails_blob_path).and_return("#")
+    it "handles documents without attached files gracefully" do
+      doc = create(:document, :without_file)
+      render_inline(described_class.new(documents: [doc]))
       
-      render_inline(described_class.new(documents: [pdf_doc]))
-      
-      # Preview availability is determined by icon opacity in the template
-      expect(page).to have_css(".opacity-20") # Preview available shows faded icon
+      # Should not crash and should show a placeholder or icon
+      expect(page).to have_content(doc.title)
     end
 
-    it "indicates no preview for other file types" do
-      excel_doc = create(:document, document_type: "xlsx", file_size: 2.megabytes)
-      blob_double = double('blob')
-      file_double = double('file', 
-        attached?: true, 
-        filename: double('filename', to_s: 'spreadsheet.xlsx'), 
-        blob: blob_double,
-        byte_size: 2.megabytes
-      )
-      allow(excel_doc).to receive(:file).and_return(file_double)
-      # Mock rails_blob_path
-      allow_any_instance_of(described_class).to receive(:rails_blob_path).and_return("#")
+    it "applies hover effect on thumbnail container" do
+      doc = create(:document, :with_pdf_file)
+      render_inline(described_class.new(documents: [doc]))
       
-      render_inline(described_class.new(documents: [excel_doc]))
-      
-      # No preview available shows full opacity icon
-      expect(page).not_to have_css(".opacity-20")
+      expect(page).to have_css(".group-hover\\:bg-gray-100")
     end
   end
 

@@ -71,4 +71,63 @@ class Documents::DocumentGridComponent < ApplicationComponent
     extension = document.file_extension&.delete('.')&.downcase
     ['jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf'].include?(extension)
   end
+
+  def thumbnail_url(document)
+    return helpers.asset_path('document-placeholder.png') unless document.respond_to?(:file) && document.file&.attached?
+    
+    # Utiliser la vraie vignette si elle existe
+    if document.respond_to?(:has_thumbnail?) && document.has_thumbnail?
+      helpers.rails_blob_path(document.thumbnail)
+    elsif document.respond_to?(:preview) && document.preview&.attached?
+      # Fallback sur preview si pas de thumbnail
+      helpers.rails_blob_path(document.preview)
+    elsif document.respond_to?(:image?) && document.image?
+      # Pour les images, utiliser le fichier directement avec variant
+      helpers.rails_representation_path(document.file.variant(resize_to_limit: [200, 200]))
+    else
+      # Icône fallback selon le type de fichier
+      icon_path_for_document(document)
+    end
+  rescue => e
+    Rails.logger.error "Error generating thumbnail URL for document #{document.id}: #{e.message}" if Rails.env.development?
+    icon_path_for_document(document)
+  end
+
+  def icon_path_for_document(document)
+    extension = document.file_extension&.delete('.')&.downcase
+    icon_name = case extension
+                when 'pdf' then 'pdf-icon.svg'
+                when 'doc', 'docx' then 'word-icon.svg'
+                when 'xls', 'xlsx' then 'excel-icon.svg'
+                when 'ppt', 'pptx' then 'ppt-icon.svg'
+                when 'zip', 'rar', '7z' then 'zip-icon.svg'
+                when 'txt', 'md' then 'txt-icon.svg'
+                else 'generic-icon.svg'
+                end
+    
+    helpers.asset_path("file-icons/#{icon_name}")
+  end
+
+  def preview_url(document, variant = :medium)
+    return nil unless document.respond_to?(:file) && document.file&.attached?
+    
+    if document.respond_to?(:preview) && document.preview&.attached?
+      helpers.rails_blob_path(document.preview)
+    elsif document.respond_to?(:preview_medium) && document.preview_medium&.attached? && variant == :medium
+      helpers.rails_blob_path(document.preview_medium)
+    elsif document.respond_to?(:image?) && document.image?
+      dimensions = case variant
+                   when :thumbnail then [200, 200]
+                   when :medium then [800, 600]
+                   when :large then [1200, 900]
+                   else [800, 600]
+                   end
+      helpers.rails_representation_path(document.file.variant(resize_to_limit: dimensions))
+    else
+      nil
+    end
+  rescue => e
+    Rails.logger.error "Error generating preview URL for document #{document.id}: #{e.message}" if Rails.env.development?
+    nil
+  end
 end

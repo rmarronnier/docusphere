@@ -110,6 +110,6 @@ class Dashboard::RecentDocumentsWidget < ApplicationComponent
   end
   
   def upload_path
-    '/ged/upload'
+    helpers.ged_dashboard_path
   end
 end
