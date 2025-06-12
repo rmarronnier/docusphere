@@ -163,7 +163,7 @@ module Dashboard
     end
 
     def new_proposal_path(client)
-      helpers.new_ged_document_path(
+      helpers.ged_new_document_path(
         document_type: 'proposal',
         metadata: { client_id: client.id, client_name: client.name }
       )

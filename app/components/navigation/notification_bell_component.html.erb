@@ -141,7 +141,7 @@
   </div>
 
   <!-- Turbo Frame for real-time updates -->
-  <%= turbo_frame_tag "notification-updates-#{user.id}", 
+  <%= helpers.turbo_frame_tag "notification-updates-#{user.id}", 
       data: { 
         turbo_permanent: true,
         notification_bell_target: "turboFrame" 

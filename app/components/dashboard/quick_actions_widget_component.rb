@@ -16,17 +16,17 @@ class Dashboard::QuickActionsWidgetComponent < ViewComponent::Base
       {
         title: "Nouveau document",
         description: "Ajouter un fichier",
-        path: helpers.new_ged_document_path,
+        path: helpers.ged_new_document_path,
         icon: "document-add",
         color: "blue"
       },
-      {
-        title: "Nouveau dossier",
-        description: "Créer un dossier",
-        path: helpers.new_ged_folder_path,
-        icon: "folder-add",
-        color: "green"
-      },
+      # {
+      #   title: "Nouveau dossier",
+      #   description: "Créer un dossier",
+      #   path: helpers.new_ged_folder_path,
+      #   icon: "folder-add",
+      #   color: "green"
+      # },
       {
         title: "Recherche avancée",
         description: "Recherche détaillée",

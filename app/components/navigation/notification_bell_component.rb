@@ -55,13 +55,16 @@ module Navigation
     end
 
     def notification_color(notification)
+      # Utiliser la priorité pour déterminer la couleur
       case notification.priority
-      when 'urgent', 'high'
+      when 'urgent'
         'red'
-      when 'normal', 'medium'
-        'yellow'
+      when 'high'
+        'orange'
+      when 'normal'
+        'blue'
       when 'low'
-        'green'
+        'gray'
       else
         'gray'
       end
@@ -158,7 +161,7 @@ module Navigation
 
     def badge_pulse?
       # Pulse animation for urgent unread notifications
-      user.notifications.unread.where(priority: 'urgent').exists?
+      user.notifications.unread.where(priority: ['urgent', 'high']).exists?
     end
 
     def empty_state_message

@@ -71,39 +71,39 @@ class Navigation::NavbarComponent < ApplicationComponent
     case current_user.active_profile.profile_type
     when 'direction'
       [
-        { name: 'Validations', path: validations_path, icon: 'check-circle', badge: pending_validations_count, badge_color: 'red' },
-        { name: 'Conformité', path: compliance_dashboard_path, icon: 'shield-check' },
-        { name: 'Rapports', path: reports_path, icon: 'chart-bar' }
+        { name: 'Validations', path: helpers.validations_path, icon: 'check-circle', badge: pending_validations_count, badge_color: 'red' },
+        { name: 'Conformité', path: helpers.compliance_dashboard_path, icon: 'shield-check' }
+        # { name: 'Rapports', path: reports_path, icon: 'chart-bar' } # Route doesn't exist yet
       ]
     when 'chef_projet'
       [
-        { name: 'Mes projets', path: immo_promo_engine.projects_path, icon: 'briefcase', badge: active_projects_count, badge_color: 'blue' },
-        { name: 'Planning', path: planning_path, icon: 'calendar' },
-        { name: 'Ressources', path: resources_path, icon: 'users' }
+        { name: 'Mes projets', path: helpers.immo_promo_engine.projects_path, icon: 'briefcase', badge: active_projects_count, badge_color: 'blue' }
+        # { name: 'Planning', path: planning_path, icon: 'calendar' }, # Route doesn't exist yet
+        # { name: 'Ressources', path: resources_path, icon: 'users' } # Route doesn't exist yet
       ]
     when 'commercial'
       [
-        { name: 'Clients', path: clients_path, icon: 'user-group', badge: new_leads_count, badge_color: 'green' },
-        { name: 'Propositions', path: proposals_path, icon: 'document-text' },
-        { name: 'Contrats', path: contracts_path, icon: 'document-duplicate' }
+        # { name: 'Clients', path: clients_path, icon: 'user-group', badge: new_leads_count, badge_color: 'green' }, # Route doesn't exist yet
+        { name: 'Propositions', path: helpers.proposals_path, icon: 'document-text' }
+        # { name: 'Contrats', path: contracts_path, icon: 'document-duplicate' } # Route doesn't exist yet
       ]
     when 'juridique'
       [
-        { name: 'Contrats', path: legal_contracts_path, icon: 'clipboard-check' },
-        { name: 'Conformité', path: compliance_dashboard_path, icon: 'shield-exclamation', badge: compliance_alerts_count, badge_color: 'orange' },
-        { name: 'Échéances', path: legal_deadlines_path, icon: 'clock' }
+        # { name: 'Contrats', path: legal_contracts_path, icon: 'clipboard-check' }, # Route doesn't exist yet
+        { name: 'Conformité', path: helpers.compliance_dashboard_path, icon: 'shield-exclamation', badge: compliance_alerts_count, badge_color: 'orange' }
+        # { name: 'Échéances', path: legal_deadlines_path, icon: 'clock' } # Route doesn't exist yet
       ]
     when 'finance'
       [
-        { name: 'Factures', path: invoices_path, icon: 'currency-euro', badge: pending_invoices_count, badge_color: 'yellow' },
-        { name: 'Budget', path: budget_dashboard_path, icon: 'calculator' },
-        { name: 'Notes de frais', path: expense_reports_path, icon: 'receipt-tax' }
+        # { name: 'Factures', path: invoices_path, icon: 'currency-euro', badge: pending_invoices_count, badge_color: 'yellow' }, # Route doesn't exist yet
+        # { name: 'Budget', path: budget_dashboard_path, icon: 'calculator' }, # Route doesn't exist yet
+        # { name: 'Notes de frais', path: expense_reports_path, icon: 'receipt-tax' } # Route doesn't exist yet
       ]
     when 'technique'
       [
-        { name: 'Spécifications', path: specifications_path, icon: 'document-text' },
-        { name: 'Documentation', path: technical_docs_path, icon: 'book-open' },
-        { name: 'Support', path: support_tickets_path, icon: 'support', badge: open_tickets_count, badge_color: 'red' }
+        # { name: 'Spécifications', path: specifications_path, icon: 'document-text' }, # Route doesn't exist yet
+        # { name: 'Documentation', path: technical_docs_path, icon: 'book-open' }, # Route doesn't exist yet
+        # { name: 'Support', path: support_tickets_path, icon: 'support', badge: open_tickets_count, badge_color: 'red' } # Route doesn't exist yet
       ]
     else
       []
@@ -154,8 +154,7 @@ class Navigation::NavbarComponent < ApplicationComponent
   def active_projects_count
     return 0 unless defined?(Immo::Promo::Project)
     @active_projects_count ||= Immo::Promo::Project
-      .joins(:project_stakeholders)
-      .where(immo_promo_project_stakeholders: { stakeholder_id: current_user.id })
+      .where(project_manager_id: current_user.id)
       .where(status: 'in_progress')
       .count
   end
@@ -216,7 +215,7 @@ class Navigation::NavbarComponent < ApplicationComponent
       items = []
       
       # Recent documents
-      recent_docs = current_user.accessible_documents
+      recent_docs = current_user.documents
         .includes(:space)
         .order(updated_at: :desc)
         .limit(3)
@@ -224,7 +223,7 @@ class Navigation::NavbarComponent < ApplicationComponent
       items += recent_docs.map do |doc|
         {
           type: 'document',
-          name: doc.name,
+          name: doc.title,
           path: helpers.ged_document_path(doc),
           icon: document_icon(doc),
           time: doc.updated_at

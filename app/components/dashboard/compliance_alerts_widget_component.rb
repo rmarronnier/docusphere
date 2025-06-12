@@ -132,7 +132,7 @@ module Dashboard
       # Assemblées et décisions importantes
       deadlines += corporate_deadlines
 
-      deadlines.sort_by(&:date).first(5)
+      deadlines.sort_by { |d| d[:date] }.first(5)
     end
 
     def gdpr_compliance_deadlines

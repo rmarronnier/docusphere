@@ -1,6 +1,24 @@
 # This file should contain all the record creation needed to seed the database with its default values.
 # The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
 
+# Option pour utiliser le nouveau système de seeds avancé
+if ENV['USE_ADVANCED_SEED'] == 'true'
+  puts "🚀 Utilisation du système de seeds avancé..."
+  
+  options = {
+    users_count: ENV['USERS_COUNT']&.to_i || 50,
+    documents_per_user: ENV['DOCS_PER_USER']&.to_i || 20,
+    projects_count: ENV['PROJECTS_COUNT']&.to_i || 10,
+    enable_workflows: ENV['ENABLE_WORKFLOWS'] != 'false',
+    enable_notifications: ENV['ENABLE_NOTIFICATIONS'] != 'false',
+    enable_file_download: ENV['DOWNLOAD_FILES'] != 'false'
+  }
+  
+  generator = AdvancedSeedGenerator.new(options)
+  generator.generate!
+  exit
+end
+
 # Allow running specific seed files
 if ENV['SEED_TYPE'] == 'essential'
   require_relative 'seeds/essential'

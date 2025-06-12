@@ -167,7 +167,7 @@ module Dashboard
     end
 
     def upload_document_path(project)
-      helpers.new_ged_document_path(
+      helpers.ged_new_document_path(
         documentable_type: 'Immo::Promo::Project',
         documentable_id: project.id
       )

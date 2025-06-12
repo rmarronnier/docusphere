@@ -3,7 +3,8 @@ class VirusScanJob < ApplicationJob
   
   retry_on StandardError, wait: 5.seconds, attempts: 3
   
-  def perform(document)
+  def perform(document_id)
+    document = Document.find(document_id)
     return unless document.file.attached?
     return if document.virus_scan_status.present?
     

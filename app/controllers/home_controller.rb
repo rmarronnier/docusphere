@@ -17,9 +17,9 @@ class HomeController < ApplicationController
   
   def load_pending_documents
     # Documents nécessitant une action de l'utilisateur
-    scope = Document.joins(:validation_requests)
-                   .where(validation_requests: { assigned_to: current_user, status: 'pending' })
-                   .includes(:uploaded_by, :space, file_attachment: :blob)
+    validation_docs = Document.joins(validation_requests: :document_validations)
+                             .where(document_validations: { validator_id: current_user.id, status: 'pending' })
+                             .includes(:uploaded_by, :space, file_attachment: :blob)
     
     # Ajouter les documents draft de l'utilisateur
     draft_docs = Document.where(status: 'draft', uploaded_by: current_user)
@@ -30,7 +30,10 @@ class HomeController < ApplicationController
                          .includes(:uploaded_by, :space, file_attachment: :blob)
     
     # Combiner et limiter
-    (scope.or(draft_docs).or(locked_docs)).distinct.limit(10)
+    Document.where(id: validation_docs.pluck(:id) + draft_docs.pluck(:id) + locked_docs.pluck(:id))
+            .includes(:uploaded_by, :space, file_attachment: :blob)
+            .distinct
+            .limit(10)
   end
   
   def load_recent_activities
@@ -70,9 +73,9 @@ class HomeController < ApplicationController
   
   def load_dashboard_statistics
     {
-      total_documents: current_user.accessible_documents.count,
-      pending_validations: current_user.validation_requests.pending.count,
-      shared_documents: current_user.shared_documents.count,
+      total_documents: current_user.documents.count,
+      pending_validations: current_user.document_validations.where(status: 'pending').count,
+      shared_documents: Document.joins(:document_shares).where(document_shares: { shared_with_id: current_user.id }).count,
       storage_used: calculate_storage_used(current_user)
     }
   end

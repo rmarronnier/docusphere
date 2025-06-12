@@ -10,6 +10,14 @@
 
 ## ✅ Récemment Complété
 
+### Tests Système Phase 1 - Upload Documents (12/12/2025) ✅
+- ✅ **document_upload_spec.rb:14** - Premier test upload fonctionnel
+- ✅ Infrastructure backend complète (VirusScanService, EmailUploadJob)
+- ✅ Interface utilisateur avec modale et JavaScript
+- ✅ Gestion des tags avec Taggable concern
+- ✅ Formulaire HTML avec validation et soumission
+- ✅ Tests unitaires pour tous les nouveaux services/jobs
+
 ### Route Helper Fixes (12/06/2025) ✅
 - ✅ Corrigé `new_ged_document_document_shares_path` → `new_ged_document_document_share_path` (singulier)
 - ✅ Corrigé appels de méthodes ViewComponent préfixés avec `helpers.`
@@ -19,6 +27,42 @@
 - ✅ Tous les tests de route helpers passent
 
 ## 🚧 EN COURS / À FAIRE
+
+### 🚀 Routes Métier Manquantes (NEW - 12/06/2025)
+Les routes suivantes ont été identifiées dans NavbarComponent mais n'existent pas encore. Elles représentent des fonctionnalités métier importantes :
+
+#### Pour le profil Direction
+- [ ] `reports_path` - Génération et consultation de rapports d'activité
+
+#### Pour le profil Chef de Projet  
+- [ ] `planning_path` - Gestion du planning et calendrier des projets
+- [ ] `resources_path` - Gestion des ressources humaines et matérielles
+
+#### Pour le profil Commercial
+- [ ] `clients_path` - Gestion de la base clients et prospects
+- [ ] `contracts_path` - Gestion des contrats commerciaux
+
+#### Pour le profil Juridique
+- [ ] `legal_contracts_path` - Gestion spécifique des contrats juridiques
+- [ ] `legal_deadlines_path` - Suivi des échéances légales et réglementaires
+
+#### Pour le profil Finance
+- [ ] `invoices_path` - Gestion des factures
+- [ ] `budget_dashboard_path` - Tableau de bord budgétaire
+- [ ] `expense_reports_path` - Gestion des notes de frais
+
+#### Pour le profil Technique
+- [ ] `specifications_path` - Gestion des spécifications techniques
+- [ ] `technical_docs_path` - Documentation technique
+- [ ] `support_tickets_path` - Système de tickets de support
+
+**Justification Business** :
+- **Direction** : Besoin de rapports consolidés pour la prise de décision
+- **Chef de Projet** : Gestion opérationnelle des projets (planning, ressources)
+- **Commercial** : Suivi de la relation client et du pipeline commercial
+- **Juridique** : Conformité réglementaire et gestion des risques juridiques
+- **Finance** : Contrôle budgétaire et gestion financière
+- **Technique** : Support et documentation pour les équipes techniques
 
 ### 🚀 TRANSFORMATION GED MODERNE (11/06/2025 Soir 5 - EN COURS)
 

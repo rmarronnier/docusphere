@@ -159,7 +159,7 @@ class GedController < ApplicationController
   end
 
   def document_params
-    params.require(:document).permit(:title, :description, :file, :document_type, :tags)
+    params.require(:document).permit(:title, :description, :file, :document_type, :tags, :category, :space_id, :folder_id)
   end
 
   def serialize_documents(documents)

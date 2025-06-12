@@ -16,7 +16,7 @@ FactoryBot.define do
 
     trait :with_documents do
       after(:create) do |folder|
-        create_list(:document, 5, folder: folder, space: folder.space)
+        create_list(:document, 5, parent: folder, organization: folder.space.organization)
       end
     end
   end

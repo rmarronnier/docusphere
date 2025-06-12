@@ -51,7 +51,7 @@
                           <% if activity.thumbnail_url.present? %>
                             <%= image_tag activity.thumbnail_url,
                                           class: "h-10 w-10 rounded object-cover",
-                                          alt: activity.name %>
+                                          alt: activity.title %>
                           <% else %>
                             <div class="h-10 w-10 rounded bg-gray-100 flex items-center justify-center">
                               <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -62,7 +62,7 @@
                         </div>
                         <div class="ml-3">
                           <p class="text-sm font-medium text-gray-900 group-hover:text-blue-600">
-                            <%= activity.name %>
+                            <%= activity.title %>
                           </p>
                           <p class="text-xs text-gray-500">
                             <%= document_type_label(activity) %> • <%= format_file_size(activity.file.byte_size) if activity.file.attached? %>

@@ -4,6 +4,9 @@ class Notification < ApplicationRecord
   
   validates :notification_type, presence: true
   validates :title, presence: true
+  validates :priority, inclusion: { in: %w[low normal high urgent] }, allow_nil: true
+  
+  before_validation :set_default_priority
   
   enum notification_type: {
     # Document notifications
@@ -66,7 +69,7 @@ class Notification < ApplicationRecord
   scope :by_type, ->(type) { where(notification_type: type) }
   scope :for_user, ->(user) { where(user: user) }
   scope :by_category, ->(category) { category.present? ? where(notification_type: notification_types_by_category(category)) : all }
-  scope :urgent, -> { where(notification_type: urgent_types) }
+  scope :urgent, -> { where(priority: 'urgent').or(where(notification_type: urgent_types)) }
   scope :today, -> { where('created_at >= ?', Time.current.beginning_of_day) }
   scope :this_week, -> { where('created_at >= ?', Time.current.beginning_of_week) }
   
@@ -83,7 +86,7 @@ class Notification < ApplicationRecord
   end
 
   def urgent?
-    self.class.urgent_types.include?(notification_type)
+    priority == 'urgent' || self.class.urgent_types.include?(notification_type)
   end
 
   def category
@@ -237,6 +240,22 @@ class Notification < ApplicationRecord
       data
     else
       {}
+    end
+  end
+  
+  private
+  
+  def set_default_priority
+    return if priority.present?
+    
+    self.priority = if self.class.urgent_types.include?(notification_type)
+      'urgent'
+    elsif %w[document_validation_requested task_assigned stakeholder_assigned].include?(notification_type)
+      'high'
+    elsif %w[document_shared document_version_created].include?(notification_type)
+      'normal'
+    else
+      'normal'
     end
   end
 end

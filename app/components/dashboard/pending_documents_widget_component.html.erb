@@ -23,7 +23,7 @@
                   <% if document.thumbnail_url.present? %>
                     <%= image_tag document.thumbnail_url,
                                   class: "h-12 w-12 rounded object-cover",
-                                  alt: document.name %>
+                                  alt: document.title %>
                   <% else %>
                     <div class="h-12 w-12 rounded bg-gray-200 flex items-center justify-center">
                       <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -38,7 +38,7 @@
                   <div class="flex items-center justify-between">
                     <div>
                       <p class="text-sm font-medium text-gray-900 truncate">
-                        <%= document.name %>
+                        <%= document.title %>
                       </p>
                       <div class="flex items-center mt-1 space-x-2">
                         <span class="<%= document_status_color(document) %> inline-flex items-center px-2 py-0.5 rounded text-xs font-medium">
@@ -105,7 +105,7 @@
         <h3 class="mt-2 text-sm font-medium text-gray-900">Aucun document en attente</h3>
         <p class="mt-1 text-sm text-gray-500">Tous vos documents sont à jour.</p>
         <div class="mt-6">
-          <%= link_to helpers.new_ged_document_path,
+          <%= link_to helpers.ged_new_document_path,
                       class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700" do %>
             <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>

@@ -57,6 +57,41 @@ RSpec.describe HomeController, type: :controller do
         expect(stats[:storage_used]).to be_present
       end
       
+      it 'successfully renders without errors' do
+        # Ce test aurait détecté l'erreur NoMethodError
+        expect { get :index }.not_to raise_error
+        expect(response).to have_http_status(:success)
+      end
+      
+      it 'loads all dashboard data without errors' do
+        # Test complet qui vérifie que toutes les méthodes existent
+        create(:document, uploaded_by: user, status: 'draft')
+        create(:document_validation, validator: user, status: 'pending')
+        create(:document_share, shared_with: user)
+        
+        get :index
+        
+        expect(response).to have_http_status(:success)
+        expect(assigns(:pending_documents)).not_to be_nil
+        expect(assigns(:recent_activities)).not_to be_nil
+        expect(assigns(:statistics)).to include(
+          :total_documents,
+          :pending_validations,
+          :shared_documents,
+          :storage_used
+        )
+      end
+      
+      it 'handles users without any documents gracefully' do
+        # S'assure que le dashboard fonctionne même sans données
+        get :index
+        
+        expect(response).to have_http_status(:success)
+        expect(assigns(:statistics)[:total_documents]).to eq(0)
+        expect(assigns(:statistics)[:pending_validations]).to eq(0)
+        expect(assigns(:statistics)[:shared_documents]).to eq(0)
+      end
+      
       it 'loads widgets based on user profile' do
         get :index
         

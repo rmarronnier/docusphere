@@ -23,8 +23,8 @@
         <div class="text-xs text-gray-500">En attente</div>
       </div>
       <div>
-        <div class="text-2xl font-bold text-red-600"><%= stats[:high_priority] %></div>
-        <div class="text-xs text-gray-500">Priorité haute</div>
+        <div class="text-2xl font-bold text-red-600"><%= stats[:urgent] %></div>
+        <div class="text-xs text-gray-500">Urgentes</div>
       </div>
       <div>
         <div class="text-2xl font-bold text-orange-600"><%= stats[:overdue] %></div>
@@ -54,8 +54,8 @@
                 
                 <div class="flex-1">
                   <h4 class="text-sm font-medium text-gray-900">
-                    <%= link_to request.validatable.name, 
-                        validation_path(request),
+                    <%= link_to validatable_name(request.validatable), 
+                        helpers.validation_path(request),
                         class: "hover:text-indigo-600 transition-colors" %>
                   </h4>
                   
@@ -75,9 +75,9 @@
                     </span>
                   </div>
                   
-                  <% if request.message.present? %>
+                  <% if request.description.present? %>
                     <p class="mt-1 text-xs text-gray-600 line-clamp-2">
-                      <%= request.message %>
+                      <%= request.description %>
                     </p>
                   <% end %>
                 </div>
@@ -86,15 +86,17 @@
 
             <!-- Actions et badges -->
             <div class="flex items-center gap-2 ml-4">
-              <!-- Priority badge -->
-              <span class="<%= priority_color(request.priority) %> px-2 py-1 text-xs font-medium rounded-full">
-                <%= request.priority.upcase %>
+              <!-- Status badge -->
+              <span class="<%= status_color(request.status) %> px-2 py-1 text-xs font-medium rounded-full">
+                <%= request.status.humanize %>
               </span>
               
-              <!-- Type badge -->
-              <span class="bg-gray-100 text-gray-700 px-2 py-1 text-xs font-medium rounded-full">
-                <%= validation_type_label(request.validation_type) %>
-              </span>
+              <!-- Due date badge if present -->
+              <% if request.due_date.present? %>
+                <span class="bg-gray-100 text-gray-700 px-2 py-1 text-xs font-medium rounded-full">
+                  <%= due_date_label(request.due_date) %>
+                </span>
+              <% end %>
 
               <!-- Actions dropdown -->
               <div class="relative" data-controller="dropdown">

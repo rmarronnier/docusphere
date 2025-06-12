@@ -13,32 +13,72 @@ module Dashboard
 
     private
 
-    attr_reader :user, :max_items, :validation_requests, :stats
+    attr_reader :user, :max_items
+    
+    def validatable_name(validatable)
+      case validatable
+      when Document
+        validatable.title
+      when Immo::Promo::Project
+        validatable.name
+      else
+        "#{validatable.class.name} ##{validatable.id}"
+      end
+    end
+    
+    def status_color(status)
+      case status
+      when 'pending' then 'bg-yellow-100 text-yellow-800'
+      when 'approved' then 'bg-green-100 text-green-800'
+      when 'rejected' then 'bg-red-100 text-red-800'
+      else 'bg-gray-100 text-gray-800'
+      end
+    end
+    
+    def due_date_label(due_date)
+      if due_date < Time.current
+        "En retard"
+      elsif due_date < 1.day.from_now
+        "Urgent"
+      else
+        "Échéance #{due_date.strftime('%d/%m')}"
+      end
+    end
+    
+    attr_reader :validation_requests, :stats
 
     def load_validation_requests
       # Documents en attente de validation pour la direction
       base_scope = ValidationRequest
         .includes(:validatable, :requester)
         .where(status: 'pending')
-        .order(priority: :desc, created_at: :asc)
+        .order(created_at: :asc)
 
-      # Direction peut voir toutes les validations ou celles qui lui sont assignées
+      # Direction peut voir toutes les validations
       if user.active_profile&.profile_type == 'direction'
-        base_scope.where(
-          'assigned_to_id = ? OR priority = ?',
-          user.id,
-          'high'
-        )
+        # Les utilisateurs direction voient toutes les validations en attente
+        # ou celles où ils sont validateurs via document_validations
+        base_scope
+          .left_joins(:document_validations)
+          .where(
+            'document_validations.validator_id = ? OR validation_requests.id IS NOT NULL',
+            user.id
+          )
+          .distinct
       else
-        base_scope.where(assigned_to: user)
+        # Les autres utilisateurs voient seulement leurs validations assignées
+        base_scope
+          .joins(:document_validations)
+          .where(document_validations: { validator_id: user.id })
+          .distinct
       end.limit(max_items)
     end
 
     def calculate_stats
       {
         total_pending: validation_requests.count,
-        high_priority: validation_requests.where(priority: 'high').count,
-        overdue: validation_requests.select(&:overdue?).count,
+        urgent: validation_requests.select { |vr| vr.due_date && vr.due_date < 1.day.from_now }.count,
+        overdue: validation_requests.select { |vr| vr.due_date && vr.due_date < Time.current }.count,
         average_age: calculate_average_age
       }
     end

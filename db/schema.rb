@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_06_11_185550) do
+ActiveRecord::Schema[7.1].define(version: 2025_06_12_082520) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -766,10 +766,13 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_11_185550) do
     t.bigint "notifiable_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "priority", default: "normal"
     t.index ["notifiable_type", "notifiable_id"], name: "index_notifications_on_notifiable"
     t.index ["notification_type", "created_at"], name: "index_notifications_on_notification_type_and_created_at"
     t.index ["notification_type"], name: "index_notifications_on_notification_type"
+    t.index ["priority"], name: "index_notifications_on_priority"
     t.index ["read_at"], name: "index_notifications_on_read_at"
+    t.index ["user_id", "read_at", "priority"], name: "index_notifications_on_user_id_and_read_at_and_priority"
     t.index ["user_id", "read_at"], name: "index_notifications_on_user_id_and_read_at"
     t.index ["user_id"], name: "index_notifications_on_user_id"
   end
@@ -1055,10 +1058,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_11_185550) do
     t.datetime "completed_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "completed_by_id"
     t.index ["assigned_to_group_id"], name: "index_workflow_steps_on_assigned_to_group_id"
     t.index ["assigned_to_id"], name: "index_workflow_steps_on_assigned_to_id"
-    t.index ["completed_by_id"], name: "index_workflow_steps_on_completed_by_id"
     t.index ["priority"], name: "index_workflow_steps_on_priority"
     t.index ["status"], name: "index_workflow_steps_on_status"
     t.index ["step_type"], name: "index_workflow_steps_on_step_type"
@@ -1196,7 +1197,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_11_185550) do
   add_foreign_key "versions", "users", column: "created_by_id"
   add_foreign_key "workflow_steps", "user_groups", column: "assigned_to_group_id"
   add_foreign_key "workflow_steps", "users", column: "assigned_to_id"
-  add_foreign_key "workflow_steps", "users", column: "completed_by_id"
   add_foreign_key "workflow_steps", "workflows"
   add_foreign_key "workflow_submissions", "users", column: "decided_by_id"
   add_foreign_key "workflow_submissions", "users", column: "submitted_by_id"
