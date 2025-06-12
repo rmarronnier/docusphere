@@ -3,13 +3,14 @@ require 'rails_helper'
 RSpec.describe 'Document Search and Discovery Actions', type: :system do
   let(:organization) { create(:organization) }
   let(:user) { create(:user, organization: organization) }
+  let(:space) { create(:space, organization: organization) }
   let!(:documents) do
     [
-      create(:document, title: 'Contrat de location 2025.pdf', content: 'contrat bail commercial', parent: create(:folder), tags: ['contrat', 'immobilier']),
-      create(:document, title: 'Rapport financier Q4.xlsx', content: 'bilan comptable résultats', parent: create(:folder), tags: ['finance', 'rapport']),
-      create(:document, title: 'Plan architectural.dwg', content: 'plans étage bureaux', parent: create(:folder), tags: ['technique', 'plan']),
-      create(:document, title: 'Présentation projet.pptx', content: 'roadmap planning stratégie', parent: create(:folder), tags: ['présentation', 'projet']),
-      create(:document, title: 'Facture ACME-2025-001.pdf', content: 'facture services prestation', parent: create(:folder), tags: ['facture', 'comptabilité'])
+      create(:document, title: 'Contrat de location 2025.pdf', content: 'contrat bail commercial', folder: create(:folder, space: space), space: space, uploaded_by: user),
+      create(:document, title: 'Rapport financier Q4.xlsx', content: 'bilan comptable résultats', folder: create(:folder, space: space), space: space, uploaded_by: user),
+      create(:document, title: 'Plan architectural.dwg', content: 'plans étage bureaux', folder: create(:folder, space: space), space: space, uploaded_by: user),
+      create(:document, title: 'Présentation projet.pptx', content: 'roadmap planning stratégie', folder: create(:folder, space: space), space: space, uploaded_by: user),
+      create(:document, title: 'Facture ACME-2025-001.pdf', content: 'facture services prestation', folder: create(:folder, space: space), space: space, uploaded_by: user)
     ]
   end
   

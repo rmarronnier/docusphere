@@ -2217,6 +2217,23 @@ example_id                                                                      
 ./spec/components/documents/ai_insights_component_spec.rb[1:7:4]                                                    | passed  | 0.2166 seconds       |
 ./spec/components/documents/ai_insights_component_spec.rb[1:8:1:1]                                                  | passed  | 0.19239 seconds      |
 ./spec/components/documents/ai_insights_component_spec.rb[1:8:2:1]                                                  | passed  | 0.19227 seconds      |
+./spec/components/documents/document_actions_dropdown_component_spec.rb[1:1:1:1]                                    | unknown |                      |
+./spec/components/documents/document_actions_dropdown_component_spec.rb[1:1:1:2]                                    | unknown |                      |
+./spec/components/documents/document_actions_dropdown_component_spec.rb[1:1:1:3]                                    | unknown |                      |
+./spec/components/documents/document_actions_dropdown_component_spec.rb[1:1:2:1]                                    | unknown |                      |
+./spec/components/documents/document_actions_dropdown_component_spec.rb[1:1:2:2]                                    | unknown |                      |
+./spec/components/documents/document_actions_dropdown_component_spec.rb[1:1:2:3]                                    | unknown |                      |
+./spec/components/documents/document_actions_dropdown_component_spec.rb[1:1:3:1:1]                                  | unknown |                      |
+./spec/components/documents/document_actions_dropdown_component_spec.rb[1:1:3:2:1]                                  | unknown |                      |
+./spec/components/documents/document_actions_dropdown_component_spec.rb[1:1:4:1]                                    | unknown |                      |
+./spec/components/documents/document_actions_dropdown_component_spec.rb[1:1:5:1]                                    | unknown |                      |
+./spec/components/documents/document_actions_dropdown_component_spec.rb[1:1:6:1]                                    | unknown |                      |
+./spec/components/documents/document_actions_dropdown_component_spec.rb[1:1:6:2]                                    | unknown |                      |
+./spec/components/documents/document_actions_dropdown_component_spec.rb[1:1:7:1]                                    | unknown |                      |
+./spec/components/documents/document_actions_dropdown_component_spec.rb[1:1:8:1]                                    | unknown |                      |
+./spec/components/documents/document_actions_dropdown_component_spec.rb[1:1:8:2]                                    | unknown |                      |
+./spec/components/documents/document_actions_dropdown_component_spec.rb[1:1:9:1]                                    | unknown |                      |
+./spec/components/documents/document_actions_dropdown_component_spec.rb[1:1:9:2]                                    | unknown |                      |
 ./spec/components/documents/document_card_component_spec.rb[1:1:1]                                                  | failed  | 0.18394 seconds      |
 ./spec/components/documents/document_card_component_spec.rb[1:1:2]                                                  | failed  | 0.17628 seconds      |
 ./spec/components/documents/document_card_component_spec.rb[1:2:1]                                                  | failed  | 0.32523 seconds      |
@@ -2309,6 +2326,30 @@ example_id                                                                      
 ./spec/components/documents/document_preview_modal_component_spec.rb[1:8:4]                                         | failed  | 0.17982 seconds      |
 ./spec/components/documents/document_preview_modal_component_spec.rb[1:9:1]                                         | failed  | 0.17738 seconds      |
 ./spec/components/documents/document_preview_modal_component_spec.rb[1:9:2]                                         | failed  | 0.17876 seconds      |
+./spec/components/documents/document_share_modal_component_spec.rb[1:1:1]                                           | unknown |                      |
+./spec/components/documents/document_share_modal_component_spec.rb[1:1:2]                                           | unknown |                      |
+./spec/components/documents/document_share_modal_component_spec.rb[1:1:3]                                           | unknown |                      |
+./spec/components/documents/document_share_modal_component_spec.rb[1:2:1:1]                                         | unknown |                      |
+./spec/components/documents/document_share_modal_component_spec.rb[1:2:2:1]                                         | unknown |                      |
+./spec/components/documents/document_share_modal_component_spec.rb[1:2:3:1]                                         | unknown |                      |
+./spec/components/documents/document_share_modal_component_spec.rb[1:3:1]                                           | unknown |                      |
+./spec/components/documents/document_share_modal_component_spec.rb[1:3:2]                                           | unknown |                      |
+./spec/components/documents/document_share_modal_component_spec.rb[1:3:3]                                           | unknown |                      |
+./spec/components/documents/document_share_modal_component_spec.rb[1:3:4]                                           | unknown |                      |
+./spec/components/documents/document_share_modal_component_spec.rb[1:3:5:1]                                         | unknown |                      |
+./spec/components/documents/document_share_modal_component_spec.rb[1:3:5:2]                                         | unknown |                      |
+./spec/components/documents/document_share_modal_component_spec.rb[1:3:5:3]                                         | unknown |                      |
+./spec/components/documents/document_share_modal_component_spec.rb[1:3:5:4]                                         | unknown |                      |
+./spec/components/documents/document_share_modal_component_spec.rb[1:3:6:1]                                         | unknown |                      |
+./spec/components/documents/document_share_modal_component_spec.rb[1:3:6:2]                                         | unknown |                      |
+./spec/components/documents/document_share_modal_component_spec.rb[1:3:7:1]                                         | unknown |                      |
+./spec/components/documents/document_share_modal_component_spec.rb[1:3:7:2]                                         | unknown |                      |
+./spec/components/documents/document_share_modal_component_spec.rb[1:3:8]                                           | unknown |                      |
+./spec/components/documents/document_share_modal_component_spec.rb[1:3:9]                                           | unknown |                      |
+./spec/components/documents/document_share_modal_component_spec.rb[1:3:10]                                          | unknown |                      |
+./spec/components/documents/document_share_modal_component_spec.rb[1:3:11]                                          | unknown |                      |
+./spec/components/documents/document_share_modal_component_spec.rb[1:4:1]                                           | unknown |                      |
+./spec/components/documents/document_share_modal_component_spec.rb[1:5:1]                                           | unknown |                      |
 ./spec/components/documents/document_viewer_component_spec.rb[1:1:1]                                                | passed  | 0.21842 seconds      |
 ./spec/components/documents/document_viewer_component_spec.rb[1:1:2]                                                | passed  | 0.21792 seconds      |
 ./spec/components/documents/document_viewer_component_spec.rb[1:2:1:1]                                              | failed  | 0.21961 seconds      |
@@ -2328,6 +2369,62 @@ example_id                                                                      
 ./spec/components/documents/document_viewer_component_spec.rb[1:6:2]                                                | failed  | 0.23799 seconds      |
 ./spec/components/documents/document_viewer_component_spec.rb[1:6:3]                                                | failed  | 0.41223 seconds      |
 ./spec/components/documents/document_viewer_component_spec.rb[1:6:4]                                                | passed  | 0.25376 seconds      |
+./spec/components/documents/keyboard_shortcuts_modal_component_spec.rb[1:1:1]                                       | unknown |                      |
+./spec/components/documents/keyboard_shortcuts_modal_component_spec.rb[1:1:2]                                       | unknown |                      |
+./spec/components/documents/keyboard_shortcuts_modal_component_spec.rb[1:1:3]                                       | unknown |                      |
+./spec/components/documents/keyboard_shortcuts_modal_component_spec.rb[1:1:4]                                       | unknown |                      |
+./spec/components/documents/keyboard_shortcuts_modal_component_spec.rb[1:1:5]                                       | unknown |                      |
+./spec/components/documents/keyboard_shortcuts_modal_component_spec.rb[1:1:6]                                       | unknown |                      |
+./spec/components/documents/keyboard_shortcuts_modal_component_spec.rb[1:1:7]                                       | unknown |                      |
+./spec/components/documents/keyboard_shortcuts_modal_component_spec.rb[1:1:8]                                       | unknown |                      |
+./spec/components/documents/keyboard_shortcuts_modal_component_spec.rb[1:1:9]                                       | unknown |                      |
+./spec/components/documents/keyboard_shortcuts_modal_component_spec.rb[1:1:10]                                      | unknown |                      |
+./spec/components/documents/keyboard_shortcuts_modal_component_spec.rb[1:1:11]                                      | unknown |                      |
+./spec/components/documents/keyboard_shortcuts_modal_component_spec.rb[1:1:12]                                      | unknown |                      |
+./spec/components/documents/metadata_editor_component_spec.rb[1:1:1]                                                | unknown |                      |
+./spec/components/documents/metadata_editor_component_spec.rb[1:1:2]                                                | unknown |                      |
+./spec/components/documents/metadata_editor_component_spec.rb[1:1:3]                                                | unknown |                      |
+./spec/components/documents/metadata_editor_component_spec.rb[1:1:4]                                                | unknown |                      |
+./spec/components/documents/metadata_editor_component_spec.rb[1:1:5]                                                | unknown |                      |
+./spec/components/documents/metadata_editor_component_spec.rb[1:1:6]                                                | unknown |                      |
+./spec/components/documents/metadata_editor_component_spec.rb[1:1:7:1]                                              | unknown |                      |
+./spec/components/documents/metadata_editor_component_spec.rb[1:1:7:2]                                              | unknown |                      |
+./spec/components/documents/metadata_editor_component_spec.rb[1:2:1]                                                | unknown |                      |
+./spec/components/documents/metadata_editor_component_spec.rb[1:2:2]                                                | unknown |                      |
+./spec/components/documents/metadata_editor_component_spec.rb[1:2:3]                                                | unknown |                      |
+./spec/components/documents/metadata_editor_component_spec.rb[1:2:4]                                                | unknown |                      |
+./spec/components/documents/metadata_editor_component_spec.rb[1:2:5]                                                | unknown |                      |
+./spec/components/documents/metadata_editor_component_spec.rb[1:2:6]                                                | unknown |                      |
+./spec/components/documents/metadata_editor_component_spec.rb[1:2:7]                                                | unknown |                      |
+./spec/components/documents/metadata_editor_component_spec.rb[1:2:8:1]                                              | unknown |                      |
+./spec/components/documents/metadata_editor_component_spec.rb[1:2:8:2]                                              | unknown |                      |
+./spec/components/documents/metadata_editor_component_spec.rb[1:2:8:3]                                              | unknown |                      |
+./spec/components/documents/metadata_editor_component_spec.rb[1:2:8:4]                                              | unknown |                      |
+./spec/components/documents/metadata_editor_component_spec.rb[1:3:1]                                                | unknown |                      |
+./spec/components/documents/metadata_editor_component_spec.rb[1:3:2]                                                | unknown |                      |
+./spec/components/documents/metadata_editor_component_spec.rb[1:3:3]                                                | unknown |                      |
+./spec/components/documents/metadata_editor_component_spec.rb[1:3:4]                                                | unknown |                      |
+./spec/components/documents/metadata_editor_component_spec.rb[1:4:1]                                                | unknown |                      |
+./spec/components/documents/metadata_editor_component_spec.rb[1:5:1]                                                | unknown |                      |
+./spec/components/documents/metadata_editor_component_spec.rb[1:5:2]                                                | unknown |                      |
+./spec/components/documents/version_comparison_component_spec.rb[1:1:1:1]                                           | unknown |                      |
+./spec/components/documents/version_comparison_component_spec.rb[1:1:1:2]                                           | unknown |                      |
+./spec/components/documents/version_comparison_component_spec.rb[1:1:1:3]                                           | unknown |                      |
+./spec/components/documents/version_comparison_component_spec.rb[1:1:1:4]                                           | unknown |                      |
+./spec/components/documents/version_comparison_component_spec.rb[1:1:1:5]                                           | unknown |                      |
+./spec/components/documents/version_comparison_component_spec.rb[1:1:1:6]                                           | unknown |                      |
+./spec/components/documents/version_comparison_component_spec.rb[1:1:1:7]                                           | unknown |                      |
+./spec/components/documents/version_comparison_component_spec.rb[1:1:1:8]                                           | unknown |                      |
+./spec/components/documents/version_comparison_component_spec.rb[1:1:1:9]                                           | unknown |                      |
+./spec/components/documents/version_comparison_component_spec.rb[1:1:2:1]                                           | unknown |                      |
+./spec/components/documents/version_comparison_component_spec.rb[1:1:2:2]                                           | unknown |                      |
+./spec/components/documents/version_comparison_component_spec.rb[1:1:3:1]                                           | unknown |                      |
+./spec/components/documents/version_comparison_component_spec.rb[1:1:3:2]                                           | unknown |                      |
+./spec/components/documents/version_comparison_component_spec.rb[1:1:3:3]                                           | unknown |                      |
+./spec/components/documents/version_comparison_component_spec.rb[1:1:3:4]                                           | unknown |                      |
+./spec/components/documents/version_comparison_component_spec.rb[1:1:4:1]                                           | unknown |                      |
+./spec/components/documents/version_comparison_component_spec.rb[1:1:4:2]                                           | unknown |                      |
+./spec/components/documents/version_comparison_component_spec.rb[1:1:5:1]                                           | unknown |                      |
 ./spec/components/forms/checkbox_component_spec.rb[1:1:1]                                                           | passed  | 0.19202 seconds      |
 ./spec/components/forms/checkbox_component_spec.rb[1:2:1]                                                           | passed  | 0.18194 seconds      |
 ./spec/components/forms/checkbox_component_spec.rb[1:2:2]                                                           | passed  | 0.18502 seconds      |
@@ -2366,11 +2463,11 @@ example_id                                                                      
 ./spec/components/forms/field_component_spec.rb[1:3:7:2:1]                                                          | passed  | 0.17143 seconds      |
 ./spec/components/forms/field_component_spec.rb[1:3:7:3:1]                                                          | passed  | 0.16995 seconds      |
 ./spec/components/forms/field_component_spec.rb[1:3:7:3:2]                                                          | passed  | 0.1707 seconds       |
-./spec/components/forms/form_errors_component_spec.rb[1:1]                                                          | passed  | 0.17511 seconds      |
-./spec/components/forms/form_errors_component_spec.rb[1:2]                                                          | passed  | 0.17704 seconds      |
-./spec/components/forms/form_errors_component_spec.rb[1:3]                                                          | passed  | 0.17582 seconds      |
-./spec/components/forms/form_errors_component_spec.rb[1:4]                                                          | passed  | 0.17591 seconds      |
-./spec/components/forms/form_errors_component_spec.rb[1:5]                                                          | passed  | 0.17636 seconds      |
+./spec/components/forms/form_errors_component_spec.rb[1:1]                                                          | passed  | 0.00549 seconds      |
+./spec/components/forms/form_errors_component_spec.rb[1:2]                                                          | passed  | 0.04864 seconds      |
+./spec/components/forms/form_errors_component_spec.rb[1:3]                                                          | passed  | 0.01783 seconds      |
+./spec/components/forms/form_errors_component_spec.rb[1:4]                                                          | passed  | 0.00921 seconds      |
+./spec/components/forms/form_errors_component_spec.rb[1:5]                                                          | passed  | 0.00465 seconds      |
 ./spec/components/forms/radio_group_component_spec.rb[1:1:1]                                                        | passed  | 0.17107 seconds      |
 ./spec/components/forms/radio_group_component_spec.rb[1:2:1]                                                        | passed  | 0.17342 seconds      |
 ./spec/components/forms/radio_group_component_spec.rb[1:2:2]                                                        | passed  | 0.17569 seconds      |
@@ -2496,16 +2593,23 @@ example_id                                                                      
 ./spec/components/navigation/navbar_component_spec.rb[1:1]                                                          | passed  | 0.17397 seconds      |
 ./spec/components/navigation/navbar_component_spec.rb[1:2]                                                          | passed  | 0.17367 seconds      |
 ./spec/components/navigation/navbar_component_spec.rb[1:3]                                                          | passed  | 0.17733 seconds      |
-./spec/components/navigation/navbar_component_spec.rb[1:4]                                                          | failed  | 0.17991 seconds      |
+./spec/components/navigation/navbar_component_spec.rb[1:4:1]                                                        | unknown |                      |
+./spec/components/navigation/navbar_component_spec.rb[1:4:2]                                                        | unknown |                      |
 ./spec/components/navigation/navbar_component_spec.rb[1:5]                                                          | failed  | 0.34226 seconds      |
 ./spec/components/navigation/navbar_component_spec.rb[1:6]                                                          | passed  | 0.17797 seconds      |
 ./spec/components/navigation/navbar_component_spec.rb[1:7]                                                          | passed  | 0.17302 seconds      |
-./spec/components/navigation/navbar_component_spec.rb[1:8]                                                          | passed  | 0.17689 seconds      |
+./spec/components/navigation/navbar_component_spec.rb[1:8:1]                                                        | unknown |                      |
+./spec/components/navigation/navbar_component_spec.rb[1:8:2]                                                        | unknown |                      |
+./spec/components/navigation/navbar_component_spec.rb[1:8:3]                                                        | unknown |                      |
 ./spec/components/navigation/navbar_component_spec.rb[1:9]                                                          | passed  | 0.17673 seconds      |
 ./spec/components/navigation/navbar_component_spec.rb[1:10]                                                         | failed  | 0.17579 seconds      |
-./spec/components/navigation/navbar_component_spec.rb[1:11:1]                                                       | passed  | 0.34846 seconds      |
-./spec/components/navigation/navbar_component_spec.rb[1:11:2]                                                       | passed  | 0.34383 seconds      |
-./spec/components/navigation/navbar_component_spec.rb[1:12:1]                                                       | failed  | 0.17472 seconds      |
+./spec/components/navigation/navbar_component_spec.rb[1:11]                                                         | unknown |                      |
+./spec/components/navigation/navbar_component_spec.rb[1:12]                                                         | unknown |                      |
+./spec/components/navigation/navbar_component_spec.rb[1:13]                                                         | unknown |                      |
+./spec/components/navigation/navbar_component_spec.rb[1:14:1]                                                       | unknown |                      |
+./spec/components/navigation/navbar_component_spec.rb[1:14:2]                                                       | unknown |                      |
+./spec/components/navigation/navbar_component_spec.rb[1:15:1]                                                       | unknown |                      |
+./spec/components/navigation/navbar_component_spec.rb[1:15:2]                                                       | unknown |                      |
 ./spec/components/navigation/notification_bell_component_spec.rb[1:1:1]                                             | passed  | 0.17438 seconds      |
 ./spec/components/navigation/notification_bell_component_spec.rb[1:1:2]                                             | passed  | 0.18875 seconds      |
 ./spec/components/navigation/notification_bell_component_spec.rb[1:1:3]                                             | passed  | 0.30459 seconds      |
@@ -3046,6 +3150,34 @@ example_id                                                                      
 ./spec/controllers/baskets_controller_spec.rb[1:11:1]                                                               | passed  | 0.17368 seconds      |
 ./spec/controllers/baskets_controller_spec.rb[1:12:1]                                                               | passed  | 0.17068 seconds      |
 ./spec/controllers/baskets_controller_spec.rb[1:12:2]                                                               | passed  | 0.17339 seconds      |
+./spec/controllers/clients_controller_spec.rb[1:1:1:1]                                                              | unknown |                      |
+./spec/controllers/clients_controller_spec.rb[1:1:1:2]                                                              | unknown |                      |
+./spec/controllers/clients_controller_spec.rb[1:1:1:3]                                                              | unknown |                      |
+./spec/controllers/clients_controller_spec.rb[1:1:2:1]                                                              | unknown |                      |
+./spec/controllers/clients_controller_spec.rb[1:2:1]                                                                | unknown |                      |
+./spec/controllers/clients_controller_spec.rb[1:2:2]                                                                | unknown |                      |
+./spec/controllers/clients_controller_spec.rb[1:3:1]                                                                | unknown |                      |
+./spec/controllers/clients_controller_spec.rb[1:3:2]                                                                | unknown |                      |
+./spec/controllers/clients_controller_spec.rb[1:4:1:1]                                                              | unknown |                      |
+./spec/controllers/clients_controller_spec.rb[1:4:1:2]                                                              | unknown |                      |
+./spec/controllers/clients_controller_spec.rb[1:4:1:3]                                                              | unknown |                      |
+./spec/controllers/clients_controller_spec.rb[1:4:1:4]                                                              | unknown |                      |
+./spec/controllers/clients_controller_spec.rb[1:4:2:1]                                                              | unknown |                      |
+./spec/controllers/clients_controller_spec.rb[1:4:2:2]                                                              | unknown |                      |
+./spec/controllers/clients_controller_spec.rb[1:5:1]                                                                | unknown |                      |
+./spec/controllers/clients_controller_spec.rb[1:5:2]                                                                | unknown |                      |
+./spec/controllers/clients_controller_spec.rb[1:6:1]                                                                | unknown |                      |
+./spec/controllers/clients_controller_spec.rb[1:6:2]                                                                | unknown |                      |
+./spec/controllers/clients_controller_spec.rb[1:7:1]                                                                | unknown |                      |
+./spec/controllers/clients_controller_spec.rb[1:7:2]                                                                | unknown |                      |
+./spec/controllers/clients_controller_spec.rb[1:8:1]                                                                | unknown |                      |
+./spec/controllers/clients_controller_spec.rb[1:9:1:1]                                                              | unknown |                      |
+./spec/controllers/clients_controller_spec.rb[1:9:2:1]                                                              | unknown |                      |
+./spec/controllers/clients_controller_spec.rb[1:10:1]                                                               | unknown |                      |
+./spec/controllers/clients_controller_spec.rb[1:10:2]                                                               | unknown |                      |
+./spec/controllers/clients_controller_spec.rb[1:11:1]                                                               | unknown |                      |
+./spec/controllers/clients_controller_spec.rb[1:11:2]                                                               | unknown |                      |
+./spec/controllers/clients_controller_spec.rb[1:11:3]                                                               | unknown |                      |
 ./spec/controllers/concerns/ged/breadcrumb_builder_spec.rb[1:1:1]                                                   | passed  | 0.17938 seconds      |
 ./spec/controllers/concerns/ged/breadcrumb_builder_spec.rb[1:1:2]                                                   | passed  | 0.18246 seconds      |
 ./spec/controllers/concerns/ged/breadcrumb_builder_spec.rb[1:2:1]                                                   | passed  | 0.36839 seconds      |
@@ -3068,6 +3200,41 @@ example_id                                                                      
 ./spec/controllers/concerns/ged/permissions_management_spec.rb[1:2:2]                                               | passed  | 0.51311 seconds      |
 ./spec/controllers/concerns/ged/permissions_management_spec.rb[1:3:1]                                               | passed  | 0.17867 seconds      |
 ./spec/controllers/concerns/ged/permissions_management_spec.rb[1:4:1]                                               | passed  | 0.1941 seconds       |
+./spec/controllers/contracts_controller_spec.rb[1:1:1:1]                                                            | unknown |                      |
+./spec/controllers/contracts_controller_spec.rb[1:1:1:2]                                                            | unknown |                      |
+./spec/controllers/contracts_controller_spec.rb[1:1:1:3]                                                            | unknown |                      |
+./spec/controllers/contracts_controller_spec.rb[1:1:1:4]                                                            | unknown |                      |
+./spec/controllers/contracts_controller_spec.rb[1:1:2:1]                                                            | unknown |                      |
+./spec/controllers/contracts_controller_spec.rb[1:2:1]                                                              | unknown |                      |
+./spec/controllers/contracts_controller_spec.rb[1:2:2]                                                              | unknown |                      |
+./spec/controllers/contracts_controller_spec.rb[1:3:1]                                                              | unknown |                      |
+./spec/controllers/contracts_controller_spec.rb[1:3:2]                                                              | unknown |                      |
+./spec/controllers/contracts_controller_spec.rb[1:3:3]                                                              | unknown |                      |
+./spec/controllers/contracts_controller_spec.rb[1:3:4]                                                              | unknown |                      |
+./spec/controllers/contracts_controller_spec.rb[1:4:1:1]                                                            | unknown |                      |
+./spec/controllers/contracts_controller_spec.rb[1:4:1:2]                                                            | unknown |                      |
+./spec/controllers/contracts_controller_spec.rb[1:4:1:3]                                                            | unknown |                      |
+./spec/controllers/contracts_controller_spec.rb[1:4:1:4]                                                            | unknown |                      |
+./spec/controllers/contracts_controller_spec.rb[1:4:2:1]                                                            | unknown |                      |
+./spec/controllers/contracts_controller_spec.rb[1:4:3:1]                                                            | unknown |                      |
+./spec/controllers/contracts_controller_spec.rb[1:4:3:2]                                                            | unknown |                      |
+./spec/controllers/contracts_controller_spec.rb[1:5:1]                                                              | unknown |                      |
+./spec/controllers/contracts_controller_spec.rb[1:5:2]                                                              | unknown |                      |
+./spec/controllers/contracts_controller_spec.rb[1:5:3]                                                              | unknown |                      |
+./spec/controllers/contracts_controller_spec.rb[1:6:1:1]                                                            | unknown |                      |
+./spec/controllers/contracts_controller_spec.rb[1:6:1:2]                                                            | unknown |                      |
+./spec/controllers/contracts_controller_spec.rb[1:6:2:1]                                                            | unknown |                      |
+./spec/controllers/contracts_controller_spec.rb[1:6:2:2]                                                            | unknown |                      |
+./spec/controllers/contracts_controller_spec.rb[1:7:1:1]                                                            | unknown |                      |
+./spec/controllers/contracts_controller_spec.rb[1:7:1:2]                                                            | unknown |                      |
+./spec/controllers/contracts_controller_spec.rb[1:7:2:1]                                                            | unknown |                      |
+./spec/controllers/contracts_controller_spec.rb[1:8:1]                                                              | unknown |                      |
+./spec/controllers/contracts_controller_spec.rb[1:8:2]                                                              | unknown |                      |
+./spec/controllers/contracts_controller_spec.rb[1:9:1:1]                                                            | unknown |                      |
+./spec/controllers/contracts_controller_spec.rb[1:9:1:2]                                                            | unknown |                      |
+./spec/controllers/contracts_controller_spec.rb[1:10:1]                                                             | unknown |                      |
+./spec/controllers/contracts_controller_spec.rb[1:10:2]                                                             | unknown |                      |
+./spec/controllers/contracts_controller_spec.rb[1:10:3]                                                             | unknown |                      |
 ./spec/controllers/dashboard_controller_spec.rb[1:1:1:1]                                                            | passed  | 0.19425 seconds      |
 ./spec/controllers/dashboard_controller_spec.rb[1:1:1:2]                                                            | passed  | 0.18094 seconds      |
 ./spec/controllers/dashboard_controller_spec.rb[1:1:1:3]                                                            | passed  | 0.17866 seconds      |
@@ -3137,6 +3304,16 @@ example_id                                                                      
 ./spec/controllers/ged/document_operations_spec.rb[1:4:1:5]                                                         | unknown |                      |
 ./spec/controllers/ged/document_operations_spec.rb[1:4:2:1]                                                         | unknown |                      |
 ./spec/controllers/ged/document_operations_spec.rb[1:4:3:1]                                                         | unknown |                      |
+./spec/controllers/ged/document_shares_controller_spec.rb[1:1:1:1]                                                  | unknown |                      |
+./spec/controllers/ged/document_shares_controller_spec.rb[1:1:1:2]                                                  | unknown |                      |
+./spec/controllers/ged/document_shares_controller_spec.rb[1:1:1:3]                                                  | unknown |                      |
+./spec/controllers/ged/document_shares_controller_spec.rb[1:1:1:4]                                                  | unknown |                      |
+./spec/controllers/ged/document_shares_controller_spec.rb[1:1:2:1]                                                  | unknown |                      |
+./spec/controllers/ged/document_shares_controller_spec.rb[1:1:2:2]                                                  | unknown |                      |
+./spec/controllers/ged/document_shares_controller_spec.rb[1:1:3:1]                                                  | unknown |                      |
+./spec/controllers/ged/document_shares_controller_spec.rb[1:2:1]                                                    | unknown |                      |
+./spec/controllers/ged/document_shares_controller_spec.rb[1:2:2]                                                    | unknown |                      |
+./spec/controllers/ged/document_shares_controller_spec.rb[1:2:3]                                                    | unknown |                      |
 ./spec/controllers/ged_controller_spec.rb[1:1:1]                                                                    | passed  | 0.17476 seconds      |
 ./spec/controllers/ged_controller_spec.rb[1:1:2]                                                                    | passed  | 0.18186 seconds      |
 ./spec/controllers/ged_controller_spec.rb[1:1:3]                                                                    | passed  | 0.22318 seconds      |
@@ -3169,8 +3346,102 @@ example_id                                                                      
 ./spec/controllers/ged_controller_spec.rb[1:7:2:1]                                                                  | passed  | 0.17691 seconds      |
 ./spec/controllers/ged_controller_spec.rb[1:7:2:2]                                                                  | passed  | 0.18374 seconds      |
 ./spec/controllers/home_controller_spec.rb[1:1:1:1]                                                                 | passed  | 0.00351 seconds      |
+./spec/controllers/home_controller_spec.rb[1:1:1:2]                                                                 | unknown |                      |
 ./spec/controllers/home_controller_spec.rb[1:1:2:1]                                                                 | passed  | 0.17083 seconds      |
 ./spec/controllers/home_controller_spec.rb[1:1:2:2]                                                                 | passed  | 0.17112 seconds      |
+./spec/controllers/home_controller_spec.rb[1:1:2:3]                                                                 | unknown |                      |
+./spec/controllers/home_controller_spec.rb[1:1:2:4]                                                                 | unknown |                      |
+./spec/controllers/home_controller_spec.rb[1:1:2:5]                                                                 | unknown |                      |
+./spec/controllers/home_controller_spec.rb[1:1:2:6]                                                                 | unknown |                      |
+./spec/controllers/home_controller_spec.rb[1:1:2:7]                                                                 | unknown |                      |
+./spec/controllers/home_controller_spec.rb[1:1:2:8]                                                                 | unknown |                      |
+./spec/controllers/home_controller_spec.rb[1:1:2:9:1]                                                               | unknown |                      |
+./spec/controllers/home_controller_spec.rb[1:1:2:9:2]                                                               | unknown |                      |
+./spec/controllers/home_controller_spec.rb[1:1:2:9:3]                                                               | unknown |                      |
+./spec/controllers/home_controller_spec.rb[1:2:1:1]                                                                 | unknown |                      |
+./spec/controllers/home_controller_spec.rb[1:2:1:2]                                                                 | unknown |                      |
+./spec/controllers/home_controller_spec.rb[1:2:2:1]                                                                 | unknown |                      |
+./spec/controllers/home_controller_spec.rb[1:2:2:2]                                                                 | unknown |                      |
+./spec/controllers/home_controller_spec.rb[1:2:2:3]                                                                 | unknown |                      |
+./spec/controllers/legal_contracts_controller_spec.rb[1:1:1:1]                                                      | unknown |                      |
+./spec/controllers/legal_contracts_controller_spec.rb[1:1:1:2]                                                      | unknown |                      |
+./spec/controllers/legal_contracts_controller_spec.rb[1:1:1:3]                                                      | unknown |                      |
+./spec/controllers/legal_contracts_controller_spec.rb[1:1:1:4]                                                      | unknown |                      |
+./spec/controllers/legal_contracts_controller_spec.rb[1:1:2:1]                                                      | unknown |                      |
+./spec/controllers/legal_contracts_controller_spec.rb[1:2:1]                                                        | unknown |                      |
+./spec/controllers/legal_contracts_controller_spec.rb[1:2:2]                                                        | unknown |                      |
+./spec/controllers/legal_contracts_controller_spec.rb[1:3:1]                                                        | unknown |                      |
+./spec/controllers/legal_contracts_controller_spec.rb[1:3:2]                                                        | unknown |                      |
+./spec/controllers/legal_contracts_controller_spec.rb[1:3:3]                                                        | unknown |                      |
+./spec/controllers/legal_contracts_controller_spec.rb[1:4:1:1]                                                      | unknown |                      |
+./spec/controllers/legal_contracts_controller_spec.rb[1:4:1:2]                                                      | unknown |                      |
+./spec/controllers/legal_contracts_controller_spec.rb[1:4:1:3]                                                      | unknown |                      |
+./spec/controllers/legal_contracts_controller_spec.rb[1:4:1:4]                                                      | unknown |                      |
+./spec/controllers/legal_contracts_controller_spec.rb[1:4:1:5]                                                      | unknown |                      |
+./spec/controllers/legal_contracts_controller_spec.rb[1:4:2:1]                                                      | unknown |                      |
+./spec/controllers/legal_contracts_controller_spec.rb[1:4:2:2]                                                      | unknown |                      |
+./spec/controllers/legal_contracts_controller_spec.rb[1:5:1]                                                        | unknown |                      |
+./spec/controllers/legal_contracts_controller_spec.rb[1:5:2]                                                        | unknown |                      |
+./spec/controllers/legal_contracts_controller_spec.rb[1:5:3]                                                        | unknown |                      |
+./spec/controllers/legal_contracts_controller_spec.rb[1:6:1]                                                        | unknown |                      |
+./spec/controllers/legal_contracts_controller_spec.rb[1:6:2]                                                        | unknown |                      |
+./spec/controllers/legal_contracts_controller_spec.rb[1:6:3]                                                        | unknown |                      |
+./spec/controllers/legal_contracts_controller_spec.rb[1:6:4]                                                        | unknown |                      |
+./spec/controllers/legal_contracts_controller_spec.rb[1:7:1]                                                        | unknown |                      |
+./spec/controllers/legal_contracts_controller_spec.rb[1:7:2]                                                        | unknown |                      |
+./spec/controllers/legal_contracts_controller_spec.rb[1:8:1:1]                                                      | unknown |                      |
+./spec/controllers/legal_contracts_controller_spec.rb[1:8:1:2]                                                      | unknown |                      |
+./spec/controllers/legal_contracts_controller_spec.rb[1:8:2:1]                                                      | unknown |                      |
+./spec/controllers/legal_contracts_controller_spec.rb[1:9:1]                                                        | unknown |                      |
+./spec/controllers/legal_contracts_controller_spec.rb[1:9:2]                                                        | unknown |                      |
+./spec/controllers/legal_contracts_controller_spec.rb[1:10:1]                                                       | unknown |                      |
+./spec/controllers/legal_contracts_controller_spec.rb[1:10:2]                                                       | unknown |                      |
+./spec/controllers/legal_contracts_controller_spec.rb[1:11:1]                                                       | unknown |                      |
+./spec/controllers/legal_contracts_controller_spec.rb[1:11:2]                                                       | unknown |                      |
+./spec/controllers/legal_contracts_controller_spec.rb[1:12:1]                                                       | unknown |                      |
+./spec/controllers/legal_contracts_controller_spec.rb[1:12:2]                                                       | unknown |                      |
+./spec/controllers/legal_contracts_controller_spec.rb[1:12:3]                                                       | unknown |                      |
+./spec/controllers/legal_deadlines_controller_spec.rb[1:1:1:1]                                                      | unknown |                      |
+./spec/controllers/legal_deadlines_controller_spec.rb[1:1:1:2]                                                      | unknown |                      |
+./spec/controllers/legal_deadlines_controller_spec.rb[1:1:1:3]                                                      | unknown |                      |
+./spec/controllers/legal_deadlines_controller_spec.rb[1:1:1:4]                                                      | unknown |                      |
+./spec/controllers/legal_deadlines_controller_spec.rb[1:1:2:1]                                                      | unknown |                      |
+./spec/controllers/legal_deadlines_controller_spec.rb[1:2:1]                                                        | unknown |                      |
+./spec/controllers/legal_deadlines_controller_spec.rb[1:2:2]                                                        | unknown |                      |
+./spec/controllers/legal_deadlines_controller_spec.rb[1:3:1]                                                        | unknown |                      |
+./spec/controllers/legal_deadlines_controller_spec.rb[1:3:2]                                                        | unknown |                      |
+./spec/controllers/legal_deadlines_controller_spec.rb[1:3:3]                                                        | unknown |                      |
+./spec/controllers/legal_deadlines_controller_spec.rb[1:3:4]                                                        | unknown |                      |
+./spec/controllers/legal_deadlines_controller_spec.rb[1:4:1:1]                                                      | unknown |                      |
+./spec/controllers/legal_deadlines_controller_spec.rb[1:4:1:2]                                                      | unknown |                      |
+./spec/controllers/legal_deadlines_controller_spec.rb[1:4:1:3]                                                      | unknown |                      |
+./spec/controllers/legal_deadlines_controller_spec.rb[1:4:1:4]                                                      | unknown |                      |
+./spec/controllers/legal_deadlines_controller_spec.rb[1:4:1:5]                                                      | unknown |                      |
+./spec/controllers/legal_deadlines_controller_spec.rb[1:4:2:1]                                                      | unknown |                      |
+./spec/controllers/legal_deadlines_controller_spec.rb[1:4:2:2]                                                      | unknown |                      |
+./spec/controllers/legal_deadlines_controller_spec.rb[1:5:1]                                                        | unknown |                      |
+./spec/controllers/legal_deadlines_controller_spec.rb[1:5:2]                                                        | unknown |                      |
+./spec/controllers/legal_deadlines_controller_spec.rb[1:5:3]                                                        | unknown |                      |
+./spec/controllers/legal_deadlines_controller_spec.rb[1:6:1]                                                        | unknown |                      |
+./spec/controllers/legal_deadlines_controller_spec.rb[1:6:2]                                                        | unknown |                      |
+./spec/controllers/legal_deadlines_controller_spec.rb[1:7:1:1]                                                      | unknown |                      |
+./spec/controllers/legal_deadlines_controller_spec.rb[1:7:1:2]                                                      | unknown |                      |
+./spec/controllers/legal_deadlines_controller_spec.rb[1:7:2:1]                                                      | unknown |                      |
+./spec/controllers/legal_deadlines_controller_spec.rb[1:8:1]                                                        | unknown |                      |
+./spec/controllers/legal_deadlines_controller_spec.rb[1:8:2]                                                        | unknown |                      |
+./spec/controllers/legal_deadlines_controller_spec.rb[1:8:3]                                                        | unknown |                      |
+./spec/controllers/legal_deadlines_controller_spec.rb[1:9:1]                                                        | unknown |                      |
+./spec/controllers/legal_deadlines_controller_spec.rb[1:9:2]                                                        | unknown |                      |
+./spec/controllers/legal_deadlines_controller_spec.rb[1:9:3]                                                        | unknown |                      |
+./spec/controllers/legal_deadlines_controller_spec.rb[1:9:4]                                                        | unknown |                      |
+./spec/controllers/legal_deadlines_controller_spec.rb[1:10:1]                                                       | unknown |                      |
+./spec/controllers/legal_deadlines_controller_spec.rb[1:10:2]                                                       | unknown |                      |
+./spec/controllers/legal_deadlines_controller_spec.rb[1:11:1]                                                       | unknown |                      |
+./spec/controllers/legal_deadlines_controller_spec.rb[1:11:2]                                                       | unknown |                      |
+./spec/controllers/legal_deadlines_controller_spec.rb[1:11:3]                                                       | unknown |                      |
+./spec/controllers/legal_deadlines_controller_spec.rb[1:12:1]                                                       | unknown |                      |
+./spec/controllers/legal_deadlines_controller_spec.rb[1:12:2]                                                       | unknown |                      |
+./spec/controllers/legal_deadlines_controller_spec.rb[1:12:3]                                                       | unknown |                      |
 ./spec/controllers/notifications_controller_spec.rb[1:1:1]                                                          | passed  | 0.34602 seconds      |
 ./spec/controllers/notifications_controller_spec.rb[1:1:2]                                                          | passed  | 0.34719 seconds      |
 ./spec/controllers/notifications_controller_spec.rb[1:1:3]                                                          | passed  | 0.34902 seconds      |
@@ -3205,18 +3476,41 @@ example_id                                                                      
 ./spec/controllers/notifications_controller_spec.rb[1:9:3:1]                                                        | passed  | 0.17716 seconds      |
 ./spec/controllers/notifications_controller_spec.rb[1:10:1:1]                                                       | passed  | 0.17611 seconds      |
 ./spec/controllers/notifications_controller_spec.rb[1:11:1]                                                         | passed  | 0.17018 seconds      |
-./spec/controllers/search_controller_spec.rb[1:1:1]                                                                 | passed  | 0.41238 seconds      |
-./spec/controllers/search_controller_spec.rb[1:1:2:1]                                                               | passed  | 0.42153 seconds      |
-./spec/controllers/search_controller_spec.rb[1:1:2:2]                                                               | passed  | 0.41348 seconds      |
-./spec/controllers/search_controller_spec.rb[1:1:2:3]                                                               | passed  | 0.41759 seconds      |
-./spec/controllers/search_controller_spec.rb[1:1:3:1]                                                               | passed  | 0.41325 seconds      |
-./spec/controllers/search_controller_spec.rb[1:2:1]                                                                 | passed  | 0.24123 seconds      |
-./spec/controllers/search_controller_spec.rb[1:2:2]                                                                 | passed  | 0.23321 seconds      |
-./spec/controllers/search_controller_spec.rb[1:2:3]                                                                 | passed  | 0.23772 seconds      |
-./spec/controllers/search_controller_spec.rb[1:2:4]                                                                 | passed  | 0.2327 seconds       |
-./spec/controllers/search_controller_spec.rb[1:2:5]                                                                 | passed  | 0.23074 seconds      |
-./spec/controllers/search_controller_spec.rb[1:2:6]                                                                 | passed  | 0.45505 seconds      |
-./spec/controllers/search_controller_spec.rb[1:2:7]                                                                 | passed  | 0.23701 seconds      |
+./spec/controllers/reports_controller_spec.rb[1:1:1:1]                                                              | unknown |                      |
+./spec/controllers/reports_controller_spec.rb[1:1:1:2]                                                              | unknown |                      |
+./spec/controllers/reports_controller_spec.rb[1:1:1:3]                                                              | unknown |                      |
+./spec/controllers/reports_controller_spec.rb[1:1:2:1]                                                              | unknown |                      |
+./spec/controllers/reports_controller_spec.rb[1:1:3:1]                                                              | unknown |                      |
+./spec/controllers/reports_controller_spec.rb[1:2:1]                                                                | unknown |                      |
+./spec/controllers/reports_controller_spec.rb[1:2:2]                                                                | unknown |                      |
+./spec/controllers/reports_controller_spec.rb[1:2:3]                                                                | unknown |                      |
+./spec/controllers/reports_controller_spec.rb[1:3:1]                                                                | unknown |                      |
+./spec/controllers/reports_controller_spec.rb[1:3:2]                                                                | unknown |                      |
+./spec/controllers/reports_controller_spec.rb[1:3:3]                                                                | unknown |                      |
+./spec/controllers/reports_controller_spec.rb[1:4:1:1]                                                              | unknown |                      |
+./spec/controllers/reports_controller_spec.rb[1:4:1:2]                                                              | unknown |                      |
+./spec/controllers/reports_controller_spec.rb[1:4:1:3]                                                              | unknown |                      |
+./spec/controllers/reports_controller_spec.rb[1:4:1:4]                                                              | unknown |                      |
+./spec/controllers/reports_controller_spec.rb[1:4:2:1]                                                              | unknown |                      |
+./spec/controllers/reports_controller_spec.rb[1:4:2:2]                                                              | unknown |                      |
+./spec/controllers/reports_controller_spec.rb[1:5:1]                                                                | unknown |                      |
+./spec/controllers/reports_controller_spec.rb[1:5:2]                                                                | unknown |                      |
+./spec/controllers/reports_controller_spec.rb[1:5:3]                                                                | unknown |                      |
+./spec/controllers/reports_controller_spec.rb[1:6:1]                                                                | unknown |                      |
+./spec/controllers/reports_controller_spec.rb[1:6:2]                                                                | unknown |                      |
+./spec/controllers/reports_controller_spec.rb[1:6:3]                                                                | unknown |                      |
+./spec/controllers/search_controller_spec.rb[1:1:1]                                                                 | passed  | 0.16738 seconds      |
+./spec/controllers/search_controller_spec.rb[1:1:2:1]                                                               | passed  | 0.03671 seconds      |
+./spec/controllers/search_controller_spec.rb[1:1:2:2]                                                               | passed  | 0.03831 seconds      |
+./spec/controllers/search_controller_spec.rb[1:1:2:3]                                                               | passed  | 0.04199 seconds      |
+./spec/controllers/search_controller_spec.rb[1:1:3:1]                                                               | passed  | 0.03943 seconds      |
+./spec/controllers/search_controller_spec.rb[1:2:1]                                                                 | passed  | 0.03056 seconds      |
+./spec/controllers/search_controller_spec.rb[1:2:2]                                                                 | passed  | 0.0354 seconds       |
+./spec/controllers/search_controller_spec.rb[1:2:3]                                                                 | passed  | 0.07496 seconds      |
+./spec/controllers/search_controller_spec.rb[1:2:4]                                                                 | passed  | 0.02977 seconds      |
+./spec/controllers/search_controller_spec.rb[1:2:5]                                                                 | passed  | 0.02741 seconds      |
+./spec/controllers/search_controller_spec.rb[1:2:6]                                                                 | passed  | 0.20579 seconds      |
+./spec/controllers/search_controller_spec.rb[1:2:7]                                                                 | passed  | 0.03211 seconds      |
 ./spec/controllers/tags_controller_spec.rb[1:1:1]                                                                   | passed  | 0.16991 seconds      |
 ./spec/controllers/tags_controller_spec.rb[1:1:2]                                                                   | passed  | 0.1762 seconds       |
 ./spec/controllers/tags_controller_spec.rb[1:1:3:1]                                                                 | passed  | 0.17671 seconds      |
@@ -3405,7 +3699,150 @@ example_id                                                                      
 ./spec/features/user_authentication_spec.rb[1:2]                                                                    | failed  | 0.01632 seconds      |
 ./spec/features/user_authentication_spec.rb[1:3]                                                                    | failed  | 0.19255 seconds      |
 ./spec/features/user_authentication_spec.rb[1:4]                                                                    | failed  | 0.01134 seconds      |
-./spec/helpers/home_helper_spec.rb[1:1]                                                                             | pending | 0 seconds            |
+./spec/helpers/application_helper_spec.rb[1:1:1]                                                                    | unknown |                      |
+./spec/helpers/application_helper_spec.rb[1:1:2]                                                                    | unknown |                      |
+./spec/helpers/application_helper_spec.rb[1:1:3]                                                                    | unknown |                      |
+./spec/helpers/application_helper_spec.rb[1:2:1]                                                                    | unknown |                      |
+./spec/helpers/application_helper_spec.rb[1:2:2]                                                                    | unknown |                      |
+./spec/helpers/application_helper_spec.rb[1:3:1]                                                                    | unknown |                      |
+./spec/helpers/application_helper_spec.rb[1:3:2]                                                                    | unknown |                      |
+./spec/helpers/application_helper_spec.rb[1:3:3]                                                                    | unknown |                      |
+./spec/helpers/application_helper_spec.rb[1:4:1]                                                                    | unknown |                      |
+./spec/helpers/application_helper_spec.rb[1:4:2]                                                                    | unknown |                      |
+./spec/helpers/application_helper_spec.rb[1:4:3]                                                                    | unknown |                      |
+./spec/helpers/application_helper_spec.rb[1:5:1]                                                                    | unknown |                      |
+./spec/helpers/application_helper_spec.rb[1:5:2]                                                                    | unknown |                      |
+./spec/helpers/application_helper_spec.rb[1:5:3]                                                                    | unknown |                      |
+./spec/helpers/application_helper_spec.rb[1:6:1]                                                                    | unknown |                      |
+./spec/helpers/application_helper_spec.rb[1:6:2]                                                                    | unknown |                      |
+./spec/helpers/application_helper_spec.rb[1:7:1]                                                                    | unknown |                      |
+./spec/helpers/application_helper_spec.rb[1:7:2]                                                                    | unknown |                      |
+./spec/helpers/application_helper_spec.rb[1:8:1]                                                                    | unknown |                      |
+./spec/helpers/application_helper_spec.rb[1:8:2]                                                                    | unknown |                      |
+./spec/helpers/application_helper_spec.rb[1:9:1]                                                                    | unknown |                      |
+./spec/helpers/application_helper_spec.rb[1:9:2]                                                                    | unknown |                      |
+./spec/helpers/application_helper_spec.rb[1:10:1]                                                                   | unknown |                      |
+./spec/helpers/application_helper_spec.rb[1:10:2]                                                                   | unknown |                      |
+./spec/helpers/application_helper_spec.rb[1:11:1]                                                                   | unknown |                      |
+./spec/helpers/application_helper_spec.rb[1:11:2]                                                                   | unknown |                      |
+./spec/helpers/application_helper_spec.rb[1:12:1]                                                                   | unknown |                      |
+./spec/helpers/application_helper_spec.rb[1:12:2]                                                                   | unknown |                      |
+./spec/helpers/application_helper_spec.rb[1:13:1]                                                                   | unknown |                      |
+./spec/helpers/application_helper_spec.rb[1:13:2]                                                                   | unknown |                      |
+./spec/helpers/components_helper_spec.rb[1:1:1]                                                                     | unknown |                      |
+./spec/helpers/components_helper_spec.rb[1:1:2]                                                                     | unknown |                      |
+./spec/helpers/components_helper_spec.rb[1:2:1]                                                                     | unknown |                      |
+./spec/helpers/components_helper_spec.rb[1:3:1]                                                                     | unknown |                      |
+./spec/helpers/components_helper_spec.rb[1:3:2]                                                                     | unknown |                      |
+./spec/helpers/components_helper_spec.rb[1:4:1]                                                                     | unknown |                      |
+./spec/helpers/components_helper_spec.rb[1:5:1]                                                                     | unknown |                      |
+./spec/helpers/components_helper_spec.rb[1:6:1]                                                                     | unknown |                      |
+./spec/helpers/components_helper_spec.rb[1:7:1]                                                                     | unknown |                      |
+./spec/helpers/components_helper_spec.rb[1:8:1]                                                                     | unknown |                      |
+./spec/helpers/components_helper_spec.rb[1:9:1]                                                                     | unknown |                      |
+./spec/helpers/components_helper_spec.rb[1:10:1]                                                                    | unknown |                      |
+./spec/helpers/home_helper_spec.rb[1:1:1]                                                                           | unknown |                      |
+./spec/helpers/home_helper_spec.rb[1:1:2]                                                                           | unknown |                      |
+./spec/helpers/home_helper_spec.rb[1:1:3]                                                                           | unknown |                      |
+./spec/helpers/home_helper_spec.rb[1:2:1]                                                                           | unknown |                      |
+./spec/helpers/home_helper_spec.rb[1:3:1]                                                                           | unknown |                      |
+./spec/helpers/immo/promo/budget_lines_helper_spec.rb[1:1:1]                                                        | unknown |                      |
+./spec/helpers/immo/promo/budget_lines_helper_spec.rb[1:2:1:1]                                                      | unknown |                      |
+./spec/helpers/immo/promo/budget_lines_helper_spec.rb[1:2:2:1]                                                      | unknown |                      |
+./spec/helpers/immo/promo/budget_lines_helper_spec.rb[1:2:3:1]                                                      | unknown |                      |
+./spec/helpers/immo/promo/budget_lines_helper_spec.rb[1:3:1]                                                        | unknown |                      |
+./spec/helpers/immo/promo/budget_lines_helper_spec.rb[1:3:2]                                                        | unknown |                      |
+./spec/helpers/immo/promo/budget_lines_helper_spec.rb[1:4:1]                                                        | unknown |                      |
+./spec/helpers/immo/promo/budget_lines_helper_spec.rb[1:5:1]                                                        | unknown |                      |
+./spec/helpers/immo/promo/budget_lines_helper_spec.rb[1:5:2]                                                        | unknown |                      |
+./spec/helpers/immo/promo/budget_lines_helper_spec.rb[1:6:1]                                                        | unknown |                      |
+./spec/helpers/immo/promo/budget_lines_helper_spec.rb[1:7:1]                                                        | unknown |                      |
+./spec/helpers/immo/promo/budget_lines_helper_spec.rb[1:7:2]                                                        | unknown |                      |
+./spec/helpers/immo/promo/budget_lines_helper_spec.rb[1:8:1]                                                        | unknown |                      |
+./spec/helpers/immo/promo/budgets_helper_spec.rb[1:1:1]                                                             | unknown |                      |
+./spec/helpers/immo/promo/budgets_helper_spec.rb[1:1:2]                                                             | unknown |                      |
+./spec/helpers/immo/promo/budgets_helper_spec.rb[1:1:3]                                                             | unknown |                      |
+./spec/helpers/immo/promo/budgets_helper_spec.rb[1:2:1]                                                             | unknown |                      |
+./spec/helpers/immo/promo/budgets_helper_spec.rb[1:3:1]                                                             | unknown |                      |
+./spec/helpers/immo/promo/budgets_helper_spec.rb[1:4:1]                                                             | unknown |                      |
+./spec/helpers/immo/promo/budgets_helper_spec.rb[1:5:1]                                                             | unknown |                      |
+./spec/helpers/immo/promo/budgets_helper_spec.rb[1:6:1]                                                             | unknown |                      |
+./spec/helpers/immo/promo/commercial_dashboard_helper_spec.rb[1:1:1]                                                | unknown |                      |
+./spec/helpers/immo/promo/commercial_dashboard_helper_spec.rb[1:1:2]                                                | unknown |                      |
+./spec/helpers/immo/promo/commercial_dashboard_helper_spec.rb[1:2:1]                                                | unknown |                      |
+./spec/helpers/immo/promo/commercial_dashboard_helper_spec.rb[1:2:2]                                                | unknown |                      |
+./spec/helpers/immo/promo/commercial_dashboard_helper_spec.rb[1:3:1]                                                | unknown |                      |
+./spec/helpers/immo/promo/commercial_dashboard_helper_spec.rb[1:4:1]                                                | unknown |                      |
+./spec/helpers/immo/promo/commercial_dashboard_helper_spec.rb[1:5:1]                                                | unknown |                      |
+./spec/helpers/immo/promo/commercial_dashboard_helper_spec.rb[1:6:1]                                                | unknown |                      |
+./spec/helpers/immo/promo/commercial_dashboard_helper_spec.rb[1:7:1]                                                | unknown |                      |
+./spec/helpers/immo/promo/commercial_dashboard_helper_spec.rb[1:8:1]                                                | unknown |                      |
+./spec/helpers/immo/promo/coordination_helper_spec.rb[1:1:1]                                                        | unknown |                      |
+./spec/helpers/immo/promo/coordination_helper_spec.rb[1:1:2]                                                        | unknown |                      |
+./spec/helpers/immo/promo/coordination_helper_spec.rb[1:2:1]                                                        | unknown |                      |
+./spec/helpers/immo/promo/coordination_helper_spec.rb[1:2:2]                                                        | unknown |                      |
+./spec/helpers/immo/promo/coordination_helper_spec.rb[1:3:1]                                                        | unknown |                      |
+./spec/helpers/immo/promo/coordination_helper_spec.rb[1:3:2]                                                        | unknown |                      |
+./spec/helpers/immo/promo/coordination_helper_spec.rb[1:4:1]                                                        | unknown |                      |
+./spec/helpers/immo/promo/coordination_helper_spec.rb[1:4:2]                                                        | unknown |                      |
+./spec/helpers/immo/promo/coordination_helper_spec.rb[1:5:1]                                                        | unknown |                      |
+./spec/helpers/immo/promo/coordination_helper_spec.rb[1:5:2]                                                        | unknown |                      |
+./spec/helpers/immo/promo/coordination_helper_spec.rb[1:6:1]                                                        | unknown |                      |
+./spec/helpers/immo/promo/coordination_helper_spec.rb[1:7:1]                                                        | unknown |                      |
+./spec/helpers/immo/promo/coordination_helper_spec.rb[1:8:1]                                                        | unknown |                      |
+./spec/helpers/immo/promo/financial_dashboard_helper_spec.rb[1:1:1]                                                 | unknown |                      |
+./spec/helpers/immo/promo/financial_dashboard_helper_spec.rb[1:1:2]                                                 | unknown |                      |
+./spec/helpers/immo/promo/financial_dashboard_helper_spec.rb[1:2:1]                                                 | unknown |                      |
+./spec/helpers/immo/promo/financial_dashboard_helper_spec.rb[1:2:2]                                                 | unknown |                      |
+./spec/helpers/immo/promo/financial_dashboard_helper_spec.rb[1:3:1]                                                 | unknown |                      |
+./spec/helpers/immo/promo/financial_dashboard_helper_spec.rb[1:3:2]                                                 | unknown |                      |
+./spec/helpers/immo/promo/financial_dashboard_helper_spec.rb[1:4:1]                                                 | unknown |                      |
+./spec/helpers/immo/promo/financial_dashboard_helper_spec.rb[1:4:2]                                                 | unknown |                      |
+./spec/helpers/immo/promo/financial_dashboard_helper_spec.rb[1:5:1]                                                 | unknown |                      |
+./spec/helpers/immo/promo/financial_dashboard_helper_spec.rb[1:6:1]                                                 | unknown |                      |
+./spec/helpers/immo/promo/financial_dashboard_helper_spec.rb[1:7:1]                                                 | unknown |                      |
+./spec/helpers/immo/promo/financial_dashboard_helper_spec.rb[1:8:1]                                                 | unknown |                      |
+./spec/helpers/immo/promo/permits_helper_spec.rb[1:1:1]                                                             | unknown |                      |
+./spec/helpers/immo/promo/permits_helper_spec.rb[1:2:1]                                                             | unknown |                      |
+./spec/helpers/immo/promo/permits_helper_spec.rb[1:3:1]                                                             | unknown |                      |
+./spec/helpers/immo/promo/permits_helper_spec.rb[1:3:2]                                                             | unknown |                      |
+./spec/helpers/immo/promo/permits_helper_spec.rb[1:3:3]                                                             | unknown |                      |
+./spec/helpers/immo/promo/permits_helper_spec.rb[1:4:1]                                                             | unknown |                      |
+./spec/helpers/immo/promo/permits_helper_spec.rb[1:5:1]                                                             | unknown |                      |
+./spec/helpers/immo/promo/permits_helper_spec.rb[1:6:1]                                                             | unknown |                      |
+./spec/helpers/immo/promo/permits_helper_spec.rb[1:7:1]                                                             | unknown |                      |
+./spec/helpers/immo/promo/projects_helper_spec.rb[1:1:1]                                                            | unknown |                      |
+./spec/helpers/immo/promo/projects_helper_spec.rb[1:1:2]                                                            | unknown |                      |
+./spec/helpers/immo/promo/projects_helper_spec.rb[1:2:1]                                                            | unknown |                      |
+./spec/helpers/immo/promo/projects_helper_spec.rb[1:2:2]                                                            | unknown |                      |
+./spec/helpers/immo/promo/projects_helper_spec.rb[1:3:1]                                                            | unknown |                      |
+./spec/helpers/immo/promo/projects_helper_spec.rb[1:3:2]                                                            | unknown |                      |
+./spec/helpers/immo/promo/projects_helper_spec.rb[1:4:1]                                                            | unknown |                      |
+./spec/helpers/immo/promo/projects_helper_spec.rb[1:4:2]                                                            | unknown |                      |
+./spec/helpers/immo/promo/projects_helper_spec.rb[1:5:1]                                                            | unknown |                      |
+./spec/helpers/immo/promo/projects_helper_spec.rb[1:6:1]                                                            | unknown |                      |
+./spec/helpers/immo/promo/projects_helper_spec.rb[1:7:1]                                                            | unknown |                      |
+./spec/helpers/immo/promo/projects_helper_spec.rb[1:8:1]                                                            | unknown |                      |
+./spec/helpers/immo/promo/risk_monitoring_helper_spec.rb[1:1:1]                                                     | unknown |                      |
+./spec/helpers/immo/promo/risk_monitoring_helper_spec.rb[1:1:2]                                                     | unknown |                      |
+./spec/helpers/immo/promo/risk_monitoring_helper_spec.rb[1:2:1]                                                     | unknown |                      |
+./spec/helpers/immo/promo/risk_monitoring_helper_spec.rb[1:2:2]                                                     | unknown |                      |
+./spec/helpers/immo/promo/risk_monitoring_helper_spec.rb[1:3:1]                                                     | unknown |                      |
+./spec/helpers/immo/promo/risk_monitoring_helper_spec.rb[1:4:1]                                                     | unknown |                      |
+./spec/helpers/immo/promo/risk_monitoring_helper_spec.rb[1:5:1]                                                     | unknown |                      |
+./spec/helpers/immo/promo/risk_monitoring_helper_spec.rb[1:6:1]                                                     | unknown |                      |
+./spec/helpers/immo/promo/risk_monitoring_helper_spec.rb[1:7:1]                                                     | unknown |                      |
+./spec/helpers/immo/promo/risk_monitoring_helper_spec.rb[1:7:2]                                                     | unknown |                      |
+./spec/helpers/immo/promo/tasks_helper_spec.rb[1:1:1]                                                               | unknown |                      |
+./spec/helpers/immo/promo/tasks_helper_spec.rb[1:2:1]                                                               | unknown |                      |
+./spec/helpers/immo/promo/tasks_helper_spec.rb[1:2:2]                                                               | unknown |                      |
+./spec/helpers/immo/promo/tasks_helper_spec.rb[1:3:1]                                                               | unknown |                      |
+./spec/helpers/immo/promo/tasks_helper_spec.rb[1:3:2]                                                               | unknown |                      |
+./spec/helpers/immo/promo/tasks_helper_spec.rb[1:4:1]                                                               | unknown |                      |
+./spec/helpers/immo/promo/tasks_helper_spec.rb[1:4:2]                                                               | unknown |                      |
+./spec/helpers/immo/promo/tasks_helper_spec.rb[1:5:1]                                                               | unknown |                      |
+./spec/helpers/immo/promo/tasks_helper_spec.rb[1:6:1]                                                               | unknown |                      |
+./spec/helpers/immo/promo/tasks_helper_spec.rb[1:7:1]                                                               | unknown |                      |
 ./spec/integration/complex_permissions_workflow_spec.rb[1:1:1]                                                      | failed  | 2.02 seconds         |
 ./spec/integration/complex_permissions_workflow_spec.rb[1:1:2]                                                      | failed  | 2.08 seconds         |
 ./spec/integration/complex_permissions_workflow_spec.rb[1:1:3]                                                      | failed  | 2.01 seconds         |
@@ -3483,6 +3920,20 @@ example_id                                                                      
 ./spec/integration/thumbnail_generation_spec.rb[1:3:2]                                                              | passed  | 0.01076 seconds      |
 ./spec/integration/thumbnail_generation_spec.rb[1:4:1]                                                              | passed  | 0.17739 seconds      |
 ./spec/integration/thumbnail_generation_spec.rb[1:4:2]                                                              | passed  | 0.00682 seconds      |
+./spec/jobs/auto_tagging_job_spec.rb[1:1:1]                                                                         | unknown |                      |
+./spec/jobs/auto_tagging_job_spec.rb[1:1:2]                                                                         | unknown |                      |
+./spec/jobs/auto_tagging_job_spec.rb[1:1:3]                                                                         | unknown |                      |
+./spec/jobs/auto_tagging_job_spec.rb[1:1:4]                                                                         | unknown |                      |
+./spec/jobs/auto_tagging_job_spec.rb[1:1:5]                                                                         | unknown |                      |
+./spec/jobs/auto_tagging_job_spec.rb[1:1:6]                                                                         | unknown |                      |
+./spec/jobs/auto_tagging_job_spec.rb[1:1:7]                                                                         | unknown |                      |
+./spec/jobs/auto_tagging_job_spec.rb[1:1:8:1]                                                                       | unknown |                      |
+./spec/jobs/auto_tagging_job_spec.rb[1:1:8:2]                                                                       | unknown |                      |
+./spec/jobs/auto_tagging_job_spec.rb[1:1:9:1]                                                                       | unknown |                      |
+./spec/jobs/auto_tagging_job_spec.rb[1:1:10]                                                                        | unknown |                      |
+./spec/jobs/auto_tagging_job_spec.rb[1:2:1]                                                                         | unknown |                      |
+./spec/jobs/auto_tagging_job_spec.rb[1:2:2]                                                                         | unknown |                      |
+./spec/jobs/auto_tagging_job_spec.rb[1:2:3]                                                                         | unknown |                      |
 ./spec/jobs/content_extraction_job_spec.rb[1:1:1:1]                                                                 | passed  | 0.20701 seconds      |
 ./spec/jobs/content_extraction_job_spec.rb[1:1:1:2]                                                                 | passed  | 0.2066 seconds       |
 ./spec/jobs/content_extraction_job_spec.rb[1:1:1:3]                                                                 | passed  | 0.21214 seconds      |
@@ -3491,6 +3942,23 @@ example_id                                                                      
 ./spec/jobs/content_extraction_job_spec.rb[1:1:4:1]                                                                 | passed  | 0.20091 seconds      |
 ./spec/jobs/content_extraction_job_spec.rb[1:1:5:1]                                                                 | passed  | 0.19854 seconds      |
 ./spec/jobs/content_extraction_job_spec.rb[1:1:5:2]                                                                 | passed  | 0.1989 seconds       |
+./spec/jobs/document_ai_processing_job_spec.rb[1:1:1]                                                               | unknown |                      |
+./spec/jobs/document_ai_processing_job_spec.rb[1:1:2]                                                               | unknown |                      |
+./spec/jobs/document_ai_processing_job_spec.rb[1:1:3]                                                               | unknown |                      |
+./spec/jobs/document_ai_processing_job_spec.rb[1:1:4]                                                               | unknown |                      |
+./spec/jobs/document_ai_processing_job_spec.rb[1:1:5]                                                               | unknown |                      |
+./spec/jobs/document_ai_processing_job_spec.rb[1:1:6:1]                                                             | unknown |                      |
+./spec/jobs/document_ai_processing_job_spec.rb[1:1:6:2]                                                             | unknown |                      |
+./spec/jobs/document_ai_processing_job_spec.rb[1:1:7:1]                                                             | unknown |                      |
+./spec/jobs/document_ai_processing_job_spec.rb[1:1:7:2]                                                             | unknown |                      |
+./spec/jobs/document_ai_processing_job_spec.rb[1:1:7:3]                                                             | unknown |                      |
+./spec/jobs/document_ai_processing_job_spec.rb[1:1:8:1]                                                             | unknown |                      |
+./spec/jobs/document_ai_processing_job_spec.rb[1:1:8:2]                                                             | unknown |                      |
+./spec/jobs/document_ai_processing_job_spec.rb[1:1:9:1]                                                             | unknown |                      |
+./spec/jobs/document_ai_processing_job_spec.rb[1:1:9:2]                                                             | unknown |                      |
+./spec/jobs/document_ai_processing_job_spec.rb[1:2:1]                                                               | unknown |                      |
+./spec/jobs/document_ai_processing_job_spec.rb[1:2:2]                                                               | unknown |                      |
+./spec/jobs/document_ai_processing_job_spec.rb[1:2:3]                                                               | unknown |                      |
 ./spec/jobs/document_processing_job_spec.rb[1:1:1]                                                                  | passed  | 0.2152 seconds       |
 ./spec/jobs/document_processing_job_spec.rb[1:1:2]                                                                  | passed  | 0.20283 seconds      |
 ./spec/jobs/document_processing_job_spec.rb[1:1:3]                                                                  | passed  | 0.22376 seconds      |
@@ -3503,6 +3971,47 @@ example_id                                                                      
 ./spec/jobs/document_processing_job_spec.rb[1:1:9:1]                                                                | passed  | 0.22593 seconds      |
 ./spec/jobs/document_processing_job_spec.rb[1:1:10]                                                                 | passed  | 0.22474 seconds      |
 ./spec/jobs/document_processing_job_spec.rb[1:1:11:1]                                                               | passed  | 0.22275 seconds      |
+./spec/jobs/email_upload_job_spec.rb[1:1:1]                                                                         | unknown |                      |
+./spec/jobs/email_upload_job_spec.rb[1:1:2]                                                                         | unknown |                      |
+./spec/jobs/email_upload_job_spec.rb[1:1:3]                                                                         | unknown |                      |
+./spec/jobs/email_upload_job_spec.rb[1:1:4:1]                                                                       | unknown |                      |
+./spec/jobs/email_upload_job_spec.rb[1:1:5:1]                                                                       | unknown |                      |
+./spec/jobs/metadata_extraction_job_spec.rb[1:1:1]                                                                  | unknown |                      |
+./spec/jobs/metadata_extraction_job_spec.rb[1:1:2]                                                                  | unknown |                      |
+./spec/jobs/metadata_extraction_job_spec.rb[1:1:3:1]                                                                | unknown |                      |
+./spec/jobs/metadata_extraction_job_spec.rb[1:1:4:1]                                                                | unknown |                      |
+./spec/jobs/metadata_extraction_job_spec.rb[1:1:5:1]                                                                | unknown |                      |
+./spec/jobs/metadata_extraction_job_spec.rb[1:1:6]                                                                  | unknown |                      |
+./spec/jobs/metadata_extraction_job_spec.rb[1:1:7]                                                                  | unknown |                      |
+./spec/jobs/metadata_extraction_job_spec.rb[1:1:8:1]                                                                | unknown |                      |
+./spec/jobs/metadata_extraction_job_spec.rb[1:1:8:2]                                                                | unknown |                      |
+./spec/jobs/metadata_extraction_job_spec.rb[1:1:8:3]                                                                | unknown |                      |
+./spec/jobs/metadata_extraction_job_spec.rb[1:1:9:1]                                                                | unknown |                      |
+./spec/jobs/metadata_extraction_job_spec.rb[1:2:1]                                                                  | unknown |                      |
+./spec/jobs/metadata_extraction_job_spec.rb[1:2:2]                                                                  | unknown |                      |
+./spec/jobs/ocr_processing_job_spec.rb[1:1:1:1]                                                                     | unknown |                      |
+./spec/jobs/ocr_processing_job_spec.rb[1:1:1:2]                                                                     | unknown |                      |
+./spec/jobs/ocr_processing_job_spec.rb[1:1:1:3]                                                                     | unknown |                      |
+./spec/jobs/ocr_processing_job_spec.rb[1:1:1:4]                                                                     | unknown |                      |
+./spec/jobs/ocr_processing_job_spec.rb[1:1:1:5:1]                                                                   | unknown |                      |
+./spec/jobs/ocr_processing_job_spec.rb[1:1:1:5:2]                                                                   | unknown |                      |
+./spec/jobs/ocr_processing_job_spec.rb[1:1:1:5:3]                                                                   | unknown |                      |
+./spec/jobs/ocr_processing_job_spec.rb[1:1:1:5:4]                                                                   | unknown |                      |
+./spec/jobs/ocr_processing_job_spec.rb[1:1:1:6:1]                                                                   | unknown |                      |
+./spec/jobs/ocr_processing_job_spec.rb[1:1:1:6:2]                                                                   | unknown |                      |
+./spec/jobs/ocr_processing_job_spec.rb[1:1:1:7:1]                                                                   | unknown |                      |
+./spec/jobs/ocr_processing_job_spec.rb[1:1:1:8]                                                                     | unknown |                      |
+./spec/jobs/ocr_processing_job_spec.rb[1:1:1:9:1]                                                                   | unknown |                      |
+./spec/jobs/ocr_processing_job_spec.rb[1:1:1:9:2]                                                                   | unknown |                      |
+./spec/jobs/ocr_processing_job_spec.rb[1:1:1:9:3]                                                                   | unknown |                      |
+./spec/jobs/ocr_processing_job_spec.rb[1:1:1:10:1]                                                                  | unknown |                      |
+./spec/jobs/ocr_processing_job_spec.rb[1:1:1:10:2]                                                                  | unknown |                      |
+./spec/jobs/ocr_processing_job_spec.rb[1:1:2:1]                                                                     | unknown |                      |
+./spec/jobs/ocr_processing_job_spec.rb[1:1:2:2]                                                                     | unknown |                      |
+./spec/jobs/ocr_processing_job_spec.rb[1:1:2:3]                                                                     | unknown |                      |
+./spec/jobs/ocr_processing_job_spec.rb[1:2:1]                                                                       | unknown |                      |
+./spec/jobs/ocr_processing_job_spec.rb[1:2:2]                                                                       | unknown |                      |
+./spec/jobs/ocr_processing_job_spec.rb[1:2:3]                                                                       | unknown |                      |
 ./spec/jobs/preview_generation_job_spec.rb[1:1:1]                                                                   | passed  | 0.35919 seconds      |
 ./spec/jobs/preview_generation_job_spec.rb[1:1:2:1]                                                                 | passed  | 0.21153 seconds      |
 ./spec/jobs/preview_generation_job_spec.rb[1:1:2:2]                                                                 | passed  | 0.21339 seconds      |
@@ -3531,6 +4040,26 @@ example_id                                                                      
 ./spec/jobs/thumbnail_generation_job_spec.rb[1:1:7:2]                                                               | failed  | 0.00104 seconds      |
 ./spec/jobs/thumbnail_generation_job_spec.rb[1:2:1]                                                                 | passed  | 0.0011 seconds       |
 ./spec/jobs/thumbnail_generation_job_spec.rb[1:2:2]                                                                 | passed  | 0.01099 seconds      |
+./spec/jobs/virus_scan_job_spec.rb[1:1:1]                                                                           | unknown |                      |
+./spec/jobs/virus_scan_job_spec.rb[1:1:2:1]                                                                         | unknown |                      |
+./spec/jobs/virus_scan_job_spec.rb[1:1:2:2]                                                                         | unknown |                      |
+./spec/jobs/virus_scan_job_spec.rb[1:1:2:3]                                                                         | unknown |                      |
+./spec/jobs/virus_scan_job_spec.rb[1:1:2:4]                                                                         | unknown |                      |
+./spec/jobs/virus_scan_job_spec.rb[1:1:3:1]                                                                         | unknown |                      |
+./spec/jobs/virus_scan_job_spec.rb[1:1:4:1]                                                                         | unknown |                      |
+./spec/jobs/virus_scan_job_spec.rb[1:1:4:2]                                                                         | unknown |                      |
+./spec/jobs/virus_scan_job_spec.rb[1:1:5:1]                                                                         | unknown |                      |
+./spec/jobs/virus_scan_job_spec.rb[1:1:5:2]                                                                         | unknown |                      |
+./spec/jobs/virus_scan_job_spec.rb[1:1:5:3]                                                                         | unknown |                      |
+./spec/jobs/virus_scan_job_spec.rb[1:1:6:1]                                                                         | unknown |                      |
+./spec/jobs/virus_scan_job_spec.rb[1:1:6:2]                                                                         | unknown |                      |
+./spec/jobs/virus_scan_job_spec.rb[1:1:6:3]                                                                         | unknown |                      |
+./spec/jobs/virus_scan_job_spec.rb[1:1:7:1]                                                                         | unknown |                      |
+./spec/jobs/virus_scan_job_spec.rb[1:1:7:2]                                                                         | unknown |                      |
+./spec/jobs/virus_scan_job_spec.rb[1:2:1]                                                                           | unknown |                      |
+./spec/jobs/virus_scan_job_spec.rb[1:2:2]                                                                           | unknown |                      |
+./spec/jobs/virus_scan_job_spec.rb[1:2:3]                                                                           | unknown |                      |
+./spec/jobs/virus_scan_job_spec.rb[1:2:4]                                                                           | unknown |                      |
 ./spec/lib/simple_spec.rb[1:1]                                                                                      | passed  | 0.00165 seconds      |
 ./spec/models/authorization_spec.rb[1:1:1]                                                                          | passed  | 0.50735 seconds      |
 ./spec/models/authorization_spec.rb[1:1:2]                                                                          | passed  | 0.50564 seconds      |
@@ -3675,6 +4204,21 @@ example_id                                                                      
 ./spec/models/concerns/documents/activity_trackable_spec.rb[1:1:2]                                                  | passed  | 0.38347 seconds      |
 ./spec/models/concerns/documents/activity_trackable_spec.rb[1:2:1]                                                  | passed  | 0.38463 seconds      |
 ./spec/models/concerns/documents/activity_trackable_spec.rb[1:2:2]                                                  | passed  | 0.36925 seconds      |
+./spec/models/concerns/documents/ai_processable_spec.rb[1:1:1:1]                                                    | unknown |                      |
+./spec/models/concerns/documents/ai_processable_spec.rb[1:1:1:2]                                                    | unknown |                      |
+./spec/models/concerns/documents/ai_processable_spec.rb[1:1:2:1]                                                    | unknown |                      |
+./spec/models/concerns/documents/ai_processable_spec.rb[1:1:2:2]                                                    | unknown |                      |
+./spec/models/concerns/documents/ai_processable_spec.rb[1:1:3:1]                                                    | unknown |                      |
+./spec/models/concerns/documents/ai_processable_spec.rb[1:1:3:2]                                                    | unknown |                      |
+./spec/models/concerns/documents/ai_processable_spec.rb[1:1:3:3]                                                    | unknown |                      |
+./spec/models/concerns/documents/ai_processable_spec.rb[1:1:4:1:1]                                                  | unknown |                      |
+./spec/models/concerns/documents/ai_processable_spec.rb[1:1:4:1:2]                                                  | unknown |                      |
+./spec/models/concerns/documents/ai_processable_spec.rb[1:1:4:2:1]                                                  | unknown |                      |
+./spec/models/concerns/documents/ai_processable_spec.rb[1:1:5:1]                                                    | unknown |                      |
+./spec/models/concerns/documents/ai_processable_spec.rb[1:1:5:2]                                                    | unknown |                      |
+./spec/models/concerns/documents/ai_processable_spec.rb[1:1:6:1]                                                    | unknown |                      |
+./spec/models/concerns/documents/ai_processable_spec.rb[1:1:6:2]                                                    | unknown |                      |
+./spec/models/concerns/documents/ai_processable_spec.rb[1:1:6:3]                                                    | unknown |                      |
 ./spec/models/concerns/documents/display_helpers_spec.rb[1:1:1]                                                     | passed  | 0.20108 seconds      |
 ./spec/models/concerns/documents/display_helpers_spec.rb[1:2:1:1]                                                   | passed  | 0.19072 seconds      |
 ./spec/models/concerns/documents/display_helpers_spec.rb[1:2:2:1]                                                   | passed  | 0.19952 seconds      |
@@ -3696,6 +4240,53 @@ example_id                                                                      
 ./spec/models/concerns/documents/file_management_spec.rb[1:6:3]                                                     | passed  | 0.19584 seconds      |
 ./spec/models/concerns/documents/file_management_spec.rb[1:6:4]                                                     | passed  | 0.19677 seconds      |
 ./spec/models/concerns/documents/file_management_spec.rb[1:6:5]                                                     | passed  | 0.19652 seconds      |
+./spec/models/concerns/documents/lockable_spec.rb[1:1:1:1]                                                          | unknown |                      |
+./spec/models/concerns/documents/lockable_spec.rb[1:1:1:2]                                                          | unknown |                      |
+./spec/models/concerns/documents/lockable_spec.rb[1:1:1:3]                                                          | unknown |                      |
+./spec/models/concerns/documents/lockable_spec.rb[1:1:1:4]                                                          | unknown |                      |
+./spec/models/concerns/documents/lockable_spec.rb[1:1:1:5]                                                          | unknown |                      |
+./spec/models/concerns/documents/lockable_spec.rb[1:1:1:6]                                                          | unknown |                      |
+./spec/models/concerns/documents/lockable_spec.rb[1:1:2:1]                                                          | unknown |                      |
+./spec/models/concerns/documents/lockable_spec.rb[1:1:2:2]                                                          | unknown |                      |
+./spec/models/concerns/documents/lockable_spec.rb[1:1:2:3]                                                          | unknown |                      |
+./spec/models/concerns/documents/lockable_spec.rb[1:1:3:1]                                                          | unknown |                      |
+./spec/models/concerns/documents/lockable_spec.rb[1:1:3:2]                                                          | unknown |                      |
+./spec/models/concerns/documents/lockable_spec.rb[1:1:3:3]                                                          | unknown |                      |
+./spec/models/concerns/documents/lockable_spec.rb[1:1:4:1]                                                          | unknown |                      |
+./spec/models/concerns/documents/lockable_spec.rb[1:1:4:2]                                                          | unknown |                      |
+./spec/models/concerns/documents/lockable_spec.rb[1:1:4:3]                                                          | unknown |                      |
+./spec/models/concerns/documents/lockable_spec.rb[1:1:5:1]                                                          | unknown |                      |
+./spec/models/concerns/documents/lockable_spec.rb[1:1:5:2]                                                          | unknown |                      |
+./spec/models/concerns/documents/lockable_spec.rb[1:1:5:3]                                                          | unknown |                      |
+./spec/models/concerns/documents/lockable_spec.rb[1:1:6:1]                                                          | unknown |                      |
+./spec/models/concerns/documents/lockable_spec.rb[1:1:6:2]                                                          | unknown |                      |
+./spec/models/concerns/documents/lockable_spec.rb[1:1:7:1]                                                          | unknown |                      |
+./spec/models/concerns/documents/processable_spec.rb[1:1:1]                                                         | unknown |                      |
+./spec/models/concerns/documents/processable_spec.rb[1:1:2:1]                                                       | unknown |                      |
+./spec/models/concerns/documents/processable_spec.rb[1:1:3:1]                                                       | unknown |                      |
+./spec/models/concerns/documents/processable_spec.rb[1:1:3:2]                                                       | unknown |                      |
+./spec/models/concerns/documents/processable_spec.rb[1:1:4:1]                                                       | unknown |                      |
+./spec/models/concerns/documents/processable_spec.rb[1:1:5:1]                                                       | unknown |                      |
+./spec/models/concerns/documents/processable_spec.rb[1:1:5:2]                                                       | unknown |                      |
+./spec/models/concerns/documents/processable_spec.rb[1:1:6:1]                                                       | unknown |                      |
+./spec/models/concerns/documents/processable_spec.rb[1:1:6:2]                                                       | unknown |                      |
+./spec/models/concerns/documents/processable_spec.rb[1:1:7:1]                                                       | unknown |                      |
+./spec/models/concerns/documents/processable_spec.rb[1:1:7:2]                                                       | unknown |                      |
+./spec/models/concerns/documents/processable_spec.rb[1:1:8:1]                                                       | unknown |                      |
+./spec/models/concerns/documents/processable_spec.rb[1:1:8:2]                                                       | unknown |                      |
+./spec/models/concerns/documents/processable_spec.rb[1:1:9:1]                                                       | unknown |                      |
+./spec/models/concerns/documents/processable_spec.rb[1:1:9:2]                                                       | unknown |                      |
+./spec/models/concerns/documents/processable_spec.rb[1:1:9:3]                                                       | unknown |                      |
+./spec/models/concerns/documents/processable_spec.rb[1:2:1:1:1]                                                     | unknown |                      |
+./spec/models/concerns/documents/processable_spec.rb[1:2:1:2:1]                                                     | unknown |                      |
+./spec/models/concerns/documents/processable_spec.rb[1:2:1:3:1]                                                     | unknown |                      |
+./spec/models/concerns/documents/processable_spec.rb[1:2:2:1]                                                       | unknown |                      |
+./spec/models/concerns/documents/processable_spec.rb[1:2:2:2]                                                       | unknown |                      |
+./spec/models/concerns/documents/processable_spec.rb[1:2:3:1]                                                       | unknown |                      |
+./spec/models/concerns/documents/processable_spec.rb[1:3:1:1]                                                       | unknown |                      |
+./spec/models/concerns/documents/processable_spec.rb[1:3:2:1]                                                       | unknown |                      |
+./spec/models/concerns/documents/processable_spec.rb[1:3:3:1]                                                       | unknown |                      |
+./spec/models/concerns/documents/processable_spec.rb[1:3:4:1]                                                       | unknown |                      |
 ./spec/models/concerns/documents/searchable_spec.rb[1:1:1]                                                          | passed  | 0.0009 seconds       |
 ./spec/models/concerns/documents/searchable_spec.rb[1:2:1]                                                          | passed  | 0.20308 seconds      |
 ./spec/models/concerns/documents/searchable_spec.rb[1:2:2]                                                          | passed  | 0.21968 seconds      |
@@ -3744,6 +4335,63 @@ example_id                                                                      
 ./spec/models/concerns/documents/versionable_spec.rb[1:2:3:1]                                                       | failed  | 0.2179 seconds       |
 ./spec/models/concerns/documents/versionable_spec.rb[1:3:1:1]                                                       | passed  | 0.19281 seconds      |
 ./spec/models/concerns/documents/versionable_spec.rb[1:3:2:1]                                                       | passed  | 0.40128 seconds      |
+./spec/models/concerns/documents/view_trackable_spec.rb[1:1:1]                                                      | unknown |                      |
+./spec/models/concerns/documents/view_trackable_spec.rb[1:2:1:1]                                                    | unknown |                      |
+./spec/models/concerns/documents/view_trackable_spec.rb[1:2:2:1]                                                    | unknown |                      |
+./spec/models/concerns/documents/view_trackable_spec.rb[1:2:3:1]                                                    | unknown |                      |
+./spec/models/concerns/documents/view_trackable_spec.rb[1:2:4:1]                                                    | unknown |                      |
+./spec/models/concerns/documents/view_trackable_spec.rb[1:3:1]                                                      | unknown |                      |
+./spec/models/concerns/documents/view_trackable_spec.rb[1:3:2]                                                      | unknown |                      |
+./spec/models/concerns/documents/view_trackable_spec.rb[1:3:3]                                                      | unknown |                      |
+./spec/models/concerns/documents/view_trackable_spec.rb[1:3:4]                                                      | unknown |                      |
+./spec/models/concerns/documents/view_trackable_spec.rb[1:4:1]                                                      | unknown |                      |
+./spec/models/concerns/documents/view_trackable_spec.rb[1:5:1:1]                                                    | unknown |                      |
+./spec/models/concerns/documents/view_trackable_spec.rb[1:5:1:2]                                                    | unknown |                      |
+./spec/models/concerns/documents/view_trackable_spec.rb[1:5:2:1]                                                    | unknown |                      |
+./spec/models/concerns/documents/view_trackable_spec.rb[1:6:1]                                                      | unknown |                      |
+./spec/models/concerns/documents/view_trackable_spec.rb[1:7:1]                                                      | unknown |                      |
+./spec/models/concerns/documents/view_trackable_spec.rb[1:7:2]                                                      | unknown |                      |
+./spec/models/concerns/documents/virus_scannable_spec.rb[1:1:1]                                                     | unknown |                      |
+./spec/models/concerns/documents/virus_scannable_spec.rb[1:1:2:1]                                                   | unknown |                      |
+./spec/models/concerns/documents/virus_scannable_spec.rb[1:1:3:1]                                                   | unknown |                      |
+./spec/models/concerns/documents/virus_scannable_spec.rb[1:1:3:2]                                                   | unknown |                      |
+./spec/models/concerns/documents/virus_scannable_spec.rb[1:1:4:1]                                                   | unknown |                      |
+./spec/models/concerns/documents/virus_scannable_spec.rb[1:1:4:2]                                                   | unknown |                      |
+./spec/models/concerns/documents/virus_scannable_spec.rb[1:1:4:3]                                                   | unknown |                      |
+./spec/models/concerns/documents/virus_scannable_spec.rb[1:1:5:1]                                                   | unknown |                      |
+./spec/models/concerns/documents/virus_scannable_spec.rb[1:1:6:1]                                                   | unknown |                      |
+./spec/models/concerns/documents/virus_scannable_spec.rb[1:1:6:2]                                                   | unknown |                      |
+./spec/models/concerns/documents/virus_scannable_spec.rb[1:1:7:1]                                                   | unknown |                      |
+./spec/models/concerns/documents/virus_scannable_spec.rb[1:1:7:2]                                                   | unknown |                      |
+./spec/models/concerns/documents/virus_scannable_spec.rb[1:1:8:1]                                                   | unknown |                      |
+./spec/models/concerns/documents/virus_scannable_spec.rb[1:1:8:2]                                                   | unknown |                      |
+./spec/models/concerns/documents/virus_scannable_spec.rb[1:1:8:3]                                                   | unknown |                      |
+./spec/models/concerns/documents/virus_scannable_spec.rb[1:1:8:4]                                                   | unknown |                      |
+./spec/models/concerns/documents/virus_scannable_spec.rb[1:1:9:1]                                                   | unknown |                      |
+./spec/models/concerns/documents/virus_scannable_spec.rb[1:1:9:2]                                                   | unknown |                      |
+./spec/models/concerns/documents/virus_scannable_spec.rb[1:1:9:3]                                                   | unknown |                      |
+./spec/models/concerns/documents/virus_scannable_spec.rb[1:1:9:4]                                                   | unknown |                      |
+./spec/models/concerns/documents/virus_scannable_spec.rb[1:1:10:1]                                                  | unknown |                      |
+./spec/models/concerns/documents/virus_scannable_spec.rb[1:1:10:2]                                                  | unknown |                      |
+./spec/models/concerns/documents/virus_scannable_spec.rb[1:1:11:1]                                                  | unknown |                      |
+./spec/models/concerns/documents/virus_scannable_spec.rb[1:1:11:2]                                                  | unknown |                      |
+./spec/models/concerns/documents/virus_scannable_spec.rb[1:2:1:1]                                                   | unknown |                      |
+./spec/models/concerns/documents/virus_scannable_spec.rb[1:2:2:1]                                                   | unknown |                      |
+./spec/models/concerns/documents/virus_scannable_spec.rb[1:2:3:1]                                                   | unknown |                      |
+./spec/models/concerns/documents/virus_scannable_spec.rb[1:2:4:1]                                                   | unknown |                      |
+./spec/models/concerns/documents/virus_scannable_spec.rb[1:2:5:1]                                                   | unknown |                      |
+./spec/models/concerns/immo/promo/workflow_states_spec.rb[1:1:1]                                                    | unknown |                      |
+./spec/models/concerns/immo/promo/workflow_states_spec.rb[1:2:1:1]                                                  | unknown |                      |
+./spec/models/concerns/immo/promo/workflow_states_spec.rb[1:2:1:2]                                                  | unknown |                      |
+./spec/models/concerns/immo/promo/workflow_states_spec.rb[1:2:2:1]                                                  | unknown |                      |
+./spec/models/concerns/immo/promo/workflow_states_spec.rb[1:2:2:2]                                                  | unknown |                      |
+./spec/models/concerns/immo/promo/workflow_states_spec.rb[1:3:1]                                                    | unknown |                      |
+./spec/models/concerns/immo/promo/workflow_states_spec.rb[1:3:2]                                                    | unknown |                      |
+./spec/models/concerns/immo/promo/workflow_states_spec.rb[1:4:1]                                                    | unknown |                      |
+./spec/models/concerns/immo/promo/workflow_states_spec.rb[1:5:1]                                                    | unknown |                      |
+./spec/models/concerns/immo/promo/workflow_states_spec.rb[1:6:1]                                                    | unknown |                      |
+./spec/models/concerns/immo/promo/workflow_states_spec.rb[1:7:1]                                                    | unknown |                      |
+./spec/models/concerns/immo/promo/workflow_states_spec.rb[1:8:1]                                                    | unknown |                      |
 ./spec/models/concerns/linkable_spec.rb[1:1:1]                                                                      | passed  | 0.19475 seconds      |
 ./spec/models/concerns/linkable_spec.rb[1:1:2]                                                                      | passed  | 0.19457 seconds      |
 ./spec/models/concerns/linkable_spec.rb[1:1:3]                                                                      | passed  | 0.00083 seconds      |
@@ -3796,25 +4444,25 @@ example_id                                                                      
 ./spec/models/concerns/linkable_spec.rb[1:19:1]                                                                     | passed  | 0.39506 seconds      |
 ./spec/models/concerns/linkable_spec.rb[1:20:1:1]                                                                   | passed  | 0.39787 seconds      |
 ./spec/models/concerns/linkable_spec.rb[1:20:2:1]                                                                   | passed  | 0.39321 seconds      |
-./spec/models/concerns/ownership_spec.rb[1:1:1]                                                                     | passed  | 0.00088 seconds      |
-./spec/models/concerns/ownership_spec.rb[1:1:2]                                                                     | passed  | 0.00538 seconds      |
-./spec/models/concerns/ownership_spec.rb[1:1:3]                                                                     | passed  | 0.00081 seconds      |
-./spec/models/concerns/ownership_spec.rb[1:2:1]                                                                     | passed  | 0.00082 seconds      |
-./spec/models/concerns/ownership_spec.rb[1:3:1:1]                                                                   | passed  | 0.16955 seconds      |
-./spec/models/concerns/ownership_spec.rb[1:3:1:2]                                                                   | passed  | 0.33649 seconds      |
-./spec/models/concerns/ownership_spec.rb[1:3:2:1]                                                                   | passed  | 0.16982 seconds      |
-./spec/models/concerns/ownership_spec.rb[1:3:2:2]                                                                   | passed  | 0.3363 seconds       |
-./spec/models/concerns/ownership_spec.rb[1:3:3:1]                                                                   | passed  | 0.33688 seconds      |
-./spec/models/concerns/ownership_spec.rb[1:3:4:1]                                                                   | passed  | 0.16802 seconds      |
-./spec/models/concerns/ownership_spec.rb[1:3:5]                                                                     | passed  | 0.17037 seconds      |
-./spec/models/concerns/ownership_spec.rb[1:4:1:1]                                                                   | passed  | 0.16956 seconds      |
-./spec/models/concerns/ownership_spec.rb[1:4:2:1]                                                                   | passed  | 0.33805 seconds      |
-./spec/models/concerns/ownership_spec.rb[1:4:3:1]                                                                   | passed  | 0.16928 seconds      |
-./spec/models/concerns/ownership_spec.rb[1:4:4:1]                                                                   | passed  | 0.171 seconds        |
-./spec/models/concerns/ownership_spec.rb[1:5:1:1]                                                                   | passed  | 0.16918 seconds      |
-./spec/models/concerns/ownership_spec.rb[1:5:2:1]                                                                   | passed  | 0.16932 seconds      |
-./spec/models/concerns/ownership_spec.rb[1:5:2:2]                                                                   | passed  | 0.34298 seconds      |
-./spec/models/concerns/ownership_spec.rb[1:5:3:1]                                                                   | passed  | 0.00112 seconds      |
+./spec/models/concerns/ownership_spec.rb[1:1:1]                                                                     | passed  | 0.00049 seconds      |
+./spec/models/concerns/ownership_spec.rb[1:1:2]                                                                     | passed  | 0.00061 seconds      |
+./spec/models/concerns/ownership_spec.rb[1:1:3]                                                                     | passed  | 0.0005 seconds       |
+./spec/models/concerns/ownership_spec.rb[1:2:1]                                                                     | passed  | 0.0006 seconds       |
+./spec/models/concerns/ownership_spec.rb[1:3:1:1]                                                                   | passed  | 0.00335 seconds      |
+./spec/models/concerns/ownership_spec.rb[1:3:1:2]                                                                   | passed  | 0.00584 seconds      |
+./spec/models/concerns/ownership_spec.rb[1:3:2:1]                                                                   | passed  | 0.00333 seconds      |
+./spec/models/concerns/ownership_spec.rb[1:3:2:2]                                                                   | passed  | 0.00542 seconds      |
+./spec/models/concerns/ownership_spec.rb[1:3:3:1]                                                                   | passed  | 0.00602 seconds      |
+./spec/models/concerns/ownership_spec.rb[1:3:4:1]                                                                   | passed  | 0.00304 seconds      |
+./spec/models/concerns/ownership_spec.rb[1:3:5]                                                                     | passed  | 0.00338 seconds      |
+./spec/models/concerns/ownership_spec.rb[1:4:1:1]                                                                   | passed  | 0.0035 seconds       |
+./spec/models/concerns/ownership_spec.rb[1:4:2:1]                                                                   | passed  | 0.00778 seconds      |
+./spec/models/concerns/ownership_spec.rb[1:4:3:1]                                                                   | passed  | 0.00348 seconds      |
+./spec/models/concerns/ownership_spec.rb[1:4:4:1]                                                                   | passed  | 0.0036 seconds       |
+./spec/models/concerns/ownership_spec.rb[1:5:1:1]                                                                   | passed  | 0.00418 seconds      |
+./spec/models/concerns/ownership_spec.rb[1:5:2:1]                                                                   | passed  | 0.00292 seconds      |
+./spec/models/concerns/ownership_spec.rb[1:5:2:2]                                                                   | passed  | 0.00546 seconds      |
+./spec/models/concerns/ownership_spec.rb[1:5:3:1]                                                                   | passed  | 0.00057 seconds      |
 ./spec/models/concerns/schedulable_spec.rb[1:1:1]                                                                   | passed  | 0.00249 seconds      |
 ./spec/models/concerns/schedulable_spec.rb[1:1:2]                                                                   | passed  | 0.00222 seconds      |
 ./spec/models/concerns/schedulable_spec.rb[1:1:3]                                                                   | passed  | 0.0035 seconds       |
@@ -3966,6 +4614,32 @@ example_id                                                                      
 ./spec/models/document_locking_spec.rb[1:1:9:1:1]                                                                   | passed  | 0.35472 seconds      |
 ./spec/models/document_locking_spec.rb[1:1:9:2:1]                                                                   | passed  | 0.19312 seconds      |
 ./spec/models/document_locking_spec.rb[1:1:9:2:2]                                                                   | passed  | 0.36003 seconds      |
+./spec/models/document_metadata_spec.rb[1:1:1]                                                                      | unknown |                      |
+./spec/models/document_metadata_spec.rb[1:1:2]                                                                      | unknown |                      |
+./spec/models/document_metadata_spec.rb[1:2:1]                                                                      | unknown |                      |
+./spec/models/document_metadata_spec.rb[1:2:2]                                                                      | unknown |                      |
+./spec/models/document_metadata_spec.rb[1:2:3]                                                                      | unknown |                      |
+./spec/models/document_metadata_spec.rb[1:3:1:1]                                                                    | unknown |                      |
+./spec/models/document_metadata_spec.rb[1:3:1:2]                                                                    | unknown |                      |
+./spec/models/document_metadata_spec.rb[1:3:2:1]                                                                    | unknown |                      |
+./spec/models/document_metadata_spec.rb[1:3:2:2]                                                                    | unknown |                      |
+./spec/models/document_metadata_spec.rb[1:3:2:3]                                                                    | unknown |                      |
+./spec/models/document_metadata_spec.rb[1:3:3:1]                                                                    | unknown |                      |
+./spec/models/document_metadata_spec.rb[1:3:3:2]                                                                    | unknown |                      |
+./spec/models/document_metadata_spec.rb[1:3:4:1]                                                                    | unknown |                      |
+./spec/models/document_metadata_spec.rb[1:3:5:1]                                                                    | unknown |                      |
+./spec/models/document_metadata_spec.rb[1:3:5:2]                                                                    | unknown |                      |
+./spec/models/document_metadata_spec.rb[1:3:6:1]                                                                    | unknown |                      |
+./spec/models/document_metadata_spec.rb[1:4:1]                                                                      | unknown |                      |
+./spec/models/document_metadata_spec.rb[1:4:2]                                                                      | unknown |                      |
+./spec/models/document_metadata_spec.rb[1:4:3]                                                                      | unknown |                      |
+./spec/models/document_metadata_spec.rb[1:4:4]                                                                      | unknown |                      |
+./spec/models/document_metadata_spec.rb[1:5:1]                                                                      | unknown |                      |
+./spec/models/document_metadata_spec.rb[1:5:2]                                                                      | unknown |                      |
+./spec/models/document_metadata_spec.rb[1:5:3]                                                                      | unknown |                      |
+./spec/models/document_metadata_spec.rb[1:6:1]                                                                      | unknown |                      |
+./spec/models/document_metadata_spec.rb[1:7:1:1]                                                                    | unknown |                      |
+./spec/models/document_metadata_spec.rb[1:7:2:1]                                                                    | unknown |                      |
 ./spec/models/document_share_spec.rb[1:1:1]                                                                         | passed  | 0.00106 seconds      |
 ./spec/models/document_share_spec.rb[1:1:2]                                                                         | passed  | 0.00217 seconds      |
 ./spec/models/document_share_spec.rb[1:2:1]                                                                         | passed  | 0.0015 seconds       |
@@ -4046,6 +4720,35 @@ example_id                                                                      
 ./spec/models/document_validation_spec.rb[1:5:1]                                                                    | passed  | 1.6 seconds          |
 ./spec/models/document_validation_spec.rb[1:5:2]                                                                    | passed  | 1.6 seconds          |
 ./spec/models/document_validation_spec.rb[1:5:3]                                                                    | passed  | 1.77 seconds         |
+./spec/models/document_version_spec.rb[1:1:1]                                                                       | unknown |                      |
+./spec/models/document_version_spec.rb[1:2:1]                                                                       | unknown |                      |
+./spec/models/document_version_spec.rb[1:3:1]                                                                       | unknown |                      |
+./spec/models/document_version_spec.rb[1:3:2]                                                                       | unknown |                      |
+./spec/models/document_version_spec.rb[1:4:1]                                                                       | unknown |                      |
+./spec/models/document_version_spec.rb[1:4:2]                                                                       | unknown |                      |
+./spec/models/document_version_spec.rb[1:5:1:1]                                                                     | unknown |                      |
+./spec/models/document_version_spec.rb[1:5:2:1]                                                                     | unknown |                      |
+./spec/models/document_version_spec.rb[1:5:3:1]                                                                     | unknown |                      |
+./spec/models/document_version_spec.rb[1:5:4:1]                                                                     | unknown |                      |
+./spec/models/document_version_spec.rb[1:6:1]                                                                       | unknown |                      |
+./spec/models/document_version_spec.rb[1:6:2]                                                                       | unknown |                      |
+./spec/models/document_version_spec.rb[1:6:3]                                                                       | unknown |                      |
+./spec/models/document_version_spec.rb[1:7:1]                                                                       | unknown |                      |
+./spec/models/document_version_spec.rb[1:7:2]                                                                       | unknown |                      |
+./spec/models/document_version_spec.rb[1:7:3]                                                                       | unknown |                      |
+./spec/models/document_version_spec.rb[1:8:1]                                                                       | unknown |                      |
+./spec/models/document_version_spec.rb[1:8:2]                                                                       | unknown |                      |
+./spec/models/document_version_spec.rb[1:9:1]                                                                       | unknown |                      |
+./spec/models/document_version_spec.rb[1:9:2]                                                                       | unknown |                      |
+./spec/models/document_version_spec.rb[1:10:1]                                                                      | unknown |                      |
+./spec/models/document_version_spec.rb[1:10:2]                                                                      | unknown |                      |
+./spec/models/document_version_spec.rb[1:11:1:1]                                                                    | unknown |                      |
+./spec/models/document_version_spec.rb[1:11:2:1]                                                                    | unknown |                      |
+./spec/models/document_version_spec.rb[1:11:3:1]                                                                    | unknown |                      |
+./spec/models/document_version_spec.rb[1:11:4:1]                                                                    | unknown |                      |
+./spec/models/document_version_spec.rb[1:12:1]                                                                      | unknown |                      |
+./spec/models/document_version_spec.rb[1:13:1:1]                                                                    | unknown |                      |
+./spec/models/document_version_spec.rb[1:13:2:1]                                                                    | unknown |                      |
 ./spec/models/folder_spec.rb[1:1:1]                                                                                 | passed  | 0.00092 seconds      |
 ./spec/models/folder_spec.rb[1:2:1]                                                                                 | passed  | 0.00205 seconds      |
 ./spec/models/folder_spec.rb[1:2:2]                                                                                 | passed  | 0.00082 seconds      |
@@ -4524,13 +5227,13 @@ example_id                                                                      
 ./spec/requests/home_spec.rb[1:1:2:5:2]                                                                             | passed  | 0.20658 seconds      |
 ./spec/requests/home_spec.rb[1:2:1]                                                                                 | passed  | 0.30867 seconds      |
 ./spec/requests/home_spec.rb[1:2:2]                                                                                 | passed  | 0.30827 seconds      |
-./spec/routing/route_helpers_spec.rb[1:1:1]                                                                         | passed  | 0.02252 seconds      |
-./spec/routing/route_helpers_spec.rb[1:1:2]                                                                         | passed  | 0.00112 seconds      |
-./spec/routing/route_helpers_spec.rb[1:1:3]                                                                         | passed  | 0.01235 seconds      |
-./spec/routing/route_helpers_spec.rb[1:2:1]                                                                         | passed  | 0.00591 seconds      |
-./spec/routing/route_helpers_spec.rb[1:2:2]                                                                         | passed  | 0.01326 seconds      |
-./spec/routing/route_helpers_spec.rb[1:3:1]                                                                         | passed  | 0.00076 seconds      |
-./spec/routing/route_helpers_spec.rb[1:3:2]                                                                         | passed  | 0.00086 seconds      |
+./spec/routing/route_helpers_spec.rb[1:1:1]                                                                         | passed  | 0.03169 seconds      |
+./spec/routing/route_helpers_spec.rb[1:1:2]                                                                         | passed  | 0.01184 seconds      |
+./spec/routing/route_helpers_spec.rb[1:1:3]                                                                         | passed  | 0.00153 seconds      |
+./spec/routing/route_helpers_spec.rb[1:2:1]                                                                         | passed  | 0.00561 seconds      |
+./spec/routing/route_helpers_spec.rb[1:2:2]                                                                         | passed  | 0.01645 seconds      |
+./spec/routing/route_helpers_spec.rb[1:3:1]                                                                         | passed  | 0.00084 seconds      |
+./spec/routing/route_helpers_spec.rb[1:3:2]                                                                         | passed  | 0.00082 seconds      |
 ./spec/services/ai_classification_service_spec.rb[1:1:1:1]                                                          | passed  | 0.22221 seconds      |
 ./spec/services/ai_classification_service_spec.rb[1:1:2:1]                                                          | passed  | 0.22164 seconds      |
 ./spec/services/ai_classification_service_spec.rb[1:2:1]                                                            | passed  | 0.19464 seconds      |
@@ -4598,9 +5301,55 @@ example_id                                                                      
 ./spec/services/metrics_service/activity_metrics_spec.rb[1:1:2]                                                     | passed  | 0.27431 seconds      |
 ./spec/services/metrics_service/activity_metrics_spec.rb[1:2:1]                                                     | passed  | 0.17724 seconds      |
 ./spec/services/metrics_service/activity_metrics_spec.rb[1:3:1]                                                     | passed  | 0.20541 seconds      |
+./spec/services/metrics_service/business_metrics_spec.rb[1:1:1:1]                                                   | unknown |                      |
+./spec/services/metrics_service/business_metrics_spec.rb[1:1:1:2]                                                   | unknown |                      |
+./spec/services/metrics_service/business_metrics_spec.rb[1:1:1:3]                                                   | unknown |                      |
+./spec/services/metrics_service/business_metrics_spec.rb[1:1:2:1]                                                   | unknown |                      |
+./spec/services/metrics_service/business_metrics_spec.rb[1:2:1:1]                                                   | unknown |                      |
+./spec/services/metrics_service/business_metrics_spec.rb[1:2:1:2]                                                   | unknown |                      |
+./spec/services/metrics_service/business_metrics_spec.rb[1:3:1:1]                                                   | unknown |                      |
+./spec/services/metrics_service/business_metrics_spec.rb[1:3:2:1]                                                   | unknown |                      |
+./spec/services/metrics_service/business_metrics_spec.rb[1:4:1]                                                     | unknown |                      |
+./spec/services/metrics_service/business_metrics_spec.rb[1:5:1:1]                                                   | unknown |                      |
+./spec/services/metrics_service/core_calculations_spec.rb[1:1:1]                                                    | unknown |                      |
+./spec/services/metrics_service/core_calculations_spec.rb[1:1:2]                                                    | unknown |                      |
+./spec/services/metrics_service/core_calculations_spec.rb[1:1:3]                                                    | unknown |                      |
+./spec/services/metrics_service/core_calculations_spec.rb[1:1:4]                                                    | unknown |                      |
+./spec/services/metrics_service/core_calculations_spec.rb[1:2:1]                                                    | unknown |                      |
+./spec/services/metrics_service/core_calculations_spec.rb[1:2:2]                                                    | unknown |                      |
+./spec/services/metrics_service/core_calculations_spec.rb[1:2:3]                                                    | unknown |                      |
+./spec/services/metrics_service/core_calculations_spec.rb[1:2:4]                                                    | unknown |                      |
+./spec/services/metrics_service/core_calculations_spec.rb[1:3:1]                                                    | unknown |                      |
+./spec/services/metrics_service/core_calculations_spec.rb[1:3:2]                                                    | unknown |                      |
+./spec/services/metrics_service/core_calculations_spec.rb[1:3:3]                                                    | unknown |                      |
+./spec/services/metrics_service/core_calculations_spec.rb[1:3:4]                                                    | unknown |                      |
+./spec/services/metrics_service/core_calculations_spec.rb[1:4:1]                                                    | unknown |                      |
+./spec/services/metrics_service/core_calculations_spec.rb[1:4:2]                                                    | unknown |                      |
+./spec/services/metrics_service/core_calculations_spec.rb[1:5:1]                                                    | unknown |                      |
+./spec/services/metrics_service/core_calculations_spec.rb[1:5:2]                                                    | unknown |                      |
+./spec/services/metrics_service/core_calculations_spec.rb[1:6:1]                                                    | unknown |                      |
+./spec/services/metrics_service/core_calculations_spec.rb[1:6:2]                                                    | unknown |                      |
+./spec/services/metrics_service/core_calculations_spec.rb[1:7:1]                                                    | unknown |                      |
+./spec/services/metrics_service/core_calculations_spec.rb[1:8:1]                                                    | unknown |                      |
+./spec/services/metrics_service/core_calculations_spec.rb[1:9:1]                                                    | unknown |                      |
 ./spec/services/metrics_service/user_metrics_spec.rb[1:1:1]                                                         | passed  | 0.28184 seconds      |
 ./spec/services/metrics_service/user_metrics_spec.rb[1:2:1]                                                         | passed  | 0.17665 seconds      |
 ./spec/services/metrics_service/user_metrics_spec.rb[1:3:1]                                                         | passed  | 0.17074 seconds      |
+./spec/services/metrics_service/widget_data_spec.rb[1:1:1]                                                          | unknown |                      |
+./spec/services/metrics_service/widget_data_spec.rb[1:1:2:1]                                                        | unknown |                      |
+./spec/services/metrics_service/widget_data_spec.rb[1:1:2:2]                                                        | unknown |                      |
+./spec/services/metrics_service/widget_data_spec.rb[1:1:2:3]                                                        | unknown |                      |
+./spec/services/metrics_service/widget_data_spec.rb[1:1:3:1]                                                        | unknown |                      |
+./spec/services/metrics_service/widget_data_spec.rb[1:1:3:2]                                                        | unknown |                      |
+./spec/services/metrics_service/widget_data_spec.rb[1:1:4:1]                                                        | unknown |                      |
+./spec/services/metrics_service/widget_data_spec.rb[1:1:4:2]                                                        | unknown |                      |
+./spec/services/metrics_service/widget_data_spec.rb[1:1:5:1]                                                        | unknown |                      |
+./spec/services/metrics_service/widget_data_spec.rb[1:1:5:2]                                                        | unknown |                      |
+./spec/services/metrics_service/widget_data_spec.rb[1:2:1]                                                          | unknown |                      |
+./spec/services/metrics_service/widget_data_spec.rb[1:2:2]                                                          | unknown |                      |
+./spec/services/metrics_service/widget_data_spec.rb[1:3:1]                                                          | unknown |                      |
+./spec/services/metrics_service/widget_data_spec.rb[1:4:1:1]                                                        | unknown |                      |
+./spec/services/metrics_service/widget_data_spec.rb[1:4:2:1]                                                        | unknown |                      |
 ./spec/services/metrics_service_spec.rb[1:1:1:1]                                                                    | passed  | 0.30736 seconds      |
 ./spec/services/metrics_service_spec.rb[1:1:1:2]                                                                    | passed  | 0.31452 seconds      |
 ./spec/services/metrics_service_spec.rb[1:1:2:1]                                                                    | passed  | 0.30792 seconds      |
@@ -4625,6 +5374,19 @@ example_id                                                                      
 ./spec/services/navigation_service_spec.rb[1:2:1]                                                                   | passed  | 0.18716 seconds      |
 ./spec/services/navigation_service_spec.rb[1:3:1]                                                                   | passed  | 0.30781 seconds      |
 ./spec/services/navigation_service_spec.rb[1:4:1]                                                                   | passed  | 0.17723 seconds      |
+./spec/services/notification_service/budget_notifications_spec.rb[1:1:1]                                            | unknown |                      |
+./spec/services/notification_service/budget_notifications_spec.rb[1:1:2]                                            | unknown |                      |
+./spec/services/notification_service/budget_notifications_spec.rb[1:1:3]                                            | unknown |                      |
+./spec/services/notification_service/budget_notifications_spec.rb[1:2:1]                                            | unknown |                      |
+./spec/services/notification_service/budget_notifications_spec.rb[1:2:2]                                            | unknown |                      |
+./spec/services/notification_service/budget_notifications_spec.rb[1:3:1]                                            | unknown |                      |
+./spec/services/notification_service/budget_notifications_spec.rb[1:3:2]                                            | unknown |                      |
+./spec/services/notification_service/budget_notifications_spec.rb[1:4:1]                                            | unknown |                      |
+./spec/services/notification_service/budget_notifications_spec.rb[1:4:2]                                            | unknown |                      |
+./spec/services/notification_service/budget_notifications_spec.rb[1:5:1:1]                                          | unknown |                      |
+./spec/services/notification_service/budget_notifications_spec.rb[1:5:2:1]                                          | unknown |                      |
+./spec/services/notification_service/budget_notifications_spec.rb[1:6:1]                                            | unknown |                      |
+./spec/services/notification_service/budget_notifications_spec.rb[1:6:2]                                            | unknown |                      |
 ./spec/services/notification_service/document_notifications_spec.rb[1:1:1]                                          | passed  | 0.3555 seconds       |
 ./spec/services/notification_service/document_notifications_spec.rb[1:2:1]                                          | passed  | 0.35819 seconds      |
 ./spec/services/notification_service/document_notifications_spec.rb[1:3:1]                                          | passed  | 0.35674 seconds      |
@@ -4636,6 +5398,50 @@ example_id                                                                      
 ./spec/services/notification_service/document_notifications_spec.rb[1:7:1]                                          | passed  | 0.18911 seconds      |
 ./spec/services/notification_service/document_notifications_spec.rb[1:8:1]                                          | passed  | 0.3568 seconds       |
 ./spec/services/notification_service/document_notifications_spec.rb[1:9:1]                                          | passed  | 0.35576 seconds      |
+./spec/services/notification_service/permit_notifications_spec.rb[1:1:1]                                            | unknown |                      |
+./spec/services/notification_service/permit_notifications_spec.rb[1:1:2]                                            | unknown |                      |
+./spec/services/notification_service/permit_notifications_spec.rb[1:1:3]                                            | unknown |                      |
+./spec/services/notification_service/permit_notifications_spec.rb[1:2:1]                                            | unknown |                      |
+./spec/services/notification_service/permit_notifications_spec.rb[1:2:2]                                            | unknown |                      |
+./spec/services/notification_service/permit_notifications_spec.rb[1:3:1]                                            | unknown |                      |
+./spec/services/notification_service/permit_notifications_spec.rb[1:3:2]                                            | unknown |                      |
+./spec/services/notification_service/permit_notifications_spec.rb[1:4:1]                                            | unknown |                      |
+./spec/services/notification_service/permit_notifications_spec.rb[1:4:2]                                            | unknown |                      |
+./spec/services/notification_service/permit_notifications_spec.rb[1:4:3]                                            | unknown |                      |
+./spec/services/notification_service/permit_notifications_spec.rb[1:5:1]                                            | unknown |                      |
+./spec/services/notification_service/permit_notifications_spec.rb[1:5:2]                                            | unknown |                      |
+./spec/services/notification_service/permit_notifications_spec.rb[1:6:1]                                            | unknown |                      |
+./spec/services/notification_service/permit_notifications_spec.rb[1:6:2]                                            | unknown |                      |
+./spec/services/notification_service/permit_notifications_spec.rb[1:7:1]                                            | unknown |                      |
+./spec/services/notification_service/permit_notifications_spec.rb[1:7:2]                                            | unknown |                      |
+./spec/services/notification_service/project_notifications_spec.rb[1:1:1]                                           | unknown |                      |
+./spec/services/notification_service/project_notifications_spec.rb[1:1:2]                                           | unknown |                      |
+./spec/services/notification_service/project_notifications_spec.rb[1:2:1]                                           | unknown |                      |
+./spec/services/notification_service/project_notifications_spec.rb[1:3:1]                                           | unknown |                      |
+./spec/services/notification_service/project_notifications_spec.rb[1:4:1]                                           | unknown |                      |
+./spec/services/notification_service/project_notifications_spec.rb[1:5:1]                                           | unknown |                      |
+./spec/services/notification_service/risk_notifications_spec.rb[1:1:1]                                              | passed  | 0.85563 seconds      |
+./spec/services/notification_service/risk_notifications_spec.rb[1:1:2]                                              | passed  | 0.85915 seconds      |
+./spec/services/notification_service/risk_notifications_spec.rb[1:2:1]                                              | passed  | 0.69398 seconds      |
+./spec/services/notification_service/risk_notifications_spec.rb[1:3:1]                                              | passed  | 0.5155 seconds       |
+./spec/services/notification_service/risk_notifications_spec.rb[1:4:1]                                              | passed  | 0.85882 seconds      |
+./spec/services/notification_service/risk_notifications_spec.rb[1:5:1]                                              | passed  | 0.86308 seconds      |
+./spec/services/notification_service/stakeholder_notifications_spec.rb[1:1:1]                                       | unknown |                      |
+./spec/services/notification_service/stakeholder_notifications_spec.rb[1:2:1]                                       | unknown |                      |
+./spec/services/notification_service/stakeholder_notifications_spec.rb[1:3:1]                                       | unknown |                      |
+./spec/services/notification_service/stakeholder_notifications_spec.rb[1:4:1]                                       | unknown |                      |
+./spec/services/notification_service/stakeholder_notifications_spec.rb[1:5:1]                                       | unknown |                      |
+./spec/services/notification_service/user_utilities_spec.rb[1:1:1]                                                  | unknown |                      |
+./spec/services/notification_service/user_utilities_spec.rb[1:1:2]                                                  | unknown |                      |
+./spec/services/notification_service/user_utilities_spec.rb[1:2:1]                                                  | unknown |                      |
+./spec/services/notification_service/user_utilities_spec.rb[1:2:2]                                                  | unknown |                      |
+./spec/services/notification_service/user_utilities_spec.rb[1:3:1]                                                  | unknown |                      |
+./spec/services/notification_service/user_utilities_spec.rb[1:3:2]                                                  | unknown |                      |
+./spec/services/notification_service/user_utilities_spec.rb[1:4:1]                                                  | unknown |                      |
+./spec/services/notification_service/user_utilities_spec.rb[1:5:1]                                                  | unknown |                      |
+./spec/services/notification_service/user_utilities_spec.rb[1:5:2]                                                  | unknown |                      |
+./spec/services/notification_service/user_utilities_spec.rb[1:6:1]                                                  | unknown |                      |
+./spec/services/notification_service/user_utilities_spec.rb[1:7:1]                                                  | unknown |                      |
 ./spec/services/notification_service/validation_notifications_spec.rb[1:1:1]                                        | passed  | 0.39827 seconds      |
 ./spec/services/notification_service/validation_notifications_spec.rb[1:2:1]                                        | passed  | 0.37257 seconds      |
 ./spec/services/notification_service/validation_notifications_spec.rb[1:3:1:1]                                      | passed  | 0.37135 seconds      |
@@ -4673,6 +5479,60 @@ example_id                                                                      
 ./spec/services/permission_cache_service_spec.rb[1:2:1]                                                             | passed  | 0.19397 seconds      |
 ./spec/services/permission_cache_service_spec.rb[1:3:1]                                                             | passed  | 0.36004 seconds      |
 ./spec/services/permission_cache_service_spec.rb[1:4:1]                                                             | passed  | 0.19318 seconds      |
+./spec/services/regulatory_compliance_service/contractual_compliance_spec.rb[1:1:1:1]                               | unknown |                      |
+./spec/services/regulatory_compliance_service/contractual_compliance_spec.rb[1:1:2:1]                               | unknown |                      |
+./spec/services/regulatory_compliance_service/contractual_compliance_spec.rb[1:1:2:2]                               | unknown |                      |
+./spec/services/regulatory_compliance_service/contractual_compliance_spec.rb[1:2:1]                                 | unknown |                      |
+./spec/services/regulatory_compliance_service/contractual_compliance_spec.rb[1:3:1]                                 | unknown |                      |
+./spec/services/regulatory_compliance_service/contractual_compliance_spec.rb[1:4:1]                                 | failed  | 0.00129 seconds      |
+./spec/services/regulatory_compliance_service/contractual_compliance_spec.rb[1:5:1]                                 | unknown |                      |
+./spec/services/regulatory_compliance_service/core_operations_spec.rb[1:1:1]                                        | unknown |                      |
+./spec/services/regulatory_compliance_service/core_operations_spec.rb[1:1:2]                                        | unknown |                      |
+./spec/services/regulatory_compliance_service/core_operations_spec.rb[1:1:3]                                        | unknown |                      |
+./spec/services/regulatory_compliance_service/core_operations_spec.rb[1:2:1]                                        | unknown |                      |
+./spec/services/regulatory_compliance_service/core_operations_spec.rb[1:3:1]                                        | unknown |                      |
+./spec/services/regulatory_compliance_service/core_operations_spec.rb[1:3:2]                                        | unknown |                      |
+./spec/services/regulatory_compliance_service/core_operations_spec.rb[1:4:1]                                        | unknown |                      |
+./spec/services/regulatory_compliance_service/core_operations_spec.rb[1:5:1]                                        | unknown |                      |
+./spec/services/regulatory_compliance_service/environmental_compliance_spec.rb[1:1:1:1]                             | unknown |                      |
+./spec/services/regulatory_compliance_service/environmental_compliance_spec.rb[1:1:1:2]                             | unknown |                      |
+./spec/services/regulatory_compliance_service/environmental_compliance_spec.rb[1:1:2:1]                             | unknown |                      |
+./spec/services/regulatory_compliance_service/environmental_compliance_spec.rb[1:2:1]                               | unknown |                      |
+./spec/services/regulatory_compliance_service/environmental_compliance_spec.rb[1:2:2]                               | unknown |                      |
+./spec/services/regulatory_compliance_service/environmental_compliance_spec.rb[1:3:1]                               | unknown |                      |
+./spec/services/regulatory_compliance_service/environmental_compliance_spec.rb[1:3:2]                               | unknown |                      |
+./spec/services/regulatory_compliance_service/environmental_compliance_spec.rb[1:4:1]                               | unknown |                      |
+./spec/services/regulatory_compliance_service/environmental_compliance_spec.rb[1:5:1]                               | unknown |                      |
+./spec/services/regulatory_compliance_service/financial_compliance_spec.rb[1:1:1:1]                                 | unknown |                      |
+./spec/services/regulatory_compliance_service/financial_compliance_spec.rb[1:1:2:1]                                 | unknown |                      |
+./spec/services/regulatory_compliance_service/financial_compliance_spec.rb[1:2:1]                                   | unknown |                      |
+./spec/services/regulatory_compliance_service/financial_compliance_spec.rb[1:2:2]                                   | unknown |                      |
+./spec/services/regulatory_compliance_service/financial_compliance_spec.rb[1:3:1]                                   | unknown |                      |
+./spec/services/regulatory_compliance_service/financial_compliance_spec.rb[1:3:2]                                   | unknown |                      |
+./spec/services/regulatory_compliance_service/financial_compliance_spec.rb[1:4:1]                                   | unknown |                      |
+./spec/services/regulatory_compliance_service/financial_compliance_spec.rb[1:5:1]                                   | unknown |                      |
+./spec/services/regulatory_compliance_service/gdpr_compliance_spec.rb[1:1:1:1]                                      | unknown |                      |
+./spec/services/regulatory_compliance_service/gdpr_compliance_spec.rb[1:1:1:2]                                      | unknown |                      |
+./spec/services/regulatory_compliance_service/gdpr_compliance_spec.rb[1:1:2:1]                                      | unknown |                      |
+./spec/services/regulatory_compliance_service/gdpr_compliance_spec.rb[1:2:1]                                        | unknown |                      |
+./spec/services/regulatory_compliance_service/gdpr_compliance_spec.rb[1:2:2]                                        | unknown |                      |
+./spec/services/regulatory_compliance_service/gdpr_compliance_spec.rb[1:3:1:1]                                      | unknown |                      |
+./spec/services/regulatory_compliance_service/gdpr_compliance_spec.rb[1:3:2:1]                                      | unknown |                      |
+./spec/services/regulatory_compliance_service/gdpr_compliance_spec.rb[1:3:2:2]                                      | unknown |                      |
+./spec/services/regulatory_compliance_service/gdpr_compliance_spec.rb[1:3:3:1]                                      | unknown |                      |
+./spec/services/regulatory_compliance_service/gdpr_compliance_spec.rb[1:4:1]                                        | unknown |                      |
+./spec/services/regulatory_compliance_service/gdpr_compliance_spec.rb[1:4:2]                                        | unknown |                      |
+./spec/services/regulatory_compliance_service/gdpr_compliance_spec.rb[1:5:1]                                        | unknown |                      |
+./spec/services/regulatory_compliance_service/gdpr_compliance_spec.rb[1:5:2]                                        | unknown |                      |
+./spec/services/regulatory_compliance_service/real_estate_compliance_spec.rb[1:1:1]                                 | unknown |                      |
+./spec/services/regulatory_compliance_service/real_estate_compliance_spec.rb[1:1:2]                                 | unknown |                      |
+./spec/services/regulatory_compliance_service/real_estate_compliance_spec.rb[1:2:1]                                 | unknown |                      |
+./spec/services/regulatory_compliance_service/real_estate_compliance_spec.rb[1:3:1]                                 | unknown |                      |
+./spec/services/regulatory_compliance_service/real_estate_compliance_spec.rb[1:3:2]                                 | unknown |                      |
+./spec/services/regulatory_compliance_service/real_estate_compliance_spec.rb[1:4:1]                                 | unknown |                      |
+./spec/services/regulatory_compliance_service/real_estate_compliance_spec.rb[1:4:2]                                 | unknown |                      |
+./spec/services/regulatory_compliance_service/real_estate_compliance_spec.rb[1:5:1]                                 | unknown |                      |
+./spec/services/regulatory_compliance_service/real_estate_compliance_spec.rb[1:6:1]                                 | unknown |                      |
 ./spec/services/regulatory_compliance_service_spec.rb[1:1:1]                                                        | passed  | 0.2002 seconds       |
 ./spec/services/regulatory_compliance_service_spec.rb[1:1:2]                                                        | passed  | 0.20399 seconds      |
 ./spec/services/regulatory_compliance_service_spec.rb[1:2:1:1]                                                      | passed  | 0.19336 seconds      |
@@ -4690,6 +5550,22 @@ example_id                                                                      
 ./spec/services/regulatory_compliance_service_spec.rb[1:7:2:1]                                                      | passed  | 0.19368 seconds      |
 ./spec/services/regulatory_compliance_service_spec.rb[1:7:3:1]                                                      | passed  | 0.1917 seconds       |
 ./spec/services/regulatory_compliance_service_spec.rb[1:7:4:1]                                                      | passed  | 0.19134 seconds      |
+./spec/services/tree_path_cache_service_spec.rb[1:1:1]                                                              | unknown |                      |
+./spec/services/tree_path_cache_service_spec.rb[1:1:2]                                                              | unknown |                      |
+./spec/services/tree_path_cache_service_spec.rb[1:1:3]                                                              | unknown |                      |
+./spec/services/tree_path_cache_service_spec.rb[1:1:4]                                                              | unknown |                      |
+./spec/services/tree_path_cache_service_spec.rb[1:2:1]                                                              | unknown |                      |
+./spec/services/tree_path_cache_service_spec.rb[1:2:2]                                                              | unknown |                      |
+./spec/services/tree_path_cache_service_spec.rb[1:3:1]                                                              | unknown |                      |
+./spec/services/tree_path_cache_service_spec.rb[1:3:2]                                                              | unknown |                      |
+./spec/services/tree_path_cache_service_spec.rb[1:4:1]                                                              | unknown |                      |
+./spec/services/tree_path_cache_service_spec.rb[1:5:1]                                                              | unknown |                      |
+./spec/services/tree_path_cache_service_spec.rb[1:5:2]                                                              | unknown |                      |
+./spec/services/tree_path_cache_service_spec.rb[1:6:1]                                                              | unknown |                      |
+./spec/services/tree_path_cache_service_spec.rb[1:7:1]                                                              | unknown |                      |
+./spec/services/tree_path_cache_service_spec.rb[1:7:2]                                                              | unknown |                      |
+./spec/services/virus_scan_service_spec.rb[1:1:1]                                                                   | unknown |                      |
+./spec/services/virus_scan_service_spec.rb[1:2:1]                                                                   | unknown |                      |
 ./spec/services/widget_cache_service_spec.rb[1:1:1]                                                                 | passed  | 0.18112 seconds      |
 ./spec/services/widget_cache_service_spec.rb[1:1:2]                                                                 | passed  | 0.18491 seconds      |
 ./spec/services/widget_cache_service_spec.rb[1:1:3]                                                                 | passed  | 0.18579 seconds      |
@@ -4708,6 +5584,15 @@ example_id                                                                      
 ./spec/services/widget_cache_service_spec.rb[1:7:1]                                                                 | passed  | 0.17812 seconds      |
 ./spec/services/widget_cache_service_spec.rb[1:7:2]                                                                 | passed  | 0.17917 seconds      |
 ./spec/services/widget_cache_service_spec.rb[1:7:3]                                                                 | passed  | 0.34627 seconds      |
+./spec/system/document_actions/document_management_simple_spec.rb[1:1:1]                                            | passed  | 0.03535 seconds      |
+./spec/system/document_actions/document_management_simple_spec.rb[1:1:2]                                            | passed  | 0.04114 seconds      |
+./spec/system/document_actions/document_management_simple_spec.rb[1:1:3]                                            | passed  | 0.05278 seconds      |
+./spec/system/document_actions/document_management_simple_spec.rb[1:2:1]                                            | passed  | 0.11819 seconds      |
+./spec/system/document_actions/document_management_simple_spec.rb[1:2:2]                                            | passed  | 0.3798 seconds       |
+./spec/system/document_actions/document_management_simple_spec.rb[1:3:1]                                            | passed  | 0.05336 seconds      |
+./spec/system/document_actions/document_management_simple_spec.rb[1:4:1]                                            | passed  | 0.03815 seconds      |
+./spec/system/document_actions/document_management_simple_spec.rb[1:4:2]                                            | passed  | 0.04518 seconds      |
+./spec/system/document_actions/document_management_simple_spec.rb[1:5:1]                                            | passed  | 0.04393 seconds      |
 ./spec/system/document_actions/document_management_spec.rb[1:1:1]                                                   | failed  | 0.28079 seconds      |
 ./spec/system/document_actions/document_management_spec.rb[1:1:2]                                                   | failed  | 0.00711 seconds      |
 ./spec/system/document_actions/document_management_spec.rb[1:1:3]                                                   | failed  | 0.00675 seconds      |
@@ -4717,10 +5602,10 @@ example_id                                                                      
 ./spec/system/document_actions/document_management_spec.rb[1:3:2]                                                   | failed  | 0.007 seconds        |
 ./spec/system/document_actions/document_management_spec.rb[1:4:1]                                                   | failed  | 0.00922 seconds      |
 ./spec/system/document_actions/document_management_spec.rb[1:4:2]                                                   | failed  | 0.00903 seconds      |
-./spec/system/document_actions/document_management_spec.rb[1:4:3]                                                   | failed  | 0.0111 seconds       |
+./spec/system/document_actions/document_management_spec.rb[1:4:3]                                                   | failed  | 0.35561 seconds      |
 ./spec/system/document_actions/document_management_spec.rb[1:5:1]                                                   | failed  | 0.00928 seconds      |
 ./spec/system/document_actions/document_management_spec.rb[1:5:2]                                                   | failed  | 0.02009 seconds      |
-./spec/system/document_actions/document_management_spec.rb[1:6:1]                                                   | failed  | 0.00786 seconds      |
+./spec/system/document_actions/document_management_spec.rb[1:6:1]                                                   | failed  | 0.3764 seconds       |
 ./spec/system/document_actions/document_management_spec.rb[1:6:2]                                                   | failed  | 0.14771 seconds      |
 ./spec/system/document_actions/document_search_discovery_spec.rb[1:1:1]                                             | failed  | 0.00858 seconds      |
 ./spec/system/document_actions/document_search_discovery_spec.rb[1:1:2]                                             | failed  | 0.00841 seconds      |
@@ -4732,32 +5617,32 @@ example_id                                                                      
 ./spec/system/document_actions/document_search_discovery_spec.rb[1:4:2]                                             | failed  | 0.0086 seconds       |
 ./spec/system/document_actions/document_search_discovery_spec.rb[1:5:1]                                             | failed  | 0.14414 seconds      |
 ./spec/system/document_actions/document_search_discovery_spec.rb[1:5:2]                                             | failed  | 0.01264 seconds      |
-./spec/system/document_actions/document_search_discovery_spec.rb[1:6:1]                                             | failed  | 0.00848 seconds      |
+./spec/system/document_actions/document_search_discovery_spec.rb[1:6:1]                                             | failed  | 0.1389 seconds       |
 ./spec/system/document_actions/document_search_discovery_spec.rb[1:7:1]                                             | failed  | 0.37712 seconds      |
 ./spec/system/document_actions/document_search_discovery_spec.rb[1:8:1]                                             | failed  | 0.00851 seconds      |
 ./spec/system/document_actions/document_search_discovery_spec.rb[1:8:2]                                             | failed  | 0.00831 seconds      |
 ./spec/system/document_actions/document_sharing_collaboration_spec.rb[1:1:1]                                        | failed  | 0.00226 seconds      |
 ./spec/system/document_actions/document_sharing_collaboration_spec.rb[1:1:2]                                        | failed  | 0.00217 seconds      |
-./spec/system/document_actions/document_sharing_collaboration_spec.rb[1:2:1]                                        | failed  | 0.00217 seconds      |
-./spec/system/document_actions/document_sharing_collaboration_spec.rb[1:2:2]                                        | failed  | 0.00222 seconds      |
-./spec/system/document_actions/document_sharing_collaboration_spec.rb[1:3:1]                                        | failed  | 0.00223 seconds      |
-./spec/system/document_actions/document_sharing_collaboration_spec.rb[1:3:2]                                        | failed  | 0.00242 seconds      |
+./spec/system/document_actions/document_sharing_collaboration_spec.rb[1:2:1]                                        | failed  | 0.14505 seconds      |
+./spec/system/document_actions/document_sharing_collaboration_spec.rb[1:2:2]                                        | failed  | 0.13444 seconds      |
+./spec/system/document_actions/document_sharing_collaboration_spec.rb[1:3:1]                                        | failed  | 0.32834 seconds      |
+./spec/system/document_actions/document_sharing_collaboration_spec.rb[1:3:2]                                        | failed  | 0.15284 seconds      |
 ./spec/system/document_actions/document_sharing_collaboration_spec.rb[1:4:1]                                        | failed  | 0.00223 seconds      |
 ./spec/system/document_actions/document_sharing_collaboration_spec.rb[1:4:2]                                        | failed  | 0.00222 seconds      |
 ./spec/system/document_actions/document_sharing_collaboration_spec.rb[1:5:1]                                        | failed  | 0.0062 seconds       |
 ./spec/system/document_actions/document_sharing_collaboration_spec.rb[1:5:2]                                        | failed  | 0.12811 seconds      |
-./spec/system/document_actions/document_upload_spec.rb[1:1:1]                                                       | passed  | 0.07565 seconds      |
-./spec/system/document_actions/document_upload_spec.rb[1:1:2]                                                       | passed  | 0.04602 seconds      |
-./spec/system/document_actions/document_upload_spec.rb[1:2:1]                                                       | passed  | 0.01834 seconds      |
-./spec/system/document_actions/document_upload_spec.rb[1:2:2]                                                       | passed  | 0.04713 seconds      |
-./spec/system/document_actions/document_upload_spec.rb[1:3:1]                                                       | pending | 0.00467 seconds      |
-./spec/system/document_actions/document_upload_spec.rb[1:3:2]                                                       | passed  | 0.06335 seconds      |
-./spec/system/document_actions/document_upload_spec.rb[1:4:1]                                                       | passed  | 0.31947 seconds      |
-./spec/system/document_actions/document_upload_spec.rb[1:4:2]                                                       | passed  | 0.10031 seconds      |
-./spec/system/document_actions/document_upload_spec.rb[1:5:1]                                                       | passed  | 0.06769 seconds      |
-./spec/system/document_actions/document_upload_spec.rb[1:5:2]                                                       | passed  | 0.07007 seconds      |
-./spec/system/document_actions/document_upload_spec.rb[1:6:1]                                                       | passed  | 0.03047 seconds      |
-./spec/system/document_actions/document_upload_spec.rb[1:6:2]                                                       | passed  | 0.02918 seconds      |
+./spec/system/document_actions/document_upload_spec.rb[1:1:1]                                                       | passed  | 0.0936 seconds       |
+./spec/system/document_actions/document_upload_spec.rb[1:1:2]                                                       | passed  | 0.04576 seconds      |
+./spec/system/document_actions/document_upload_spec.rb[1:2:1]                                                       | passed  | 0.01805 seconds      |
+./spec/system/document_actions/document_upload_spec.rb[1:2:2]                                                       | passed  | 0.04649 seconds      |
+./spec/system/document_actions/document_upload_spec.rb[1:3:1]                                                       | pending | 0.13495 seconds      |
+./spec/system/document_actions/document_upload_spec.rb[1:3:2]                                                       | passed  | 0.21525 seconds      |
+./spec/system/document_actions/document_upload_spec.rb[1:4:1]                                                       | passed  | 0.10629 seconds      |
+./spec/system/document_actions/document_upload_spec.rb[1:4:2]                                                       | passed  | 0.08855 seconds      |
+./spec/system/document_actions/document_upload_spec.rb[1:5:1]                                                       | passed  | 0.07683 seconds      |
+./spec/system/document_actions/document_upload_spec.rb[1:5:2]                                                       | passed  | 0.06066 seconds      |
+./spec/system/document_actions/document_upload_spec.rb[1:6:1]                                                       | passed  | 0.03207 seconds      |
+./spec/system/document_actions/document_upload_spec.rb[1:6:2]                                                       | passed  | 0.03019 seconds      |
 ./spec/system/document_actions/document_viewing_spec.rb[1:1:1:1]                                                    | passed  | 0.31542 seconds      |
 ./spec/system/document_actions/document_viewing_spec.rb[1:1:1:2]                                                    | failed  | 0.29284 seconds      |
 ./spec/system/document_actions/document_viewing_spec.rb[1:1:2:1]                                                    | failed  | 0.31493 seconds      |
@@ -4771,7 +5656,7 @@ example_id                                                                      
 ./spec/system/document_actions/document_viewing_spec.rb[1:3:2]                                                      | failed  | 0.01002 seconds      |
 ./spec/system/document_actions/document_viewing_spec.rb[1:4:1]                                                      | failed  | 0.00785 seconds      |
 ./spec/system/document_actions/document_viewing_spec.rb[1:5:1]                                                      | failed  | 0.07065 seconds      |
-./spec/system/document_actions/document_workflow_automation_spec.rb[1:1:1]                                          | failed  | 0.00379 seconds      |
+./spec/system/document_actions/document_workflow_automation_spec.rb[1:1:1]                                          | failed  | 0.11557 seconds      |
 ./spec/system/document_actions/document_workflow_automation_spec.rb[1:1:2]                                          | failed  | 0.00303 seconds      |
 ./spec/system/document_actions/document_workflow_automation_spec.rb[1:2:1]                                          | failed  | 0.00341 seconds      |
 ./spec/system/document_actions/document_workflow_automation_spec.rb[1:2:2]                                          | failed  | 0.10745 seconds      |
@@ -4806,7 +5691,7 @@ example_id                                                                      
 ./spec/system/user_journeys/commercial_journey_spec.rb[1:9:1]                                                       | failed  | 0.10377 seconds      |
 ./spec/system/user_journeys/cross_profile_collaboration_spec.rb[1:1:1]                                              | failed  | 0.00295 seconds      |
 ./spec/system/user_journeys/cross_profile_collaboration_spec.rb[1:2:1]                                              | failed  | 0.00232 seconds      |
-./spec/system/user_journeys/cross_profile_collaboration_spec.rb[1:3:1]                                              | failed  | 0.00226 seconds      |
+./spec/system/user_journeys/cross_profile_collaboration_spec.rb[1:3:1]                                              | failed  | 0.12585 seconds      |
 ./spec/system/user_journeys/cross_profile_collaboration_spec.rb[1:4:1]                                              | failed  | 0.00227 seconds      |
 ./spec/system/user_journeys/direction_journey_spec.rb[1:1:1]                                                        | failed  | 0.00115 seconds      |
 ./spec/system/user_journeys/direction_journey_spec.rb[1:2:1]                                                        | failed  | 0.00107 seconds      |
@@ -4827,4 +5712,4 @@ example_id                                                                      
 ./spec/system/user_journeys/juridique_journey_spec.rb[1:6:1]                                                        | failed  | 0.00117 seconds      |
 ./spec/system/user_journeys/juridique_journey_spec.rb[1:7:1]                                                        | failed  | 0.00118 seconds      |
 ./spec/system/user_journeys/juridique_journey_spec.rb[1:8:1]                                                        | failed  | 0.11467 seconds      |
-./spec/views/home/index.html.tailwindcss_spec.rb[1:1]                                                               | pending | 0 seconds            |
+./spec/views/home/index.html.tailwindcss_spec.rb[1:1]                                                               | pending | 0.00001 seconds      |

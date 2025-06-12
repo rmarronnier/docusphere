@@ -240,7 +240,7 @@
                   Document verrouillé
                 </h3>
                 <div class="mt-2 text-sm text-yellow-700">
-                  <p>Verrouillé par <%= @document.locked_by.display_name %> le <%= l(@document.locked_at, format: :long) %></p>
+                  <p>Verrouillé par <%= @document.locked_by&.display_name || 'Système' %> le <%= l(@document.locked_at || @document.updated_at, format: :long) %></p>
                   <% if @document.lock_reason.present? %>
                     <p class="mt-1">Raison : <%= @document.lock_reason %></p>
                   <% end %>

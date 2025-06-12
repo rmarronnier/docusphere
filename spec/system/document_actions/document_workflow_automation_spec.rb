@@ -3,8 +3,8 @@ require 'rails_helper'
 RSpec.describe 'Document Workflow and Automation Actions', type: :system do
   let(:organization) { create(:organization) }
   let(:user) { create(:user, organization: organization) }
-  let(:manager) { create(:user, name: 'Manager User', organization: organization) }
-  let(:validator) { create(:user, name: 'Validator User', organization: organization) }
+  let(:manager) { create(:user, first_name: 'Manager', last_name: 'User', organization: organization) }
+  let(:validator) { create(:user, first_name: 'Validator', last_name: 'User', organization: organization) }
   let(:folder) { create(:folder, organization: organization) }
   
   before do

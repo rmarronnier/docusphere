@@ -4,11 +4,11 @@ RSpec.describe 'Cross-Profile Collaboration Journey', type: :system do
   let(:organization) { create(:organization, name: 'Meridia Group') }
   
   # Users
-  let(:direction) { create(:user, name: 'Marie Dubois', organization: organization) }
-  let(:chef_projet) { create(:user, name: 'Julien Leroy', organization: organization) }
-  let(:commercial) { create(:user, name: 'Sophie Martin', organization: organization) }
-  let(:juridique) { create(:user, name: 'Claire Dumont', organization: organization) }
-  let(:finance) { create(:user, name: 'Pierre Lambert', organization: organization) }
+  let(:direction) { create(:user, first_name: 'Marie', last_name: 'Dubois', organization: organization) }
+  let(:chef_projet) { create(:user, first_name: 'Julien', last_name: 'Leroy', organization: organization) }
+  let(:commercial) { create(:user, first_name: 'Sophie', last_name: 'Martin', organization: organization) }
+  let(:juridique) { create(:user, first_name: 'Claire', last_name: 'Dumont', organization: organization) }
+  let(:finance) { create(:user, first_name: 'Pierre', last_name: 'Lambert', organization: organization) }
   
   # Shared data
   let!(:project) { create(:project, name: 'Business Center Alpha', organization: organization, project_manager: chef_projet) }

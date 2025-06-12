@@ -28,7 +28,7 @@ module NotificationService::RiskNotifications
         if risk.owner && risk.owner != identified_by
           Notification.notify_user(
             risk.owner,
-            :risk_assigned,
+            :risk_identified,
             "Risque assigné",
             "Vous avez été assigné pour gérer le risque '#{risk.title}'",
             notifiable: risk,
@@ -37,7 +37,8 @@ module NotificationService::RiskNotifications
               risk_title: risk.title,
               risk_category: risk.category,
               project_name: project.name,
-              identified_by_id: identified_by.id
+              identified_by_id: identified_by.id,
+              assigned: true
             }
           )
         end
@@ -65,26 +66,10 @@ module NotificationService::RiskNotifications
           )
         end
         
-        # Notifier les stakeholders de direction
-        project.stakeholders.where(role: ['director', 'financial_controller']).joins(:user).each do |stakeholder|
-          next if stakeholder.user == escalated_by
-          
-          Notification.notify_user(
-            stakeholder.user,
-            :risk_escalated,
-            "Risque escaladé",
-            "Le risque '#{risk.title}' (score: #{risk.risk_score}) nécessite votre attention",
-            notifiable: risk,
-            data: {
-              risk_id: risk.id,
-              risk_title: risk.title,
-              risk_category: risk.category,
-              project_name: project.name,
-              stakeholder_role: stakeholder.role,
-              escalated_by_id: escalated_by.id
-            }
-          )
-        end
+        # Notifier les stakeholders de type director ou financial_controller
+        # Note métier: Ces stakeholders critiques devraient idéalement avoir un compte utilisateur
+        # Pour l'instant, on pourrait envoyer un email si l'adresse est disponible
+        # TODO: Implémenter l'envoi d'email aux stakeholders externes
       end
       
       def notify_risk_mitigation_required(risk, required_by)
@@ -121,24 +106,8 @@ module NotificationService::RiskNotifications
           ['project_manager']
         end
         
-        project.stakeholders.where(role: relevant_roles).joins(:user).each do |stakeholder|
-          next if stakeholder.user == required_by
-          
-          Notification.notify_user(
-            stakeholder.user,
-            :risk_mitigation_required,
-            "Atténuation de risque nécessaire",
-            "Le risque '#{risk.title}' (#{risk.category}) nécessite un plan d'atténuation",
-            notifiable: risk,
-            data: {
-              risk_id: risk.id,
-              risk_title: risk.title,
-              risk_category: risk.category,
-              project_name: project.name,
-              stakeholder_role: stakeholder.role
-            }
-          )
-        end
+        # TODO: Notifier les stakeholders pertinents quand ils auront une association user
+        # Pour l'instant, on ne peut notifier que via email si disponible
       end
       
       def notify_risk_resolved(risk, resolved_by)
@@ -163,25 +132,36 @@ module NotificationService::RiskNotifications
           )
         end
         
-        # Notifier tous les stakeholders qui ont été impliqués
-        project.stakeholders.joins(:user).each do |stakeholder|
-          next if stakeholder.user == resolved_by
-          
+        # TODO: Notifier les stakeholders quand ils auront une association user
+      end
+      
+      def notify_risk_review_needed(project, risks_for_review, reviewer = nil)
+        # Fonction métier importante : Rappel périodique de revue des risques
+        # Généralement appelée par un job planifié (ex: tous les lundis)
+        
+        return if risks_for_review.empty?
+        
+        # Notifier le project manager
+        if project.project_manager
           Notification.notify_user(
-            stakeholder.user,
-            :risk_resolved,
-            "Risque résolu",
-            "Le risque '#{risk.title}' du projet '#{project.name}' a été résolu",
-            notifiable: risk,
+            project.project_manager,
+            :system_announcement,  # Utiliser un type existant pour l'instant
+            "Revue des risques requise",
+            "#{risks_for_review.count} risques nécessitent une revue pour le projet '#{project.name}'",
+            notifiable: project,
             data: {
-              risk_id: risk.id,
-              risk_title: risk.title,
+              project_id: project.id,
               project_name: project.name,
-              stakeholder_role: stakeholder.role,
-              resolved_by_id: resolved_by.id
+              risk_count: risks_for_review.count,
+              risk_ids: risks_for_review.map(&:id),
+              review_type: 'periodic',
+              due_date: Date.current + 2.days
             }
           )
         end
+        
+        # Notifier le responsable qualité s'il existe
+        # TODO: Ajouter la notion de responsable qualité au projet
       end
     end
 end

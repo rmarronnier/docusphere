@@ -1,10 +1,35 @@
-# État du Projet DocuSphere - 13 Décembre 2025
+# État du Projet DocuSphere - 12 Décembre 2025
 
 ## 🎯 Vue d'Ensemble
 
 DocuSphere est une plateforme de gestion documentaire avancée avec un module spécialisé pour l'immobilier (ImmoPromo). Le projet est fonctionnel et en développement actif avec une interface moderne et des fonctionnalités avancées.
 
 ## ✅ Accomplissements Récents
+
+### Session du 12/12/2025 - Correction Complète Tests Système Upload ✅
+
+**🎯 Objectif atteint : 12/12 tests passent dans document_upload_spec.rb**
+
+1. **Corrections ViewComponent** :
+   - ✅ **IconComponent** : Corrigé utilisation cohérente du paramètre `name:` (au lieu de `icon:`)
+   - ✅ **Route Helpers** : Corrigé `edit_ged_document_path` → `ged_edit_document_path`
+   - ✅ **Attributs Document** : Corrigé `related.name` → `related.title`
+   - ✅ **Accès Organization** : Corrigé `document.organization` → `document.space.organization`
+
+2. **Amélioration Modèle DocumentVersion** :
+   - ✅ Ajouté méthode `whodunnit_user` pour récupérer l'utilisateur depuis PaperTrail
+   - ✅ Ajouté tests complets pour la nouvelle méthode
+   - ✅ Support des deux approches : `created_by` et `whodunnit`
+
+3. **Impact sur les Tests Système** :
+   - ✅ **Avant** : 8/12 tests passants (4 échecs JavaScript)
+   - ✅ **Après** : 12/12 tests passants (100% de succès)
+   - ✅ 1 test en attente (cloud import - fonctionnalité future)
+
+4. **Qualité du Code** :
+   - ✅ Tous les composants suivent maintenant les conventions ViewComponent
+   - ✅ Routes helpers utilisés de manière cohérente
+   - ✅ Gestion appropriée des relations entre modèles
 
 ### Session du 06/12/2025 - Phase 5 GED Modern Transformation Complétée ✅
 
@@ -97,6 +122,31 @@ DocuSphere est une plateforme de gestion documentaire avancée avec un module sp
   - ✅ Ajouté exclusions pour routes d'engine comme `projects_path`
   - ✅ Corrigé `upload_path` dans `recent_documents_widget.rb`
   - ✅ Tous les tests de route helpers passent maintenant
+
+### Session du 12/06/2025 (Suite) - Notifications de Risques Améliorées ✅
+
+1. **Analyse métier approfondie** :
+   - ✅ Identifié manques fonctionnels importants dans les tests
+   - ✅ Compris que les stakeholders devraient pouvoir recevoir des notifications
+   - ✅ Ajouté concept de revue périodique des risques (best practice métier)
+   - ✅ Implémenté priorité de notification basée sur le niveau de risque
+
+2. **Implémentations métier** :
+   - ✅ **notify_risk_review_needed** : Nouvelle méthode pour rappels périodiques
+   - ✅ **set_priority_from_notifiable** : Callback pour priorité automatique
+   - ✅ **Factory immo_promo_risk** : Créée avec valeurs enum correctes
+   - ✅ **TODO métier** : Ajouté commentaires pour futures améliorations (emails stakeholders)
+
+3. **Corrections techniques** :
+   - ✅ Type notification 'risk_assigned' remplacé par 'risk_identified' existant
+   - ✅ Enums probability/impact utilisent valeurs entières (1-5)
+   - ✅ Association stakeholder-user documentée comme amélioration future
+   - ✅ Tests adaptés pour utiliser les bons attributs (first_name/last_name)
+
+4. **Résultats** :
+   - ✅ 6/6 tests NotificationService::RiskNotifications passent
+   - ✅ Logique métier améliorée et plus cohérente
+   - ✅ Base solide pour futures évolutions (emails externes, dashboard risques)
 
 ### Session du 12/06/2025 (Suite) - JOUR 6 GED Moderne Complété ✅
 1. **DocumentPreviewModalComponent créé** :

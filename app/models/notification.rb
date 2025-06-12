@@ -6,6 +6,7 @@ class Notification < ApplicationRecord
   validates :title, presence: true
   validates :priority, inclusion: { in: %w[low normal high urgent] }, allow_nil: true
   
+  before_validation :set_priority_from_notifiable
   before_validation :set_default_priority
   
   enum notification_type: {
@@ -175,14 +176,15 @@ class Notification < ApplicationRecord
     end
   end
   
-  def self.notify_user(user, type, title, message, notifiable: nil, data: {})
+  def self.notify_user(user, type, title, message, notifiable: nil, data: {}, priority: nil)
     create!(
       user: user,
       notification_type: type,
       title: title,
       message: message,
       notifiable: notifiable,
-      data: data
+      data: data,
+      priority: priority
     )
   end
   
@@ -257,5 +259,21 @@ class Notification < ApplicationRecord
     else
       'normal'
     end
+  end
+  
+  def set_priority_from_notifiable
+    return unless notifiable.is_a?(Immo::Promo::Risk)
+    return unless notifiable.persisted? # S'assurer que le risque est persisté
+    
+    # Calculer la priorité basée sur le niveau de risque
+    risk_priority = case notifiable.risk_level
+                    when 'critical' then 'urgent'
+                    when 'high' then 'high'
+                    when 'medium' then 'normal'
+                    else 'low'
+                    end
+    
+    # Si pas de priorité définie ou si c'est un risque, utiliser la priorité du risque
+    self.priority = risk_priority if priority.blank? || notifiable.is_a?(Immo::Promo::Risk)
   end
 end

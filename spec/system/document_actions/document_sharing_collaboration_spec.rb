@@ -2,11 +2,11 @@ require 'rails_helper'
 
 RSpec.describe 'Document Sharing and Collaboration Actions', type: :system do
   let(:organization) { create(:organization) }
-  let(:user) { create(:user, name: 'Jean Dupont', organization: organization) }
-  let(:colleague) { create(:user, name: 'Marie Martin', organization: organization) }
-  let(:external_user) { create(:user, name: 'Pierre External', email: 'external@client.com') }
-  let(:folder) { create(:folder, organization: organization) }
-  let(:document) { create(:document, :with_pdf_file, title: 'Rapport Annuel 2025.pdf', folder: folder, uploaded_by: user) }
+  let(:user) { create(:user, first_name: 'Jean', last_name: 'Dupont', organization: organization) }
+  let(:colleague) { create(:user, first_name: 'Marie', last_name: 'Martin', organization: organization) }
+  let(:external_user) { create(:user, first_name: 'Pierre', last_name: 'External', email: 'external@client.com') }
+  let(:folder) { create(:folder, name: 'Documents Partagés', space: create(:space, organization: organization)) }
+  let(:document) { create(:document, title: 'Rapport Annuel 2025.pdf', folder: folder, space: folder.space, uploaded_by: user) }
   
   before do
     sign_in user

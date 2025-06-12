@@ -6,7 +6,7 @@
             data-dropdown-target="button"
             aria-haspopup="true"
             aria-expanded="false">
-      <%= render Ui::IconComponent.new(name: "ellipsis-vertical", size: :sm) %>
+      <%= render Ui::IconComponent.new(name: :menu, size: 5) %>
       <span class="sr-only">Actions du document</span>
     </button>
   </div>
@@ -28,8 +28,8 @@
                       tabindex: "-1",
                       data: action[:data] || {} do %>
             <%= render Ui::IconComponent.new(
-              name: action[:icon], 
-              size: :sm,
+              name: action[:icon].to_sym, 
+              size: 4,
               css_class: "mr-3 #{action[:danger] ? 'text-red-500' : 'text-gray-400 group-hover:text-gray-500'}"
             ) %>
             <%= action[:label] %>

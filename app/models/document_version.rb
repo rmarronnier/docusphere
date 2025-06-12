@@ -120,6 +120,14 @@ class DocumentVersion < PaperTrail::Version
   def created_by_name
     created_by&.display_name || whodunnit || 'System'
   end
+
+  # Get the user who created this version
+  def whodunnit_user
+    return created_by if created_by.present?
+    return nil unless whodunnit.present?
+    
+    User.find_by(id: whodunnit)
+  end
   
   def event_description
     case event

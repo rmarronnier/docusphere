@@ -20,21 +20,21 @@ class Documents::DocumentActionsDropdownComponent < ViewComponent::Base
     if can?(:read, document)
       actions_list << { 
         label: "Télécharger", 
-        icon: "arrow-down-tray", 
+        icon: "download", 
         action: download_action,
         data: { turbo_method: :get }
       }
       
       actions_list << { 
         label: "Imprimer", 
-        icon: "printer", 
+        icon: "document", 
         action: "print",
         data: { action: "click->document-viewer#print" }
       }
 
       actions_list << {
         label: "Générer lien public",
-        icon: "link",
+        icon: "external_link",
         action: "generate-link",
         data: { action: "click->document-actions#generatePublicLink" }
       }
@@ -46,21 +46,21 @@ class Documents::DocumentActionsDropdownComponent < ViewComponent::Base
       
       actions_list << { 
         label: "Dupliquer", 
-        icon: "document-duplicate", 
+        icon: "clipboard", 
         action: duplicate_action,
         data: { turbo_method: :post, turbo_confirm: "Dupliquer ce document ?" }
       }
       
       actions_list << { 
         label: "Déplacer", 
-        icon: "folder-arrow-down", 
+        icon: "arrow_right", 
         action: "move",
         data: { action: "click->document-actions#move" }
       }
       
       actions_list << { 
         label: "Archiver", 
-        icon: "archive-box", 
+        icon: "download", 
         action: archive_action,
         data: { turbo_method: :patch, turbo_confirm: "Archiver ce document ?" }
       }
@@ -73,14 +73,14 @@ class Documents::DocumentActionsDropdownComponent < ViewComponent::Base
       if document.locked?
         actions_list << { 
           label: "Déverrouiller", 
-          icon: "lock-open", 
+          icon: "eye", 
           action: unlock_action,
           data: { turbo_method: :patch }
         }
       else
         actions_list << { 
           label: "Verrouiller", 
-          icon: "lock-closed", 
+          icon: "eye_slash", 
           action: lock_action,
           data: { turbo_method: :patch }
         }
@@ -93,7 +93,7 @@ class Documents::DocumentActionsDropdownComponent < ViewComponent::Base
       
       actions_list << {
         label: "Demander validation",
-        icon: "clipboard-document-check",
+        icon: "check_circle",
         action: "request-validation",
         data: { action: "click->document-actions#requestValidation" }
       }

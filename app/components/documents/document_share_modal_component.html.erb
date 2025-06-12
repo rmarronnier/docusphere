@@ -14,14 +14,14 @@
         <button type="button"
                 class="text-gray-400 hover:text-gray-500 focus:outline-none"
                 data-action="click->modal#close">
-          <%= render Ui::IconComponent.new(icon: 'x-mark', size: :md) %>
+          <%= render Ui::IconComponent.new(name: :x, size: 5) %>
         </button>
       </div>
     </div>
 
     <!-- Body -->
     <div class="px-6 py-4 overflow-y-auto max-h-[60vh]">
-      <%= form_with url: helpers.share_form_url, 
+      <%= form_with url: share_form_url, 
                     local: false,
                     html: { id: dom_id(document, :share_form) },
                     data: { 
@@ -94,7 +94,7 @@
                 <div class="flex items-center justify-between p-2 bg-gray-50 rounded-md">
                   <div class="flex items-center space-x-3">
                     <div class="flex-shrink-0">
-                      <%= render Ui::IconComponent.new(icon: 'user-circle', size: :sm, css_class: "text-gray-400") %>
+                      <%= render Ui::IconComponent.new(name: :user, size: 4, css_class: "text-gray-400") %>
                     </div>
                     <div>
                       <p class="text-sm font-medium text-gray-900"><%= share.shared_with.display_name %></p>
@@ -141,7 +141,7 @@
      data-notification-delay-value="3000">
   <div class="flex">
     <div class="flex-shrink-0">
-      <%= render Ui::IconComponent.new(icon: 'check-circle', size: :sm, css_class: "text-green-400") %>
+      <%= render Ui::IconComponent.new(name: :check_circle, size: 4, css_class: "text-green-400") %>
     </div>
     <div class="ml-3">
       <p class="text-sm font-medium text-green-800">

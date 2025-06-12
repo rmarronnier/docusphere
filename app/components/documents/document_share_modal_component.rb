@@ -32,7 +32,7 @@ module Documents
     def suggested_users
       @suggested_users ||= begin
         # Get users from same organization excluding current user
-        User.where(organization: document.organization)
+        User.where(organization: document.space.organization)
             .where.not(id: helpers.current_user.id)
             .limit(5)
       end

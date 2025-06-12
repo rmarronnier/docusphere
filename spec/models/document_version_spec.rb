@@ -57,6 +57,36 @@ RSpec.describe DocumentVersion, type: :model do
     end
   end
 
+  describe '#whodunnit_user' do
+    context 'when created_by is present' do
+      it 'returns the created_by user' do
+        version = build(:document_version, created_by: user)
+        expect(version.whodunnit_user).to eq(user)
+      end
+    end
+
+    context 'when created_by is nil but whodunnit is present' do
+      it 'finds and returns the user by whodunnit id' do
+        version = build(:document_version, created_by: nil, whodunnit: user.id.to_s)
+        expect(version.whodunnit_user).to eq(user)
+      end
+    end
+
+    context 'when both created_by and whodunnit are nil' do
+      it 'returns nil' do
+        version = build(:document_version, created_by: nil, whodunnit: nil)
+        expect(version.whodunnit_user).to be_nil
+      end
+    end
+
+    context 'when whodunnit contains invalid user id' do
+      it 'returns nil' do
+        version = build(:document_version, created_by: nil, whodunnit: '999999')
+        expect(version.whodunnit_user).to be_nil
+      end
+    end
+  end
+
   describe '#summary' do
     it 'returns summary of create event' do
       version = document.versions.find_by(event: 'create')

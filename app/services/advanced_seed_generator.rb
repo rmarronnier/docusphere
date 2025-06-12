@@ -13,7 +13,7 @@ class AdvancedSeedGenerator
       enable_notifications: options[:enable_notifications] != false,
       enable_file_download: options[:enable_file_download] != false
     }.freeze
-    
+
     @statistics = {
       users: 0,
       documents: 0,
@@ -23,7 +23,7 @@ class AdvancedSeedGenerator
       notifications: 0,
       start_time: Time.current
     }
-    
+
     @file_downloader = SampleFilesDownloader.new if @options[:enable_file_download]
     @downloaded_files = {}
   end
@@ -31,7 +31,7 @@ class AdvancedSeedGenerator
   def generate!
     puts "\n🚀 Génération d'un environnement de test réaliste pour DocuSphere..."
     puts "=" * 60
-    
+
     begin
       download_sample_files if @options[:enable_file_download]
       create_organization
@@ -45,7 +45,7 @@ class AdvancedSeedGenerator
       create_notifications if @options[:enable_notifications]
       create_recent_activity
       cleanup_downloads if @options[:enable_file_download]
-      
+
       display_statistics
     rescue => e
       puts "\n❌ Erreur lors de la génération: #{e.class} - #{e.message}"
@@ -66,7 +66,7 @@ class AdvancedSeedGenerator
 
   def create_organization
     puts "\n🏢 Création de l'organisation principale..."
-    
+
     @organization = Organization.find_or_create_by!(name: "Groupe Immobilier Horizon") do |org|
       org.settings = {
         sectors: ["construction", "promotion", "gestion"],
@@ -76,15 +76,15 @@ class AdvancedSeedGenerator
         subsidiaries: ["Horizon Construction", "Horizon Promotion", "Horizon Gestion"]
       }
     end
-    
+
     puts "✅ Organisation créée: #{@organization.name}"
   end
 
   def create_users
     puts "\n👥 Création de #{@options[:users_count]} utilisateurs..."
-    
+
     @users = []
-    
+
     # Créer des utilisateurs par département avec au moins 1 de chaque type important
     base_departments = {
       direction: 1,
@@ -97,10 +97,10 @@ class AdvancedSeedGenerator
       assistant_rh: 1,
       communication: 1
     }
-    
+
     # Calculer le nombre total déjà assigné
     total_assigned = base_departments.values.sum
-    
+
     # Distribuer les utilisateurs restants
     remaining = @options[:users_count] - total_assigned
     if remaining > 0
@@ -111,17 +111,17 @@ class AdvancedSeedGenerator
       base_departments[:direction] += (remaining * 0.1).to_i
       base_departments[:architecte] += (remaining * 0.1).to_i
       base_departments[:juriste] += (remaining * 0.1).to_i
-      
+
       # S'assurer qu'on a exactement le bon nombre
       while @users.count < @options[:users_count] && base_departments.values.sum < @options[:users_count]
         base_departments[:chef_projet] += 1
       end
     end
-    
+
     base_departments.each do |dept, count|
       count.times do
         user_data = RealisticDataGenerator.generate_user
-        
+
         # S'assurer que l'email est unique
         email = user_data[:email]
         counter = 1
@@ -129,7 +129,7 @@ class AdvancedSeedGenerator
           email = "#{user_data[:first_name].downcase}.#{user_data[:last_name].downcase}#{counter}@#{user_data[:email].split('@').last}"
           counter += 1
         end
-        
+
         user = User.create!(
           email: email,
           password: 'password123',
@@ -140,7 +140,7 @@ class AdvancedSeedGenerator
           role: [:user, :manager, :admin].sample,
           confirmed_at: Time.current
         )
-        
+
         # Créer le profil utilisateur
         UserProfile.create!(
           user: user,
@@ -155,20 +155,20 @@ class AdvancedSeedGenerator
             specializations: generate_specializations(dept)
           }
         )
-        
+
         @users << user
         @statistics[:users] += 1
-        
+
         # Arrêter si on a atteint le nombre souhaité
         break if @users.count >= @options[:users_count]
       end
-      
+
       # Arrêter si on a atteint le nombre souhaité
       break if @users.count >= @options[:users_count]
     end
-    
+
     puts "✅ #{@users.count} utilisateurs créés"
-    
+
     # Afficher quelques comptes de test
     puts "\n📧 Comptes de test créés:"
     @users.first(5).each do |user|
@@ -178,7 +178,7 @@ class AdvancedSeedGenerator
 
   def create_user_groups
     puts "\n👥 Création des groupes d'utilisateurs..."
-    
+
     groups = [
       { name: "Comité de Direction", users: @users.select { |u| u.active_profile&.profile_type == 'direction' } },
       { name: "Équipe Commerciale", users: @users.select { |u| u.active_profile&.profile_type == 'commercial' } },
@@ -189,23 +189,23 @@ class AdvancedSeedGenerator
       { name: "Validation Niveau 2", users: @users.sample([5, @users.count].min) },
       { name: "Archivage", users: @users.sample([3, @users.count].min) }
     ]
-    
+
     created_count = 0
     groups.each do |group_data|
       next if group_data[:users].empty?
-      
+
       group = UserGroup.find_or_create_by!(
         name: group_data[:name],
         organization: @organization
       ) do |g|
         g.description = "Groupe #{group_data[:name]} - #{group_data[:users].count} membres"
       end
-      
+
       created_count += 1 if group.previously_new_record?
-      
+
       # Supprimer les membres existants pour ce groupe
       UserGroupMembership.where(user_group: group).destroy_all
-      
+
       # Ajouter les nouveaux membres
       group_data[:users].each do |user|
         UserGroupMembership.find_or_create_by!(
@@ -216,16 +216,16 @@ class AdvancedSeedGenerator
         end
       end
     end
-    
+
     puts "✅ #{created_count} nouveaux groupes créés (#{groups.count} au total)"
   end
 
   def create_spaces_and_folders
     puts "\n📁 Création de la structure de dossiers..."
-    
+
     @spaces = []
     folder_structure = RealisticDataGenerator.generate_folder_structure
-    
+
     folder_structure.each do |space_name, folders|
       space = Space.find_or_create_by!(
         name: space_name,
@@ -239,9 +239,9 @@ class AdvancedSeedGenerator
           access_level: ["public", "restricted", "private"].sample
         }
       end
-      
+
       @spaces << space
-      
+
       # Créer les dossiers
       folders.each do |folder_name|
         parent_folder = Folder.find_or_create_by!(
@@ -251,12 +251,12 @@ class AdvancedSeedGenerator
         ) do |f|
           f.description = "Dossier #{folder_name} - #{space_name}"
         end
-        
+
         # Créer quelques sous-dossiers
         rand(0..3).times do |i|
           subfolder_suffix = ['Archives', 'En cours', 'Validé', 'Draft'].sample
           subfolder_name = "#{folder_name} - #{subfolder_suffix} #{i+1}"
-          
+
           Folder.find_or_create_by!(
             name: subfolder_name,
             parent: parent_folder,
@@ -265,20 +265,20 @@ class AdvancedSeedGenerator
         end
       end
     end
-    
+
     puts "✅ #{@spaces.count} espaces et leurs dossiers créés"
   end
 
   def create_projects
     return unless @options[:projects_count] > 0
-    
+
     puts "\n🏗️ Création de #{@options[:projects_count]} projets immobiliers..."
-    
+
     @projects = []
-    
+
     @options[:projects_count].times do
       project_data = RealisticDataGenerator.generate_project
-      
+
       # Génération d'un slug unique
       base_slug = project_data[:name].parameterize
       slug = base_slug
@@ -287,13 +287,13 @@ class AdvancedSeedGenerator
         slug = "#{base_slug}-#{counter}"
         counter += 1
       end
-      
+
       # Génération d'un numéro de référence unique
       reference_number = "PROJ-#{Date.today.year}-#{rand(10000..99999)}"
       while Immo::Promo::Project.exists?(reference_number: reference_number)
         reference_number = "PROJ-#{Date.today.year}-#{rand(10000..99999)}"
       end
-      
+
       project = Immo::Promo::Project.create!(
         name: project_data[:name],
         slug: slug,
@@ -318,41 +318,41 @@ class AdvancedSeedGenerator
           environmental_certification: ["HQE", "BREEAM", "LEED"].sample
         }
       )
-      
+
       # Créer les phases du projet
       create_project_phases(project)
-      
+
       # Assigner des stakeholders
       assign_project_stakeholders(project)
-      
+
       @projects << project
       @statistics[:projects] += 1
     end
-    
+
     puts "✅ #{@projects.count} projets créés"
   end
 
   def create_documents
     puts "\n📄 Création des documents..."
-    
+
     @documents = []
     categories = @downloaded_files.keys
-    
+
     # Documents par utilisateur
     @users.each do |user|
       rand(5..@options[:documents_per_user]).times do
         category = categories.sample
         files = @downloaded_files[category] || []
         next if files.empty?
-        
+
         file_path = files.sample
         next unless file_path && File.exist?(file_path)
-        
+
         document = create_document_from_file(file_path, user, category)
         @documents << document if document
       end
     end
-    
+
     # Documents de projet si les projets existent
     if @projects&.any?
       @projects.each do |project|
@@ -360,25 +360,25 @@ class AdvancedSeedGenerator
           category = [:pdf, :images, :office, :cad].sample
           files = @downloaded_files[category] || []
           next if files.empty?
-          
+
           file_path = files.sample
           next unless file_path && File.exist?(file_path)
-          
+
           document = create_project_document(file_path, project, category)
           @documents << document if document
         end
       end
     end
-    
+
     puts "✅ #{@documents.count} documents créés"
   end
 
   def create_document_from_file(file_path, user, category)
     folder = Folder.joins(:space).where(organization: @organization).sample
     return unless folder
-    
+
     name = RealisticDataGenerator.generate_document_name(category)
-    
+
     document = Document.create!(
       title: name,
       description: RealisticDataGenerator.generate_document_description(category, name),
@@ -394,33 +394,33 @@ class AdvancedSeedGenerator
         tags: RealisticDataGenerator.generate_tags
       }
     )
-    
+
     # Attacher le fichier
     document.file.attach(
       io: File.open(file_path),
       filename: File.basename(file_path),
       content_type: detect_content_type(file_path)
     )
-    
+
     # Ajouter des métadonnées dans la colonne JSONB
     if document.document_type
       generated_metadata = RealisticDataGenerator.generate_metadata(document.document_type.to_sym)
       document.update_column(:metadata, document.metadata.merge(generated_metadata))
     end
-    
+
     # Créer quelques tags
     RealisticDataGenerator.generate_tags.each do |tag_name|
       tag = Tag.find_or_create_by!(
         name: tag_name,
         organization: @organization
       )
-      
+
       DocumentTag.create!(
         document: document,
         tag: tag
       )
     end
-    
+
     @statistics[:documents] += 1
     document
   rescue => e
@@ -430,24 +430,24 @@ class AdvancedSeedGenerator
 
   def create_project_document(file_path, project, category)
     user = project.project_manager || @users.sample
-    
+
     document = create_document_from_file(file_path, user, category)
     return unless document
-    
+
     # Lier le document au projet
     document.update!(
       documentable: project,
       document_type: [:permit, :contract, :plan, :report].sample
     )
-    
+
     document
   end
 
   def create_workflows
     puts "\n⚡ Création des workflows de validation..."
-    
+
     validation_count = 0
-    
+
     # Créer des validations pour certains documents
     @documents.sample(@documents.count / 3).each do |document|
       validation_request = ValidationRequest.create!(
@@ -458,14 +458,14 @@ class AdvancedSeedGenerator
         status: [:pending, :completed].sample,
         min_validations: rand(1..3)
       )
-      
+
       # Si complété, ajouter une date de complétion
       if validation_request.status == 'completed'
         validation_request.update!(
           completed_at: rand(1.hour.ago..Time.current)
         )
       end
-      
+
       # Créer des validations individuelles
       rand(1..3).times do
         DocumentValidation.create!(
@@ -477,19 +477,19 @@ class AdvancedSeedGenerator
           validated_at: validation_request.completed? ? rand(1.day.ago..Time.current) : nil
         )
       end
-      
+
       validation_count += 1
     end
-    
+
     @statistics[:validations] = validation_count
     puts "✅ #{validation_count} workflows de validation créés"
   end
 
   def create_shares_and_collaborations
     puts "\n🤝 Création des partages et collaborations..."
-    
+
     shares_count = 0
-    
+
     # Partages de documents
     @documents.sample(@documents.count / 4).each do |document|
       share = Share.create!(
@@ -499,7 +499,7 @@ class AdvancedSeedGenerator
         access_level: [:read, :write, :manage].sample,
         expires_at: [nil, 1.month.from_now, 3.months.from_now].sample
       )
-      
+
       # Partager avec des utilisateurs
       @users.sample(rand(1..5)).each do |user|
         DocumentShare.create!(
@@ -510,17 +510,17 @@ class AdvancedSeedGenerator
           expires_at: share.expires_at
         )
       end
-      
+
       shares_count += 1
     end
-    
+
     @statistics[:shares] = shares_count
     puts "✅ #{shares_count} partages créés"
   end
 
   def create_notifications
     puts "\n🔔 Création des notifications..."
-    
+
     notification_types = [
       { type: 'document_shared', title: 'Document partagé avec vous' },
       { type: 'document_validation_requested', title: 'Validation requise' },
@@ -529,11 +529,11 @@ class AdvancedSeedGenerator
       { type: 'project_task_assigned', title: 'Tâche assignée' },
       { type: 'project_deadline_approaching', title: 'Échéance proche' }
     ]
-    
+
     @users.each do |user|
       rand(3..10).times do
         notif_type = notification_types.sample
-        
+
         Notification.create!(
           user: user,
           notification_type: notif_type[:type],
@@ -549,17 +549,17 @@ class AdvancedSeedGenerator
           read_at: [nil, nil, nil, rand(1.day.ago..Time.current)].sample,
           created_at: rand(1.week.ago..Time.current)
         )
-        
+
         @statistics[:notifications] += 1
       end
     end
-    
+
     puts "✅ #{@statistics[:notifications]} notifications créées"
   end
 
   def create_recent_activity
     puts "\n📊 Création de l'activité récente..."
-    
+
     # Audits de documents (utilise paper_trail)
     @documents.sample(@documents.count / 2).each do |document|
       # Simuler des modifications
@@ -568,12 +568,13 @@ class AdvancedSeedGenerator
         document.update_column(:metadata, document.metadata.merge({ "last_activity" => Time.current.to_s }))
       end
     end
-    
+
     # Recherches récentes
     search_terms = ["contrat", "plan", "rapport", "budget", "permis", "étude", "devis"]
     @users.sample(20).each do |user|
       rand(1..5).times do
         SearchQuery.create!(
+          name: "requete-#{rand(10000..99999)}",
           query: search_terms.sample,
           user: user,
           query_params: {
@@ -588,7 +589,7 @@ class AdvancedSeedGenerator
         )
       end
     end
-    
+
     puts "✅ Activité récente créée"
   end
 
@@ -598,7 +599,7 @@ class AdvancedSeedGenerator
 
   def display_statistics
     duration = Time.current - @statistics[:start_time]
-    
+
     puts "\n" + "=" * 60
     puts "✅ GÉNÉRATION TERMINÉE AVEC SUCCÈS!"
     puts "=" * 60
@@ -633,7 +634,7 @@ class AdvancedSeedGenerator
 
   def detect_document_type(file_path)
     filename = File.basename(file_path).downcase
-    
+
     case filename
     when /permis|autorisation/ then 'permit'
     when /contrat|accord/ then 'contract'
@@ -648,7 +649,7 @@ class AdvancedSeedGenerator
 
   def detect_content_type(file_path)
     ext = File.extname(file_path).downcase
-    
+
     case ext
     when '.pdf' then 'application/pdf'
     when '.jpg', '.jpeg' then 'image/jpeg'
@@ -678,7 +679,7 @@ class AdvancedSeedGenerator
       communication: ["Digital", "Presse", "Événementiel", "Contenus"],
       admin_system: ["Infrastructure", "Sécurité", "DevOps", "Cloud"]
     }
-    
+
     (specializations[department] || ["Général"]).sample(rand(1..3))
   end
 
@@ -693,9 +694,9 @@ class AdvancedSeedGenerator
       { name: "Finitions", duration: 3, type: "finishing" },
       { name: "Réception", duration: 1, type: "reception" }
     ]
-    
+
     start_date = project.start_date
-    
+
     phases.each_with_index do |phase_data, index|
       phase = Immo::Promo::Phase.create!(
         project: project,
@@ -707,7 +708,7 @@ class AdvancedSeedGenerator
         status: calculate_phase_status(start_date),
         description: "Phase #{phase_data[:name]} du projet #{project.name}"
       )
-      
+
       start_date = phase.end_date
     end
   end
@@ -721,12 +722,12 @@ class AdvancedSeedGenerator
       { type: "subcontractor", count: rand(2..5) },
       { type: "control_office", count: 1 }
     ]
-    
+
     stakeholder_types.each do |stakeholder_data|
       stakeholder_data[:count].times do
         user_data = RealisticDataGenerator.generate_user
         company_name = RealisticDataGenerator::COMPANY_NAMES.sample
-        
+
         Immo::Promo::Stakeholder.create!(
           project: project,
           name: company_name,

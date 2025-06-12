@@ -10,6 +10,14 @@
 
 ## ✅ Récemment Complété
 
+### Corrections Tests Système Upload (12/12/2025) ✅
+- ✅ **IconComponent** : Corrigé paramètre `name:` au lieu de `icon:` dans DocumentShareModalComponent
+- ✅ **Route Helper** : Corrigé `edit_ged_document_path` → `ged_edit_document_path` dans DocumentViewerComponent
+- ✅ **Document Attributes** : Corrigé `related.name` → `related.title` dans DocumentViewerComponent
+- ✅ **Organization Access** : Corrigé `document.organization` → `document.space.organization`
+- ✅ **DocumentVersion#whodunnit_user** : Ajouté méthode pour récupérer l'utilisateur depuis PaperTrail
+- ✅ **Tests 100% passants** : 12/12 tests dans document_upload_spec.rb fonctionnent
+
 ### Fonctionnalités Document Viewer Complétées (13/12/2025) ✅
 - ✅ **Keyboard Shortcuts Modal** : Modal d'aide avec liste des raccourcis et gestion globale
 - ✅ **Document Actions Dropdown** : Menu avec Duplicate, Move, Archive, Lock, Validation, Public link
@@ -45,6 +53,14 @@
 - ✅ Badges clean et infected s'affichent correctement
 - ✅ Tests système passent (8/12 tests document_upload_spec.rb)
 
+### Tests de Notifications de Risques Améliorés (12/06/2025) ✅
+- ✅ **Analyse métier** : Identifié manques fonctionnels (stakeholder-user, priority, review)
+- ✅ **notify_risk_review_needed** : Implémenté méthode pour rappels périodiques
+- ✅ **Priorité automatique** : Notifications adaptées au niveau de risque
+- ✅ **Factory immo_promo_risk** : Créée avec valeurs enum correctes
+- ✅ **Service corrigé** : Type 'risk_assigned' remplacé par 'risk_identified'
+- ✅ **6/6 tests passent** : NotificationService::RiskNotifications 100% fonctionnel
+
 ### DocumentViewerComponent Intégré (13/12/2025) ✅
 - ✅ **Multi-format** : Support PDF, Images, Vidéo, Office, Code avec syntaxe highlighting
 - ✅ **Code viewer** : Détection auto fichiers code, numéros ligne, toolbar actions
@@ -66,15 +82,14 @@
 ### 🚀 Tests Système - Correction Complète (EN COURS - 13/12/2025)
 
 #### Phase 1 : Infrastructure Documents (Priorité HAUTE)
-- ✅ `document_upload_spec.rb` - Upload fonctionnel (8/12 tests passent)
-- [ ] `document_upload_spec.rb` - Corriger les 4 tests JS restants
+- ✅ `document_upload_spec.rb` - Upload fonctionnel (12/12 tests passent) ✅
 - ✅ `document_viewing_spec.rb` - DocumentViewerComponent intégré avec succès
 - [ ] `document_management_spec.rb` - Gestion basique
 
 #### Phase 2 : Fonctionnalités Avancées (Priorité MOYENNE)  
-- [ ] `document_sharing_collaboration_spec.rb` - Partage et collaboration
-- [ ] `document_search_discovery_spec.rb` - Recherche avancée
-- [ ] `document_workflow_automation_spec.rb` - Workflows automatisés
+- [ ] `document_sharing_collaboration_spec.rb` - Partage et collaboration (problèmes UI identifiés)
+- [ ] `document_search_discovery_spec.rb` - Recherche avancée (attributs corrigés)
+- [ ] `document_workflow_automation_spec.rb` - Workflows automatisés (User.name corrigé)
 
 #### Phase 3 : Parcours Métier (Priorité BASSE)
 - [ ] `direction_journey_spec.rb` - Parcours direction
@@ -83,7 +98,7 @@
 - [ ] `juridique_journey_spec.rb` - Parcours juridique
 - [ ] `cross_profile_collaboration_spec.rb` - Collaboration inter-profils
 
-**Status** : 9/54 tests système passent. Versioning, badges virus et DocumentViewer fonctionnels. Tests JS restent à corriger.
+**Status** : 12/54 tests système passent. Versioning, badges virus, DocumentViewer et upload complètement fonctionnels. Notifications de risques 100% opérationnelles avec améliorations métier.
 
 ### 🚀 Routes Métier Manquantes (NEW - 12/06/2025)
 Les routes suivantes ont été identifiées dans NavbarComponent mais n'existent pas encore. Elles représentent des fonctionnalités métier importantes :

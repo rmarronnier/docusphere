@@ -4,14 +4,14 @@ FactoryBot.define do
     association :owner, factory: :user
     sequence(:title) { |n| "Risque #{n}" }
     category { 'technical' }
-    probability { :medium }
-    impact { :medium }
+    probability { 3 }  # medium value
+    impact { 3 }       # medium value
     status { 'identified' }
     description { 'Description du risque' }
     
     trait :high_risk do
-      probability { :high }
-      impact { :high }
+      probability { 4 }  # high value
+      impact { 4 }       # high value
     end
     
     trait :mitigated do
