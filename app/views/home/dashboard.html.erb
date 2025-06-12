@@ -1,0 +1,136 @@
+<div class="min-h-screen bg-gray-50">
+  <%= render Navigation::NavbarComponent.new %>
+  
+  <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <!-- Barre de recherche globale -->
+    <div class="px-4 sm:px-0">
+      <div class="mb-8">
+        <div class="max-w-3xl mx-auto">
+          <%= render Forms::SearchFormComponent.new(
+                url: search_path,
+                placeholder: "Rechercher documents, dossiers, espaces...",
+                param_name: :q,
+                submit_text: "Rechercher"
+              ) %>
+        </div>
+      </div>
+      
+      <!-- Message de bienvenue personnalisé -->
+      <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-900">
+          Bonjour <%= current_user.display_name %> !
+        </h1>
+        <p class="text-gray-600">
+          <%= greeting_message_for_time %>
+        </p>
+      </div>
+      
+      <!-- Grille de widgets adaptatifs -->
+      <div class="grid grid-cols-12 gap-6">
+        <% if @widgets.include?(:pending_documents) %>
+          <!-- Documents en attente (largeur principale) -->
+          <div class="col-span-12 lg:col-span-8">
+            <%= render Dashboard::PendingDocumentsWidgetComponent.new(
+                  documents: @pending_documents,
+                  user: current_user
+                ) %>
+          </div>
+        <% end %>
+        
+        <% if @widgets.include?(:quick_actions) %>
+          <!-- Actions rapides (sidebar) -->
+          <div class="col-span-12 lg:col-span-4">
+            <%= render Dashboard::QuickActionsWidgetComponent.new(
+                  user: current_user
+                ) %>
+          </div>
+        <% end %>
+        
+        <% if @widgets.include?(:recent_activity) %>
+          <!-- Activité récente -->
+          <div class="col-span-12 lg:col-span-8">
+            <%= render Dashboard::RecentActivityWidgetComponent.new(
+                  activities: @recent_activities,
+                  user: current_user
+                ) %>
+          </div>
+        <% end %>
+        
+        <% if @widgets.include?(:statistics) %>
+          <!-- Statistiques -->
+          <div class="col-span-12 lg:col-span-4">
+            <%= render Dashboard::StatisticsWidgetComponent.new(
+                  stats: @statistics
+                ) %>
+          </div>
+        <% end %>
+        
+        <!-- Widgets spécifiques au profil -->
+        <% if @widgets.include?(:validation_queue) %>
+          <div class="col-span-12 lg:col-span-8">
+            <%= render Dashboard::ValidationQueueWidgetComponent.new(
+                  user: current_user
+                ) %>
+          </div>
+        <% end %>
+        
+        <% if @widgets.include?(:project_documents) %>
+          <div class="col-span-12 lg:col-span-8">
+            <%= render Dashboard::ProjectDocumentsWidgetComponent.new(
+                  user: current_user
+                ) %>
+          </div>
+        <% end %>
+        
+        <% if @widgets.include?(:client_documents) %>
+          <div class="col-span-12 lg:col-span-8">
+            <%= render Dashboard::ClientDocumentsWidgetComponent.new(
+                  user: current_user
+                ) %>
+          </div>
+        <% end %>
+        
+        <% if @widgets.include?(:compliance_alerts) %>
+          <div class="col-span-12 lg:col-span-6">
+            <%= render Dashboard::ComplianceAlertsWidgetComponent.new(
+                  user: current_user
+                ) %>
+          </div>
+        <% end %>
+      </div>
+      
+      <!-- Liens rapides vers modules -->
+      <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Module GED -->
+        <div class="bg-white rounded-lg shadow hover:shadow-lg transition-shadow p-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-lg font-medium text-gray-900">Gestion Électronique de Documents</h3>
+              <p class="text-sm text-gray-500 mt-1">Accédez à vos espaces de travail</p>
+            </div>
+            <%= link_to ged_dashboard_path, class: "text-blue-600 hover:text-blue-700" do %>
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+              </svg>
+            <% end %>
+          </div>
+        </div>
+        
+        <!-- Module ImmoPromo -->
+        <div class="bg-white rounded-lg shadow hover:shadow-lg transition-shadow p-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-lg font-medium text-gray-900">Promotion Immobilière</h3>
+              <p class="text-sm text-gray-500 mt-1">Gérez vos projets immobiliers</p>
+            </div>
+            <%= link_to immo_promo_engine.projects_path, class: "text-green-600 hover:text-green-700" do %>
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+              </svg>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

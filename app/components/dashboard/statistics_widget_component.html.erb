@@ -1,0 +1,69 @@
+<div class="bg-white shadow rounded-lg">
+  <div class="px-4 py-5 sm:p-6">
+    <h3 class="text-lg leading-6 font-medium text-gray-900 flex items-center mb-4">
+      <svg class="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+      </svg>
+      Statistiques
+    </h3>
+    
+    <dl class="space-y-4">
+      <% statistics.each do |stat| %>
+        <div class="relative">
+          <dt class="text-sm font-medium text-gray-500">
+            <%= stat[:label] %>
+          </dt>
+          <dd class="mt-1 flex items-baseline justify-between">
+            <div class="flex items-baseline text-2xl font-semibold text-gray-900">
+              <%= stat[:value] %>
+              <% if stat[:subtitle] %>
+                <span class="ml-2 text-sm font-medium text-gray-500">
+                  <%= stat[:subtitle] %>
+                </span>
+              <% end %>
+            </div>
+            
+            <div class="flex items-center">
+              <% if stat[:change] && stat[:trend] %>
+                <span class="<%= stat_color_classes(stat[:color])[:trend] %> text-sm font-medium flex items-center">
+                  <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <%= trend_icon_svg(stat[:trend]).html_safe %>
+                  </svg>
+                  <%= stat[:change] %>
+                </span>
+              <% end %>
+              
+              <div class="ml-3 p-2 rounded-full <%= stat_color_classes(stat[:color])[:icon] %>">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <%= stat_icon_svg(stat[:icon]).html_safe %>
+                </svg>
+              </div>
+            </div>
+          </dd>
+          
+          <% if stat[:percentage] %>
+            <div class="mt-2">
+              <div class="bg-gray-200 rounded-full h-2">
+                <div class="bg-<%= stat[:color] %>-600 h-2 rounded-full" 
+                     style="width: <%= [stat[:percentage], 100].min %>%"></div>
+              </div>
+              <p class="mt-1 text-xs text-gray-500">
+                <%= stat[:percentage] %>% utilisé
+              </p>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </dl>
+    
+    <div class="mt-6">
+      <%= link_to helpers.statistics_path,
+                  class: "w-full flex justify-center items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" do %>
+        Voir les statistiques détaillées
+        <svg class="ml-2 -mr-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+        </svg>
+      <% end %>
+    </div>
+  </div>
+</div>

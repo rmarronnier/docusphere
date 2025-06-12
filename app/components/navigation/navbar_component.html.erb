@@ -9,7 +9,29 @@
         
         <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
           <% navigation_items.each do |item| %>
-            <%= link_to item[:name], item[:path], class: "#{active_item?(item[:path]) ? 'border-primary-500 text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
+            <%= link_to item[:path], class: "#{active_item?(item[:path]) ? 'border-primary-500 text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium relative" do %>
+              <span><%= item[:name] %></span>
+              <% if item[:badge] && item[:badge] > 0 %>
+                <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-<%= item[:badge_color] || 'gray' %>-100 text-<%= item[:badge_color] || 'gray' %>-800">
+                  <%= item[:badge] %>
+                </span>
+              <% end %>
+            <% end %>
+          <% end %>
+          
+          <% if profile_specific_navigation_items.any? %>
+            <div class="ml-6 border-l border-gray-200 pl-6 flex space-x-8">
+              <% profile_specific_navigation_items.each do |item| %>
+                <%= link_to item[:path], class: "#{active_item?(item[:path]) ? 'border-primary-500 text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium relative" do %>
+                  <span><%= item[:name] %></span>
+                  <% if item[:badge] && item[:badge] > 0 %>
+                    <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-<%= item[:badge_color] || 'gray' %>-100 text-<%= item[:badge_color] || 'gray' %>-800">
+                      <%= item[:badge] %>
+                    </span>
+                  <% end %>
+                <% end %>
+              <% end %>
+            </div>
           <% end %>
         </div>
       </div>
@@ -29,7 +51,7 @@
                 </div>
                 <%= f.text_field :q,
                     class: "block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-primary-500 focus:border-primary-500 sm:text-sm",
-                    placeholder: "Rechercher un document...",
+                    placeholder: search_placeholder,
                     data: {
                       "search-autocomplete-target": "input",
                       action: "input->search-autocomplete#search keydown->search-autocomplete#handleKeydown"
@@ -50,6 +72,44 @@
       <!-- Menu utilisateur -->
       <div class="hidden sm:ml-6 sm:flex sm:items-center space-x-4">
         <% if current_user %>
+          <!-- Recent Items Dropdown -->
+          <% if recent_items.any? %>
+            <div class="relative" data-controller="dropdown">
+              <button type="button" 
+                      class="bg-white p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                      data-action="click->dropdown#toggle">
+                <span class="sr-only">Éléments récents</span>
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </button>
+              
+              <div class="hidden origin-top-right absolute right-0 mt-2 w-80 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none" 
+                   data-dropdown-target="menu">
+                <div class="px-4 py-2 text-xs text-gray-500 font-medium">Récemment consultés</div>
+                <% recent_items.each do |item| %>
+                  <%= link_to item[:path], class: "block px-4 py-2 text-sm hover:bg-gray-100" do %>
+                    <div class="flex items-start">
+                      <svg class="mr-3 mt-0.5 h-5 w-5 text-gray-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <% if item[:type] == 'search' %>
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        <% else %>
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        <% end %>
+                      </svg>
+                      <div class="flex-1 min-w-0">
+                        <div class="text-gray-900 font-medium truncate"><%= item[:name] %></div>
+                        <div class="text-xs text-gray-500">
+                          <%= time_ago_in_words(item[:time]) %>
+                        </div>
+                      </div>
+                    </div>
+                  <% end %>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+          
           <!-- Quick Links Dropdown -->
           <% if has_quick_links? %>
             <div class="relative" data-controller="dropdown" data-quick-links>
@@ -86,17 +146,7 @@
           <% end %>
           
           <!-- Notifications -->
-          <%= link_to helpers.notifications_path, class: "relative bg-white p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500" do %>
-            <span class="sr-only">Voir les notifications</span>
-            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-            </svg>
-            <% if unread_notifications_count > 0 %>
-              <span class="absolute -top-1 -right-1 h-4 w-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                <%= unread_notifications_count > 9 ? '9+' : unread_notifications_count %>
-              </span>
-            <% end %>
-          <% end %>
+          <%= render Navigation::NotificationBellComponent.new(user: current_user) %>
           
           <!-- Profile Switcher -->
           <% if show_profile_switcher? %>
@@ -125,7 +175,16 @@
                  aria-orientation="vertical" 
                  aria-labelledby="user-menu-button">
               <% user_items.each do |item| %>
-                <%= link_to item[:name], item[:path], class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100", role: "menuitem", method: item[:method] %>
+                <%= link_to item[:path], class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100", role: "menuitem", method: item[:method] do %>
+                  <div class="flex items-center justify-between">
+                    <span><%= item[:name] %></span>
+                    <% if item[:badge] && item[:badge] > 0 %>
+                      <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                        <%= item[:badge] %>
+                      </span>
+                    <% end %>
+                  </div>
+                <% end %>
               <% end %>
             </div>
           </div>
@@ -194,7 +253,7 @@
             </div>
             <%= f.text_field :q,
                 class: "block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-primary-500 focus:border-primary-500 sm:text-sm",
-                placeholder: "Rechercher un document...",
+                placeholder: search_placeholder,
                 data: {
                   "search-autocomplete-target": "input",
                   action: "input->search-autocomplete#search keydown->search-autocomplete#handleKeydown"

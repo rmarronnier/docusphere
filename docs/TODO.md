@@ -42,26 +42,61 @@
 - ✅ Tests d'intégration complète (24 + 13 tests)
 - ✅ Création icônes fallback SVG (7 icônes)
 
-#### 📌 Phase 2 : UI Components Modernisés (JOUR 5 COMPLÉTÉ - 11/06/2025)
-- ✅ DocumentGridComponent avec vraies vignettes
+#### ✅ Phase 2 : UI Components Modernisés (JOUR 5-7 COMPLÉTÉS)
+- ✅ DocumentGridComponent avec vraies vignettes (JOUR 5 - 11/06/2025)
   - ✅ Méthodes thumbnail_url() et preview_url() implémentées
   - ✅ Template avec images réelles et lazy loading
   - ✅ Styles CSS responsive (mobile → ultra-wide)
   - ✅ Tests refactorisés et 100% passants (32 tests)
-- [ ] Modal prévisualisation intelligente (JOUR 6)
-- [ ] DocumentCardComponent modernisé (JOUR 7)
+- ✅ Modal prévisualisation intelligente (JOUR 6 - 12/06/2025)
+  - ✅ DocumentPreviewModalComponent multi-formats créé
+  - ✅ Controllers Stimulus (document-preview, image-zoom)
+  - ✅ Intégration avec DocumentGridComponent
+  - ✅ Tests complets (35 tests RSpec + tests JS)
+- ✅ DocumentCardComponent modernisé (JOUR 7 - 12/06/2025)
+  - ✅ Refactoring complet avec zone preview
+  - ✅ Vignettes réelles et fallback intelligent
+  - ✅ Actions contextuelles par type
+  - ✅ Intégration preview modal
+  - ✅ 23 tests refactorisés
 
-#### 📌 Phase 4 : Dashboard GED (JOUR 8-10 - À FAIRE)
-- [ ] Transformation page d'accueil en dashboard
-- [ ] Widgets : PendingDocuments, RecentActivity, QuickActions
-- [ ] Navigation contextuelle par profil
-- [ ] Recherche globale intégrée
+#### ✅ Phase 4 : Dashboard GED (JOUR 8-10 COMPLÉTÉS)
+- ✅ Transformation page d'accueil en dashboard (JOUR 8 - 12/06/2025)
+- ✅ Widgets : PendingDocuments, RecentActivity, QuickActions, Statistics
+- ✅ Navigation contextuelle par profil (6 profils supportés)
+- ✅ Recherche globale intégrée avec SearchFormComponent
+- ✅ Widgets spécialisés (JOUR 9 - 12/06/2025) :
+  - ✅ ValidationQueueWidget pour direction
+  - ✅ ProjectDocumentsWidget pour chefs de projet
+  - ✅ ClientDocumentsWidget pour commerciaux
+  - ✅ ComplianceAlertsWidget pour juridique
+  - ✅ Tests complets (200+ tests)
+- ✅ Navigation améliorée (JOUR 10 - 13/06/2025) :
+  - ✅ NavbarComponent enrichi avec navigation par profil
+  - ✅ Recherche contextuelle selon rôle
+  - ✅ NotificationBellComponent avec temps réel
+  - ✅ Menu adaptatif par métier
+  - ✅ Tests navigation et notifications (50+ tests)
 
-#### 📌 Phase 5 : Vue Document Enrichie (JOUR 11-12 - À FAIRE)
-- [ ] DocumentViewerComponent multi-format
-- [ ] Actions contextuelles selon profil
-- [ ] Timeline activité document
-- [ ] Layout 2 colonnes optimisé
+#### ✅ Phase 5 : Vue Document Enrichie (JOUR 11-12 COMPLÉTÉE - 06/12/2025) ✅
+- ✅ DocumentViewerComponent multi-format créé
+  - ✅ Support PDF, Images, Vidéos, Office, Texte, CAD, Archives
+  - ✅ Viewers spécialisés avec barres d'outils intégrées
+  - ✅ Contrôles avancés (zoom, navigation, rotation)
+- ✅ Actions contextuelles selon profil utilisateur
+  - ✅ 7 profils métiers supportés (Direction, Chef projet, Juriste, etc.)
+  - ✅ 25+ actions spécialisées par profil
+  - ✅ Boutons intelligents selon permissions et contexte
+- ✅ Timeline activité document (ActivityTimelineComponent)
+  - ✅ Agrégation activités multiples (audits, validations, versions)
+  - ✅ Filtres intelligents et pagination
+  - ✅ Interface riche avec détails et actions
+- ✅ Layout 2 colonnes optimisé
+  - ✅ Vue enrichée avec header compact
+  - ✅ Sidebar intelligente avec onglets
+  - ✅ Responsive mobile avec overlay
+- ✅ Contrôleurs JavaScript avancés (5 controllers)
+- ✅ Tests complets (75+ tests RSpec + JS)
 
 #### 📌 Phase 6 : Intégration ImmoPromo (JOUR 13-14 - À FAIRE)
 - [ ] Liens documents-projets
@@ -85,6 +120,6 @@
 
 ---
 
-**Dernière mise à jour** : 11 juin 2025 (Soir 5 - GED Moderne Jour 1)
+**Dernière mise à jour** : 12 juin 2025 (Soir - GED Moderne Jour 8 complété)
 **Statut global** : Stabilisation complète, transformation GED en cours
-**État** : Production ready + amélioration UX active
+**État** : Production ready + Dashboard GED moderne opérationnel

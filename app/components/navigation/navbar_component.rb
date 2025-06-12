@@ -30,7 +30,9 @@ class Navigation::NavbarComponent < ApplicationComponent
           { 
             name: item[:label], 
             path: item[:path], 
-            icon: item[:icon] 
+            icon: item[:icon],
+            badge: item[:badge],
+            badge_color: item[:badge_color]
           }
         end
       else
@@ -63,6 +65,51 @@ class Navigation::NavbarComponent < ApplicationComponent
     items
   end
   
+  def profile_specific_navigation_items
+    return [] unless current_user&.active_profile
+    
+    case current_user.active_profile.profile_type
+    when 'direction'
+      [
+        { name: 'Validations', path: validations_path, icon: 'check-circle', badge: pending_validations_count, badge_color: 'red' },
+        { name: 'Conformité', path: compliance_dashboard_path, icon: 'shield-check' },
+        { name: 'Rapports', path: reports_path, icon: 'chart-bar' }
+      ]
+    when 'chef_projet'
+      [
+        { name: 'Mes projets', path: immo_promo_engine.projects_path, icon: 'briefcase', badge: active_projects_count, badge_color: 'blue' },
+        { name: 'Planning', path: planning_path, icon: 'calendar' },
+        { name: 'Ressources', path: resources_path, icon: 'users' }
+      ]
+    when 'commercial'
+      [
+        { name: 'Clients', path: clients_path, icon: 'user-group', badge: new_leads_count, badge_color: 'green' },
+        { name: 'Propositions', path: proposals_path, icon: 'document-text' },
+        { name: 'Contrats', path: contracts_path, icon: 'document-duplicate' }
+      ]
+    when 'juridique'
+      [
+        { name: 'Contrats', path: legal_contracts_path, icon: 'clipboard-check' },
+        { name: 'Conformité', path: compliance_dashboard_path, icon: 'shield-exclamation', badge: compliance_alerts_count, badge_color: 'orange' },
+        { name: 'Échéances', path: legal_deadlines_path, icon: 'clock' }
+      ]
+    when 'finance'
+      [
+        { name: 'Factures', path: invoices_path, icon: 'currency-euro', badge: pending_invoices_count, badge_color: 'yellow' },
+        { name: 'Budget', path: budget_dashboard_path, icon: 'calculator' },
+        { name: 'Notes de frais', path: expense_reports_path, icon: 'receipt-tax' }
+      ]
+    when 'technique'
+      [
+        { name: 'Spécifications', path: specifications_path, icon: 'document-text' },
+        { name: 'Documentation', path: technical_docs_path, icon: 'book-open' },
+        { name: 'Support', path: support_tickets_path, icon: 'support', badge: open_tickets_count, badge_color: 'red' }
+      ]
+    else
+      []
+    end
+  end
+  
   def quick_links
     navigation_service&.quick_links || []
   end
@@ -88,7 +135,7 @@ class Navigation::NavbarComponent < ApplicationComponent
   def user_items
     [
       { name: 'Mon profil', path: edit_user_registration_path, icon: 'user' },
-      { name: 'Notifications', path: notifications_path, icon: 'bell' },
+      { name: 'Notifications', path: notifications_path, icon: 'bell', badge: unread_notifications_count },
       { name: 'Paramètres', path: edit_user_registration_path, icon: 'cog' },
       { name: 'Déconnexion', path: destroy_user_session_path, icon: 'logout', method: :delete }
     ]
@@ -97,5 +144,123 @@ class Navigation::NavbarComponent < ApplicationComponent
   def active_item?(path)
     return false if path == '#'
     current_page == path || (helpers.request.path.start_with?(path) if path != '/')
+  end
+
+  # Badge count methods
+  def pending_validations_count
+    @pending_validations_count ||= current_user.validation_requests.pending.count
+  end
+
+  def active_projects_count
+    return 0 unless defined?(Immo::Promo::Project)
+    @active_projects_count ||= Immo::Promo::Project
+      .joins(:project_stakeholders)
+      .where(immo_promo_project_stakeholders: { stakeholder_id: current_user.id })
+      .where(status: 'in_progress')
+      .count
+  end
+
+  def new_leads_count
+    @new_leads_count ||= Document
+      .where(document_type: 'lead', status: 'new')
+      .where('created_at > ?', 7.days.ago)
+      .count
+  end
+
+  def compliance_alerts_count
+    @compliance_alerts_count ||= begin
+      count = 0
+      count += Document.where('expiry_date <= ?', 30.days.from_now).where(status: 'active').count
+      count += ValidationRequest.where(validation_type: 'legal', status: 'pending', assigned_to: current_user).count
+      count
+    end
+  end
+
+  def pending_invoices_count
+    @pending_invoices_count ||= Document
+      .where(document_type: 'invoice', status: 'pending')
+      .count
+  end
+
+  def open_tickets_count
+    @open_tickets_count ||= Document
+      .where(document_type: 'support_ticket', status: ['new', 'in_progress'])
+      .count
+  end
+
+  # Search placeholder based on profile
+  def search_placeholder
+    case current_user&.active_profile&.profile_type
+    when 'direction'
+      "Rechercher validations, rapports, documents..."
+    when 'chef_projet'
+      "Rechercher projets, documents, ressources..."
+    when 'commercial'
+      "Rechercher clients, propositions, contrats..."
+    when 'juridique'
+      "Rechercher contrats, conformité, échéances..."
+    when 'finance'
+      "Rechercher factures, budgets, notes..."
+    when 'technique'
+      "Rechercher specs, docs, tickets..."
+    else
+      "Rechercher documents, dossiers, espaces..."
+    end
+  end
+
+  # Recent items for quick access
+  def recent_items
+    return [] unless current_user
+    
+    @recent_items ||= begin
+      items = []
+      
+      # Recent documents
+      recent_docs = current_user.accessible_documents
+        .includes(:space)
+        .order(updated_at: :desc)
+        .limit(3)
+      
+      items += recent_docs.map do |doc|
+        {
+          type: 'document',
+          name: doc.name,
+          path: helpers.ged_document_path(doc),
+          icon: document_icon(doc),
+          time: doc.updated_at
+        }
+      end
+      
+      # Recent searches
+      if current_user.search_queries&.any?
+        recent_searches = current_user.search_queries
+          .order(created_at: :desc)
+          .limit(2)
+        
+        items += recent_searches.map do |search|
+          {
+            type: 'search',
+            name: search.query,
+            path: helpers.search_path(q: search.query),
+            icon: 'search',
+            time: search.created_at
+          }
+        end
+      end
+      
+      items.sort_by { |i| i[:time] }.reverse.first(5)
+    end
+  end
+
+  private
+
+  def document_icon(document)
+    case document.file_content_type
+    when /pdf/ then 'document-text'
+    when /image/ then 'photograph'
+    when /spreadsheet|excel/ then 'table'
+    when /presentation|powerpoint/ then 'presentation-chart-bar'
+    else 'document'
+    end
   end
 end

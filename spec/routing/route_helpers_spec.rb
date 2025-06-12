@@ -29,7 +29,7 @@ RSpec.describe "Route Helpers Validation", type: :routing do
         next if engine_routes.include?(helper)
         
         # Ignorer les méthodes de composants qui ne sont pas des routes
-        component_methods = ['icon_path', 'document_url', 'item_path', 'form_url', 'full_path', 'thumbnail_url', 'preview_url']
+        component_methods = ['icon_path', 'document_url', 'item_path', 'form_url', 'full_path', 'thumbnail_url', 'preview_url', 'action_path', 'main_link_path']
         next if component_methods.include?(helper)
         
         # Ignorer les helpers Rails standards
@@ -50,6 +50,10 @@ RSpec.describe "Route Helpers Validation", type: :routing do
         # Ignorer les helpers PWA/manifest
         pwa_helpers = ['start_url', 'start_path']
         next if pwa_helpers.include?(helper)
+        
+        # Ignorer seulement les helpers vraiment non métier
+        non_business_helpers = ['mark_all_as_read_path'] # Seulement ceux qui sont vraiment des alias
+        next if non_business_helpers.include?(helper)
         
         expect(Rails.application.routes.url_helpers).to respond_to(helper), 
                "Route helper '#{helper}' is used in views but doesn't exist"

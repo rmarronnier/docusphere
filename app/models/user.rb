@@ -18,6 +18,7 @@ class User < ApplicationRecord
   has_many :authorizations, dependent: :destroy
   has_many :user_profiles, dependent: :destroy
   has_one :active_profile, -> { where(active: true) }, class_name: 'UserProfile'
+  has_and_belongs_to_many :bookmarked_documents, class_name: 'Document', join_table: 'user_bookmarked_documents'
 
   validates :email, presence: true, uniqueness: true
   validates :first_name, :last_name, presence: true

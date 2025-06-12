@@ -130,4 +130,10 @@ class Documents::DocumentGridComponent < ApplicationComponent
     Rails.logger.error "Error generating preview URL for document #{document.id}: #{e.message}" if Rails.env.development?
     nil
   end
+
+  def preview_document_path(document)
+    # For now, return the document path itself
+    # Later we can add a specific preview route
+    helpers.ged_document_path(document)
+  end
 end

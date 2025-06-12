@@ -1,0 +1,47 @@
+<div class="min-h-screen bg-gray-50">
+  <%= render Navigation::NavbarComponent.new %>
+  
+  <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <div class="px-4 py-6 sm:px-0">
+      <div class="text-center">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">
+          Bienvenue sur DocuSphere
+        </h1>
+        <p class="text-lg text-gray-600 mb-8">
+          Votre système de gestion électronique de documents collaboratif
+        </p>
+        
+        <div class="space-x-4">
+          <%= link_to "Se connecter", new_user_session_path, class: "inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700" %>
+          <%= link_to "S'inscrire", new_user_registration_path, class: "inline-flex items-center px-6 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" %>
+        </div>
+        
+        <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <%= render Ui::CardComponent.new(title: "Gestion des documents") do %>
+            <p class="text-gray-600">
+              Stockez, organisez et partagez vos documents en toute sécurité
+            </p>
+          <% end %>
+          
+          <%= render Ui::CardComponent.new(title: "Collaboration") do %>
+            <p class="text-gray-600">
+              Travaillez en équipe avec des workflows et des espaces partagés
+            </p>
+          <% end %>
+          
+          <%= render Ui::CardComponent.new(title: "Recherche avancée") do %>
+            <p class="text-gray-600">
+              Trouvez rapidement vos documents grâce à la recherche intelligente
+            </p>
+          <% end %>
+        </div>
+        
+        <div class="mt-8 text-sm text-gray-500">
+          <p>
+            Formats supportés : PDF, Word, Excel, PowerPoint, Images, Audio, Vidéo, Email, ZIP
+          </p>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

@@ -1,0 +1,188 @@
+<div class="activity-timeline-component" data-controller="activity-timeline">
+  <% if show_filters %>
+    <!-- Filter Tabs -->
+    <div class="border-b border-gray-200 mb-6">
+      <nav class="-mb-px flex space-x-8" aria-label="Activity filters">
+        <% activity_filters.each_with_index do |filter, index| %>
+          <button class="<%= index == 0 ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' %> whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm flex items-center"
+                  data-action="click->activity-timeline#filterActivities"
+                  data-activity-timeline-filter-param="<%= filter[:id] %>">
+            <%= filter[:label] %>
+            <% if filter[:count] > 0 %>
+              <span class="ml-2 py-0.5 px-2 rounded-full text-xs font-medium bg-gray-100 text-gray-900">
+                <%= filter[:count] %>
+              </span>
+            <% end %>
+          </button>
+        <% end %>
+      </nav>
+    </div>
+  <% end %>
+
+  <!-- Timeline -->
+  <div class="flow-root">
+    <% if activities.any? %>
+      <ul role="list" class="-mb-8">
+        <% activities.each_with_index do |activity, index| %>
+          <li data-activity-type="<%= activity.type %>" 
+              data-activity-timeline-target="activityItem">
+            <div class="relative pb-8">
+              <% if index < activities.length - 1 %>
+                <span class="absolute left-5 top-5 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
+              <% end %>
+              
+              <div class="relative flex items-start space-x-3">
+                <!-- Icon -->
+                <div class="relative">
+                  <div class="h-10 w-10 rounded-full flex items-center justify-center ring-8 ring-white <%= activity.color_classes %>">
+                    <%= heroicon(activity.icon, variant: :solid, options: { class: "h-5 w-5" }) %>
+                  </div>
+                </div>
+                
+                <!-- Content -->
+                <div class="min-w-0 flex-1">
+                  <div>
+                    <div class="text-sm">
+                      <span class="font-medium text-gray-900">
+                        <%= activity.user_name %>
+                      </span>
+                      <span class="text-gray-600">
+                        <%= activity.description %>
+                      </span>
+                    </div>
+                    <p class="mt-0.5 text-sm text-gray-500">
+                      <%= activity.time_ago %>
+                    </p>
+                  </div>
+                  
+                  <!-- Activity Details -->
+                  <% if activity.details.any? %>
+                    <div class="mt-2 text-sm text-gray-700">
+                      <% case activity.type %>
+                      <% when 'document_updated' %>
+                        <% if activity.details[:changes] %>
+                          <div class="bg-gray-50 rounded-lg p-3 space-y-1">
+                            <% activity.details[:changes].each do |change| %>
+                              <div class="flex items-center text-xs">
+                                <span class="font-medium w-24"><%= change[:field] %>:</span>
+                                <span class="text-gray-500 line-through"><%= change[:from] %></span>
+                                <span class="mx-2">→</span>
+                                <span class="text-gray-900"><%= change[:to] %></span>
+                              </div>
+                            <% end %>
+                          </div>
+                        <% end %>
+                        
+                      <% when 'validation_requested' %>
+                        <div class="flex items-center space-x-4">
+                          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                            <%= activity.details[:validation_type]&.humanize %>
+                          </span>
+                          <% if activity.details[:deadline] %>
+                            <span class="text-xs text-gray-500">
+                              Due: <%= activity.details[:deadline].to_fs(:short) %>
+                            </span>
+                          <% end %>
+                        </div>
+                        
+                      <% when 'validation_approved', 'validation_rejected' %>
+                        <% if activity.details[:comment].present? %>
+                          <div class="bg-gray-50 rounded-lg p-3 italic">
+                            "<%= activity.details[:comment] %>"
+                          </div>
+                        <% end %>
+                        
+                      <% when 'document_shared' %>
+                        <div class="flex items-center space-x-2 text-xs">
+                          <span class="text-gray-500">Shared with:</span>
+                          <span class="font-medium"><%= activity.details[:shared_with] %></span>
+                          <% if activity.details[:permissions] %>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600">
+                              <%= activity.details[:permissions].join(', ') %>
+                            </span>
+                          <% end %>
+                          <% if activity.details[:expires_at] %>
+                            <span class="text-gray-500">
+                              Expires: <%= activity.details[:expires_at].to_fs(:short) %>
+                            </span>
+                          <% end %>
+                        </div>
+                        
+                      <% when 'version_created' %>
+                        <% if activity.details[:changes]&.any? %>
+                          <div class="text-xs text-gray-500">
+                            Changed: <%= activity.details[:changes].join(', ') %>
+                          </div>
+                        <% end %>
+                      <% end %>
+                    </div>
+                  <% end %>
+                </div>
+                
+                <!-- Actions -->
+                <div class="flex-shrink-0 self-center flex">
+                  <div class="relative inline-block text-left">
+                    <button type="button" 
+                            class="bg-white rounded-full p-1 text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                            data-action="click->activity-timeline#toggleActions">
+                      <%= heroicon("ellipsis-vertical", variant: :solid, options: { class: "h-5 w-5" }) %>
+                    </button>
+                    
+                    <div class="hidden origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10"
+                         data-activity-timeline-target="actionsMenu">
+                      <div class="py-1" role="menu">
+                        <% case activity.type %>
+                        <% when 'document_updated' %>
+                          <a href="#" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem">
+                            View changes
+                          </a>
+                        <% when 'version_created' %>
+                          <a href="#" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem">
+                            View this version
+                          </a>
+                          <a href="#" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem">
+                            Compare with current
+                          </a>
+                        <% when 'validation_requested', 'validation_approved', 'validation_rejected' %>
+                          <a href="#" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem">
+                            View validation details
+                          </a>
+                        <% end %>
+                        <a href="#" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem">
+                          View details
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <!-- Empty State -->
+      <div class="text-center py-12">
+        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
+          <%= heroicon("clock", variant: :outline, options: { class: "h-8 w-8 text-gray-400" }) %>
+        </div>
+        <h3 class="text-sm font-medium text-gray-900 mb-1">No activity yet</h3>
+        <p class="text-sm text-gray-500">
+          Activity will appear here as changes are made to this document.
+        </p>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Load More -->
+  <% if activities.count == limit %>
+    <div class="mt-8 text-center">
+      <button type="button"
+              class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              data-action="click->activity-timeline#loadMore">
+        Load more activity
+        <%= heroicon("chevron-down", variant: :solid, options: { class: "ml-2 -mr-1 h-4 w-4" }) %>
+      </button>
+    </div>
+  <% end %>
+</div>

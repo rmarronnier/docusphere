@@ -1,0 +1,143 @@
+<div class="bg-white rounded-lg shadow-sm border border-gray-200">
+  <!-- Header -->
+  <div class="p-6 border-b border-gray-200">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+        <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+        </svg>
+        Alertes de conformité
+      </h3>
+      
+      <% if stats[:critical_alerts] > 0 %>
+        <span class="bg-red-100 text-red-800 px-2 py-1 text-xs font-medium rounded-full">
+          <%= stats[:critical_alerts] %> critique<%= 's' if stats[:critical_alerts] > 1 %>
+        </span>
+      <% end %>
+    </div>
+
+    <!-- Stats rapides -->
+    <div class="grid grid-cols-4 gap-4 text-center">
+      <div>
+        <div class="text-2xl font-bold text-red-600"><%= stats[:critical_alerts] %></div>
+        <div class="text-xs text-gray-500">Critiques</div>
+      </div>
+      <div>
+        <div class="text-2xl font-bold text-orange-600"><%= stats[:documents_expiring] %></div>
+        <div class="text-xs text-gray-500">Docs expirent</div>
+      </div>
+      <div>
+        <div class="text-2xl font-bold text-blue-600"><%= stats[:pending_validations] %></div>
+        <div class="text-xs text-gray-500">À valider</div>
+      </div>
+      <div>
+        <div class="text-2xl font-bold text-gray-900"><%= stats[:upcoming_deadlines] %></div>
+        <div class="text-xs text-gray-500">Échéances</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alertes actives -->
+  <div class="divide-y divide-gray-200">
+    <% if alerts.any? %>
+      <% alerts.each do |alert| %>
+        <div class="p-4 <%= alert_bg_color(alert[:color]) %> hover:bg-opacity-75 transition-colors">
+          <div class="flex items-start gap-3">
+            <!-- Icône -->
+            <div class="flex-shrink-0">
+              <div class="w-8 h-8 <%= alert_bg_color(alert[:color]) %> rounded-full flex items-center justify-center">
+                <svg class="w-5 h-5 <%= alert_icon_color(alert[:color]) %>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <% case alert[:icon] %>
+                  <% when 'clock' %>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  <% when 'document-text' %>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                  <% when 'refresh' %>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                  <% when 'shield-check' %>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                  <% else %>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                  <% end %>
+                </svg>
+              </div>
+            </div>
+
+            <!-- Contenu -->
+            <div class="flex-1">
+              <h4 class="text-sm font-medium text-gray-900">
+                <%= alert[:title] %>
+              </h4>
+              <p class="text-sm text-gray-600 mt-0.5">
+                <%= alert[:description] %>
+              </p>
+              <p class="text-xs <%= alert_icon_color(alert[:color]) %> font-medium mt-1">
+                <%= days_until_text(alert[:date]) %>
+              </p>
+            </div>
+
+            <!-- Action -->
+            <div class="flex-shrink-0">
+              <%= link_to alert[:action_label],
+                  alert[:action_path],
+                  class: "text-sm #{alert_icon_color(alert[:color])} hover:underline font-medium" %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    <% else %>
+      <!-- État sans alertes -->
+      <div class="p-8 text-center">
+        <svg class="mx-auto h-12 w-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900">Aucune alerte active</h3>
+        <p class="mt-1 text-sm text-gray-500">
+          Tous les documents sont conformes.
+        </p>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Échéances à venir -->
+  <% if upcoming_deadlines.any? %>
+    <div class="border-t border-gray-200">
+      <div class="p-4">
+        <h4 class="text-sm font-medium text-gray-900 mb-3">Échéances réglementaires</h4>
+        <div class="space-y-2">
+          <% upcoming_deadlines.each do |deadline| %>
+            <div class="flex items-center justify-between py-1">
+              <div class="flex items-center gap-2">
+                <% if deadline[:recurring] %>
+                  <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"></path>
+                  </svg>
+                <% else %>
+                  <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path>
+                  </svg>
+                <% end %>
+                <span class="text-sm text-gray-700"><%= deadline[:title] %></span>
+              </div>
+              <span class="text-xs text-gray-500">
+                <%= deadline[:date].strftime("%d/%m/%Y") %>
+              </span>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Footer -->
+  <div class="px-6 py-3 bg-gray-50 border-t border-gray-200">
+    <div class="flex items-center justify-between">
+      <p class="text-xs text-gray-500">
+        <%= stats[:total_alerts] %> alerte<%= 's' if stats[:total_alerts] != 1 %> active<%= 's' if stats[:total_alerts] != 1 %>
+      </p>
+      <%= link_to "Centre de conformité",
+          helpers.compliance_dashboard_path,
+          class: "text-sm text-red-600 hover:text-red-800 font-medium" %>
+    </div>
+  </div>
+</div>

@@ -1975,6 +1975,53 @@ example_id                                                                      
 ./spec/components/dashboard/actions_panel_component_spec.rb[1:5:2]                                                  | passed  | 0.16864 seconds      |
 ./spec/components/dashboard/actions_panel_component_spec.rb[1:6:1]                                                  | passed  | 0.17109 seconds      |
 ./spec/components/dashboard/actions_panel_component_spec.rb[1:7:1]                                                  | passed  | 0.16831 seconds      |
+./spec/components/dashboard/client_documents_widget_component_spec.rb[1:1:1]                                        | unknown |                      |
+./spec/components/dashboard/client_documents_widget_component_spec.rb[1:1:2:1]                                      | unknown |                      |
+./spec/components/dashboard/client_documents_widget_component_spec.rb[1:2:1:1]                                      | unknown |                      |
+./spec/components/dashboard/client_documents_widget_component_spec.rb[1:2:2:1]                                      | unknown |                      |
+./spec/components/dashboard/client_documents_widget_component_spec.rb[1:3:1]                                        | failed  | 0.2973 seconds       |
+./spec/components/dashboard/client_documents_widget_component_spec.rb[1:4:1]                                        | unknown |                      |
+./spec/components/dashboard/client_documents_widget_component_spec.rb[1:5:1:1]                                      | unknown |                      |
+./spec/components/dashboard/client_documents_widget_component_spec.rb[1:5:2:1]                                      | unknown |                      |
+./spec/components/dashboard/client_documents_widget_component_spec.rb[1:5:3:1]                                      | unknown |                      |
+./spec/components/dashboard/client_documents_widget_component_spec.rb[1:5:4:1]                                      | unknown |                      |
+./spec/components/dashboard/client_documents_widget_component_spec.rb[1:6:1]                                        | unknown |                      |
+./spec/components/dashboard/client_documents_widget_component_spec.rb[1:7:1]                                        | unknown |                      |
+./spec/components/dashboard/client_documents_widget_component_spec.rb[1:7:2]                                        | unknown |                      |
+./spec/components/dashboard/client_documents_widget_component_spec.rb[1:7:3]                                        | unknown |                      |
+./spec/components/dashboard/client_documents_widget_component_spec.rb[1:8:1]                                        | unknown |                      |
+./spec/components/dashboard/client_documents_widget_component_spec.rb[1:8:2]                                        | unknown |                      |
+./spec/components/dashboard/client_documents_widget_component_spec.rb[1:9:1]                                        | unknown |                      |
+./spec/components/dashboard/client_documents_widget_component_spec.rb[1:9:2:1]                                      | unknown |                      |
+./spec/components/dashboard/client_documents_widget_component_spec.rb[1:9:2:2]                                      | unknown |                      |
+./spec/components/dashboard/client_documents_widget_component_spec.rb[1:9:2:3]                                      | unknown |                      |
+./spec/components/dashboard/client_documents_widget_component_spec.rb[1:9:2:4]                                      | unknown |                      |
+./spec/components/dashboard/client_documents_widget_component_spec.rb[1:9:2:5]                                      | unknown |                      |
+./spec/components/dashboard/compliance_alerts_widget_component_spec.rb[1:1:1]                                       | unknown |                      |
+./spec/components/dashboard/compliance_alerts_widget_component_spec.rb[1:1:2:1]                                     | unknown |                      |
+./spec/components/dashboard/compliance_alerts_widget_component_spec.rb[1:2:1]                                       | unknown |                      |
+./spec/components/dashboard/compliance_alerts_widget_component_spec.rb[1:2:2]                                       | unknown |                      |
+./spec/components/dashboard/compliance_alerts_widget_component_spec.rb[1:3:1:1]                                     | unknown |                      |
+./spec/components/dashboard/compliance_alerts_widget_component_spec.rb[1:3:2:1]                                     | unknown |                      |
+./spec/components/dashboard/compliance_alerts_widget_component_spec.rb[1:4:1]                                       | unknown |                      |
+./spec/components/dashboard/compliance_alerts_widget_component_spec.rb[1:5:1]                                       | unknown |                      |
+./spec/components/dashboard/compliance_alerts_widget_component_spec.rb[1:6:1:1]                                     | unknown |                      |
+./spec/components/dashboard/compliance_alerts_widget_component_spec.rb[1:6:1:2]                                     | unknown |                      |
+./spec/components/dashboard/compliance_alerts_widget_component_spec.rb[1:6:1:3]                                     | unknown |                      |
+./spec/components/dashboard/compliance_alerts_widget_component_spec.rb[1:6:2:1]                                     | unknown |                      |
+./spec/components/dashboard/compliance_alerts_widget_component_spec.rb[1:6:2:2]                                     | unknown |                      |
+./spec/components/dashboard/compliance_alerts_widget_component_spec.rb[1:6:2:3]                                     | unknown |                      |
+./spec/components/dashboard/compliance_alerts_widget_component_spec.rb[1:6:3:1]                                     | unknown |                      |
+./spec/components/dashboard/compliance_alerts_widget_component_spec.rb[1:6:3:2]                                     | unknown |                      |
+./spec/components/dashboard/compliance_alerts_widget_component_spec.rb[1:6:3:3]                                     | unknown |                      |
+./spec/components/dashboard/compliance_alerts_widget_component_spec.rb[1:7:1]                                       | unknown |                      |
+./spec/components/dashboard/compliance_alerts_widget_component_spec.rb[1:8:1]                                       | unknown |                      |
+./spec/components/dashboard/compliance_alerts_widget_component_spec.rb[1:9:1]                                       | unknown |                      |
+./spec/components/dashboard/compliance_alerts_widget_component_spec.rb[1:10:1]                                      | unknown |                      |
+./spec/components/dashboard/compliance_alerts_widget_component_spec.rb[1:11:1]                                      | unknown |                      |
+./spec/components/dashboard/compliance_alerts_widget_component_spec.rb[1:11:2:1]                                    | unknown |                      |
+./spec/components/dashboard/compliance_alerts_widget_component_spec.rb[1:11:2:2]                                    | unknown |                      |
+./spec/components/dashboard/compliance_alerts_widget_component_spec.rb[1:11:3:1]                                    | unknown |                      |
 ./spec/components/dashboard/notifications_widget_spec.rb[1:1:1]                                                     | passed  | 0.17096 seconds      |
 ./spec/components/dashboard/notifications_widget_spec.rb[1:1:2]                                                     | passed  | 0.18478 seconds      |
 ./spec/components/dashboard/notifications_widget_spec.rb[1:1:3]                                                     | passed  | 0.17336 seconds      |
@@ -1987,6 +2034,16 @@ example_id                                                                      
 ./spec/components/dashboard/notifications_widget_spec.rb[1:4:1]                                                     | passed  | 0.17005 seconds      |
 ./spec/components/dashboard/notifications_widget_spec.rb[1:5:1]                                                     | passed  | 0.17369 seconds      |
 ./spec/components/dashboard/notifications_widget_spec.rb[1:6:1]                                                     | passed  | 0.17306 seconds      |
+./spec/components/dashboard/pending_documents_widget_component_spec.rb[1:1:1:1]                                     | unknown |                      |
+./spec/components/dashboard/pending_documents_widget_component_spec.rb[1:1:2:1]                                     | unknown |                      |
+./spec/components/dashboard/pending_documents_widget_component_spec.rb[1:1:2:2]                                     | unknown |                      |
+./spec/components/dashboard/pending_documents_widget_component_spec.rb[1:1:2:3]                                     | unknown |                      |
+./spec/components/dashboard/pending_documents_widget_component_spec.rb[1:1:2:4]                                     | unknown |                      |
+./spec/components/dashboard/pending_documents_widget_component_spec.rb[1:1:3:1]                                     | unknown |                      |
+./spec/components/dashboard/pending_documents_widget_component_spec.rb[1:1:4:1]                                     | unknown |                      |
+./spec/components/dashboard/pending_documents_widget_component_spec.rb[1:2:1:1]                                     | unknown |                      |
+./spec/components/dashboard/pending_documents_widget_component_spec.rb[1:2:1:2]                                     | unknown |                      |
+./spec/components/dashboard/pending_documents_widget_component_spec.rb[1:2:2:1]                                     | unknown |                      |
 ./spec/components/dashboard/pending_tasks_widget_spec.rb[1:1:1]                                                     | passed  | 0.16927 seconds      |
 ./spec/components/dashboard/pending_tasks_widget_spec.rb[1:1:2]                                                     | passed  | 0.1674 seconds       |
 ./spec/components/dashboard/pending_tasks_widget_spec.rb[1:1:3]                                                     | passed  | 0.16894 seconds      |
@@ -1999,6 +2056,27 @@ example_id                                                                      
 ./spec/components/dashboard/pending_tasks_widget_spec.rb[1:4:1]                                                     | passed  | 0.1846 seconds       |
 ./spec/components/dashboard/pending_tasks_widget_spec.rb[1:5:1]                                                     | passed  | 0.17114 seconds      |
 ./spec/components/dashboard/pending_tasks_widget_spec.rb[1:6:1]                                                     | passed  | 0.19504 seconds      |
+./spec/components/dashboard/project_documents_widget_component_spec.rb[1:1:1]                                       | unknown |                      |
+./spec/components/dashboard/project_documents_widget_component_spec.rb[1:1:2:1]                                     | unknown |                      |
+./spec/components/dashboard/project_documents_widget_component_spec.rb[1:2:1:1]                                     | unknown |                      |
+./spec/components/dashboard/project_documents_widget_component_spec.rb[1:2:2:1]                                     | unknown |                      |
+./spec/components/dashboard/project_documents_widget_component_spec.rb[1:3:1]                                       | unknown |                      |
+./spec/components/dashboard/project_documents_widget_component_spec.rb[1:4:1]                                       | unknown |                      |
+./spec/components/dashboard/project_documents_widget_component_spec.rb[1:4:2]                                       | unknown |                      |
+./spec/components/dashboard/project_documents_widget_component_spec.rb[1:5:1]                                       | unknown |                      |
+./spec/components/dashboard/project_documents_widget_component_spec.rb[1:6:1]                                       | unknown |                      |
+./spec/components/dashboard/project_documents_widget_component_spec.rb[1:6:2]                                       | unknown |                      |
+./spec/components/dashboard/project_documents_widget_component_spec.rb[1:7:1]                                       | unknown |                      |
+./spec/components/dashboard/project_documents_widget_component_spec.rb[1:7:2]                                       | unknown |                      |
+./spec/components/dashboard/project_documents_widget_component_spec.rb[1:7:3]                                       | unknown |                      |
+./spec/components/dashboard/project_documents_widget_component_spec.rb[1:8:1]                                       | unknown |                      |
+./spec/components/dashboard/project_documents_widget_component_spec.rb[1:9:1]                                       | unknown |                      |
+./spec/components/dashboard/project_documents_widget_component_spec.rb[1:9:2]                                       | unknown |                      |
+./spec/components/dashboard/project_documents_widget_component_spec.rb[1:10:1]                                      | unknown |                      |
+./spec/components/dashboard/project_documents_widget_component_spec.rb[1:10:2:1]                                    | unknown |                      |
+./spec/components/dashboard/project_documents_widget_component_spec.rb[1:10:2:2]                                    | unknown |                      |
+./spec/components/dashboard/project_documents_widget_component_spec.rb[1:10:2:3]                                    | unknown |                      |
+./spec/components/dashboard/project_documents_widget_component_spec.rb[1:10:2:4]                                    | unknown |                      |
 ./spec/components/dashboard/quick_access_widget_spec.rb[1:1:1]                                                      | passed  | 0.17957 seconds      |
 ./spec/components/dashboard/quick_access_widget_spec.rb[1:1:2]                                                      | passed  | 0.1798 seconds       |
 ./spec/components/dashboard/quick_access_widget_spec.rb[1:1:3]                                                      | passed  | 0.17739 seconds      |
@@ -2009,16 +2087,50 @@ example_id                                                                      
 ./spec/components/dashboard/quick_access_widget_spec.rb[1:4:1]                                                      | passed  | 0.18043 seconds      |
 ./spec/components/dashboard/quick_access_widget_spec.rb[1:5:1]                                                      | passed  | 0.17609 seconds      |
 ./spec/components/dashboard/quick_access_widget_spec.rb[1:6:1]                                                      | passed  | 0.17532 seconds      |
-./spec/components/dashboard/recent_documents_widget_spec.rb[1:1:1]                                                  | passed  | 0.28404 seconds      |
-./spec/components/dashboard/recent_documents_widget_spec.rb[1:1:2]                                                  | passed  | 0.28159 seconds      |
-./spec/components/dashboard/recent_documents_widget_spec.rb[1:1:3]                                                  | passed  | 0.28728 seconds      |
-./spec/components/dashboard/recent_documents_widget_spec.rb[1:1:4]                                                  | passed  | 0.28224 seconds      |
-./spec/components/dashboard/recent_documents_widget_spec.rb[1:1:5]                                                  | passed  | 0.28303 seconds      |
-./spec/components/dashboard/recent_documents_widget_spec.rb[1:2:1]                                                  | passed  | 0.20271 seconds      |
-./spec/components/dashboard/recent_documents_widget_spec.rb[1:2:2]                                                  | passed  | 0.19764 seconds      |
-./spec/components/dashboard/recent_documents_widget_spec.rb[1:3:1]                                                  | passed  | 0.19885 seconds      |
-./spec/components/dashboard/recent_documents_widget_spec.rb[1:4:1]                                                  | passed  | 0.45798 seconds      |
-./spec/components/dashboard/recent_documents_widget_spec.rb[1:5:1]                                                  | passed  | 0.30931 seconds      |
+./spec/components/dashboard/quick_actions_widget_component_spec.rb[1:1:1]                                           | unknown |                      |
+./spec/components/dashboard/quick_actions_widget_component_spec.rb[1:1:2]                                           | unknown |                      |
+./spec/components/dashboard/quick_actions_widget_component_spec.rb[1:1:3]                                           | unknown |                      |
+./spec/components/dashboard/quick_actions_widget_component_spec.rb[1:1:4]                                           | unknown |                      |
+./spec/components/dashboard/quick_actions_widget_component_spec.rb[1:1:5:1:1]                                       | unknown |                      |
+./spec/components/dashboard/quick_actions_widget_component_spec.rb[1:1:5:2:1]                                       | unknown |                      |
+./spec/components/dashboard/quick_actions_widget_component_spec.rb[1:1:5:3:1]                                       | unknown |                      |
+./spec/components/dashboard/quick_actions_widget_component_spec.rb[1:1:5:4:1]                                       | unknown |                      |
+./spec/components/dashboard/quick_actions_widget_component_spec.rb[1:2:1]                                           | unknown |                      |
+./spec/components/dashboard/quick_actions_widget_component_spec.rb[1:3:1:1]                                         | unknown |                      |
+./spec/components/dashboard/recent_activity_widget_component_spec.rb[1:1:1:1]                                       | unknown |                      |
+./spec/components/dashboard/recent_activity_widget_component_spec.rb[1:1:2:1]                                       | unknown |                      |
+./spec/components/dashboard/recent_activity_widget_component_spec.rb[1:1:2:2]                                       | unknown |                      |
+./spec/components/dashboard/recent_activity_widget_component_spec.rb[1:1:2:3]                                       | unknown |                      |
+./spec/components/dashboard/recent_activity_widget_component_spec.rb[1:1:2:4]                                       | unknown |                      |
+./spec/components/dashboard/recent_activity_widget_component_spec.rb[1:1:3:1]                                       | unknown |                      |
+./spec/components/dashboard/recent_activity_widget_component_spec.rb[1:1:3:2]                                       | unknown |                      |
+./spec/components/dashboard/recent_activity_widget_component_spec.rb[1:1:4:1]                                       | unknown |                      |
+./spec/components/dashboard/recent_activity_widget_component_spec.rb[1:2:1:1]                                       | unknown |                      |
+./spec/components/dashboard/recent_activity_widget_component_spec.rb[1:2:2:1]                                       | unknown |                      |
+./spec/components/dashboard/recent_activity_widget_component_spec.rb[1:2:2:2]                                       | unknown |                      |
+./spec/components/dashboard/recent_documents_widget_spec.rb[1:1:1]                                                  | passed  | 0.24491 seconds      |
+./spec/components/dashboard/recent_documents_widget_spec.rb[1:1:2]                                                  | passed  | 0.24846 seconds      |
+./spec/components/dashboard/recent_documents_widget_spec.rb[1:1:3]                                                  | passed  | 0.24107 seconds      |
+./spec/components/dashboard/recent_documents_widget_spec.rb[1:1:4]                                                  | passed  | 0.24376 seconds      |
+./spec/components/dashboard/recent_documents_widget_spec.rb[1:1:5]                                                  | passed  | 0.24033 seconds      |
+./spec/components/dashboard/recent_documents_widget_spec.rb[1:2:1]                                                  | passed  | 0.1692 seconds       |
+./spec/components/dashboard/recent_documents_widget_spec.rb[1:2:2]                                                  | passed  | 0.16861 seconds      |
+./spec/components/dashboard/recent_documents_widget_spec.rb[1:3:1]                                                  | passed  | 0.3004 seconds       |
+./spec/components/dashboard/recent_documents_widget_spec.rb[1:4:1]                                                  | passed  | 0.37168 seconds      |
+./spec/components/dashboard/recent_documents_widget_spec.rb[1:5:1]                                                  | passed  | 0.28031 seconds      |
+./spec/components/dashboard/statistics_widget_component_spec.rb[1:1:1]                                              | unknown |                      |
+./spec/components/dashboard/statistics_widget_component_spec.rb[1:1:2]                                              | unknown |                      |
+./spec/components/dashboard/statistics_widget_component_spec.rb[1:1:3]                                              | unknown |                      |
+./spec/components/dashboard/statistics_widget_component_spec.rb[1:1:4]                                              | unknown |                      |
+./spec/components/dashboard/statistics_widget_component_spec.rb[1:1:5]                                              | unknown |                      |
+./spec/components/dashboard/statistics_widget_component_spec.rb[1:1:6:1]                                            | unknown |                      |
+./spec/components/dashboard/statistics_widget_component_spec.rb[1:2:1:1]                                            | unknown |                      |
+./spec/components/dashboard/statistics_widget_component_spec.rb[1:2:1:2]                                            | unknown |                      |
+./spec/components/dashboard/statistics_widget_component_spec.rb[1:2:2:1]                                            | unknown |                      |
+./spec/components/dashboard/statistics_widget_component_spec.rb[1:2:2:2]                                            | unknown |                      |
+./spec/components/dashboard/statistics_widget_component_spec.rb[1:2:3:1]                                            | unknown |                      |
+./spec/components/dashboard/statistics_widget_component_spec.rb[1:3:1]                                              | unknown |                      |
+./spec/components/dashboard/statistics_widget_component_spec.rb[1:3:2]                                              | unknown |                      |
 ./spec/components/dashboard/statistics_widget_spec.rb[1:1:1]                                                        | passed  | 0.17386 seconds      |
 ./spec/components/dashboard/statistics_widget_spec.rb[1:1:2]                                                        | passed  | 0.17666 seconds      |
 ./spec/components/dashboard/statistics_widget_spec.rb[1:1:3]                                                        | passed  | 0.17346 seconds      |
@@ -2030,6 +2142,31 @@ example_id                                                                      
 ./spec/components/dashboard/statistics_widget_spec.rb[1:4:1]                                                        | passed  | 0.1733 seconds       |
 ./spec/components/dashboard/statistics_widget_spec.rb[1:5:1]                                                        | passed  | 0.1737 seconds       |
 ./spec/components/dashboard/statistics_widget_spec.rb[1:6:1]                                                        | passed  | 0.18284 seconds      |
+./spec/components/dashboard/validation_queue_widget_component_spec.rb[1:1:1]                                        | unknown |                      |
+./spec/components/dashboard/validation_queue_widget_component_spec.rb[1:1:2]                                        | unknown |                      |
+./spec/components/dashboard/validation_queue_widget_component_spec.rb[1:1:3]                                        | unknown |                      |
+./spec/components/dashboard/validation_queue_widget_component_spec.rb[1:1:4]                                        | unknown |                      |
+./spec/components/dashboard/validation_queue_widget_component_spec.rb[1:2:1:1]                                      | unknown |                      |
+./spec/components/dashboard/validation_queue_widget_component_spec.rb[1:2:2:1]                                      | unknown |                      |
+./spec/components/dashboard/validation_queue_widget_component_spec.rb[1:2:3]                                        | unknown |                      |
+./spec/components/dashboard/validation_queue_widget_component_spec.rb[1:3:1]                                        | unknown |                      |
+./spec/components/dashboard/validation_queue_widget_component_spec.rb[1:3:2]                                        | unknown |                      |
+./spec/components/dashboard/validation_queue_widget_component_spec.rb[1:4:1]                                        | unknown |                      |
+./spec/components/dashboard/validation_queue_widget_component_spec.rb[1:5:1]                                        | unknown |                      |
+./spec/components/dashboard/validation_queue_widget_component_spec.rb[1:5:2]                                        | unknown |                      |
+./spec/components/dashboard/validation_queue_widget_component_spec.rb[1:6:1]                                        | unknown |                      |
+./spec/components/dashboard/validation_queue_widget_component_spec.rb[1:6:2]                                        | unknown |                      |
+./spec/components/dashboard/validation_queue_widget_component_spec.rb[1:7:1]                                        | unknown |                      |
+./spec/components/dashboard/validation_queue_widget_component_spec.rb[1:7:2]                                        | unknown |                      |
+./spec/components/dashboard/validation_queue_widget_component_spec.rb[1:7:3]                                        | unknown |                      |
+./spec/components/dashboard/validation_queue_widget_component_spec.rb[1:8:1]                                        | unknown |                      |
+./spec/components/dashboard/validation_queue_widget_component_spec.rb[1:8:2]                                        | unknown |                      |
+./spec/components/dashboard/validation_queue_widget_component_spec.rb[1:8:3]                                        | unknown |                      |
+./spec/components/dashboard/validation_queue_widget_component_spec.rb[1:9:1]                                        | unknown |                      |
+./spec/components/dashboard/validation_queue_widget_component_spec.rb[1:9:2]                                        | unknown |                      |
+./spec/components/dashboard/validation_queue_widget_component_spec.rb[1:9:3]                                        | unknown |                      |
+./spec/components/dashboard/validation_queue_widget_component_spec.rb[1:9:4]                                        | unknown |                      |
+./spec/components/dashboard/validation_queue_widget_component_spec.rb[1:9:5]                                        | unknown |                      |
 ./spec/components/dashboard/widget_component_spec.rb[1:1:1]                                                         | passed  | 0.0011 seconds       |
 ./spec/components/dashboard/widget_component_spec.rb[1:1:2]                                                         | passed  | 0.00084 seconds      |
 ./spec/components/dashboard/widget_component_spec.rb[1:2:1]                                                         | passed  | 0.00101 seconds      |
@@ -2041,6 +2178,30 @@ example_id                                                                      
 ./spec/components/dashboard/widget_component_spec.rb[1:7:1]                                                         | passed  | 0.00128 seconds      |
 ./spec/components/dashboard/widget_component_spec.rb[1:7:2]                                                         | passed  | 0.00081 seconds      |
 ./spec/components/dashboard/widget_component_spec.rb[1:7:3]                                                         | passed  | 0.00083 seconds      |
+./spec/components/documents/activity_timeline_component_spec.rb[1:1:1]                                              | unknown |                      |
+./spec/components/documents/activity_timeline_component_spec.rb[1:1:2]                                              | unknown |                      |
+./spec/components/documents/activity_timeline_component_spec.rb[1:2:1:1]                                            | unknown |                      |
+./spec/components/documents/activity_timeline_component_spec.rb[1:2:2:1]                                            | unknown |                      |
+./spec/components/documents/activity_timeline_component_spec.rb[1:3:1]                                              | unknown |                      |
+./spec/components/documents/activity_timeline_component_spec.rb[1:3:2]                                              | unknown |                      |
+./spec/components/documents/activity_timeline_component_spec.rb[1:3:3]                                              | unknown |                      |
+./spec/components/documents/activity_timeline_component_spec.rb[1:3:4]                                              | unknown |                      |
+./spec/components/documents/activity_timeline_component_spec.rb[1:4:1]                                              | unknown |                      |
+./spec/components/documents/activity_timeline_component_spec.rb[1:5:1:1]                                            | unknown |                      |
+./spec/components/documents/activity_timeline_component_spec.rb[1:5:1:2]                                            | unknown |                      |
+./spec/components/documents/activity_timeline_component_spec.rb[1:5:1:3]                                            | unknown |                      |
+./spec/components/documents/activity_timeline_component_spec.rb[1:5:2:1]                                            | unknown |                      |
+./spec/components/documents/activity_timeline_component_spec.rb[1:5:2:2]                                            | unknown |                      |
+./spec/components/documents/activity_timeline_component_spec.rb[1:5:3:1]                                            | unknown |                      |
+./spec/components/documents/activity_timeline_component_spec.rb[1:5:3:2]                                            | unknown |                      |
+./spec/components/documents/activity_timeline_component_spec.rb[1:5:3:3]                                            | unknown |                      |
+./spec/components/documents/activity_timeline_component_spec.rb[1:5:4:1]                                            | unknown |                      |
+./spec/components/documents/activity_timeline_component_spec.rb[1:5:4:2]                                            | unknown |                      |
+./spec/components/documents/activity_timeline_component_spec.rb[1:6:1]                                              | unknown |                      |
+./spec/components/documents/activity_timeline_component_spec.rb[1:6:2]                                              | unknown |                      |
+./spec/components/documents/activity_timeline_component_spec.rb[1:6:3]                                              | unknown |                      |
+./spec/components/documents/activity_timeline_component_spec.rb[1:7:1]                                              | unknown |                      |
+./spec/components/documents/activity_timeline_component_spec.rb[1:7:2]                                              | unknown |                      |
 ./spec/components/documents/ai_insights_component_spec.rb[1:1:1]                                                    | passed  | 0.18981 seconds      |
 ./spec/components/documents/ai_insights_component_spec.rb[1:2:1]                                                    | passed  | 0.19099 seconds      |
 ./spec/components/documents/ai_insights_component_spec.rb[1:2:2]                                                    | passed  | 0.19787 seconds      |
@@ -2066,14 +2227,29 @@ example_id                                                                      
 ./spec/components/documents/ai_insights_component_spec.rb[1:7:4]                                                    | passed  | 0.2166 seconds       |
 ./spec/components/documents/ai_insights_component_spec.rb[1:8:1:1]                                                  | passed  | 0.19239 seconds      |
 ./spec/components/documents/ai_insights_component_spec.rb[1:8:2:1]                                                  | passed  | 0.19227 seconds      |
-./spec/components/documents/document_card_component_spec.rb[1:1]                                                    | passed  | 0.22215 seconds      |
-./spec/components/documents/document_card_component_spec.rb[1:2]                                                    | passed  | 0.22406 seconds      |
-./spec/components/documents/document_card_component_spec.rb[1:3]                                                    | passed  | 0.22549 seconds      |
-./spec/components/documents/document_card_component_spec.rb[1:4]                                                    | passed  | 0.22348 seconds      |
-./spec/components/documents/document_card_component_spec.rb[1:5]                                                    | passed  | 0.22507 seconds      |
-./spec/components/documents/document_card_component_spec.rb[1:6]                                                    | passed  | 0.22343 seconds      |
-./spec/components/documents/document_card_component_spec.rb[1:7:1]                                                  | passed  | 0.23781 seconds      |
-./spec/components/documents/document_card_component_spec.rb[1:8:1]                                                  | passed  | 0.22734 seconds      |
+./spec/components/documents/document_card_component_spec.rb[1:1:1]                                                  | failed  | 0.18394 seconds      |
+./spec/components/documents/document_card_component_spec.rb[1:1:2]                                                  | failed  | 0.17628 seconds      |
+./spec/components/documents/document_card_component_spec.rb[1:2:1]                                                  | failed  | 0.32523 seconds      |
+./spec/components/documents/document_card_component_spec.rb[1:2:2]                                                  | failed  | 0.17688 seconds      |
+./spec/components/documents/document_card_component_spec.rb[1:2:3]                                                  | failed  | 0.17746 seconds      |
+./spec/components/documents/document_card_component_spec.rb[1:2:4]                                                  | failed  | 0.19117 seconds      |
+./spec/components/documents/document_card_component_spec.rb[1:3:1:1]                                                | failed  | 0.17939 seconds      |
+./spec/components/documents/document_card_component_spec.rb[1:3:2:1]                                                | failed  | 0.17948 seconds      |
+./spec/components/documents/document_card_component_spec.rb[1:3:2:2]                                                | failed  | 0.17707 seconds      |
+./spec/components/documents/document_card_component_spec.rb[1:3:3:1]                                                | failed  | 0.18201 seconds      |
+./spec/components/documents/document_card_component_spec.rb[1:4:1:1]                                                | failed  | 0.17793 seconds      |
+./spec/components/documents/document_card_component_spec.rb[1:4:2]                                                  | failed  | 0.17902 seconds      |
+./spec/components/documents/document_card_component_spec.rb[1:4:3:1]                                                | failed  | 0.1783 seconds       |
+./spec/components/documents/document_card_component_spec.rb[1:5:1]                                                  | failed  | 0.17867 seconds      |
+./spec/components/documents/document_card_component_spec.rb[1:5:2]                                                  | failed  | 0.18245 seconds      |
+./spec/components/documents/document_card_component_spec.rb[1:5:3]                                                  | failed  | 0.17652 seconds      |
+./spec/components/documents/document_card_component_spec.rb[1:6:1]                                                  | failed  | 0.17774 seconds      |
+./spec/components/documents/document_card_component_spec.rb[1:6:2]                                                  | failed  | 0.17862 seconds      |
+./spec/components/documents/document_card_component_spec.rb[1:7:1:1]                                                | failed  | 0.18146 seconds      |
+./spec/components/documents/document_card_component_spec.rb[1:7:2:1]                                                | failed  | 0.17859 seconds      |
+./spec/components/documents/document_card_component_spec.rb[1:8:1:1]                                                | failed  | 0.17687 seconds      |
+./spec/components/documents/document_card_component_spec.rb[1:8:2:1]                                                | failed  | 0.17909 seconds      |
+./spec/components/documents/document_card_component_spec.rb[1:9:1]                                                  | failed  | 0.17764 seconds      |
 ./spec/components/documents/document_form_component_spec.rb[1:1]                                                    | passed  | 0.40638 seconds      |
 ./spec/components/documents/document_form_component_spec.rb[1:2]                                                    | passed  | 0.41628 seconds      |
 ./spec/components/documents/document_grid_component_spec.rb[1:1:1]                                                  | passed  | 0.64211 seconds      |
@@ -2108,6 +2284,60 @@ example_id                                                                      
 ./spec/components/documents/document_grid_component_spec.rb[1:12:2]                                                 | passed  | 0.64206 seconds      |
 ./spec/components/documents/document_grid_component_spec.rb[1:13:1]                                                 | passed  | 0.63716 seconds      |
 ./spec/components/documents/document_grid_component_spec.rb[1:13:2]                                                 | passed  | 0.63907 seconds      |
+./spec/components/documents/document_preview_modal_component_spec.rb[1:1:1]                                         | failed  | 0.17895 seconds      |
+./spec/components/documents/document_preview_modal_component_spec.rb[1:1:2]                                         | failed  | 0.17563 seconds      |
+./spec/components/documents/document_preview_modal_component_spec.rb[1:1:3]                                         | failed  | 0.17799 seconds      |
+./spec/components/documents/document_preview_modal_component_spec.rb[1:2:1]                                         | failed  | 0.18125 seconds      |
+./spec/components/documents/document_preview_modal_component_spec.rb[1:2:2]                                         | failed  | 0.18167 seconds      |
+./spec/components/documents/document_preview_modal_component_spec.rb[1:2:3]                                         | failed  | 0.17729 seconds      |
+./spec/components/documents/document_preview_modal_component_spec.rb[1:2:4]                                         | failed  | 0.17653 seconds      |
+./spec/components/documents/document_preview_modal_component_spec.rb[1:2:5]                                         | failed  | 0.17796 seconds      |
+./spec/components/documents/document_preview_modal_component_spec.rb[1:2:6]                                         | failed  | 0.18371 seconds      |
+./spec/components/documents/document_preview_modal_component_spec.rb[1:2:7]                                         | failed  | 0.17851 seconds      |
+./spec/components/documents/document_preview_modal_component_spec.rb[1:3:1:1]                                       | failed  | 0.31781 seconds      |
+./spec/components/documents/document_preview_modal_component_spec.rb[1:3:2:1]                                       | failed  | 0.18524 seconds      |
+./spec/components/documents/document_preview_modal_component_spec.rb[1:3:3:1]                                       | failed  | 0.19077 seconds      |
+./spec/components/documents/document_preview_modal_component_spec.rb[1:3:4:1]                                       | failed  | 0.17969 seconds      |
+./spec/components/documents/document_preview_modal_component_spec.rb[1:3:5:1]                                       | failed  | 0.18168 seconds      |
+./spec/components/documents/document_preview_modal_component_spec.rb[1:4:1:1]                                       | failed  | 0.17646 seconds      |
+./spec/components/documents/document_preview_modal_component_spec.rb[1:4:1:2]                                       | failed  | 0.1772 seconds       |
+./spec/components/documents/document_preview_modal_component_spec.rb[1:4:1:3]                                       | failed  | 0.18125 seconds      |
+./spec/components/documents/document_preview_modal_component_spec.rb[1:4:1:4:1]                                     | failed  | 0.18019 seconds      |
+./spec/components/documents/document_preview_modal_component_spec.rb[1:4:2:1]                                       | failed  | 0.1804 seconds       |
+./spec/components/documents/document_preview_modal_component_spec.rb[1:4:2:2]                                       | failed  | 0.17729 seconds      |
+./spec/components/documents/document_preview_modal_component_spec.rb[1:4:3:1]                                       | failed  | 0.17777 seconds      |
+./spec/components/documents/document_preview_modal_component_spec.rb[1:5:1]                                         | failed  | 0.17628 seconds      |
+./spec/components/documents/document_preview_modal_component_spec.rb[1:5:2]                                         | failed  | 0.17874 seconds      |
+./spec/components/documents/document_preview_modal_component_spec.rb[1:6:1]                                         | failed  | 0.17876 seconds      |
+./spec/components/documents/document_preview_modal_component_spec.rb[1:6:2]                                         | failed  | 0.18036 seconds      |
+./spec/components/documents/document_preview_modal_component_spec.rb[1:7:1]                                         | failed  | 0.17686 seconds      |
+./spec/components/documents/document_preview_modal_component_spec.rb[1:7:2]                                         | failed  | 0.17806 seconds      |
+./spec/components/documents/document_preview_modal_component_spec.rb[1:7:3]                                         | failed  | 0.17948 seconds      |
+./spec/components/documents/document_preview_modal_component_spec.rb[1:8:1]                                         | failed  | 0.18473 seconds      |
+./spec/components/documents/document_preview_modal_component_spec.rb[1:8:2]                                         | failed  | 0.17879 seconds      |
+./spec/components/documents/document_preview_modal_component_spec.rb[1:8:3]                                         | failed  | 0.18505 seconds      |
+./spec/components/documents/document_preview_modal_component_spec.rb[1:8:4]                                         | failed  | 0.17982 seconds      |
+./spec/components/documents/document_preview_modal_component_spec.rb[1:9:1]                                         | failed  | 0.17738 seconds      |
+./spec/components/documents/document_preview_modal_component_spec.rb[1:9:2]                                         | failed  | 0.17876 seconds      |
+./spec/components/documents/document_viewer_component_spec.rb[1:1:1]                                                | unknown |                      |
+./spec/components/documents/document_viewer_component_spec.rb[1:1:2]                                                | unknown |                      |
+./spec/components/documents/document_viewer_component_spec.rb[1:2:1:1]                                              | unknown |                      |
+./spec/components/documents/document_viewer_component_spec.rb[1:2:2:1]                                              | unknown |                      |
+./spec/components/documents/document_viewer_component_spec.rb[1:2:3:1]                                              | unknown |                      |
+./spec/components/documents/document_viewer_component_spec.rb[1:2:4:1]                                              | unknown |                      |
+./spec/components/documents/document_viewer_component_spec.rb[1:2:5:1]                                              | unknown |                      |
+./spec/components/documents/document_viewer_component_spec.rb[1:3:1:1]                                              | unknown |                      |
+./spec/components/documents/document_viewer_component_spec.rb[1:3:2:1]                                              | unknown |                      |
+./spec/components/documents/document_viewer_component_spec.rb[1:3:3:1]                                              | unknown |                      |
+./spec/components/documents/document_viewer_component_spec.rb[1:4:1]                                                | unknown |                      |
+./spec/components/documents/document_viewer_component_spec.rb[1:4:2]                                                | unknown |                      |
+./spec/components/documents/document_viewer_component_spec.rb[1:4:3]                                                | unknown |                      |
+./spec/components/documents/document_viewer_component_spec.rb[1:5:1]                                                | unknown |                      |
+./spec/components/documents/document_viewer_component_spec.rb[1:5:2]                                                | unknown |                      |
+./spec/components/documents/document_viewer_component_spec.rb[1:6:1]                                                | unknown |                      |
+./spec/components/documents/document_viewer_component_spec.rb[1:6:2]                                                | unknown |                      |
+./spec/components/documents/document_viewer_component_spec.rb[1:6:3]                                                | unknown |                      |
+./spec/components/documents/document_viewer_component_spec.rb[1:6:4]                                                | unknown |                      |
 ./spec/components/forms/checkbox_component_spec.rb[1:1:1]                                                           | passed  | 0.19202 seconds      |
 ./spec/components/forms/checkbox_component_spec.rb[1:2:1]                                                           | passed  | 0.18194 seconds      |
 ./spec/components/forms/checkbox_component_spec.rb[1:2:2]                                                           | passed  | 0.18502 seconds      |
@@ -2286,6 +2516,31 @@ example_id                                                                      
 ./spec/components/navigation/navbar_component_spec.rb[1:11:1]                                                       | passed  | 0.34846 seconds      |
 ./spec/components/navigation/navbar_component_spec.rb[1:11:2]                                                       | passed  | 0.34383 seconds      |
 ./spec/components/navigation/navbar_component_spec.rb[1:12:1]                                                       | failed  | 0.17472 seconds      |
+./spec/components/navigation/notification_bell_component_spec.rb[1:1:1]                                             | passed  | 0.17438 seconds      |
+./spec/components/navigation/notification_bell_component_spec.rb[1:1:2]                                             | passed  | 0.18875 seconds      |
+./spec/components/navigation/notification_bell_component_spec.rb[1:1:3]                                             | passed  | 0.30459 seconds      |
+./spec/components/navigation/notification_bell_component_spec.rb[1:2:1]                                             | unknown |                      |
+./spec/components/navigation/notification_bell_component_spec.rb[1:3:1]                                             | unknown |                      |
+./spec/components/navigation/notification_bell_component_spec.rb[1:4:1]                                             | unknown |                      |
+./spec/components/navigation/notification_bell_component_spec.rb[1:5:1]                                             | unknown |                      |
+./spec/components/navigation/notification_bell_component_spec.rb[1:5:2]                                             | unknown |                      |
+./spec/components/navigation/notification_bell_component_spec.rb[1:5:3]                                             | unknown |                      |
+./spec/components/navigation/notification_bell_component_spec.rb[1:5:4]                                             | unknown |                      |
+./spec/components/navigation/notification_bell_component_spec.rb[1:6:1]                                             | unknown |                      |
+./spec/components/navigation/notification_bell_component_spec.rb[1:6:2]                                             | unknown |                      |
+./spec/components/navigation/notification_bell_component_spec.rb[1:6:3]                                             | unknown |                      |
+./spec/components/navigation/notification_bell_component_spec.rb[1:7:1]                                             | unknown |                      |
+./spec/components/navigation/notification_bell_component_spec.rb[1:7:2]                                             | unknown |                      |
+./spec/components/navigation/notification_bell_component_spec.rb[1:8:1]                                             | failed  | 0.17419 seconds      |
+./spec/components/navigation/notification_bell_component_spec.rb[1:8:2]                                             | unknown |                      |
+./spec/components/navigation/notification_bell_component_spec.rb[1:9:1]                                             | unknown |                      |
+./spec/components/navigation/notification_bell_component_spec.rb[1:9:2]                                             | unknown |                      |
+./spec/components/navigation/notification_bell_component_spec.rb[1:9:3]                                             | unknown |                      |
+./spec/components/navigation/notification_bell_component_spec.rb[1:9:4]                                             | unknown |                      |
+./spec/components/navigation/notification_bell_component_spec.rb[1:9:5]                                             | unknown |                      |
+./spec/components/navigation/notification_bell_component_spec.rb[1:9:6]                                             | unknown |                      |
+./spec/components/navigation/notification_bell_component_spec.rb[1:9:7]                                             | unknown |                      |
+./spec/components/navigation/notification_bell_component_spec.rb[1:9:8]                                             | unknown |                      |
 ./spec/components/notifications/notification_dropdown_component_spec.rb[1:1:1:1]                                    | passed  | 0.16861 seconds      |
 ./spec/components/notifications/notification_dropdown_component_spec.rb[1:1:1:2]                                    | passed  | 0.16916 seconds      |
 ./spec/components/notifications/notification_dropdown_component_spec.rb[1:1:2:1]                                    | passed  | 0.17487 seconds      |
@@ -4227,13 +4482,13 @@ example_id                                                                      
 ./spec/requests/document_api_spec.rb[1:3:2:1]                                                                       | passed  | 0.36733 seconds      |
 ./spec/requests/home_spec.rb[1:1:1]                                                                                 | passed  | 0.19228 seconds      |
 ./spec/requests/home_spec.rb[1:1:2]                                                                                 | passed  | 0.18756 seconds      |
-./spec/routing/route_helpers_spec.rb[1:1:1]                                                                         | passed  | 0.01486 seconds      |
-./spec/routing/route_helpers_spec.rb[1:1:2]                                                                         | passed  | 0.00071 seconds      |
-./spec/routing/route_helpers_spec.rb[1:1:3]                                                                         | passed  | 0.00105 seconds      |
-./spec/routing/route_helpers_spec.rb[1:2:1]                                                                         | passed  | 0.0041 seconds       |
-./spec/routing/route_helpers_spec.rb[1:2:2]                                                                         | passed  | 0.00657 seconds      |
-./spec/routing/route_helpers_spec.rb[1:3:1]                                                                         | passed  | 0.01086 seconds      |
-./spec/routing/route_helpers_spec.rb[1:3:2]                                                                         | passed  | 0.00087 seconds      |
+./spec/routing/route_helpers_spec.rb[1:1:1]                                                                         | passed  | 0.01621 seconds      |
+./spec/routing/route_helpers_spec.rb[1:1:2]                                                                         | passed  | 0.00066 seconds      |
+./spec/routing/route_helpers_spec.rb[1:1:3]                                                                         | passed  | 0.001 seconds        |
+./spec/routing/route_helpers_spec.rb[1:2:1]                                                                         | passed  | 0.00494 seconds      |
+./spec/routing/route_helpers_spec.rb[1:2:2]                                                                         | passed  | 0.0108 seconds       |
+./spec/routing/route_helpers_spec.rb[1:3:1]                                                                         | passed  | 0.01022 seconds      |
+./spec/routing/route_helpers_spec.rb[1:3:2]                                                                         | passed  | 0.00083 seconds      |
 ./spec/services/ai_classification_service_spec.rb[1:1:1:1]                                                          | passed  | 0.22221 seconds      |
 ./spec/services/ai_classification_service_spec.rb[1:1:2:1]                                                          | passed  | 0.22164 seconds      |
 ./spec/services/ai_classification_service_spec.rb[1:2:1]                                                            | passed  | 0.19464 seconds      |
@@ -4558,12 +4813,12 @@ example_id                                                                      
 ./spec/system/mobile_responsive_spec.rb[1:6:1]                                                                      | failed  | 0.00397 seconds      |
 ./spec/system/mobile_responsive_spec.rb[1:6:2]                                                                      | failed  | 0.0041 seconds       |
 ./spec/system/mobile_responsive_spec.rb[1:7:1]                                                                      | failed  | 0.00391 seconds      |
-./spec/system/navigation_paths_spec.rb[1:1:1]                                                                       | failed  | 0.3558 seconds       |
-./spec/system/navigation_paths_spec.rb[1:1:2]                                                                       | failed  | 0.20629 seconds      |
-./spec/system/navigation_paths_spec.rb[1:2:1]                                                                       | failed  | 0.20973 seconds      |
-./spec/system/navigation_paths_spec.rb[1:2:2]                                                                       | failed  | 0.17364 seconds      |
-./spec/system/navigation_paths_spec.rb[1:3:1]                                                                       | failed  | 0.18767 seconds      |
-./spec/system/navigation_paths_spec.rb[1:4:1]                                                                       | failed  | 0.18464 seconds      |
+./spec/system/navigation_paths_spec.rb[1:1:1]                                                                       | failed  | 0.18365 seconds      |
+./spec/system/navigation_paths_spec.rb[1:1:2]                                                                       | failed  | 0.18167 seconds      |
+./spec/system/navigation_paths_spec.rb[1:2:1]                                                                       | failed  | 0.20776 seconds      |
+./spec/system/navigation_paths_spec.rb[1:2:2]                                                                       | failed  | 0.22874 seconds      |
+./spec/system/navigation_paths_spec.rb[1:3:1]                                                                       | failed  | 0.31595 seconds      |
+./spec/system/navigation_paths_spec.rb[1:4:1]                                                                       | failed  | 0.18276 seconds      |
 ./spec/system/performance_and_accessibility_spec.rb[1:1:1]                                                          | failed  | 0.0035 seconds       |
 ./spec/system/performance_and_accessibility_spec.rb[1:1:2]                                                          | failed  | 0.00363 seconds      |
 ./spec/system/performance_and_accessibility_spec.rb[1:1:3]                                                          | failed  | 0.00419 seconds      |

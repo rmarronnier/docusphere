@@ -1,15 +1,20 @@
-<div class="<%= wrapper_classes %>" data-controller="document-grid">
+<div class="<%= wrapper_classes %>" data-controller="document-grid document-preview">
   <% documents.each do |document| %>
     <% case view_mode %>
     <% when :grid %>
       <!-- Grid View -->
       <div class="group relative" data-document-id="<%= document.id %>">
         <%= render Ui::CardComponent.new(
-          href: helpers.ged_document_path(document),
+          href: "#",
           clickable: true,
           hover: true,
           padded: false,
-          shadow: :sm
+          shadow: :sm,
+          data: {
+            action: "click->document-preview#open",
+            document_id: document.id,
+            turbo: false
+          }
         ) do %>
           <!-- Preview Area -->
           <div class="aspect-video bg-gray-50 relative overflow-hidden group-hover:bg-gray-100 transition-colors">
@@ -99,10 +104,15 @@
     <% when :list %>
       <!-- List View -->
       <%= render Ui::CardComponent.new(
-        href: helpers.ged_document_path(document),
+        href: "#",
         clickable: true,
         hover: true,
-        padded: false
+        padded: false,
+        data: {
+          action: "click->document-preview#open",
+          document_id: document.id,
+          turbo: false
+        }
       ) do %>
         <div class="flex items-center space-x-4 p-4">
           <% if selectable %>
@@ -228,4 +238,9 @@
     description: "Commencez par uploader votre premier document.",
     icon: "document"
   ) %>
+<% end %>
+
+<!-- Document Preview Modal (hidden by default) -->
+<% if documents.any? %>
+  <%= render Documents::DocumentPreviewModalComponent.new(document: documents.first, show_actions: show_actions) %>
 <% end %>

@@ -1,0 +1,175 @@
+<div class="bg-white rounded-lg shadow-sm border border-gray-200">
+  <!-- Header -->
+  <div class="p-6 border-b border-gray-200">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+        </svg>
+        Documents clients
+      </h3>
+      
+      <%= link_to new_proposal_path(clients.first),
+          class: "text-sm text-blue-600 hover:text-blue-800 font-medium" do %>
+        Nouvelle proposition
+      <% end if clients.any? %>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-4 gap-4 text-center">
+      <div>
+        <div class="text-2xl font-bold text-gray-900"><%= stats[:total_clients] %></div>
+        <div class="text-xs text-gray-500">Clients actifs</div>
+      </div>
+      <div>
+        <div class="text-2xl font-bold text-blue-600"><%= stats[:active_proposals] %></div>
+        <div class="text-xs text-gray-500">Propositions</div>
+      </div>
+      <div>
+        <div class="text-2xl font-bold text-green-600"><%= stats[:signed_contracts] %></div>
+        <div class="text-xs text-gray-500">Contrats signés</div>
+      </div>
+      <div>
+        <div class="text-2xl font-bold text-purple-600"><%= stats[:recent_shares] %></div>
+        <div class="text-xs text-gray-500">Partages récents</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Liste des clients -->
+  <div class="divide-y divide-gray-200">
+    <% if clients.any? %>
+      <% clients.each do |client| %>
+        <% client_data = documents_by_client[client.id] %>
+        <% status = client_status_badge(client) %>
+        
+        <div class="p-4 hover:bg-gray-50 transition-colors">
+          <!-- Info client -->
+          <div class="flex items-start justify-between mb-3">
+            <div class="flex items-start gap-3">
+              <!-- Avatar -->
+              <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center flex-shrink-0">
+                <span class="text-sm font-medium text-gray-600">
+                  <%= client.name.split.map(&:first).join.upcase %>
+                </span>
+              </div>
+              
+              <div>
+                <h4 class="text-sm font-medium text-gray-900">
+                  <%= client.name %>
+                </h4>
+                <p class="text-xs text-gray-500 mt-0.5">
+                  <%= client_contact_info(client) %>
+                </p>
+                <p class="text-xs text-gray-400 mt-0.5">
+                  <%= last_interaction_time(client) %>
+                </p>
+              </div>
+            </div>
+
+            <!-- Statut client -->
+            <span class="<%= status[:color] %> px-2 py-1 text-xs font-medium rounded-full">
+              <%= status[:label] %>
+            </span>
+          </div>
+
+          <!-- Métriques client -->
+          <div class="flex items-center gap-6 mb-3 text-xs">
+            <div class="flex items-center gap-1">
+              <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm0 2h12v8H4V6z" clip-rule="evenodd"></path>
+              </svg>
+              <span class="text-gray-600"><%= client_data[:total_count] %> documents</span>
+            </div>
+            
+            <% if client_data[:proposals_count] > 0 %>
+              <div class="flex items-center gap-1">
+                <svg class="w-4 h-4 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
+                  <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 1 1 0 000 2H4v10a2 2 0 002 2h8a2 2 0 002-2V5h-2a1 1 0 100-2 2 2 0 012 2v10a4 4 0 01-4 4H6a4 4 0 01-4-4V5z" clip-rule="evenodd"></path>
+                </svg>
+                <span class="text-gray-600"><%= client_data[:proposals_count] %> proposition<%= 's' if client_data[:proposals_count] > 1 %></span>
+              </div>
+            <% end %>
+            
+            <% if client_data[:contracts_count] > 0 %>
+              <div class="flex items-center gap-1">
+                <svg class="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd"></path>
+                </svg>
+                <span class="text-gray-600"><%= client_data[:contracts_count] %> contrat<%= 's' if client_data[:contracts_count] > 1 %></span>
+              </div>
+            <% end %>
+          </div>
+
+          <!-- Documents récents -->
+          <% if client_data[:recent].any? %>
+            <div class="space-y-1">
+              <% client_data[:recent].first(2).each do |doc| %>
+                <% action = document_action_for_type(doc) %>
+                <div class="flex items-center justify-between py-1 group">
+                  <div class="flex items-center gap-2 flex-1 min-w-0">
+                    <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm0 2h12v8H4V6z" clip-rule="evenodd"></path>
+                    </svg>
+                    <%= link_to doc.name,
+                        helpers.ged_document_path(doc),
+                        class: "text-xs text-gray-700 hover:text-blue-600 truncate" %>
+                  </div>
+                  
+                  <div class="flex items-center gap-2 ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <%= link_to share_document_path(doc, client),
+                        class: "#{action[:color]} hover:bg-gray-100 p-1 rounded",
+                        title: action[:label] do %>
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                      </svg>
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% else %>
+            <p class="text-xs text-gray-500 italic">Aucun document partagé</p>
+          <% end %>
+
+          <!-- Actions rapides -->
+          <div class="mt-3 flex items-center gap-2">
+            <%= link_to "Créer proposition",
+                new_proposal_path(client),
+                class: "text-xs text-blue-600 hover:text-blue-800 font-medium" %>
+            
+            <%= link_to "Voir tous les documents",
+                client_documents_path(client),
+                class: "text-xs text-gray-600 hover:text-gray-800" %>
+          </div>
+        </div>
+      <% end %>
+    <% else %>
+      <!-- État vide -->
+      <div class="p-8 text-center">
+        <svg class="mx-auto h-12 w-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900">Aucun client</h3>
+        <p class="mt-1 text-sm text-gray-500">
+          Vous n'avez pas encore de clients assignés.
+        </p>
+      </div>
+    <% end %>
+  </div>
+
+  <% if clients.any? %>
+    <!-- Footer -->
+    <div class="px-6 py-3 bg-gray-50 border-t border-gray-200">
+      <div class="flex items-center justify-between">
+        <p class="text-xs text-gray-500">
+          <%= stats[:total_documents] %> documents pour <%= stats[:total_clients] %> clients
+        </p>
+        <%= link_to "Gérer mes clients",
+            helpers.immo_promo_engine.stakeholders_path(stakeholder_type: 'client'),
+            class: "text-sm text-blue-600 hover:text-blue-800 font-medium" %>
+      </div>
+    </div>
+  <% end %>
+</div>

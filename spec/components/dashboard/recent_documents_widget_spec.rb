@@ -96,7 +96,7 @@ RSpec.describe Dashboard::RecentDocumentsWidget, type: :component do
     it 'shows upload button' do
       render_inline(described_class.new(widget_data: widget_data, user: user))
       
-      expect(page).to have_link('Uploader un document', href: '/ged/upload')
+      expect(page).to have_link('Uploader un document', href: '/upload_page')
     end
   end
   

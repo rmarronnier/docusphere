@@ -1,88 +1,144 @@
-<div class="bg-white overflow-hidden shadow rounded-lg hover:shadow-md transition-shadow duration-200">
-  <div class="p-4">
-    <div class="flex items-start space-x-3">
-      <!-- Icône du document -->
-      <div class="flex-shrink-0">
-        <div class="h-10 w-10 bg-primary-100 rounded-lg flex items-center justify-center">
-          <svg class="h-6 w-6 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
+<div class="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition-all duration-200 group" data-controller="document-preview">
+  <!-- Thumbnail/Preview Area -->
+  <% if show_preview %>
+    <div class="relative">
+      <%= link_to main_link_path, main_link_options do %>
+        <%= thumbnail_with_fallback %>
+      <% end %>
+      
+      <!-- Quick Actions Overlay -->
+      <% if show_actions && quick_actions.any? %>
+        <div class="absolute top-2 right-2 flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <% quick_actions.each do |action| %>
+            <%= link_to action[:path], 
+                class: "p-1.5 bg-white rounded-lg shadow-sm #{action[:class]}",
+                title: action[:title],
+                data: action[:data] || {} do %>
+              <%= helpers.heroicon(action[:icon], variant: :solid, options: { class: "w-4 h-4" }) %>
+            <% end %>
+          <% end %>
         </div>
-      </div>
-
-      <!-- Contenu du document -->
-      <div class="flex-1 min-w-0">
-        <div class="flex items-center justify-between">
-          <h3 class="text-sm font-medium text-gray-900 truncate">
-            <%= helpers.link_to document.title, helpers.ged_document_path(document), class: "hover:text-primary-600" %>
-          </h3>
-          <span class="<%= status_badge_classes %>">
-            <%= helpers.t("documents.status.#{document.status}") %>
-          </span>
-        </div>
-        
-        <% if document.description.present? %>
-          <p class="mt-1 text-sm text-gray-500 line-clamp-2">
-            <%= document.description %>
-          </p>
-        <% end %>
-
-        <!-- Métadonnées -->
-        <div class="mt-2 flex items-center text-xs text-gray-500 space-x-4">
-          <span><%= formatted_date %></span>
-          <span><%= file_size %></span>
-          <span><%= document.document_type.upcase %></span>
-        </div>
-
-        <!-- Tags -->
-        <% if document.tags.any? %>
-          <div class="mt-2 flex flex-wrap gap-1">
-            <% document.tags.limit(3).each do |tag| %>
-              <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
-                <%= tag.name %>
-              </span>
-            <% end %>
-            <% if document.tags.count > 3 %>
-              <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
-                +<%= document.tags.count - 3 %>
-              </span>
-            <% end %>
-          </div>
-        <% end %>
-      </div>
-
-      <!-- Menu d'actions -->
-      <div class="flex-shrink-0 relative" data-controller="dropdown">
-        <button type="button" 
-                class="w-8 h-8 bg-white inline-flex items-center justify-center text-gray-400 rounded-full hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-                data-action="click->dropdown#toggle">
-          <span class="sr-only">Ouvrir les options</span>
-          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path>
-          </svg>
-        </button>
-
-        <div class="hidden origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-10"
-             data-dropdown-target="menu">
-          <div class="py-1">
-            <%= helpers.link_to "Voir", helpers.document_path(document), class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
-            <% if helpers.policy(document).update? %>
-              <%= helpers.link_to "Modifier", helpers.ged_edit_document_path(document), class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
-            <% end %>
-            <%= helpers.link_to "Télécharger", helpers.document_path(document, format: :pdf), class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
-            <% if helpers.policy(document).share? %>
-              <%= helpers.link_to "Partager", helpers.new_ged_document_document_share_path(document), class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
-            <% end %>
-            <% if helpers.policy(document).destroy? %>
-              <div class="border-t border-gray-100"></div>
-              <%= helpers.link_to "Supprimer", helpers.document_path(document), 
-                  method: :delete, 
-                  data: { confirm: "Êtes-vous sûr ?" },
-                  class: "block px-4 py-2 text-sm text-red-700 hover:bg-red-50" %>
-            <% end %>
-          </div>
-        </div>
+      <% end %>
+      
+      <!-- Status Badge -->
+      <div class="absolute top-2 left-2">
+        <span class="<%= status_badge_classes %>">
+          <%= helpers.t("documents.status.#{document.status}") %>
+        </span>
       </div>
     </div>
+  <% end %>
+  
+  <!-- Content -->
+  <div class="p-4">
+    <!-- Title and Description -->
+    <div class="mb-3">
+      <h3 class="text-sm font-medium text-gray-900 mb-1">
+        <%= link_to document.title, main_link_path, main_link_options.merge(class: "hover:text-primary-600 line-clamp-2") %>
+      </h3>
+      
+      <% if document.description.present? %>
+        <p class="text-sm text-gray-500 line-clamp-2">
+          <%= document.description %>
+        </p>
+      <% end %>
+    </div>
+    
+    <!-- Metadata -->
+    <div class="flex items-center justify-between text-xs text-gray-500 mb-3">
+      <div class="flex items-center space-x-3">
+        <span class="flex items-center">
+          <%= helpers.heroicon("calendar", variant: :outline, options: { class: "w-3.5 h-3.5 mr-1" }) %>
+          <%= formatted_date %>
+        </span>
+        <% if file_size %>
+          <span class="flex items-center">
+            <%= helpers.heroicon("document", variant: :outline, options: { class: "w-3.5 h-3.5 mr-1" }) %>
+            <%= file_size %>
+          </span>
+        <% end %>
+      </div>
+      
+      <% if document.uploaded_by %>
+        <div class="flex items-center">
+          <%= render Ui::UserAvatarComponent.new(user: document.uploaded_by, size: :xs) %>
+        </div>
+      <% end %>
+    </div>
+    
+    <!-- Tags -->
+    <% if document.tags.any? %>
+      <div class="flex flex-wrap gap-1 mb-3">
+        <% document.tags.limit(3).each do |tag| %>
+          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+            <%= tag.name %>
+          </span>
+        <% end %>
+        <% if document.tags.count > 3 %>
+          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+            +<%= document.tags.count - 3 %>
+          </span>
+        <% end %>
+      </div>
+    <% end %>
+    
+    <!-- Action Menu -->
+    <% if show_actions %>
+      <div class="flex items-center justify-between pt-3 border-t border-gray-100">
+        <div class="flex items-center space-x-1">
+          <!-- Primary Actions -->
+          <% if document.file.attached? %>
+            <%= link_to helpers.ged_download_document_path(document),
+                class: "inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 border border-gray-300",
+                data: { turbo: false } do %>
+              <%= helpers.heroicon("arrow-down-tray", variant: :outline, options: { class: "w-3.5 h-3.5 mr-1" }) %>
+              Download
+            <% end %>
+          <% end %>
+          
+          <% if document.pdf? || document.image? %>
+            <button type="button"
+                    class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md text-primary-700 bg-primary-50 hover:bg-primary-100 border border-primary-200"
+                    data-action="click->document-preview#open"
+                    data-document-id="<%= document.id %>">
+              <%= helpers.heroicon("eye", variant: :outline, options: { class: "w-3.5 h-3.5 mr-1" }) %>
+              Preview
+            </button>
+          <% end %>
+        </div>
+        
+        <!-- Dropdown Menu -->
+        <div class="relative" data-controller="dropdown">
+          <button type="button" 
+                  class="p-1.5 text-gray-400 hover:text-gray-600 rounded-md hover:bg-gray-50"
+                  data-action="click->dropdown#toggle">
+            <span class="sr-only">Open options</span>
+            <%= helpers.heroicon("ellipsis-vertical", variant: :solid, options: { class: "w-4 h-4" }) %>
+          </button>
+          
+          <div class="hidden origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10"
+               data-dropdown-target="menu">
+            <div class="py-1">
+              <% actions_for_document.each_with_index do |action, index| %>
+                <% if index > 0 && action[:label] == "Delete" %>
+                  <div class="border-t border-gray-100"></div>
+                <% end %>
+                
+                <%= link_to action[:label], 
+                    action[:path],
+                    method: action[:method],
+                    class: "block px-4 py-2 text-sm #{action[:class] || 'text-gray-700 hover:bg-gray-100'}",
+                    data: action[:data] || {} %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
   </div>
 </div>
+
+<!-- Include Document Preview Modal (will be hidden by default) -->
+<% if clickable && (document.pdf? || document.image?) %>
+  <%= render Documents::DocumentPreviewModalComponent.new(document: document, show_actions: true) %>
+<% end %>

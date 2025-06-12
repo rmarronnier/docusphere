@@ -1,0 +1,327 @@
+<%= render Layout::PageWrapperComponent.new(full_width: true) do %>
+  <!-- Breadcrumb -->
+  <div class="px-4 sm:px-6 lg:px-8 py-4 bg-white border-b">
+    <%= render Navigation::BreadcrumbComponent.new(items: @breadcrumbs) %>
+  </div>
+
+  <!-- Enhanced Document View Layout -->
+  <div class="flex-1 flex flex-col overflow-hidden">
+    <!-- Document Header Bar -->
+    <div class="bg-white shadow-sm border-b">
+      <div class="px-4 sm:px-6 lg:px-8 py-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-4 min-w-0">
+            <!-- Document Icon -->
+            <div class="flex-shrink-0">
+              <div class="h-12 w-12 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                <%= render Ui::IconComponent.new(
+                  name: document_icon_name(@document),
+                  css_class: "h-6 w-6 text-white"
+                ) %>
+              </div>
+            </div>
+            
+            <!-- Document Info -->
+            <div class="min-w-0">
+              <h1 class="text-lg font-semibold text-gray-900 truncate">
+                <%= @document.title %>
+              </h1>
+              <div class="mt-1 flex items-center space-x-4 text-sm text-gray-500">
+                <span class="flex items-center">
+                  <%= render Ui::IconComponent.new(name: "user", size: 4) %>
+                  <span class="ml-1"><%= @document.uploaded_by.display_name %></span>
+                </span>
+                <span class="flex items-center">
+                  <%= render Ui::IconComponent.new(name: "calendar", size: 4) %>
+                  <span class="ml-1"><%= @document.created_at.to_fs(:short) %></span>
+                </span>
+                <% if @document.file.attached? %>
+                  <span class="flex items-center">
+                    <%= render Ui::IconComponent.new(name: "document", size: 4) %>
+                    <span class="ml-1"><%= number_to_human_size(@document.file.byte_size) %></span>
+                  </span>
+                <% end %>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Quick Actions -->
+          <div class="flex items-center space-x-2">
+            <% if @document.file.attached? %>
+              <%= render Ui::ButtonComponent.new(
+                icon: "arrow-down-tray",
+                variant: :secondary,
+                size: :sm,
+                href: rails_blob_path(@document.file, disposition: "attachment"),
+                aria_label: "Download"
+              ) %>
+            <% end %>
+            
+            <%= render Ui::ButtonComponent.new(
+              icon: "share",
+              variant: :secondary,
+              size: :sm,
+              data: { action: "click->document-viewer#share" },
+              aria_label: "Share"
+            ) %>
+            
+            <%= render Ui::ButtonComponent.new(
+              icon: "pencil",
+              variant: :secondary,
+              size: :sm,
+              href: ged_edit_document_path(@document),
+              aria_label: "Edit"
+            ) %>
+            
+            <!-- Toggle Sidebar Button (Mobile) -->
+            <button type="button"
+                    class="lg:hidden inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+                    data-action="click->document-viewer#toggleSidebar">
+              <%= render Ui::IconComponent.new(name: "bars-3", size: 5) %>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content Area with 2-Column Layout -->
+    <div class="flex-1 flex overflow-hidden bg-gray-50">
+      <!-- Document Viewer (Main Column) -->
+      <div class="flex-1 flex flex-col min-w-0">
+        <!-- Viewer Container -->
+        <div class="flex-1 bg-white shadow-inner">
+          <%= render Documents::DocumentViewerComponent.new(
+            document: @document, 
+            show_actions: true,
+            show_sidebar: false, # We handle sidebar separately for better control
+            context: current_user.active_profile&.profile_type&.to_sym || :user
+          ) %>
+        </div>
+      </div>
+
+      <!-- Sidebar (Secondary Column) -->
+      <div class="hidden lg:flex lg:flex-shrink-0 transition-all duration-300"
+           data-document-viewer-target="sidebar">
+        <div class="w-96 bg-white border-l flex flex-col">
+          <!-- Sidebar Header -->
+          <div class="px-6 py-4 border-b">
+            <div class="flex items-center justify-between">
+              <h2 class="text-lg font-medium text-gray-900">Document Details</h2>
+              <button type="button"
+                      class="text-gray-400 hover:text-gray-500"
+                      data-action="click->document-viewer#toggleSidebar">
+                <%= render Ui::IconComponent.new(name: "x-mark", size: 5) %>
+              </button>
+            </div>
+          </div>
+
+          <!-- Sidebar Content -->
+          <div class="flex-1 overflow-y-auto">
+            <!-- Tabs -->
+            <div class="border-b">
+              <nav class="flex -mb-px px-6">
+                <button class="px-1 py-3 mr-6 text-sm font-medium text-blue-600 border-b-2 border-blue-600"
+                        data-action="click->document-viewer#showTab"
+                        data-tab="overview">
+                  Overview
+                </button>
+                <button class="px-1 py-3 mr-6 text-sm font-medium text-gray-500 hover:text-gray-700 border-b-2 border-transparent hover:border-gray-300"
+                        data-action="click->document-viewer#showTab"
+                        data-tab="metadata">
+                  Metadata
+                </button>
+                <button class="px-1 py-3 mr-6 text-sm font-medium text-gray-500 hover:text-gray-700 border-b-2 border-transparent hover:border-gray-300"
+                        data-action="click->document-viewer#showTab"
+                        data-tab="activity">
+                  Activity
+                </button>
+                <% if @document.versions.any? %>
+                  <button class="px-1 py-3 text-sm font-medium text-gray-500 hover:text-gray-700 border-b-2 border-transparent hover:border-gray-300"
+                          data-action="click->document-viewer#showTab"
+                          data-tab="versions">
+                    Versions
+                  </button>
+                <% end %>
+              </nav>
+            </div>
+
+            <!-- Tab Content -->
+            <div class="p-6">
+              <!-- Overview Tab -->
+              <div data-tab-content="overview">
+                <!-- File Information -->
+                <div class="mb-6">
+                  <h3 class="text-sm font-medium text-gray-900 mb-3">File Information</h3>
+                  <dl class="space-y-2">
+                    <div class="flex justify-between text-sm">
+                      <dt class="text-gray-500">Type:</dt>
+                      <dd class="text-gray-900 font-medium">
+                        <%= @document.file_extension&.upcase || 'Unknown' %>
+                      </dd>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                      <dt class="text-gray-500">Size:</dt>
+                      <dd class="text-gray-900">
+                        <%= number_to_human_size(@document.file.byte_size) %>
+                      </dd>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                      <dt class="text-gray-500">Created:</dt>
+                      <dd class="text-gray-900">
+                        <%= @document.created_at.to_fs(:short) %>
+                      </dd>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                      <dt class="text-gray-500">Modified:</dt>
+                      <dd class="text-gray-900">
+                        <%= @document.updated_at.to_fs(:short) %>
+                      </dd>
+                    </div>
+                  </dl>
+                </div>
+
+                <!-- Location -->
+                <div class="mb-6">
+                  <h3 class="text-sm font-medium text-gray-900 mb-3">Location</h3>
+                  <div class="space-y-2">
+                    <div class="text-sm">
+                      <span class="text-gray-500">Space:</span>
+                      <%= link_to @document.space.name, ged_space_path(@document.space),
+                          class: "ml-2 text-blue-600 hover:text-blue-700" %>
+                    </div>
+                    <% if @document.folder %>
+                      <div class="text-sm">
+                        <span class="text-gray-500">Folder:</span>
+                        <%= link_to @document.folder.name, ged_folder_path(@document.folder),
+                            class: "ml-2 text-blue-600 hover:text-blue-700" %>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+
+                <!-- Tags -->
+                <% if @document.tags.any? %>
+                  <div class="mb-6">
+                    <h3 class="text-sm font-medium text-gray-900 mb-3">Tags</h3>
+                    <div class="flex flex-wrap gap-2">
+                      <% @document.tags.each do |tag| %>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                          <%= tag.name %>
+                        </span>
+                      <% end %>
+                    </div>
+                  </div>
+                <% end %>
+
+                <!-- Description -->
+                <% if @document.description.present? %>
+                  <div>
+                    <h3 class="text-sm font-medium text-gray-900 mb-3">Description</h3>
+                    <p class="text-sm text-gray-600">
+                      <%= @document.description %>
+                    </p>
+                  </div>
+                <% end %>
+              </div>
+
+              <!-- Metadata Tab -->
+              <div data-tab-content="metadata" class="hidden">
+                <% if @document.metadata_template %>
+                  <h3 class="text-sm font-medium text-gray-900 mb-3">
+                    <%= @document.metadata_template.name %>
+                  </h3>
+                  <dl class="space-y-3">
+                    <% @document.metadata_values.each do |field, value| %>
+                      <div>
+                        <dt class="text-sm text-gray-500"><%= field.humanize %>:</dt>
+                        <dd class="mt-1 text-sm text-gray-900"><%= value %></dd>
+                      </div>
+                    <% end %>
+                  </dl>
+                <% else %>
+                  <p class="text-sm text-gray-500 text-center py-8">
+                    No metadata template assigned
+                  </p>
+                <% end %>
+              </div>
+
+              <!-- Activity Tab -->
+              <div data-tab-content="activity" class="hidden">
+                <%= render Documents::ActivityTimelineComponent.new(
+                  document: @document,
+                  limit: 20,
+                  show_filters: false
+                ) %>
+              </div>
+
+              <!-- Versions Tab -->
+              <% if @document.versions.any? %>
+                <div data-tab-content="versions" class="hidden">
+                  <div class="space-y-3">
+                    <% @document.versions.reorder(created_at: :desc).each_with_index do |version, index| %>
+                      <div class="border rounded-lg p-4 <%= 'ring-2 ring-blue-500' if version == @document.current_version %>">
+                        <div class="flex items-center justify-between">
+                          <div>
+                            <p class="text-sm font-medium text-gray-900">
+                              Version <%= @document.versions.count - index %>
+                              <% if version == @document.current_version %>
+                                <span class="ml-2 text-xs text-blue-600">(Current)</span>
+                              <% end %>
+                            </p>
+                            <p class="text-xs text-gray-500 mt-1">
+                              <%= version.created_at.to_fs(:short) %> by <%= version.whodunnit_user&.name || "Unknown" %>
+                            </p>
+                          </div>
+                          <div class="flex items-center space-x-2">
+                            <%= link_to "View", ged_document_version_path(@document, version),
+                                class: "text-xs text-blue-600 hover:text-blue-700" %>
+                            <% if policy(@document).restore_version? && version != @document.current_version %>
+                              <%= button_to "Restore", ged_restore_document_version_path(@document, version),
+                                  method: :post,
+                                  class: "text-xs text-gray-600 hover:text-gray-900",
+                                  data: { confirm: "Restore this version?" } %>
+                            <% end %>
+                          </div>
+                        </div>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile Sidebar Overlay -->
+      <div class="lg:hidden fixed inset-0 z-40 hidden"
+           data-document-viewer-target="sidebarOverlay"
+           data-action="click->document-viewer#closeSidebar">
+        <div class="fixed inset-0 bg-gray-600 bg-opacity-75"></div>
+        <div class="fixed inset-y-0 right-0 flex max-w-full">
+          <div class="w-screen max-w-md">
+            <div class="h-full bg-white shadow-xl flex flex-col">
+              <!-- Mobile sidebar content (same as desktop) -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<% # Helper method %>
+<% def document_icon_name(document)
+  return 'document' unless document.file.attached?
+  
+  case document.content_type_category
+  when :pdf then 'document-text'
+  when :image then 'photo'
+  when :video then 'video-camera'
+  when :office then 'document-duplicate'
+  when :text then 'document-text'
+  when :cad then 'cube'
+  when :archive then 'archive-box'
+  else 'document'
+  end
+end %>

@@ -79,7 +79,11 @@ Rails.application.routes.draw do
     get '/spaces/:id', to: 'ged#show_space', as: 'space'
     get '/folders/:id', to: 'ged#show_folder', as: 'folder'
     get '/documents/:id', to: 'ged#show_document', as: 'document'
-    get '/documents/:id/edit', to: 'ged#edit_document', as: 'edit_document'
+    get '/documents/:id/edit', to:'ged#edit_document', as: 'edit_document'
+    get '/documents/new', to: 'ged#new_document', as: 'new_document'
+    get '/documents', to: 'ged#index_documents', as: 'documents'
+    get '/my-documents', to: 'ged#my_documents', as: 'my_documents'
+    get '/upload', to: 'ged#new_document', as: 'upload'
     
     # AJAX routes for modals
     post '/spaces', to: 'ged#create_space', as: 'create_space'
@@ -95,9 +99,15 @@ Rails.application.routes.draw do
     
     # Document versioning
     get '/documents/:id/versions', to: 'ged#document_versions', as: 'document_versions'
+    get '/documents/:id/versions/compare', to: 'ged#compare_document_versions', as: 'compare_document_versions'
+    get '/documents/:id/versions/:version_number', to: 'ged#show_document_version', as: 'document_version'
     post '/documents/:id/versions', to: 'ged#create_document_version', as: 'create_document_version'
     post '/documents/:id/versions/:version_number/restore', to: 'ged#restore_document_version', as: 'restore_document_version'
     get '/documents/:id/versions/:version_number/download', to: 'ged#download_document_version', as: 'download_document_version'
+    
+    # Document audit and activities
+    get '/documents/:id/audit_trail', to: 'ged#document_audit_trail', as: 'audit_trail_document'
+    get '/documents/:id/activities', to: 'ged#document_activities', as: 'document_activities'
     
     # Document validation routes
     resources :documents, only: [] do
@@ -136,17 +146,69 @@ Rails.application.routes.draw do
     get '/notifications', to: 'api/notifications#index', as: 'notifications'
     get '/tasks', to: 'api/tasks#index', as: 'tasks'
     get '/my-documents', to: 'api/documents#my_documents', as: 'my_documents'
-    post '/upload', to: 'api/documents#upload', as: 'upload'
+    post '/upload', to: 'api/documents#upload', as: 'document_upload'
   end
   
   # Additional navigation routes
   get '/notifications', to: 'notifications#index', as: 'all_notifications'
   get '/tasks', to: 'api/tasks#index', as: 'all_tasks'
   get '/my-documents', to: 'api/documents#my_documents', as: 'my_documents'
+  get '/help', to: 'help#index', as: 'help'
+  
+  # Global upload alias (for component compatibility)
+  get '/upload_page', to: 'ged#new_document', as: 'upload'
+  
+  # Business-specific dashboard routes
+  get '/client-documents', to: 'business#client_documents', as: 'client_documents'
+  get '/compliance-dashboard', to: 'business#compliance_dashboard', as: 'compliance_dashboard'
+  
+  # Business proposal management
+  resources :proposals, only: [:new, :create, :show, :edit, :update, :destroy] do
+    member do
+      post :send_to_client
+      post :duplicate
+      patch :accept
+      patch :reject
+    end
+  end
+  
+  # Stakeholder management (for main app, complement engine routes)
+  resources :stakeholders, only: [:index, :show] do
+    member do
+      get :documents, to: 'stakeholders#documents', as: 'documents'
+    end
+  end
+  
+  # Enhanced document sharing routes
+  post '/documents/:id/share', to: 'documents#share', as: 'share_document'
+  get '/documents/:id/share/new', to: 'documents#new_share', as: 'new_share_document'
+  
+  # Project document management (outside ImmoPromo scope)
+  get '/projects/:project_id/documents', to: 'documents#project_documents', as: 'project_documents'
+  post '/projects/:project_id/documents/upload', to: 'documents#upload_project_document', as: 'upload_project_document'
+  
+  # Alias for upload_document_path(project) -> upload_project_document_path(project)
+  post '/projects/:id/upload', to: 'documents#upload_project_document', as: 'upload_document'
+  
+  # Validation workflow enhancements
+  resources :validations, only: [:show, :index] do
+    member do
+      post :approve
+      post :reject
+      post :request_review
+    end
+  end
+  
+  # Activity routes
+  get '/activities', to: 'activities#index', as: 'ged_activities'
   
   # PWA routes
   get '/manifest', to: 'pwa#manifest', as: 'pwa_manifest'
   
+  # Simple route aliases for component compatibility
+  get '/projects', to: redirect('/immo/promo/projects'), as: 'projects'
+  get '/projects/:id', to: redirect('/immo/promo/projects/%{id}'), as: 'project'
+
   # Mount Immo Promo Engine
   mount ImmoPromo::Engine => "/immo/promo"
   

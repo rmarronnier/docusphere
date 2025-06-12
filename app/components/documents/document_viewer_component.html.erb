@@ -1,0 +1,239 @@
+<div class="document-viewer-component h-full flex flex-col bg-white" data-controller="document-viewer" data-document-viewer-id-value="<%= document.id %>">
+  <!-- Document Header -->
+  <div class="document-header bg-white border-b px-6 py-4">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center space-x-4">
+        <%= document_icon(size: :small) %>
+        <div>
+          <h1 class="text-xl font-semibold text-gray-900"><%= document.name %></h1>
+          <div class="flex items-center space-x-4 mt-1 text-sm text-gray-600">
+            <span class="flex items-center">
+              <%= heroicon("user", variant: :solid, options: { class: "w-4 h-4 mr-1" }) %>
+              <%= document.uploaded_by&.name || "Unknown" %>
+            </span>
+            <span class="flex items-center">
+              <%= heroicon("calendar", variant: :solid, options: { class: "w-4 h-4 mr-1" }) %>
+              <%= document.created_at.to_fs(:short) %>
+            </span>
+            <span class="flex items-center">
+              <%= heroicon("folder", variant: :solid, options: { class: "w-4 h-4 mr-1" }) %>
+              <%= link_to document.folder&.name || "Root", ged_folder_path(document.folder || document.space), class: "text-blue-600 hover:underline" %>
+            </span>
+            <% if document.locked? %>
+              <span class="flex items-center text-red-600">
+                <%= heroicon("lock-closed", variant: :solid, options: { class: "w-4 h-4 mr-1" }) %>
+                Locked
+              </span>
+            <% end %>
+          </div>
+        </div>
+      </div>
+      
+      <% if show_actions %>
+        <div class="flex items-center space-x-2">
+          <%= viewer_actions %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Main Content Area -->
+  <div class="flex-1 flex overflow-hidden">
+    <!-- Document Viewer -->
+    <div class="flex-1 flex flex-col">
+      <!-- Viewer Container -->
+      <div class="flex-1 overflow-hidden">
+        <%= viewer_content %>
+      </div>
+      
+      <!-- Contextual Actions Bar -->
+      <% if show_actions && context %>
+        <%= contextual_actions %>
+      <% end %>
+    </div>
+
+    <!-- Sidebar -->
+    <% if show_sidebar %>
+      <div class="w-80 bg-gray-50 border-l flex flex-col overflow-hidden" data-controller="document-sidebar">
+        <!-- Sidebar Tabs -->
+        <div class="bg-white border-b">
+          <nav class="flex -mb-px">
+            <button class="px-4 py-3 text-sm font-medium text-blue-600 border-b-2 border-blue-600 bg-white" 
+                    data-action="click->document-sidebar#showTab" 
+                    data-document-sidebar-tab-param="info">
+              Information
+            </button>
+            <button class="px-4 py-3 text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300" 
+                    data-action="click->document-sidebar#showTab" 
+                    data-document-sidebar-tab-param="metadata">
+              Metadata
+            </button>
+            <button class="px-4 py-3 text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300" 
+                    data-action="click->document-sidebar#showTab" 
+                    data-document-sidebar-tab-param="activity">
+              Activity
+            </button>
+            <% if document.versions.any? %>
+              <button class="px-4 py-3 text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300" 
+                      data-action="click->document-sidebar#showTab" 
+                      data-document-sidebar-tab-param="versions">
+                Versions
+              </button>
+            <% end %>
+          </nav>
+        </div>
+
+        <!-- Sidebar Content -->
+        <div class="flex-1 overflow-y-auto p-4">
+          <!-- Information Tab -->
+          <div data-document-sidebar-target="infoTab">
+            <div class="space-y-4">
+              <!-- File Details -->
+              <div class="bg-white rounded-lg p-4 shadow-sm">
+                <h3 class="text-sm font-semibold text-gray-900 mb-3">File Details</h3>
+                <dl class="space-y-2 text-sm">
+                  <div class="flex justify-between">
+                    <dt class="text-gray-600">Type:</dt>
+                    <dd class="text-gray-900 font-medium"><%= document.file_extension&.upcase || 'Unknown' %></dd>
+                  </div>
+                  <div class="flex justify-between">
+                    <dt class="text-gray-600">Size:</dt>
+                    <dd class="text-gray-900"><%= number_to_human_size(document.file.byte_size) %></dd>
+                  </div>
+                  <div class="flex justify-between">
+                    <dt class="text-gray-600">Created:</dt>
+                    <dd class="text-gray-900"><%= document.created_at.to_fs(:short) %></dd>
+                  </div>
+                  <div class="flex justify-between">
+                    <dt class="text-gray-600">Modified:</dt>
+                    <dd class="text-gray-900"><%= document.updated_at.to_fs(:short) %></dd>
+                  </div>
+                  <% if document.respond_to?(:checksum) && document.checksum %>
+                    <div class="flex justify-between">
+                      <dt class="text-gray-600">Checksum:</dt>
+                      <dd class="text-gray-900 font-mono text-xs truncate" title="<%= document.checksum %>">
+                        <%= document.checksum.first(8) %>...
+                      </dd>
+                    </div>
+                  <% end %>
+                </dl>
+              </div>
+
+              <!-- Tags -->
+              <% if document.tags.any? %>
+                <div class="bg-white rounded-lg p-4 shadow-sm">
+                  <h3 class="text-sm font-semibold text-gray-900 mb-3">Tags</h3>
+                  <div class="flex flex-wrap gap-2">
+                    <% document.tags.each do |tag| %>
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        <%= tag.name %>
+                      </span>
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+
+              <!-- Description -->
+              <% if document.description.present? %>
+                <div class="bg-white rounded-lg p-4 shadow-sm">
+                  <h3 class="text-sm font-semibold text-gray-900 mb-3">Description</h3>
+                  <p class="text-sm text-gray-700"><%= document.description %></p>
+                </div>
+              <% end %>
+
+              <!-- Related Documents -->
+              <% if document.related_documents.any? %>
+                <div class="bg-white rounded-lg p-4 shadow-sm">
+                  <h3 class="text-sm font-semibold text-gray-900 mb-3">Related Documents</h3>
+                  <ul class="space-y-2">
+                    <% document.related_documents.limit(5).each do |related| %>
+                      <li>
+                        <% link_to ged_document_path(related), { class: "flex items-center space-x-2 text-sm text-blue-600 hover:underline" } do %>
+                          <%= heroicon("document", variant: :solid, options: { class: "w-4 h-4" }) %>
+                          <span class="truncate"><%= related.name %></span>
+                        <% end %>
+                      </li>
+                    <% end %>
+                  </ul>
+                </div>
+              <% end %>
+            </div>
+          </div>
+
+          <!-- Metadata Tab -->
+          <div data-document-sidebar-target="metadataTab" class="hidden">
+            <% if document.metadata_template %>
+              <div class="bg-white rounded-lg p-4 shadow-sm">
+                <h3 class="text-sm font-semibold text-gray-900 mb-3">
+                  <%= document.metadata_template.name %>
+                </h3>
+                <dl class="space-y-2 text-sm">
+                  <% document.metadata_values.each do |field, value| %>
+                    <div>
+                      <dt class="text-gray-600 mb-1"><%= field.humanize %>:</dt>
+                      <dd class="text-gray-900"><%= value %></dd>
+                    </div>
+                  <% end %>
+                </dl>
+              </div>
+            <% else %>
+              <div class="text-sm text-gray-600 text-center py-8">
+                No metadata template assigned
+              </div>
+            <% end %>
+          </div>
+
+          <!-- Activity Tab -->
+          <div data-document-sidebar-target="activityTab" class="hidden">
+            <%= render Documents::ActivityTimelineComponent.new(
+              document: document,
+              limit: 20,
+              show_filters: false
+            ) %>
+          </div>
+
+          <!-- Versions Tab -->
+          <% if document.versions.any? %>
+            <div data-document-sidebar-target="versionsTab" class="hidden">
+              <div class="space-y-3">
+                <% document.versions.reorder(created_at: :desc).each_with_index do |version, index| %>
+                  <div class="bg-white rounded-lg p-3 shadow-sm <%= 'ring-2 ring-blue-500' if version == document.current_version %>">
+                    <div class="flex items-center justify-between">
+                      <div>
+                        <p class="text-sm font-medium text-gray-900">
+                          Version <%= document.versions.count - index %>
+                          <% if version == document.current_version %>
+                            <span class="ml-2 text-xs text-blue-600">(Current)</span>
+                          <% end %>
+                        </p>
+                        <p class="text-xs text-gray-600 mt-1">
+                          <%= version.created_at.to_fs(:short) %> by <%= version.whodunnit_user&.name || "Unknown" %>
+                        </p>
+                      </div>
+                      <div class="flex items-center space-x-2">
+                        <%= link_to "View", ged_document_version_path(document, version), 
+                            class: "text-xs text-blue-600 hover:underline" %>
+                        <% if policy(document).restore_version? && version != document.current_version %>
+                          <%= button_to "Restore", ged_restore_document_version_path(document, version),
+                              method: :post,
+                              class: "text-xs text-gray-600 hover:text-gray-900",
+                              data: { confirm: "Restore this version?" } %>
+                        <% end %>
+                      </div>
+                    </div>
+                    <% if version.respond_to?(:changeset) && version.changeset.any? %>
+                      <div class="mt-2 text-xs text-gray-600">
+                        Changed: <%= version.changeset.keys.join(", ") %>
+                      </div>
+                    <% end %>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+
