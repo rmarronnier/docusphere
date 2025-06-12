@@ -29,7 +29,7 @@ RSpec.describe "Route Helpers Validation", type: :routing do
         next if engine_routes.include?(helper)
         
         # Ignorer les méthodes de composants qui ne sont pas des routes
-        component_methods = ['icon_path', 'document_url', 'item_path', 'form_url', 'full_path', 'thumbnail_url', 'preview_url', 'action_path', 'main_link_path']
+        component_methods = ['icon_path', 'document_url', 'item_path', 'form_url', 'full_path', 'thumbnail_url', 'preview_url', 'action_path', 'main_link_path', 'share_form_url']
         next if component_methods.include?(helper)
         
         # Ignorer les helpers Rails standards

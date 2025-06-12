@@ -19,7 +19,7 @@ class Documents::DocumentFormComponent < ApplicationComponent
   end
 
   def form_url
-    document.persisted? ? ged_document_path(document) : ged_upload_document_path
+    document.persisted? ? helpers.ged_document_path(document) : helpers.ged_upload_document_path
   end
 
   def form_method

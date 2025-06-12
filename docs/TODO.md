@@ -10,6 +10,22 @@
 
 ## ✅ Récemment Complété
 
+### Fonctionnalités Document Viewer Complétées (13/12/2025) ✅
+- ✅ **Keyboard Shortcuts Modal** : Modal d'aide avec liste des raccourcis et gestion globale
+- ✅ **Document Actions Dropdown** : Menu avec Duplicate, Move, Archive, Lock, Validation, Public link
+- ✅ **Version Comparison** : Comparaison côte-à-côte avec navigation et restauration
+- ✅ **Inline Metadata Editing** : Édition AJAX des métadonnées avec tag input intelligent
+- ✅ **Routes GED** : Ajout de 11 nouvelles routes pour toutes les actions
+- ✅ **Tests complets** : 16 nouveaux fichiers de tests (8 composants + 8 JS controllers)
+
+### Implémentation Fonctionnalités Document Viewer (13/12/2025) ✅
+- ✅ **Modal de Partage** : DocumentShareModalComponent avec email, permissions et message
+- ✅ **Backend Partage** : DocumentSharesController avec notifications automatiques
+- ✅ **JavaScript** : document_share_controller.js et modal_controller.js avec tests
+- ✅ **Download Headers** : Content-Disposition corrigé avec send_data
+- ✅ **ViewTrackable Concern** : Tracking vues/téléchargements avec last_viewed_at
+- ✅ **Migration** : Ajout colonnes last_viewed_at et last_viewed_by_id
+
 ### Tests Système Phase 1 - Upload Documents (12/12/2025) ✅
 - ✅ **document_upload_spec.rb:14** - Premier test upload fonctionnel
 - ✅ Infrastructure backend complète (VirusScanService, EmailUploadJob)

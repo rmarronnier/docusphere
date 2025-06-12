@@ -24,7 +24,7 @@
         </div>
       </div>
 
-      <form id="uploadForm" class="mt-5 sm:mt-6" enctype="multipart/form-data" action="/ged/documents" method="post" data-ajax="true">
+      <form id="uploadForm" class="mt-5 sm:mt-6" enctype="multipart/form-data" action="<%= ged_upload_document_path %>" method="post" data-ajax="true">
         <%= token_tag %>
         <div class="space-y-4">
           <div>

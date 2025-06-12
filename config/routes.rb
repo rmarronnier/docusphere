@@ -94,8 +94,16 @@ Rails.application.routes.draw do
     get '/documents/:id/download', to: 'ged#download_document', as: 'download_document'
     get '/documents/:id/preview', to: 'ged#preview_document', as: 'preview_document'
     get '/documents/:id/status', to: 'ged#document_status', as: 'document_status'
-    post '/documents/:id/lock', to: 'ged#lock_document', as: 'lock_document'
-    post '/documents/:id/unlock', to: 'ged#unlock_document', as: 'unlock_document'
+    patch '/documents/:id/lock', to: 'ged#lock_document', as: 'lock_document'
+    patch '/documents/:id/unlock', to: 'ged#unlock_document', as: 'unlock_document'
+    post '/documents/:id/duplicate', to: 'ged#duplicate_document', as: 'duplicate_document'
+    patch '/documents/:id/archive', to: 'ged#archive_document', as: 'archive_document'
+    patch '/documents/:id/move', to: 'ged#move_document', as: 'move_document'
+    post '/documents/:id/request_validation', to: 'ged#request_validation', as: 'request_validation_document'
+    post '/documents/:id/generate_public_link', to: 'ged#generate_public_link', as: 'generate_public_link_document'
+    patch '/documents/:id/update_metadata', to: 'ged#update_metadata', as: 'update_metadata_document'
+    get '/documents/:id/metadata', to: 'ged#metadata', as: 'metadata_document'
+    get '/documents/:id/edit_metadata', to: 'ged#edit_metadata', as: 'edit_metadata_document'
     
     # Document versioning
     get '/documents/:id/versions', to: 'ged#document_versions', as: 'document_versions'
@@ -172,6 +180,123 @@ Rails.application.routes.draw do
     end
   end
   
+  # Business-specific routes for different profiles
+  # Direction profile routes
+  resources :reports do
+    collection do
+      get :executive_summary
+      get :performance_dashboard
+      get :export
+    end
+  end
+
+  # Project management routes
+  resources :planning do
+    collection do
+      get :gantt
+      get :calendar
+      get :milestones
+    end
+  end
+  
+  resources :resources do
+    collection do
+      get :allocation
+      get :capacity
+      get :conflicts
+    end
+  end
+
+  # Commercial profile routes
+  resources :clients do
+    member do
+      get :documents
+      get :contracts
+      get :interactions
+    end
+  end
+  
+  resources :contracts do
+    member do
+      post :sign
+      post :renew
+      get :preview
+    end
+  end
+
+  # Legal profile routes
+  namespace :legal do
+    resources :contracts, as: :legal_contracts do
+      member do
+        post :approve
+        post :reject
+        get :review
+      end
+    end
+    
+    resources :deadlines, as: :legal_deadlines do
+      collection do
+        get :calendar
+        get :upcoming
+        get :overdue
+      end
+    end
+  end
+
+  # Finance profile routes
+  resources :invoices do
+    member do
+      post :approve
+      post :send_to_client
+      get :export_pdf
+    end
+    collection do
+      get :dashboard
+      get :overdue
+    end
+  end
+  
+  resources :budgets do
+    collection do
+      get :dashboard
+      get :variance_report
+    end
+  end
+  
+  resources :expenses, path: 'expense-reports' do
+    member do
+      post :approve
+      post :reject
+    end
+  end
+
+  # Technical profile routes
+  resources :specifications do
+    collection do
+      get :templates
+      get :by_project
+    end
+  end
+  
+  resources :technical_docs do
+    collection do
+      get :by_category
+      get :search
+    end
+  end
+  
+  resources :support_tickets do
+    member do
+      post :assign
+      post :resolve
+      post :escalate
+    end
+    collection do
+      get :my_tickets
+      get :unassigned
+    end
+  end
+
   # Stakeholder management (for main app, complement engine routes)
   resources :stakeholders, only: [:index, :show] do
     member do

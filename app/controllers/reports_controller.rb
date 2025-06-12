@@ -1,74 +1,45 @@
+# frozen_string_literal: true
+
 class ReportsController < ApplicationController
   before_action :authenticate_user!
-  before_action :authorize_reports_access!
-  
+  before_action :authorize_direction_access
+
   def index
-    @reports = policy_scope(Report)
-    @recent_reports = @reports.recent.limit(10)
-    @report_categories = report_categories
+    @reports = []
+    render 'coming_soon'
   end
-  
+
   def show
-    @report = authorize Report.find(params[:id])
-    respond_to do |format|
-      format.html
-      format.pdf { send_data @report.generate_pdf, filename: "#{@report.name}.pdf", type: 'application/pdf' }
-      format.xlsx { send_data @report.generate_excel, filename: "#{@report.name}.xlsx", type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }
-    end
+    @report = nil
+    render 'coming_soon'
   end
-  
+
   def new
-    @report = authorize Report.new
-    @templates = ReportTemplate.active
+    @report = nil
+    render 'coming_soon'
   end
-  
+
   def create
-    @report = authorize Report.new(report_params)
-    @report.created_by = current_user
-    
-    if @report.save
-      ReportGenerationJob.perform_later(@report)
-      redirect_to @report, notice: 'Rapport en cours de génération...'
-    else
-      @templates = ReportTemplate.active
-      render :new, status: :unprocessable_entity
-    end
+    redirect_to reports_path, notice: "Cette fonctionnalité sera bientôt disponible"
   end
-  
+
+  def executive_summary
+    render 'coming_soon'
+  end
+
+  def performance_dashboard
+    render 'coming_soon'
+  end
+
   def export
-    @report = authorize Report.find(params[:id])
-    format = params[:format_type] || 'pdf'
-    
-    case format
-    when 'pdf'
-      send_data @report.generate_pdf, filename: "#{@report.name}.pdf", type: 'application/pdf'
-    when 'excel'
-      send_data @report.generate_excel, filename: "#{@report.name}.xlsx", type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    when 'csv'
-      send_data @report.generate_csv, filename: "#{@report.name}.csv", type: 'text/csv'
-    end
+    redirect_to reports_path, notice: "Export sera bientôt disponible"
   end
-  
+
   private
-  
-  def authorize_reports_access!
-    unless current_user.has_role?(:direction) || current_user.has_role?(:admin)
-      redirect_to root_path, alert: 'Accès non autorisé'
+
+  def authorize_direction_access
+    unless current_user.profile_type == 'direction' || current_user.admin?
+      redirect_to root_path, alert: "Accès non autorisé"
     end
-  end
-  
-  def report_params
-    params.require(:report).permit(:name, :report_type, :start_date, :end_date, 
-                                   :template_id, :filters, :include_charts)
-  end
-  
-  def report_categories
-    {
-      activity: 'Rapports d\'activité',
-      financial: 'Rapports financiers',
-      compliance: 'Rapports de conformité',
-      performance: 'Rapports de performance',
-      custom: 'Rapports personnalisés'
-    }
   end
 end

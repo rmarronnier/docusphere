@@ -14,6 +14,7 @@ class Document < ApplicationRecord
   include Documents::Taggable
   include Documents::DisplayHelpers
   include Documents::ActivityTrackable
+  include Documents::ViewTrackable
   
   # Configure ownership
   owned_by :uploaded_by

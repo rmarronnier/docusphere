@@ -46,17 +46,21 @@ module NotificationService::DocumentNotifications
       )
     end
 
-    def notify_document_shared(document, recipient, shared_by)
+    def notify_document_shared(document:, recipient:, sender:, message: nil)
+      notification_message = "#{sender.full_name} a partagé le document '#{document.title}' avec vous"
+      notification_message += " : #{message}" if message.present?
+      
       Notification.notify_user(
         recipient,
         :document_shared,
         "Document partagé",
-        "#{shared_by.full_name} a partagé le document '#{document.title}' avec vous",
+        notification_message,
         notifiable: document,
         data: {
           document_id: document.id,
-          shared_by_id: shared_by.id,
-          shared_by_name: shared_by.full_name
+          shared_by_id: sender.id,
+          shared_by_name: sender.full_name,
+          custom_message: message
         }
       )
     end

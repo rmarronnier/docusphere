@@ -3122,6 +3122,21 @@ example_id                                                                      
 ./spec/controllers/document_validations_controller_spec.rb[1:6:2:3:1]                                               | passed  | 0.3882 seconds       |
 ./spec/controllers/document_validations_controller_spec.rb[1:7:1]                                                   | passed  | 0.36151 seconds      |
 ./spec/controllers/document_validations_controller_spec.rb[1:7:2]                                                   | passed  | 0.36304 seconds      |
+./spec/controllers/ged/document_operations_spec.rb[1:1:1]                                                           | passed  | 0.39581 seconds      |
+./spec/controllers/ged/document_operations_spec.rb[1:1:2]                                                           | unknown |                      |
+./spec/controllers/ged/document_operations_spec.rb[1:1:3:1]                                                         | unknown |                      |
+./spec/controllers/ged/document_operations_spec.rb[1:1:4:1]                                                         | unknown |                      |
+./spec/controllers/ged/document_operations_spec.rb[1:2:1:1]                                                         | unknown |                      |
+./spec/controllers/ged/document_operations_spec.rb[1:2:1:2]                                                         | unknown |                      |
+./spec/controllers/ged/document_operations_spec.rb[1:2:2:1]                                                         | failed  | 0.23915 seconds      |
+./spec/controllers/ged/document_operations_spec.rb[1:3:1]                                                           | passed  | 0.42319 seconds      |
+./spec/controllers/ged/document_operations_spec.rb[1:4:1:1]                                                         | unknown |                      |
+./spec/controllers/ged/document_operations_spec.rb[1:4:1:2]                                                         | failed  | 0.33006 seconds      |
+./spec/controllers/ged/document_operations_spec.rb[1:4:1:3]                                                         | unknown |                      |
+./spec/controllers/ged/document_operations_spec.rb[1:4:1:4]                                                         | unknown |                      |
+./spec/controllers/ged/document_operations_spec.rb[1:4:1:5]                                                         | unknown |                      |
+./spec/controllers/ged/document_operations_spec.rb[1:4:2:1]                                                         | unknown |                      |
+./spec/controllers/ged/document_operations_spec.rb[1:4:3:1]                                                         | unknown |                      |
 ./spec/controllers/ged_controller_spec.rb[1:1:1]                                                                    | passed  | 0.17476 seconds      |
 ./spec/controllers/ged_controller_spec.rb[1:1:2]                                                                    | passed  | 0.18186 seconds      |
 ./spec/controllers/ged_controller_spec.rb[1:1:3]                                                                    | passed  | 0.22318 seconds      |
@@ -4000,15 +4015,15 @@ example_id                                                                      
 ./spec/models/document_spec.rb[1:6:1:3]                                                                             | passed  | 0.18846 seconds      |
 ./spec/models/document_spec.rb[1:6:2:1]                                                                             | passed  | 0.20972 seconds      |
 ./spec/models/document_spec.rb[1:6:3:1]                                                                             | passed  | 0.19846 seconds      |
-./spec/models/document_spec.rb[1:7:1:1]                                                                             | passed  | 0.18759 seconds      |
-./spec/models/document_spec.rb[1:7:1:2]                                                                             | passed  | 0.19047 seconds      |
-./spec/models/document_spec.rb[1:7:1:3]                                                                             | passed  | 0.19444 seconds      |
-./spec/models/document_spec.rb[1:7:1:4]                                                                             | passed  | 0.19617 seconds      |
+./spec/models/document_spec.rb[1:7:1:1]                                                                             | passed  | 0.22131 seconds      |
+./spec/models/document_spec.rb[1:7:1:2]                                                                             | passed  | 0.2263 seconds       |
+./spec/models/document_spec.rb[1:7:1:3]                                                                             | passed  | 0.22273 seconds      |
+./spec/models/document_spec.rb[1:7:1:4]                                                                             | passed  | 0.22752 seconds      |
 ./spec/models/document_spec.rb[1:7:2:1]                                                                             | passed  | 0.19101 seconds      |
 ./spec/models/document_spec.rb[1:7:2:2]                                                                             | passed  | 0.19152 seconds      |
-./spec/models/document_spec.rb[1:7:2:3]                                                                             | passed  | 0.19441 seconds      |
-./spec/models/document_spec.rb[1:7:3:1]                                                                             | passed  | 0.19969 seconds      |
-./spec/models/document_spec.rb[1:7:3:2]                                                                             | passed  | 0.19675 seconds      |
+./spec/models/document_spec.rb[1:7:2:3]                                                                             | failed  | 0.22009 seconds      |
+./spec/models/document_spec.rb[1:7:3:1]                                                                             | passed  | 0.40738 seconds      |
+./spec/models/document_spec.rb[1:7:3:2]                                                                             | passed  | 0.24344 seconds      |
 ./spec/models/document_spec.rb[1:7:4:1]                                                                             | passed  | 0.18932 seconds      |
 ./spec/models/document_spec.rb[1:7:4:2]                                                                             | passed  | 0.18864 seconds      |
 ./spec/models/document_spec.rb[1:7:4:3]                                                                             | passed  | 0.1892 seconds       |
@@ -4509,13 +4524,13 @@ example_id                                                                      
 ./spec/requests/home_spec.rb[1:1:2:5:2]                                                                             | passed  | 0.20658 seconds      |
 ./spec/requests/home_spec.rb[1:2:1]                                                                                 | passed  | 0.30867 seconds      |
 ./spec/requests/home_spec.rb[1:2:2]                                                                                 | passed  | 0.30827 seconds      |
-./spec/routing/route_helpers_spec.rb[1:1:1]                                                                         | passed  | 0.02086 seconds      |
-./spec/routing/route_helpers_spec.rb[1:1:2]                                                                         | passed  | 0.00096 seconds      |
-./spec/routing/route_helpers_spec.rb[1:1:3]                                                                         | passed  | 0.00161 seconds      |
-./spec/routing/route_helpers_spec.rb[1:2:1]                                                                         | passed  | 0.00593 seconds      |
-./spec/routing/route_helpers_spec.rb[1:2:2]                                                                         | passed  | 0.01839 seconds      |
-./spec/routing/route_helpers_spec.rb[1:3:1]                                                                         | passed  | 0.00081 seconds      |
-./spec/routing/route_helpers_spec.rb[1:3:2]                                                                         | passed  | 0.00588 seconds      |
+./spec/routing/route_helpers_spec.rb[1:1:1]                                                                         | passed  | 0.02059 seconds      |
+./spec/routing/route_helpers_spec.rb[1:1:2]                                                                         | passed  | 0.00101 seconds      |
+./spec/routing/route_helpers_spec.rb[1:1:3]                                                                         | passed  | 0.00157 seconds      |
+./spec/routing/route_helpers_spec.rb[1:2:1]                                                                         | passed  | 0.00619 seconds      |
+./spec/routing/route_helpers_spec.rb[1:2:2]                                                                         | passed  | 0.013 seconds        |
+./spec/routing/route_helpers_spec.rb[1:3:1]                                                                         | passed  | 0.00088 seconds      |
+./spec/routing/route_helpers_spec.rb[1:3:2]                                                                         | passed  | 0.01147 seconds      |
 ./spec/services/ai_classification_service_spec.rb[1:1:1:1]                                                          | passed  | 0.22221 seconds      |
 ./spec/services/ai_classification_service_spec.rb[1:1:2:1]                                                          | passed  | 0.22164 seconds      |
 ./spec/services/ai_classification_service_spec.rb[1:2:1]                                                            | passed  | 0.19464 seconds      |

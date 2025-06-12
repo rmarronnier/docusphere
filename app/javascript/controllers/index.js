@@ -14,12 +14,14 @@ import DashboardController from "./dashboard_controller"
 import DataGridController from "./data_grid_controller"
 import DocumentGridController from "./document_grid_controller"
 import DocumentPreviewController from "./document_preview_controller"
+import DocumentShareController from "./document_share_controller"
 import DocumentSidebarController from "./document_sidebar_controller"
 import DocumentViewerController from "./document_viewer_controller"
 import GedController from "./ged_controller"
 import ImageViewerController from "./image_viewer_controller"
 import ImageZoomController from "./image_zoom_controller"
 import LazyLoadController from "./lazy_load_controller"
+import ModalController from "./modal_controller"
 import NotificationBellController from "./notification_bell_controller"
 import PdfViewerController from "./pdf_viewer_controller"
 import RippleController from "./ripple_controller"
@@ -33,12 +35,14 @@ application.register("dashboard", DashboardController)
 application.register("data-grid", DataGridController)
 application.register("document-grid", DocumentGridController)
 application.register("document-preview", DocumentPreviewController)
+application.register("document-share", DocumentShareController)
 application.register("document-sidebar", DocumentSidebarController)
 application.register("document-viewer", DocumentViewerController)
 application.register("ged", GedController)
 application.register("image-viewer", ImageViewerController)
 application.register("image-zoom", ImageZoomController)
 application.register("lazy-load", LazyLoadController)
+application.register("modal", ModalController)
 application.register("notification-bell", NotificationBellController)
 application.register("pdf-viewer", PdfViewerController)
 application.register("ripple", RippleController)

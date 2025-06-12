@@ -425,3 +425,6 @@
 
 <!-- Modals -->
 <%= render 'ged/modals/version_upload' if @document %>
+
+<!-- Share Modal -->
+<%= render Documents::DocumentShareModalComponent.new(document: @document) if @document %>

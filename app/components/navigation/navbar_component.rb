@@ -58,8 +58,8 @@ class Navigation::NavbarComponent < ApplicationComponent
     end
     
     if current_user&.admin? || current_user&.super_admin?
-      items << { name: 'Utilisateurs', path: users_path, icon: 'users' }
-      items << { name: 'Groupes', path: user_groups_path, icon: 'user-group' }
+      items << { name: 'Utilisateurs', path: helpers.users_path, icon: 'users' }
+      items << { name: 'Groupes', path: helpers.user_groups_path, icon: 'user-group' }
     end
     
     items

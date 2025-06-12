@@ -147,7 +147,7 @@ module Documents
 
     def edit_button
       link_to(
-        edit_ged_document_path(document),
+        helpers.edit_ged_document_path(document),
         class: "inline-flex items-center px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
       ) do
         concat(heroicon("pencil", variant: :solid, options: { class: "w-5 h-5 mr-2" }))

@@ -918,16 +918,19 @@ module Documents
       button_tag(
         type: "button",
         class: "inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors",
-        data: { controller: "share-document", "share-document-id-value": document.id }
+        data: { 
+          action: "click->modal#open",
+          "modal-target-value": "share-modal-#{document.id}"
+        }
       ) do
         concat(heroicon("share", variant: :solid, options: { class: "w-5 h-5 mr-2" }))
-        concat("Share")
+        concat("Partager")
       end
     end
 
     def edit_button
       link_to(
-        edit_ged_document_path(document),
+        helpers.edit_ged_document_path(document),
         class: "inline-flex items-center px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors"
       ) do
         concat(heroicon("pencil", variant: :solid, options: { class: "w-5 h-5 mr-2" }))

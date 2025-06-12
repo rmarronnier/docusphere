@@ -1,0 +1,152 @@
+<div class="share-modal fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50 hidden"
+     id="<%= modal_id %>"
+     data-controller="modal"
+     data-action="click->modal#closeOnBackdrop keydown.esc@window->modal#close">
+  <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-hidden"
+       data-action="click->modal#stopPropagation">
+    
+    <!-- Header -->
+    <div class="px-6 py-4 border-b border-gray-200">
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-medium text-gray-900">
+          Partager "<%= document.title %>"
+        </h3>
+        <button type="button"
+                class="text-gray-400 hover:text-gray-500 focus:outline-none"
+                data-action="click->modal#close">
+          <%= render Ui::IconComponent.new(icon: 'x-mark', size: :md) %>
+        </button>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="px-6 py-4 overflow-y-auto max-h-[60vh]">
+      <%= form_with url: share_form_url, 
+                    local: false,
+                    html: { id: dom_id(document, :share_form) },
+                    data: { 
+                      controller: "document-share",
+                      action: "ajax:success->document-share#onSuccess ajax:error->document-share#onError"
+                    } do |form| %>
+        
+        <!-- Email Input -->
+        <div class="mb-4">
+          <%= form.label :email, "Email", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= form.email_field :email, 
+                               required: true,
+                               placeholder: "collegue@example.com",
+                               class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm",
+                               data: { 
+                                 "document-share-target": "emailInput",
+                                 action: "input->document-share#validateEmail"
+                               } %>
+          <p class="mt-1 text-sm text-gray-500">
+            Entrez l'adresse email de la personne avec qui partager ce document
+          </p>
+        </div>
+
+        <!-- Permission Selection -->
+        <div class="mb-4">
+          <%= form.label :permission, "Permissions", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= form.select :permission,
+                          options_for_select(permission_options, 'read'),
+                          {},
+                          class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm",
+                          data: { "document-share-target": "permissionSelect" } %>
+          <p class="mt-1 text-sm text-gray-500">
+            Définissez le niveau d'accès pour cette personne
+          </p>
+        </div>
+
+        <!-- Message (optional) -->
+        <div class="mb-4">
+          <%= form.label :message, "Message (optionnel)", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= form.text_area :message,
+                             rows: 3,
+                             placeholder: "Ajoutez un message pour le destinataire...",
+                             class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm",
+                             data: { "document-share-target": "messageInput" } %>
+        </div>
+
+        <!-- Suggested Users -->
+        <% if suggested_users.any? %>
+          <div class="mb-4">
+            <h4 class="text-sm font-medium text-gray-700 mb-2">Suggestions rapides</h4>
+            <div class="flex flex-wrap gap-2">
+              <% suggested_users.each do |user| %>
+                <button type="button"
+                        class="inline-flex items-center px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-700 bg-white hover:bg-gray-50"
+                        data-action="click->document-share#selectUser"
+                        data-email="<%= user.email %>">
+                  <%= user.display_name %>
+                </button>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+
+        <!-- Recent Shares -->
+        <% if recent_shares.any? %>
+          <div class="mb-4">
+            <h4 class="text-sm font-medium text-gray-700 mb-2">Partages récents</h4>
+            <div class="space-y-2">
+              <% recent_shares.each do |share| %>
+                <div class="flex items-center justify-between p-2 bg-gray-50 rounded-md">
+                  <div class="flex items-center space-x-3">
+                    <div class="flex-shrink-0">
+                      <%= render Ui::IconComponent.new(icon: 'user-circle', size: :sm, css_class: "text-gray-400") %>
+                    </div>
+                    <div>
+                      <p class="text-sm font-medium text-gray-900"><%= share.shared_with.display_name %></p>
+                      <p class="text-xs text-gray-500"><%= share.shared_with.email %></p>
+                    </div>
+                  </div>
+                  <span class="<%= permission_badge_classes(share.access_level) %>">
+                    <%= t("permissions.#{share.access_level}", default: share.access_level.humanize) %>
+                  </span>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+
+        <!-- Hidden document_id -->
+        <%= form.hidden_field :document_id, value: document.id %>
+      <% end %>
+    </div>
+
+    <!-- Footer -->
+    <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
+      <div class="flex justify-end space-x-3">
+        <button type="button"
+                class="<%= cancel_button_classes %>"
+                data-action="click->modal#close">
+          Annuler
+        </button>
+        <button type="submit"
+                form="<%= dom_id(document, :share_form) %>"
+                class="<%= share_button_classes %>"
+                data-document-share-target="submitButton">
+          Envoyer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Success Notification -->
+<div id="share-success-notification" 
+     class="hidden fixed bottom-4 right-4 bg-green-50 p-4 rounded-md shadow-lg z-50"
+     data-controller="notification"
+     data-notification-delay-value="3000">
+  <div class="flex">
+    <div class="flex-shrink-0">
+      <%= render Ui::IconComponent.new(icon: 'check-circle', size: :sm, css_class: "text-green-400") %>
+    </div>
+    <div class="ml-3">
+      <p class="text-sm font-medium text-green-800">
+        Document partagé avec succès
+      </p>
+    </div>
+  </div>
+</div>

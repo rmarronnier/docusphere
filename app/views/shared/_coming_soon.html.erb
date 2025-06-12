@@ -1,0 +1,37 @@
+<div class="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-3xl mx-auto">
+    <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
+      <div class="px-6 py-12 text-center">
+        <div class="mx-auto flex items-center justify-center h-24 w-24 rounded-full bg-yellow-100 mb-6">
+          <%= render Ui::IconComponent.new(name: "clock", size: :xl, style: "solid") %>
+        </div>
+        
+        <h2 class="text-3xl font-bold text-gray-900 mb-4">
+          Fonctionnalité en cours de développement
+        </h2>
+        
+        <p class="text-lg text-gray-600 mb-8">
+          Cette fonctionnalité sera bientôt disponible. Nous travaillons activement pour vous offrir la meilleure expérience possible.
+        </p>
+        
+        <div class="flex justify-center space-x-4">
+          <%= link_to "Retour au tableau de bord", root_path, 
+              class: "inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
+          
+          <%= link_to "Voir la documentation", help_path, 
+              class: "inline-flex items-center px-6 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
+        </div>
+        
+        <div class="mt-12 border-t border-gray-200 pt-8">
+          <p class="text-sm text-gray-500">
+            Vous avez des questions ou des suggestions pour cette fonctionnalité ?
+          </p>
+          <a href="mailto:support@docusphere.com" class="mt-2 inline-flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-500">
+            Contactez notre équipe
+            <%= render Ui::IconComponent.new(name: "arrow-right", size: :sm, style: "solid", extra_classes: "ml-1") %>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

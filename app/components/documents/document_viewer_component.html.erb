@@ -17,7 +17,7 @@
             </span>
             <span class="flex items-center">
               <%= heroicon("folder", variant: :solid, options: { class: "w-4 h-4 mr-1" }) %>
-              <%= link_to document.folder&.name || "Root", ged_folder_path(document.folder || document.space), class: "text-blue-600 hover:underline" %>
+              <%= link_to document.folder&.name || "Root", helpers.ged_folder_path(document.folder || document.space), class: "text-blue-600 hover:underline" %>
             </span>
             <% if document.locked? %>
               <span class="flex items-center text-red-600">
@@ -148,7 +148,7 @@
                   <ul class="space-y-2">
                     <% document.related_documents.limit(5).each do |related| %>
                       <li>
-                        <% link_to ged_document_path(related), { class: "flex items-center space-x-2 text-sm text-blue-600 hover:underline" } do %>
+                        <% link_to helpers.ged_document_path(related), { class: "flex items-center space-x-2 text-sm text-blue-600 hover:underline" } do %>
                           <%= heroicon("document", variant: :solid, options: { class: "w-4 h-4" }) %>
                           <span class="truncate"><%= related.name %></span>
                         <% end %>
@@ -217,10 +217,10 @@
                         </p>
                       </div>
                       <div class="flex items-center space-x-2">
-                        <%= link_to "View", ged_document_version_path(document, version), 
+                        <%= link_to "View", helpers.ged_document_version_path(document, version), 
                             class: "text-xs text-blue-600 hover:underline" %>
                         <% if policy(document).restore_version? && version != document.current_version %>
-                          <%= button_to "Restore", ged_restore_document_version_path(document, version),
+                          <%= button_to "Restore", helpers.ged_restore_document_version_path(document, version),
                               method: :post,
                               class: "text-xs text-gray-600 hover:text-gray-900",
                               data: { confirm: "Restore this version?" } %>

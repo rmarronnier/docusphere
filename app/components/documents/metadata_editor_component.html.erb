@@ -1,0 +1,201 @@
+<div class="metadata-editor" data-controller="metadata-editor" data-metadata-editor-document-id-value="<%= document.id %>">
+  <% if can_edit? %>
+    <% if editing %>
+      <!-- Edit Mode -->
+      <%= form_with model: document, 
+                    url: helpers.update_metadata_ged_document_path(document),
+                    method: :patch,
+                    data: { 
+                      turbo_frame: "_top",
+                      metadata_editor_target: "form",
+                      action: "submit->metadata-editor#save"
+                    } do |f| %>
+        
+        <!-- Basic fields -->
+        <div class="space-y-4">
+          <!-- Description -->
+          <div>
+            <%= f.label :description, "Description", class: label_classes %>
+            <%= f.text_area :description,
+                           rows: 3,
+                           class: input_classes,
+                           placeholder: "Ajoutez une description du document..." %>
+          </div>
+
+          <!-- Tags -->
+          <div>
+            <%= f.label :tags, "Tags", class: label_classes %>
+            <%= f.text_field :tags,
+                           value: document_tags,
+                           class: input_classes,
+                           placeholder: "Séparez les tags par des virgules",
+                           data: { 
+                             controller: "tag-input",
+                             action: "keydown->tag-input#handleKeydown"
+                           } %>
+            <p class="mt-1 text-xs text-gray-500">Appuyez sur Entrée ou virgule pour ajouter un tag</p>
+          </div>
+
+          <!-- Document Type -->
+          <div>
+            <%= f.label :document_type, "Type de document", class: label_classes %>
+            <%= f.select :document_type,
+                        options_for_select([
+                          ['Facture', 'invoice'],
+                          ['Contrat', 'contract'],
+                          ['Rapport', 'report'],
+                          ['Présentation', 'presentation'],
+                          ['Plan', 'plan'],
+                          ['Photo', 'photo'],
+                          ['Autre', 'other']
+                        ], document.document_type),
+                        { prompt: "Sélectionner un type..." },
+                        class: input_classes %>
+          </div>
+
+          <!-- Expiration Date -->
+          <div>
+            <%= f.label :expires_at, "Date d'expiration", class: label_classes %>
+            <%= f.date_field :expires_at,
+                           class: input_classes %>
+          </div>
+
+          <!-- Custom metadata fields -->
+          <% if metadata_fields.any? %>
+            <div class="pt-4 border-t border-gray-200">
+              <h4 class="text-sm font-medium text-gray-900 mb-3">Métadonnées personnalisées</h4>
+              <div class="space-y-4">
+                <% metadata_fields.each do |field| %>
+                  <div>
+                    <%= label_tag "metadata[#{field[:name]}]", field[:label], class: label_classes %>
+                    <%= input_for_field(f, field) %>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+
+        <!-- Actions -->
+        <div class="mt-6 flex justify-end gap-2">
+          <button type="button"
+                  class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  data-action="click->metadata-editor#cancel">
+            Annuler
+          </button>
+          <%= f.submit "Enregistrer", 
+                      class: "px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500",
+                      data: { disable_with: "Enregistrement..." } %>
+        </div>
+      <% end %>
+    <% else %>
+      <!-- View Mode -->
+      <div class="space-y-4">
+        <!-- Edit button -->
+        <div class="flex justify-end">
+          <button type="button"
+                  class="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  data-action="click->metadata-editor#edit">
+            <%= render Ui::IconComponent.new(name: "pencil", size: :sm, css_class: "mr-1.5") %>
+            Modifier
+          </button>
+        </div>
+
+        <!-- Display metadata -->
+        <dl class="space-y-3">
+          <% if document.description.present? %>
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Description</dt>
+              <dd class="mt-1 text-sm text-gray-900"><%= document.description %></dd>
+            </div>
+          <% end %>
+
+          <% if document.tags.any? %>
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Tags</dt>
+              <dd class="mt-1">
+                <div class="flex flex-wrap gap-1">
+                  <% document.tags.each do |tag| %>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                      <%= tag.name %>
+                    </span>
+                  <% end %>
+                </div>
+              </dd>
+            </div>
+          <% end %>
+
+          <% if document.document_type.present? %>
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Type de document</dt>
+              <dd class="mt-1 text-sm text-gray-900"><%= t("document_types.#{document.document_type}", default: document.document_type.humanize) %></dd>
+            </div>
+          <% end %>
+
+          <% if document.expires_at.present? %>
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Date d'expiration</dt>
+              <dd class="mt-1 text-sm text-gray-900"><%= l(document.expires_at, format: :long) %></dd>
+            </div>
+          <% end %>
+
+          <% if document.metadata.present? && document.metadata.any? %>
+            <% metadata_fields.each do |field| %>
+              <% if field[:value].present? %>
+                <div>
+                  <dt class="text-sm font-medium text-gray-500"><%= field[:label] %></dt>
+                  <dd class="mt-1 text-sm text-gray-900">
+                    <% if field[:field_type] == 'boolean' %>
+                      <%= field[:value] ? 'Oui' : 'Non' %>
+                    <% else %>
+                      <%= field[:value] %>
+                    <% end %>
+                  </dd>
+                </div>
+              <% end %>
+            <% end %>
+          <% end %>
+        </dl>
+
+        <% if !document.description.present? && !document.tags.any? && !document.metadata&.any? %>
+          <p class="text-sm text-gray-500 italic">Aucune métadonnée définie</p>
+        <% end %>
+      </div>
+    <% end %>
+  <% else %>
+    <!-- Read-only view for users without edit permission -->
+    <dl class="space-y-3">
+      <% if document.description.present? %>
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Description</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= document.description %></dd>
+        </div>
+      <% end %>
+
+      <% if document.tags.any? %>
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Tags</dt>
+          <dd class="mt-1">
+            <div class="flex flex-wrap gap-1">
+              <% document.tags.each do |tag| %>
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                  <%= tag.name %>
+                </span>
+              <% end %>
+            </div>
+          </dd>
+        </div>
+      <% end %>
+    </dl>
+  <% end %>
+</div>
+
+<!-- Success notification (hidden by default) -->
+<div id="metadata-save-notification" 
+     class="hidden fixed top-4 right-4 z-50 p-4 bg-green-500 text-white rounded-lg shadow-lg transition-all duration-300"
+     data-metadata-editor-target="notification">
+  <div class="flex items-center">
+    <%= render Ui::IconComponent.new(name: "check-circle", size: :sm, css_class: "mr-2") %>
+    <span>Métadonnées enregistrées avec succès</span>
+  </div>
+</div>
