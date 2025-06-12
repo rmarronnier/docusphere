@@ -1,4 +1,4 @@
-<%= form_with model: document, url: helpers.form_url, method: form_method, 
+<%= form_with model: document, url: form_url, method: form_method, 
               local: true, 
               html: { class: "document-form", data: { controller: "form-validation file-upload" } } do |f| %>
   

@@ -136,11 +136,11 @@
           <!-- Actions rapides -->
           <div class="mt-3 flex items-center gap-2">
             <%= link_to "Créer proposition",
-                helpers.new_proposal_path(client),
+                new_proposal_path(client),
                 class: "text-xs text-blue-600 hover:text-blue-800 font-medium" %>
             
             <%= link_to "Voir tous les documents",
-                helpers.client_documents_path(client),
+                client_documents_path(client),
                 class: "text-xs text-gray-600 hover:text-gray-800" %>
           </div>
         </div>

@@ -21,7 +21,7 @@
 
     <!-- Body -->
     <div class="px-6 py-4 overflow-y-auto max-h-[60vh]">
-      <%= form_with url: helpers.share_form_url, 
+      <%= form_with url: share_form_url, 
                     local: false,
                     html: { id: dom_id(document, :share_form) },
                     data: { 

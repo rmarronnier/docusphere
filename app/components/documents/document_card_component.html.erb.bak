@@ -34,7 +34,7 @@
     <!-- Title and Description -->
     <div class="mb-3">
       <h3 class="text-sm font-medium text-gray-900 mb-1">
-        <%= link_to document.title, helpers.main_link_path, main_link_options.merge(class: "hover:text-primary-600 line-clamp-2") %>
+        <%= link_to document.title, main_link_path, main_link_options.merge(class: "hover:text-primary-600 line-clamp-2") %>
       </h3>
       
       <% if document.description.present? %>

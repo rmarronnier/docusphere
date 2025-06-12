@@ -26,7 +26,7 @@
                             alt: document.title,
                             onerror: "this.onerror=null; this.src='#{helpers.asset_path('document-placeholder.png')}'",
                             data: {
-                              preview_url: helpers.preview_url(document, :large),
+                              preview_url: preview_url(document, :large),
                               document_id: document.id
                             } %>
             <% else %>
