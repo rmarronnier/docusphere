@@ -5,18 +5,18 @@ RSpec.describe 'Document Management Actions', type: :system do
   let(:user) { create(:user, organization: organization) }
   let(:admin_user) { create(:user, organization: organization, role: :admin) }
   let(:space) { create(:space, organization: organization) }
-  let(:folder) { create(:folder, parent: space, organization: organization) }
+  let(:folder) { create(:folder, name: 'Test Folder', space: space) }
   
   before do
     sign_in user
   end
   
   describe 'Document Organization' do
-    let!(:documents) { create_list(:document, 5, folder: folder) }
+    let!(:documents) { create_list(:document, 5, folder: folder, space: space, uploaded_by: user) }
     
     it 'moves documents between folders' do
       source_folder = folder
-      target_folder = create(:folder, name: 'Archive 2025', parent: space)
+      target_folder = create(:folder, name: 'Archive 2025', space: space)
       
       visit ged_folder_path(source_folder)
       
@@ -118,10 +118,10 @@ RSpec.describe 'Document Management Actions', type: :system do
   end
   
   describe 'Document Metadata Management' do
-    let(:document) { create(:document, folder: folder) }
+    let(:document) { create(:document, folder: folder, space: space, uploaded_by: user) }
     
     it 'edits document metadata in bulk' do
-      documents = create_list(:document, 3, folder: folder)
+      documents = create_list(:document, 3, folder: folder, space: space, uploaded_by: user)
       
       visit ged_folder_path(folder)
       
@@ -199,7 +199,7 @@ RSpec.describe 'Document Management Actions', type: :system do
   end
   
   describe 'Document Permissions' do
-    let(:document) { create(:document, folder: folder, uploaded_by: user) }
+    let(:document) { create(:document, folder: folder, space: space, uploaded_by: user) }
     let(:other_user) { create(:user, organization: organization) }
     
     it 'manages document access permissions' do
@@ -302,7 +302,7 @@ RSpec.describe 'Document Management Actions', type: :system do
   end
   
   describe 'Document Lifecycle' do
-    let(:document) { create(:document, folder: folder) }
+    let(:document) { create(:document, folder: folder, space: space, uploaded_by: user) }
     
     it 'locks and unlocks document for editing' do
       visit ged_document_path(document)
@@ -421,7 +421,7 @@ RSpec.describe 'Document Management Actions', type: :system do
   end
   
   describe 'Document Duplication and Templates' do
-    let(:template_doc) { create(:document, title: 'Template Contrat.docx', folder: folder) }
+    let(:template_doc) { create(:document, title: 'Template Contrat.docx', folder: folder, space: space, uploaded_by: user) }
     
     it 'duplicates document with options' do
       visit ged_document_path(template_doc)
@@ -506,7 +506,7 @@ RSpec.describe 'Document Management Actions', type: :system do
   end
   
   describe 'Bulk Document Operations' do
-    let!(:documents) { create_list(:document, 10, folder: folder) }
+    let!(:documents) { create_list(:document, 10, folder: folder, space: space, uploaded_by: user) }
     
     it 'performs bulk operations on selected documents' do
       visit ged_folder_path(folder)

@@ -59,6 +59,9 @@ fi
 
 echo "✅ Selenium is ready!"
 
+# Note: Capybara will start its own Rails server on port 3001 when needed
+# No need to wait for it here, as it starts automatically with the first test
+
 # Prepare test database if needed
 echo "📦 Preparing test database..."
 $COMPOSE_CMD run --rm \

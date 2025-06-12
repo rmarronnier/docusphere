@@ -1,6 +1,19 @@
 <%= render Layout::PageWrapperComponent.new do %>
       <!-- Breadcrumb -->
       <%= render Navigation::BreadcrumbComponent.new(items: @breadcrumbs) %>
+      
+      <!-- Advanced Document Viewer -->
+      <div class="document-viewer-container min-h-screen">
+        <%= render Documents::DocumentViewerComponent.new(
+          document: @document,
+          show_actions: true,
+          show_sidebar: true,
+          context: :ged
+        ) %>
+      </div>
+      
+      <!-- Legacy view below for comparison (can be removed once viewer is tested) -->
+      <div class="legacy-document-view hidden">
 
       <!-- Header du document -->
       <div class="bg-white shadow rounded-lg">

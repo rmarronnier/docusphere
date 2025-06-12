@@ -64,6 +64,16 @@ class DocumentPolicy < ApplicationPolicy
     update?
   end
 
+  def annotate?
+    # Users can annotate documents they can update
+    update?
+  end
+
+  def export?
+    # Users can export documents they can view
+    show?
+  end
+
   def permitted_attributes
     base_attributes = [:title, :description, :document_type, :status, :is_template, 
                       :external_id, :expires_at, :is_public, :document_category,

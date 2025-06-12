@@ -21,6 +21,7 @@ RSpec.describe Documents::DocumentViewerComponent, type: :component do
         number_to_human_size: '1.5 MB',
         time_ago_in_words: '2 days',
         ged_document_download_path: '/download',
+        ged_download_document_path: '/download',
         ged_document_path: '/document',
         edit_ged_document_path: '/edit',
         new_ged_document_validation_request_path: '/validation/new',
@@ -224,8 +225,8 @@ RSpec.describe Documents::DocumentViewerComponent, type: :component do
 
   describe 'document header' do
     it 'displays document information' do
-      allow(document).to receive(:name).and_return('Test Document.pdf')
-      allow(document).to receive_message_chain(:uploaded_by, :name).and_return('John Doe')
+      allow(document).to receive(:title).and_return('Test Document.pdf')
+      allow(document).to receive_message_chain(:uploaded_by, :display_name).and_return('John Doe')
       allow(document).to receive_message_chain(:folder, :name).and_return('Important Files')
       
       render_inline(described_class.new(document: document))

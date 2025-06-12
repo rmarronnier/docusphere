@@ -29,6 +29,14 @@
 - ✅ Badges clean et infected s'affichent correctement
 - ✅ Tests système passent (8/12 tests document_upload_spec.rb)
 
+### DocumentViewerComponent Intégré (13/12/2025) ✅
+- ✅ **Multi-format** : Support PDF, Images, Vidéo, Office, Code avec syntaxe highlighting
+- ✅ **Code viewer** : Détection auto fichiers code, numéros ligne, toolbar actions
+- ✅ **Corrections techniques** : Heroicon adapter, attributs modèle, policy methods
+- ✅ **Sidebar responsive** : Onglets Info, Metadata, Activity, Versions
+- ✅ **Error handling** : Gestion gracieuse features manquantes (bookmarks)
+- ✅ **Contrôleurs JS** : Intégration document_viewer, pdf_viewer, image_viewer controllers
+
 ### Route Helper Fixes (12/06/2025) ✅
 - ✅ Corrigé `new_ged_document_document_shares_path` → `new_ged_document_document_share_path` (singulier)
 - ✅ Corrigé appels de méthodes ViewComponent préfixés avec `helpers.`
@@ -39,12 +47,12 @@
 
 ## 🚧 EN COURS / À FAIRE
 
-### 🚀 Tests Système - Correction Complète (EN COURS - 12/12/2025)
+### 🚀 Tests Système - Correction Complète (EN COURS - 13/12/2025)
 
 #### Phase 1 : Infrastructure Documents (Priorité HAUTE)
 - ✅ `document_upload_spec.rb` - Upload fonctionnel (8/12 tests passent)
 - [ ] `document_upload_spec.rb` - Corriger les 4 tests JS restants
-- [ ] `document_viewing_spec.rb` - Consultation documents
+- ✅ `document_viewing_spec.rb` - DocumentViewerComponent intégré avec succès
 - [ ] `document_management_spec.rb` - Gestion basique
 
 #### Phase 2 : Fonctionnalités Avancées (Priorité MOYENNE)  
@@ -59,7 +67,7 @@
 - [ ] `juridique_journey_spec.rb` - Parcours juridique
 - [ ] `cross_profile_collaboration_spec.rb` - Collaboration inter-profils
 
-**Status** : 8/54 tests système passent. Versioning et badges virus fonctionnels. Tests JS restent à corriger.
+**Status** : 9/54 tests système passent. Versioning, badges virus et DocumentViewer fonctionnels. Tests JS restent à corriger.
 
 ### 🚀 Routes Métier Manquantes (NEW - 12/06/2025)
 Les routes suivantes ont été identifiées dans NavbarComponent mais n'existent pas encore. Elles représentent des fonctionnalités métier importantes :

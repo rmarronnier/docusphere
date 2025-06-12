@@ -10,6 +10,15 @@ module Documents
       @show_filters = show_filters
     end
 
+    def heroicon(name, variant: :outline, options: {})
+      # Map common heroicon options to IconComponent parameters
+      icon_options = {}
+      icon_options[:css_class] = options[:class] if options[:class]
+      icon_options[:size] = options[:size] || 5
+      
+      render Ui::IconComponent.new(name: name, **icon_options)
+    end
+
     private
 
     attr_reader :document, :limit, :show_filters

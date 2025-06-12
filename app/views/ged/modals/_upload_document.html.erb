@@ -24,7 +24,7 @@
         </div>
       </div>
 
-      <form id="uploadForm" class="mt-5 sm:mt-6" enctype="multipart/form-data" action="/ged/documents" method="post">
+      <form id="uploadForm" class="mt-5 sm:mt-6" enctype="multipart/form-data" action="/ged/documents" method="post" data-ajax="true">
         <%= token_tag %>
         <div class="space-y-4">
           <div>
@@ -194,3 +194,75 @@
     </div>
   </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const uploadForm = document.getElementById('uploadForm');
+  
+  if (uploadForm) {
+    uploadForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const formData = new FormData(this);
+      const progressContainer = document.getElementById('uploadProgress');
+      const errorsContainer = document.getElementById('uploadErrors');
+      
+      // Show progress
+      progressContainer.classList.remove('hidden');
+      errorsContainer.classList.add('hidden');
+      
+      fetch(this.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
+          'Accept': 'application/json'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        progressContainer.classList.add('hidden');
+        
+        if (data.success) {
+          // Success - close modal and redirect or reload
+          closeModal('uploadModal');
+          if (data.redirect_url) {
+            window.location.href = data.redirect_url;
+          } else {
+            window.location.reload();
+          }
+        } else if (data.duplicate_detected) {
+          // Show duplicate detection modal
+          closeModal('uploadModal');
+          showDuplicateModal(data.existing_document, uploadForm);
+        } else {
+          // Show errors
+          errorsContainer.classList.remove('hidden');
+          const errorsList = document.getElementById('uploadErrorsList');
+          errorsList.innerHTML = '';
+          
+          if (data.errors && data.errors.length > 0) {
+            data.errors.forEach(error => {
+              const li = document.createElement('li');
+              li.textContent = error;
+              errorsList.appendChild(li);
+            });
+          } else if (data.message) {
+            const li = document.createElement('li');
+            li.textContent = data.message;
+            errorsList.appendChild(li);
+          }
+        }
+      })
+      .catch(error => {
+        console.error('Upload error:', error);
+        progressContainer.classList.add('hidden');
+        errorsContainer.classList.remove('hidden');
+        
+        const errorsList = document.getElementById('uploadErrorsList');
+        errorsList.innerHTML = '<li>Une erreur est survenue lors du téléversement</li>';
+      });
+    });
+  }
+});
+</script>

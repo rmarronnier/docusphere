@@ -123,7 +123,6 @@ export default class extends Controller {
       })
       
     } catch (error) {
-      console.error("Error loading preview:", error)
       this.showError()
     }
   }

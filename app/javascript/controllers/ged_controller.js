@@ -4,17 +4,14 @@ export default class extends Controller {
   static values = { space: Number, folder: Number }
   
   connect() {
-    console.log('GED Controller connected')
     this.setupFormSubmissions()
     this.setupSpaceChanges()
     this.setupDragAndDrop()
   }
 
   openUploadModal(event) {
-    console.log('openUploadModal called', event)
     const modal = document.getElementById('uploadModal')
     if (modal) {
-      console.log('Modal found, showing it')
       modal.classList.remove('hidden')
       
       // Ensure form submission is properly handled
@@ -23,7 +20,6 @@ export default class extends Controller {
         uploadForm.setAttribute('data-ajax-attached', 'true')
         uploadForm.addEventListener('submit', (e) => {
           e.preventDefault()
-          console.log('Form submission intercepted')
           this.submitForm(uploadForm, '/ged/documents', 'uploadErrors', 'uploadErrorsList')
         })
       }
@@ -105,7 +101,6 @@ export default class extends Controller {
   }
 
   async submitForm(form, url, errorContainerId, errorListId) {
-    console.log('Submitting form to:', url)
     const formData = new FormData(form)
     const errorContainer = document.getElementById(errorContainerId)
     const errorList = document.getElementById(errorListId)
@@ -124,7 +119,6 @@ export default class extends Controller {
     }
 
     try {
-      console.log('Form data:', Object.fromEntries(formData))
       const response = await fetch(url, {
         method: 'POST',
         body: formData,
@@ -134,9 +128,7 @@ export default class extends Controller {
         }
       })
 
-      console.log('Response status:', response.status)
       const data = await response.json()
-      console.log('Response data:', data)
 
       if (data.success) {
         // Compléter la progression
@@ -188,7 +180,6 @@ export default class extends Controller {
         }
       }
     } catch (error) {
-      console.error('Erreur lors de la soumission:', error)
       const li = document.createElement('li')
       li.textContent = 'Une erreur est survenue lors de la soumission'
       errorList.appendChild(li)
@@ -211,7 +202,7 @@ export default class extends Controller {
       // Note: Il faudrait créer une route API pour récupérer les dossiers d'un espace
       // Pour l'instant, on laisse vide
     } catch (error) {
-      console.error('Erreur lors du chargement des dossiers:', error)
+      // Silent error handling
     }
   }
 
@@ -293,7 +284,6 @@ export default class extends Controller {
   handleMultipleFiles(files) {
     // For now, open the batch upload modal
     // This is where we would implement the batch upload functionality
-    console.log('Multiple files dropped:', files)
     
     // For the test, we'll just open the regular upload modal for the first file
     // In a real implementation, this would open a batch upload modal
@@ -396,7 +386,7 @@ export default class extends Controller {
         }, 1500)
       }
     } catch (error) {
-      console.error('Erreur lors de la soumission:', error)
+      // Silent error handling
     }
   }
   

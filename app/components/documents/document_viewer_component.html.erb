@@ -5,11 +5,11 @@
       <div class="flex items-center space-x-4">
         <%= document_icon(size: :small) %>
         <div>
-          <h1 class="text-xl font-semibold text-gray-900"><%= document.name %></h1>
+          <h1 class="text-xl font-semibold text-gray-900"><%= document.title %></h1>
           <div class="flex items-center space-x-4 mt-1 text-sm text-gray-600">
             <span class="flex items-center">
               <%= heroicon("user", variant: :solid, options: { class: "w-4 h-4 mr-1" }) %>
-              <%= document.uploaded_by&.name || "Unknown" %>
+              <%= document.uploaded_by&.display_name || "Unknown" %>
             </span>
             <span class="flex items-center">
               <%= heroicon("calendar", variant: :solid, options: { class: "w-4 h-4 mr-1" }) %>
@@ -162,20 +162,26 @@
 
           <!-- Metadata Tab -->
           <div data-document-sidebar-target="metadataTab" class="hidden">
-            <% if document.metadata_template %>
-              <div class="bg-white rounded-lg p-4 shadow-sm">
-                <h3 class="text-sm font-semibold text-gray-900 mb-3">
-                  <%= document.metadata_template.name %>
+            <% if document.metadata_templates.any? %>
+              <% document.metadata_templates.each do |template| %>
+                <div class="bg-white rounded-lg p-4 shadow-sm mb-4">
+                  <h3 class="text-sm font-semibold text-gray-900 mb-3">
+                    <%= template.name %>
                 </h3>
                 <dl class="space-y-2 text-sm">
-                  <% document.metadata_values.each do |field, value| %>
-                    <div>
-                      <dt class="text-gray-600 mb-1"><%= field.humanize %>:</dt>
-                      <dd class="text-gray-900"><%= value %></dd>
-                    </div>
+                  <% if document.metadata.present? %>
+                    <% document.metadata.each do |field, value| %>
+                      <div>
+                        <dt class="text-gray-600 mb-1"><%= field.humanize %>:</dt>
+                        <dd class="text-gray-900"><%= value %></dd>
+                      </div>
+                    <% end %>
+                  <% else %>
+                    <div class="text-sm text-gray-500">No metadata available</div>
                   <% end %>
                 </dl>
-              </div>
+                </div>
+              <% end %>
             <% else %>
               <div class="text-sm text-gray-600 text-center py-8">
                 No metadata template assigned
