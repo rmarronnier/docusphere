@@ -7,11 +7,27 @@ global.window = dom.window
 global.document = dom.window.document
 global.navigator = dom.window.navigator
 global.HTMLElement = dom.window.HTMLElement
+global.Element = dom.window.Element
 global.Event = dom.window.Event
 global.CustomEvent = dom.window.CustomEvent
 global.MutationObserver = dom.window.MutationObserver
 global.Node = dom.window.Node
 global.KeyboardEvent = dom.window.KeyboardEvent
+global.MouseEvent = dom.window.MouseEvent
+global.DataTransfer = dom.window.DataTransfer
+global.File = dom.window.File
+
+// Mock DragEvent if not available in jsdom
+if (!dom.window.DragEvent) {
+  global.DragEvent = class DragEvent extends Event {
+    constructor(type, eventInitDict = {}) {
+      super(type, eventInitDict)
+      this.dataTransfer = eventInitDict.dataTransfer || null
+    }
+  }
+} else {
+  global.DragEvent = dom.window.DragEvent
+}
 
 // Mock fetch
 global.fetch = (() => {

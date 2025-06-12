@@ -14,7 +14,7 @@ RSpec.describe 'Document Workflow and Automation Actions', type: :system do
   end
   
   describe 'Document Validation Workflow' do
-    let(:document) { create(:document, :with_pdf_file, name: 'Contract_Draft.pdf', parent: folder, uploaded_by: user) }
+    let(:document) { create(:document, :with_pdf_file, title: 'Contract_Draft.pdf', folder: folder, uploaded_by: user) }
     
     it 'initiates validation workflow' do
       visit ged_document_path(document)
@@ -409,7 +409,7 @@ RSpec.describe 'Document Workflow and Automation Actions', type: :system do
   end
   
   describe 'Batch Processing Workflows' do
-    let!(:documents) { create_list(:document, 5, parent: folder, status: 'draft') }
+    let!(:documents) { create_list(:document, 5, folder: folder, status: 'draft') }
     
     it 'applies workflow to multiple documents' do
       visit ged_folder_path(folder)

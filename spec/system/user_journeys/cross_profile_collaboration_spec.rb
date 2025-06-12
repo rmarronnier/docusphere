@@ -13,7 +13,7 @@ RSpec.describe 'Cross-Profile Collaboration Journey', type: :system do
   # Shared data
   let!(:project) { create(:project, name: 'Business Center Alpha', organization: organization, project_manager: chef_projet) }
   let!(:client) { create(:client, name: 'Global Tech Solutions', organization: organization) }
-  let!(:contract_draft) { create(:document, name: 'Contrat de location - Draft v1', documentable: project, uploaded_by: commercial) }
+  let!(:contract_draft) { create(:document, title: 'Contrat de location - Draft v1', documentable: project, uploaded_by: commercial) }
   
   before do
     direction.add_role(:direction)
@@ -209,7 +209,7 @@ RSpec.describe 'Cross-Profile Collaboration Journey', type: :system do
   describe 'Urgent Document Validation Chain' do
     it 'handles urgent cross-department validation efficiently' do
       urgent_doc = create(:document, 
-        name: 'Permis de construire modificatif - URGENT',
+        title: 'Permis de construire modificatif - URGENT',
         documentable: project,
         uploaded_by: chef_projet
       )

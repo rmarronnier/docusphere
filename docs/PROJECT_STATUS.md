@@ -946,3 +946,51 @@ Le projet suit une méthodologie stricte documentée dans WORKFLOW.md pour évit
 **État global** : Application fonctionnelle avec associations métier intelligentes et couverture de tests ~95%
 **Prêt pour production** : ✅ OUI - Engine ImmoPromo 100% stable avec tous tests passants
 **Niveau de maturité** : 98% (victoire totale sur tests Engine + stabilité maximale)
+
+### Session du 13/12/2025 - Correction Bug Création de Versions ✅
+
+**🐛 Bug Identifié** : La création de nouvelle version retournait toujours "Impossible de créer la version"
+
+1. **Analyse du problème** :
+   - ✅ PaperTrail configuré avec `on: [:update, :destroy]` mais ne détectait pas les changements ActiveStorage
+   - ✅ La méthode `save!` ne créait pas de version car aucun attribut tracké n'était modifié
+   - ✅ L'attachement d'un nouveau fichier n'était pas considéré comme un changement par PaperTrail
+
+2. **Solution appliquée** :
+   - ✅ Ajout de `self.updated_at = Time.current` avant `save!` dans `create_version!`
+   - ✅ Force une modification d'attribut tracké pour déclencher PaperTrail
+   - ✅ La version est maintenant créée correctement avec métadonnées du fichier
+
+3. **Tests de validation** :
+   - ✅ Test créé pour reproduire et valider la correction
+   - ✅ Vérification que la version contient bien les métadonnées du fichier
+   - ✅ Confirmation que le contrôleur retourne maintenant une réponse de succès
+
+**Impact** : Fonctionnalité de versioning des documents maintenant opérationnelle
+
+### Session du 13/12/2025 - Tests JavaScript GED Controller Corrigés ✅
+
+**🧪 Problème** : Tests JavaScript du GED controller échouaient avec "window is not defined"
+
+1. **Corrections appliquées** :
+   - ✅ Protection `typeof window !== 'undefined'` dans le contrôleur JS
+   - ✅ Configuration setup.js avec tous les globals nécessaires (Element, MouseEvent, DragEvent)
+   - ✅ Import explicite du setup.js dans les tests
+   - ✅ Mock DragEvent pour jsdom qui ne le supporte pas nativement
+   - ✅ Adaptation syntaxe fetch mock pour Bun
+
+2. **Architecture clarifiée** :
+   - ✅ Bun comme runtime JavaScript (remplace Jest)
+   - ✅ Configuration dans `bun.config.js` et `spec/javascript/setup.js`
+   - ✅ Syntaxe Jest-like mais avec adaptations Bun
+   - ✅ JSDOM pour environnement DOM dans les tests
+
+3. **Documentation consolidée** :
+   - ✅ Création de `TESTING.md` à la racine avec guide complet
+   - ✅ Archivage de 10 anciens docs de test dans `docs/archive/testing/`
+   - ✅ Guide unifié couvrant Ruby, JavaScript et tests système
+
+**Impact** : 
+- 15/15 tests GED controller passent ✅
+- Documentation testing centralisée et à jour
+- Architecture de test JavaScript clarifiée

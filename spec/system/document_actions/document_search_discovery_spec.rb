@@ -5,11 +5,11 @@ RSpec.describe 'Document Search and Discovery Actions', type: :system do
   let(:user) { create(:user, organization: organization) }
   let!(:documents) do
     [
-      create(:document, name: 'Contrat de location 2025.pdf', content: 'contrat bail commercial', parent: create(:folder), tags: ['contrat', 'immobilier']),
-      create(:document, name: 'Rapport financier Q4.xlsx', content: 'bilan comptable résultats', parent: create(:folder), tags: ['finance', 'rapport']),
-      create(:document, name: 'Plan architectural.dwg', content: 'plans étage bureaux', parent: create(:folder), tags: ['technique', 'plan']),
-      create(:document, name: 'Présentation projet.pptx', content: 'roadmap planning stratégie', parent: create(:folder), tags: ['présentation', 'projet']),
-      create(:document, name: 'Facture ACME-2025-001.pdf', content: 'facture services prestation', parent: create(:folder), tags: ['facture', 'comptabilité'])
+      create(:document, title: 'Contrat de location 2025.pdf', content: 'contrat bail commercial', parent: create(:folder), tags: ['contrat', 'immobilier']),
+      create(:document, title: 'Rapport financier Q4.xlsx', content: 'bilan comptable résultats', parent: create(:folder), tags: ['finance', 'rapport']),
+      create(:document, title: 'Plan architectural.dwg', content: 'plans étage bureaux', parent: create(:folder), tags: ['technique', 'plan']),
+      create(:document, title: 'Présentation projet.pptx', content: 'roadmap planning stratégie', parent: create(:folder), tags: ['présentation', 'projet']),
+      create(:document, title: 'Facture ACME-2025-001.pdf', content: 'facture services prestation', parent: create(:folder), tags: ['facture', 'comptabilité'])
     ]
   end
   
@@ -265,7 +265,7 @@ RSpec.describe 'Document Search and Discovery Actions', type: :system do
       
       # OCR search for scanned documents
       scanned_doc = create(:document, 
-        name: 'Scan_Contract.pdf',
+        title: 'Scan_Contract.pdf',
         ocr_content: 'Ceci est un contrat scanné avec du texte reconnu par OCR',
         has_ocr: true
       )

@@ -6,7 +6,7 @@ RSpec.describe 'Document Sharing and Collaboration Actions', type: :system do
   let(:colleague) { create(:user, name: 'Marie Martin', organization: organization) }
   let(:external_user) { create(:user, name: 'Pierre External', email: 'external@client.com') }
   let(:folder) { create(:folder, organization: organization) }
-  let(:document) { create(:document, :with_pdf_file, name: 'Rapport Annuel 2025.pdf', parent: folder, uploaded_by: user) }
+  let(:document) { create(:document, :with_pdf_file, title: 'Rapport Annuel 2025.pdf', folder: folder, uploaded_by: user) }
   
   before do
     sign_in user
@@ -376,7 +376,7 @@ RSpec.describe 'Document Sharing and Collaboration Actions', type: :system do
     end
     
     it 'bulk shares multiple documents' do
-      documents = create_list(:document, 3, parent: folder)
+      documents = create_list(:document, 3, folder: folder)
       
       visit ged_folder_path(folder)
       

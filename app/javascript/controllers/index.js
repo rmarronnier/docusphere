@@ -16,6 +16,7 @@ import DocumentGridController from "./document_grid_controller"
 import DocumentPreviewController from "./document_preview_controller"
 import DocumentSidebarController from "./document_sidebar_controller"
 import DocumentViewerController from "./document_viewer_controller"
+import GedController from "./ged_controller"
 import ImageViewerController from "./image_viewer_controller"
 import ImageZoomController from "./image_zoom_controller"
 import LazyLoadController from "./lazy_load_controller"
@@ -34,6 +35,7 @@ application.register("document-grid", DocumentGridController)
 application.register("document-preview", DocumentPreviewController)
 application.register("document-sidebar", DocumentSidebarController)
 application.register("document-viewer", DocumentViewerController)
+application.register("ged", GedController)
 application.register("image-viewer", ImageViewerController)
 application.register("image-zoom", ImageZoomController)
 application.register("lazy-load", LazyLoadController)

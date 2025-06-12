@@ -12,7 +12,7 @@ RSpec.describe 'Document Management Actions', type: :system do
   end
   
   describe 'Document Organization' do
-    let!(:documents) { create_list(:document, 5, parent: folder) }
+    let!(:documents) { create_list(:document, 5, folder: folder) }
     
     it 'moves documents between folders' do
       source_folder = folder
@@ -118,10 +118,10 @@ RSpec.describe 'Document Management Actions', type: :system do
   end
   
   describe 'Document Metadata Management' do
-    let(:document) { create(:document, parent: folder) }
+    let(:document) { create(:document, folder: folder) }
     
     it 'edits document metadata in bulk' do
-      documents = create_list(:document, 3, parent: folder)
+      documents = create_list(:document, 3, folder: folder)
       
       visit ged_folder_path(folder)
       
@@ -199,7 +199,7 @@ RSpec.describe 'Document Management Actions', type: :system do
   end
   
   describe 'Document Permissions' do
-    let(:document) { create(:document, parent: folder, uploaded_by: user) }
+    let(:document) { create(:document, folder: folder, uploaded_by: user) }
     let(:other_user) { create(:user, organization: organization) }
     
     it 'manages document access permissions' do
@@ -302,7 +302,7 @@ RSpec.describe 'Document Management Actions', type: :system do
   end
   
   describe 'Document Lifecycle' do
-    let(:document) { create(:document, parent: folder) }
+    let(:document) { create(:document, folder: folder) }
     
     it 'locks and unlocks document for editing' do
       visit ged_document_path(document)
@@ -421,7 +421,7 @@ RSpec.describe 'Document Management Actions', type: :system do
   end
   
   describe 'Document Duplication and Templates' do
-    let(:template_doc) { create(:document, name: 'Template Contrat.docx', parent: folder) }
+    let(:template_doc) { create(:document, title: 'Template Contrat.docx', folder: folder) }
     
     it 'duplicates document with options' do
       visit ged_document_path(template_doc)
@@ -506,7 +506,7 @@ RSpec.describe 'Document Management Actions', type: :system do
   end
   
   describe 'Bulk Document Operations' do
-    let!(:documents) { create_list(:document, 10, parent: folder) }
+    let!(:documents) { create_list(:document, 10, folder: folder) }
     
     it 'performs bulk operations on selected documents' do
       visit ged_folder_path(folder)

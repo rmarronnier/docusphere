@@ -38,23 +38,48 @@
             Dans <strong><%= @space.name %></strong>
           </p>
         </div>
-        <div class="mt-4 flex md:ml-4 md:mt-0">
+        <div class="mt-4 flex flex-wrap gap-2 md:ml-4 md:mt-0">
           <button type="button" 
                   onclick="openModal('createFolderModal'); setFolderContext(<%= @space.id %>, <%= @folder.id %>)" 
-                  class="ml-3 inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                  class="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
             <svg class="-ml-0.5 mr-1.5 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-5l-2-2H5a2 2 0 00-2 2z"/>
             </svg>
             Nouveau Sous-Dossier
           </button>
+          
+          <!-- Primary upload button -->
           <button type="button" 
-                  onclick="openModal('uploadModal'); setFolderContext(<%= @space.id %>, <%= @folder.id %>)" 
-                  class="ml-3 inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700">
+                  data-action="click->ged#openUploadModal" 
+                  data-ged-space-value="<%= @space.id %>" 
+                  data-ged-folder-value="<%= @folder.id %>"
+                  class="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700">
             <svg class="-ml-0.5 mr-1.5 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
             </svg>
             Téléverser un document
           </button>
+          
+          <!-- Import from cloud sources -->
+          <div class="relative inline-block text-left">
+            <button type="button" 
+                    onclick="openModal('cloudImportModal')"
+                    class="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+              <svg class="-ml-0.5 mr-1.5 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 13h6m-3-3v6"/>
+              </svg>
+              Importer depuis
+            </button>
+          </div>
+          
+          <!-- Email to GED -->
+          <%= link_to '#', onclick: "openModal('emailUploadModal')", 
+                      class: "inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" do %>
+            <svg class="-ml-0.5 mr-1.5 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+            </svg>
+            Email vers GED
+          <% end %>
         </div>
       </div>
 
@@ -91,7 +116,20 @@
       <% end %>
 
       <!-- Documents -->
-      <div class="document-grid">
+      <div class="document-grid relative" data-ged-space-value="<%= @space.id %>" data-ged-folder-value="<%= @folder.id %>">
+        <!-- Drag and Drop Overlay -->
+        <div id="dropZoneOverlay" class="hidden absolute inset-0 z-10 bg-blue-50 bg-opacity-90 border-2 border-dashed border-blue-300 rounded-lg">
+          <div class="flex items-center justify-center h-full">
+            <div class="text-center">
+              <svg class="mx-auto h-12 w-12 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+              </svg>
+              <p class="mt-2 text-lg font-medium text-blue-600">Déposez vos fichiers ici</p>
+              <p class="mt-1 text-sm text-blue-500">pour les téléverser dans ce dossier</p>
+            </div>
+          </div>
+        </div>
+        
         <h2 class="text-lg font-medium text-gray-900 mb-4">Documents</h2>
         <% if @documents.any? %>
           <div class="bg-white shadow overflow-hidden sm:rounded-md">
@@ -117,11 +155,46 @@
                             </p>
                           </div>
                         </div>
-                        <div class="flex flex-shrink-0 items-center">
+                        <div class="flex flex-shrink-0 items-center space-x-2">
+                          <!-- Virus Scan Status -->
+                          <% if document.virus_scan_pending? %>
+                            <div class="virus-scan-indicator flex items-center">
+                              <svg class="animate-spin h-4 w-4 text-blue-500" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                              </svg>
+                              <span class="ml-1 text-xs text-blue-600">Analyse antivirus en cours...</span>
+                            </div>
+                          <% elsif document.virus_scan_clean? %>
+                            <span class="security-badge inline-flex items-center rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800">
+                              <svg class="mr-1 h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                              </svg>
+                              Scanné
+                            </span>
+                          <% elsif document.virus_scan_infected? %>
+                            <span class="inline-flex items-center rounded-full bg-red-100 px-2 py-1 text-xs font-medium text-red-800 virus-scan-indicator">
+                              <svg class="mr-1 h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                              </svg>
+                              Menace détectée
+                            </span>
+                          <% elsif document.virus_scan_error? %>
+                            <span class="inline-flex items-center rounded-full bg-yellow-100 px-2 py-1 text-xs font-medium text-yellow-800">
+                              <svg class="mr-1 h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                              </svg>
+                              Erreur scan
+                            </span>
+                          <% end %>
+                          
+                          <!-- Document Status -->
                           <span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 capitalize">
                             <%= document.status.humanize %>
                           </span>
-                          <p class="ml-4 text-sm text-gray-500">
+                          
+                          <!-- Timestamp -->
+                          <p class="text-sm text-gray-500">
                             <%= l(document.updated_at, format: :short) %>
                           </p>
                         </div>
@@ -159,3 +232,6 @@
 <!-- Modales -->
 <%= render 'ged/modals/create_folder' %>
 <%= render 'ged/modals/upload_document' %>
+<%= render 'ged/modals/cloud_import' %>
+<%= render 'ged/modals/email_upload' %>
+<%= render 'ged/modals/duplicate_detection' %>

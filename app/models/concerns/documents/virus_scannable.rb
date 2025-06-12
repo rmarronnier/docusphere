@@ -8,11 +8,11 @@ module Documents::VirusScannable
     
     # Virus scan status enum
     enum virus_scan_status: {
-      scan_pending: 'pending',
-      scan_clean: 'clean',
-      scan_infected: 'infected',
-      scan_error: 'error'
-    }, _prefix: true
+      pending: 'pending',
+      clean: 'clean',
+      infected: 'infected',
+      error: 'error'
+    }, _prefix: 'virus_scan'
     
     scope :virus_clean, -> { where(virus_scan_status: 'clean') }
     scope :virus_infected, -> { where(virus_scan_status: 'infected') }
@@ -23,25 +23,6 @@ module Documents::VirusScannable
     after_update_commit :enqueue_virus_scan_job, if: :file_changed?
   end
 
-  # Check if virus scan detected infection
-  def virus_scan_infected?
-    virus_scan_status == 'infected'
-  end
-
-  # Check if virus scan is clean
-  def virus_scan_clean?
-    virus_scan_status == 'clean'
-  end
-
-  # Check if virus scan is pending
-  def virus_scan_pending?
-    virus_scan_status == 'pending'
-  end
-
-  # Check if virus scan had an error
-  def virus_scan_error?
-    virus_scan_status == 'error'
-  end
 
   # Mark virus scan as clean
   def mark_virus_clean!
@@ -75,14 +56,6 @@ module Documents::VirusScannable
     virus_scan_clean? || virus_scan_status.nil?
   end
 
-  # Alias methods for enum-style interface
-  def scan_clean!
-    mark_virus_clean!
-  end
-
-  def scan_infected!(threat_details = nil)
-    mark_virus_infected!(threat_details)
-  end
 
   # Get virus scan summary
   def virus_scan_summary

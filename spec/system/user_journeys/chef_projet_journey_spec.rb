@@ -163,7 +163,7 @@ RSpec.describe 'Chef de Projet User Journey', type: :system do
     end
     
     it 'requests validation for critical documents' do
-      document = create(:document, name: 'Devis terrassement', documentable: project)
+      document = create(:document, title: 'Devis terrassement', documentable: project)
       
       visit ged_document_path(document)
       

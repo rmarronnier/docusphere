@@ -4,7 +4,7 @@ RSpec.describe 'Direction User Journey', type: :system do
   let(:organization) { create(:organization, name: 'Meridia Group') }
   let(:direction_user) { create(:user, name: 'Marie Dubois', email: 'marie.dubois@meridia.fr', organization: organization) }
   let!(:project) { create(:project, name: 'Jardins de Belleville', organization: organization) }
-  let!(:pending_validation) { create(:validation_request, document: create(:document, name: 'Permis de construire', organization: organization)) }
+  let!(:pending_validation) { create(:validation_request, document: create(:document, title: 'Permis de construire', organization: organization)) }
   
   before do
     direction_user.add_role(:direction)

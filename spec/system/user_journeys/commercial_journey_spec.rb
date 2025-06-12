@@ -180,7 +180,7 @@ RSpec.describe 'Commercial User Journey', type: :system do
   
   describe 'Document Sharing with Clients' do
     it 'shares project documents with client' do
-      document = create(:document, name: 'Plaquette commerciale', documentable: project)
+      document = create(:document, title: 'Plaquette commerciale', documentable: project)
       
       visit project_documents_path(project)
       

@@ -130,6 +130,38 @@
                      placeholder="Tags séparés par des virgules">
             </div>
           </div>
+
+          <!-- Options avancées -->
+          <div class="space-y-2">
+            <label class="flex items-center">
+              <input type="checkbox" 
+                     id="extract_metadata" 
+                     name="document[extract_metadata]" 
+                     value="1"
+                     class="mr-2 h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+              <span class="text-sm text-gray-700">Extraction automatique des métadonnées</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Upload Progress -->
+        <div id="uploadProgress" class="mt-4 hidden upload-progress">
+          <div class="rounded-md bg-blue-50 p-4">
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-blue-400 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              </div>
+              <div class="ml-3 flex-1">
+                <p class="text-sm font-medium text-blue-800">Téléversement en cours...</p>
+                <div class="mt-2 w-full bg-blue-200 rounded-full h-2">
+                  <div id="uploadProgressBar" class="progress-bar bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+                <p id="uploadProgressText" class="text-xs text-blue-600 mt-1">0%</p>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div id="uploadErrors" class="mt-4 hidden">

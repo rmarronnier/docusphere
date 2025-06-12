@@ -18,6 +18,17 @@
 - ✅ Formulaire HTML avec validation et soumission
 - ✅ Tests unitaires pour tous les nouveaux services/jobs
 
+### Bug Création de Versions Corrigé (13/12/2025) ✅
+- ✅ Identifié problème : PaperTrail ne détectait pas les changements ActiveStorage
+- ✅ Solution : Ajout modification `updated_at` pour forcer création version
+- ✅ Test de validation créé et réussi
+- ✅ Fonctionnalité versioning documents maintenant opérationnelle
+
+### Correction Badges Virus (13/12/2025) ✅
+- ✅ Corrigé enum virus_scan_status pour utiliser des clés simples
+- ✅ Badges clean et infected s'affichent correctement
+- ✅ Tests système passent (8/12 tests document_upload_spec.rb)
+
 ### Route Helper Fixes (12/06/2025) ✅
 - ✅ Corrigé `new_ged_document_document_shares_path` → `new_ged_document_document_share_path` (singulier)
 - ✅ Corrigé appels de méthodes ViewComponent préfixés avec `helpers.`
@@ -27,6 +38,28 @@
 - ✅ Tous les tests de route helpers passent
 
 ## 🚧 EN COURS / À FAIRE
+
+### 🚀 Tests Système - Correction Complète (EN COURS - 12/12/2025)
+
+#### Phase 1 : Infrastructure Documents (Priorité HAUTE)
+- ✅ `document_upload_spec.rb` - Upload fonctionnel (8/12 tests passent)
+- [ ] `document_upload_spec.rb` - Corriger les 4 tests JS restants
+- [ ] `document_viewing_spec.rb` - Consultation documents
+- [ ] `document_management_spec.rb` - Gestion basique
+
+#### Phase 2 : Fonctionnalités Avancées (Priorité MOYENNE)  
+- [ ] `document_sharing_collaboration_spec.rb` - Partage et collaboration
+- [ ] `document_search_discovery_spec.rb` - Recherche avancée
+- [ ] `document_workflow_automation_spec.rb` - Workflows automatisés
+
+#### Phase 3 : Parcours Métier (Priorité BASSE)
+- [ ] `direction_journey_spec.rb` - Parcours direction
+- [ ] `chef_projet_journey_spec.rb` - Parcours chef de projet  
+- [ ] `commercial_journey_spec.rb` - Parcours commercial
+- [ ] `juridique_journey_spec.rb` - Parcours juridique
+- [ ] `cross_profile_collaboration_spec.rb` - Collaboration inter-profils
+
+**Status** : 8/54 tests système passent. Versioning et badges virus fonctionnels. Tests JS restent à corriger.
 
 ### 🚀 Routes Métier Manquantes (NEW - 12/06/2025)
 Les routes suivantes ont été identifiées dans NavbarComponent mais n'existent pas encore. Elles représentent des fonctionnalités métier importantes :

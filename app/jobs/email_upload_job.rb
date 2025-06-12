@@ -17,22 +17,24 @@ class EmailUploadJob < ApplicationJob
         
         attachments.each do |attachment_name|
           # Créer un document pour chaque pièce jointe
-          Document.create!(
-            name: attachment_name,
-            parent: folder,
+          document = Document.new(
+            title: attachment_name,
+            folder: folder,
+            space: space,
             uploaded_by: user,
             description: "Reçu par email: #{subject}",
-            organization: organization
+            skip_file_validation: true
           )
+          document.save!
         end
         
         # Créer une notification pour l'utilisateur
         Notification.create!(
           user: user,
           title: 'Documents reçus par email',
-          body: "#{attachments.size} nouveaux documents reçus par email",
-          notification_type: 'document_upload',
-          metadata: {
+          message: "#{attachments.size} nouveaux documents reçus par email",
+          notification_type: 'document_shared',
+          data: {
             attachment_count: attachments.size,
             subject: subject
           }

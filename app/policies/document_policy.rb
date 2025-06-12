@@ -60,6 +60,10 @@ class DocumentPolicy < ApplicationPolicy
        record.documentable.can_manage_documents?(user))
   end
 
+  def restore_version?
+    update?
+  end
+
   def permitted_attributes
     base_attributes = [:title, :description, :document_type, :status, :is_template, 
                       :external_id, :expires_at, :is_public, :document_category,

@@ -11,10 +11,17 @@ module Ged
                           .order(created_at: :desc)
                           .page(params[:page])
       
-      render json: {
-        versions: @versions.map { |v| serialize_version(v) },
-        pagination: pagination_meta(@versions)
-      }
+      respond_to do |format|
+        format.html do
+          @breadcrumbs = build_document_breadcrumbs(@document)
+        end
+        format.json do
+          render json: {
+            versions: @versions.map { |v| serialize_version(v) },
+            pagination: pagination_meta(@versions)
+          }
+        end
+      end
     end
 
     def create_document_version
@@ -22,42 +29,69 @@ module Ged
       authorize @document, :update?
       
       if @document.locked? && @document.locked_by != current_user
-        render json: {
-          success: false,
-          error: "Document verrouillé par #{@document.locked_by.full_name}"
-        }, status: :conflict
+        respond_to do |format|
+          format.json do
+            render json: {
+              success: false,
+              error: "Document verrouillé par #{@document.locked_by.full_name}"
+            }, status: :conflict
+          end
+          format.html do
+            redirect_back(fallback_location: ged_document_path(@document), 
+                         alert: "Document verrouillé par #{@document.locked_by.full_name}")
+          end
+        end
         return
       end
 
       ActiveRecord::Base.transaction do
-        # Create new version with current document state
-        @document.paper_trail.save_with_version(
-          event: 'create',
-          whodunnit: current_user.id,
-          comment: version_params[:comment]
-        )
-
-        # Update document with new content if provided
-        if params[:file].present?
-          @document.file.attach(params[:file])
-          @document.update!(
-            file_size: @document.file.blob.byte_size,
-            content_type: @document.file.blob.content_type,
-            updated_by: current_user
-          )
+        # Set Current.user for PaperTrail
+        Current.user = current_user
+        
+        # Get the uploaded file from version params
+        uploaded_file = params.dig(:version, :file)
+        version_comment = params.dig(:version, :comment) || "Mise à jour des conditions générales"
+        
+        if uploaded_file.present?
+          # Create a new version using the Versionable concern method
+          version = @document.create_version!(uploaded_file, current_user, version_comment)
+          
+          if version
+            new_version_number = @document.current_version_number
+            
+            respond_to do |format|
+              format.json do
+                render json: {
+                  success: true,
+                  message: 'Nouvelle version créée avec succès',
+                  version: serialize_version(version)
+                }
+              end
+              format.html do
+                flash[:notice] = "Version #{new_version_number} créée avec succès"
+                redirect_to ged_document_path(@document)
+              end
+            end
+          else
+            raise "Impossible de créer la version"
+          end
+        else
+          raise "Aucun fichier fourni"
         end
-
-        render json: {
-          success: true,
-          message: 'Nouvelle version créée avec succès',
-          version: serialize_version(@document.versions.last)
-        }
       end
-    rescue ActiveRecord::RecordInvalid => e
-      render json: {
-        success: false,
-        errors: e.record.errors.full_messages
-      }, status: :unprocessable_entity
+    rescue => e
+      respond_to do |format|
+        format.json do
+          render json: {
+            success: false,
+            errors: [e.message]
+          }, status: :unprocessable_entity
+        end
+        format.html do
+          redirect_back(fallback_location: ged_document_path(@document), 
+                       alert: "Erreur : #{e.message}")
+        end
+      end
     end
 
     def restore_document_version

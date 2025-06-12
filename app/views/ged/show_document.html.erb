@@ -42,6 +42,17 @@
                 end %>">
                 <%= @document.status.humanize %>
               </span>
+              
+              <!-- Version info -->
+              <% if @document.has_versions? %>
+                <span class="ml-2 inline-flex items-center rounded-full px-3 py-0.5 text-sm font-medium bg-blue-100 text-blue-800">
+                  Version <%= @document.current_version_number %>
+                </span>
+              <% else %>
+                <span class="ml-2 inline-flex items-center rounded-full px-3 py-0.5 text-sm font-medium bg-blue-100 text-blue-800">
+                  Version 1
+                </span>
+              <% end %>
             </div>
           </div>
           
@@ -176,6 +187,26 @@
                 </svg>
                 Ajouter à la bannette
               </button>
+            <% end %>
+            
+            <!-- Version actions -->
+            <button type="button" 
+                    onclick="openModal('versionUploadModal')"
+                    class="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+              <svg class="-ml-0.5 mr-1.5 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
+              </svg>
+              Nouvelle version
+            </button>
+            
+            <% if @document.has_versions? %>
+              <%= link_to ged_document_versions_path(@document),
+                          class: "inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" do %>
+                <svg class="-ml-0.5 mr-1.5 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                Historique des versions
+              <% end %>
             <% end %>
           </div>
         </div>
@@ -378,3 +409,6 @@
     </div>
   </div>
 </div>
+
+<!-- Modals -->
+<%= render 'ged/modals/version_upload' if @document %>
