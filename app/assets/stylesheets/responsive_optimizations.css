@@ -1,0 +1,457 @@
+/* 
+ * Responsive Optimizations for Tablets
+ * Optimized for iPad (768px-1024px) and Android tablets
+ */
+
+/* ==========================================================================
+   Tablet Portrait (768px - 834px)
+   ========================================================================== */
+
+@media screen and (min-width: 768px) and (max-width: 834px) and (orientation: portrait) {
+  /* Dashboard Layout */
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .dashboard-grid .widget {
+    margin-bottom: 1rem;
+  }
+
+  /* Document Grid - 2 columns for tablets */
+  .document-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 1rem;
+  }
+
+  .document-card {
+    min-height: 200px;
+  }
+
+  .document-card .thumbnail {
+    height: 120px;
+  }
+
+  /* Document Viewer - Single column */
+  .document-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .document-viewer-main {
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+
+  .document-sidebar {
+    width: 100%;
+    position: static;
+    height: auto;
+    border-radius: 0.5rem;
+    border: 1px solid #e5e7eb;
+  }
+
+  /* Navigation - Horizontal tabs */
+  .navbar {
+    padding: 0.75rem 1rem;
+  }
+
+  .navbar .nav-links {
+    display: flex;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .navbar .nav-links::-webkit-scrollbar {
+    display: none;
+  }
+
+  .navbar .nav-link {
+    white-space: nowrap;
+    margin-right: 1rem;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+  }
+
+  /* Form layouts */
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-row {
+    flex-direction: column;
+  }
+
+  .form-row .form-field {
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+
+  /* Modal sizes */
+  .modal-content {
+    width: 95vw;
+    max-width: 700px;
+    margin: 2rem auto;
+  }
+
+  /* Search form */
+  .advanced-search-form {
+    padding: 1rem;
+  }
+
+  .search-filters {
+    grid-template-columns: 1fr;
+  }
+
+  .search-filter-group {
+    margin-bottom: 1.5rem;
+  }
+}
+
+/* ==========================================================================
+   Tablet Landscape (1024px - 1366px)
+   ========================================================================== */
+
+@media screen and (min-width: 1024px) and (max-width: 1366px) and (orientation: landscape) {
+  /* Dashboard Layout - 2 columns */
+  .dashboard-grid {
+    grid-template-columns: 2fr 1fr;
+    gap: 1.5rem;
+  }
+
+  .dashboard-main-widgets {
+    grid-column: 1;
+  }
+
+  .dashboard-side-widgets {
+    grid-column: 2;
+  }
+
+  /* Document Grid - 3 columns */
+  .document-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 1.5rem;
+  }
+
+  /* Document Viewer - Optimized 2-column */
+  .document-layout {
+    grid-template-columns: 2fr 1fr;
+    gap: 1.5rem;
+  }
+
+  .document-sidebar {
+    position: sticky;
+    top: 2rem;
+    height: calc(100vh - 4rem);
+    overflow-y: auto;
+  }
+
+  /* Project documents widget */
+  .project-documents-widget {
+    max-height: 600px;
+    overflow-y: auto;
+  }
+
+  /* Navigation - Full horizontal */
+  .navbar {
+    padding: 1rem 1.5rem;
+  }
+
+  .navbar .nav-links {
+    display: flex;
+    gap: 1rem;
+  }
+
+  /* Form layouts - 2 columns for larger fields */
+  .form-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+
+  .form-field.full-width {
+    grid-column: 1 / -1;
+  }
+}
+
+/* ==========================================================================
+   Touch-Optimized Controls
+   ========================================================================== */
+
+@media (pointer: coarse) {
+  /* Larger touch targets */
+  .btn {
+    min-height: 44px;
+    padding: 0.75rem 1.5rem;
+  }
+
+  .btn-sm {
+    min-height: 36px;
+    padding: 0.5rem 1rem;
+  }
+
+  /* Document actions */
+  .document-action-btn {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0.75rem;
+  }
+
+  /* Navigation items */
+  .nav-link {
+    min-height: 44px;
+    padding: 0.75rem 1rem;
+  }
+
+  /* Form controls */
+  .form-input,
+  .form-select,
+  .form-textarea {
+    min-height: 44px;
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+
+  /* Checkbox and radio */
+  .form-checkbox,
+  .form-radio {
+    min-width: 20px;
+    min-height: 20px;
+  }
+
+  /* Tag selectors */
+  .tag-selector .tag {
+    min-height: 36px;
+    padding: 0.5rem 0.75rem;
+    margin: 0.25rem;
+  }
+
+  /* Document viewer controls */
+  .viewer-controls .control-btn {
+    min-width: 48px;
+    min-height: 48px;
+  }
+
+  /* Pagination */
+  .pagination .page-link {
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/* ==========================================================================
+   Tablet-Specific Components
+   ========================================================================== */
+
+/* Collapsible sidebar for tablets */
+@media screen and (min-width: 768px) and (max-width: 1023px) {
+  .document-sidebar {
+    transition: transform 0.3s ease;
+  }
+
+  .document-sidebar.collapsed {
+    transform: translateX(-100%);
+  }
+
+  .sidebar-toggle {
+    display: block;
+    position: fixed;
+    top: 50%;
+    left: 1rem;
+    z-index: 1000;
+    background: white;
+    border: 1px solid #d1d5db;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* Enhanced dropdown menus for touch */
+@media (pointer: coarse) {
+  .dropdown-menu {
+    min-width: 200px;
+    padding: 0.5rem 0;
+  }
+
+  .dropdown-item {
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  .dropdown-divider {
+    margin: 0.5rem 0;
+  }
+}
+
+/* ==========================================================================
+   ImmoPromo Widget Tablet Optimizations
+   ========================================================================== */
+
+/* Project documents widget */
+@media screen and (min-width: 768px) and (max-width: 1023px) {
+  .project-documents-widget .project-item {
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .project-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .project-actions {
+    align-self: flex-end;
+  }
+
+  .phase-breakdown {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .recent-documents {
+    max-height: 200px;
+    overflow-y: auto;
+  }
+}
+
+/* Dashboard widgets stacking */
+@media screen and (max-width: 1023px) {
+  .dashboard-integration-component .widget-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-integration-component .project-documents-widget {
+    order: 1;
+  }
+
+  .dashboard-integration-component .alerts-widget {
+    order: 2;
+  }
+
+  .dashboard-integration-component .activity-widget {
+    order: 3;
+  }
+}
+
+/* ==========================================================================
+   Performance Optimizations
+   ========================================================================== */
+
+/* Reduce animations on tablets for better performance */
+@media screen and (min-width: 768px) and (max-width: 1366px) {
+  * {
+    animation-duration: 0.2s !important;
+    transition-duration: 0.2s !important;
+  }
+
+  /* Simplify shadows */
+  .shadow-lg {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+  }
+
+  .shadow-xl {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+  }
+}
+
+/* ==========================================================================
+   Accessibility Improvements for Tablets
+   ========================================================================== */
+
+/* Focus indicators for keyboard navigation */
+@media screen and (min-width: 768px) {
+  .btn:focus,
+  .form-input:focus,
+  .form-select:focus,
+  .nav-link:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+  }
+
+  /* Skip to content link */
+  .skip-to-content {
+    position: absolute;
+    top: -40px;
+    left: 6px;
+    background: #000;
+    color: #fff;
+    padding: 8px;
+    text-decoration: none;
+    z-index: 9999;
+  }
+
+  .skip-to-content:focus {
+    top: 6px;
+  }
+}
+
+/* ==========================================================================
+   Tablet-Specific Utilities
+   ========================================================================== */
+
+/* Show/hide classes for different screen sizes */
+.show-tablet-only {
+  display: none;
+}
+
+.hide-tablet {
+  display: block;
+}
+
+@media screen and (min-width: 768px) and (max-width: 1366px) {
+  .show-tablet-only {
+    display: block;
+  }
+
+  .hide-tablet {
+    display: none;
+  }
+}
+
+/* Tablet-specific spacing */
+.tablet-p-4 {
+  padding: 1rem;
+}
+
+.tablet-m-2 {
+  margin: 0.5rem;
+}
+
+.tablet-gap-4 {
+  gap: 1rem;
+}
+
+@media screen and (min-width: 768px) and (max-width: 1366px) {
+  .tablet-p-4 {
+    padding: 1rem !important;
+  }
+
+  .tablet-m-2 {
+    margin: 0.5rem !important;
+  }
+
+  .tablet-gap-4 {
+    gap: 1rem !important;
+  }
+
+  /* Tablet text sizes */
+  .tablet-text-sm {
+    font-size: 0.875rem !important;
+  }
+
+  .tablet-text-base {
+    font-size: 1rem !important;
+  }
+
+  .tablet-text-lg {
+    font-size: 1.125rem !important;
+  }
+}

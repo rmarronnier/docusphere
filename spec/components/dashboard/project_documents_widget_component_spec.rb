@@ -1,253 +1,196 @@
-# frozen_string_literal: true
-
 require 'rails_helper'
 
 RSpec.describe Dashboard::ProjectDocumentsWidgetComponent, type: :component do
   let(:organization) { create(:organization) }
   let(:user) { create(:user, organization: organization) }
-  let(:chef_projet_profile) { create(:user_profile, user: user, profile_type: 'chef_projet', is_active: true) }
-  let(:component) { described_class.new(user: user, max_projects: 3) }
-
+  let(:user_profile) { create(:user_profile, user: user, profile_type: 'chef_projet', active: true) }
+  
   before do
-    user.update(active_profile: chef_projet_profile)
+    user.update!(active_profile: user_profile)
   end
 
-  describe '#initialize' do
-    it 'initializes with user and max_projects' do
-      expect(component).to be_a(described_class)
-    end
-
-    context 'when user is not chef_projet' do
-      let(:other_profile) { create(:user_profile, user: user, profile_type: 'commercial', is_active: true) }
-      
-      before { user.update(active_profile: other_profile) }
-      
-      it 'loads empty projects array' do
-        expect(component.send(:projects)).to be_empty
-      end
-    end
-  end
-
-  describe '#load_user_projects' do
-    context 'when Immo::Promo::Project is defined' do
-      before do
-        stub_const('Immo::Promo::Project', Class.new(ApplicationRecord))
-        stub_const('Immo::Promo::ProjectStakeholder', Class.new(ApplicationRecord))
-        
-        allow(Immo::Promo::Project).to receive(:joins).and_return(Immo::Promo::Project)
-        allow(Immo::Promo::Project).to receive(:where).and_return(Immo::Promo::Project)
-        allow(Immo::Promo::Project).to receive(:order).and_return(Immo::Promo::Project)
-        allow(Immo::Promo::Project).to receive(:limit).and_return([])
-      end
-      
-      it 'queries projects assigned to user' do
-        expect(Immo::Promo::Project).to receive(:joins).with(:project_stakeholders)
-        component.send(:load_user_projects)
-      end
+  context 'when ImmoPromo engine is available' do
+    let!(:project1) do
+      create(:immo_promo_project, 
+        name: 'Résidence Les Jardins',
+        project_manager: user,
+        organization: organization,
+        status: 'construction'
+      )
     end
     
-    context 'when Immo::Promo::Project is not defined' do
-      it 'returns empty array' do
-        hide_const('Immo::Promo::Project')
-        expect(component.send(:load_user_projects)).to eq([])
-      end
+    let!(:project2) do
+      create(:immo_promo_project,
+        name: 'Centre Commercial Atlantis', 
+        project_manager: user,
+        organization: organization,
+        status: 'planning'
+      )
     end
-  end
 
-  describe '#count_total_documents' do
-    let(:project) { double('project', id: 1) }
-    let(:space) { create(:space, name: 'Projet Test Project') }
-    
-    before do
-      allow(component).to receive(:project_space_id).with(project).and_return(space.id)
-    end
-    
-    it 'counts documents linked to project' do
-      create_list(:document, 2, documentable: project)
-      create_list(:document, 3, space: space)
-      
-      expect(component.send(:count_total_documents, project)).to eq(5)
-    end
-  end
+    let!(:phase1) { create(:immo_promo_phase, project: project1, name: 'Gros œuvre', phase_type: 'construction') }
+    let!(:phase2) { create(:immo_promo_phase, project: project2, name: 'Études préliminaires', phase_type: 'studies') }
 
-  describe '#phase_document_breakdown' do
-    let(:phase1) { double('phase', id: 1, name: 'Phase 1') }
-    let(:phase2) { double('phase', id: 2, name: 'Phase 2') }
-    let(:project) { double('project', phases: [phase1, phase2]) }
-    
-    it 'returns document count by phase' do
-      create_list(:document, 2, documentable: phase1)
-      create(:document, metadata: { phase_id: '2' })
-      
-      breakdown = component.send(:phase_document_breakdown, project)
-      
-      expect(breakdown['Phase 1']).to eq(2)
-      expect(breakdown['Phase 2']).to eq(1)
+    let!(:document1) do
+      create(:document,
+        title: 'Plan de masse.pdf',
+        documentable: project1,
+        uploaded_by: user,
+        document_category: 'plan',
+        status: 'published',
+        created_at: 2.hours.ago
+      )
     end
-    
-    it 'returns empty hash when project has no phases method' do
-      project_without_phases = double('project')
-      expect(component.send(:phase_document_breakdown, project_without_phases)).to eq({})
-    end
-  end
 
-  describe '#project_status_color' do
-    it 'returns correct colors for statuses' do
-      expect(component.send(:project_status_color, 'in_progress')).to eq('text-green-600 bg-green-100')
-      expect(component.send(:project_status_color, 'planning')).to eq('text-blue-600 bg-blue-100')
-      expect(component.send(:project_status_color, 'on_hold')).to eq('text-yellow-600 bg-yellow-100')
-      expect(component.send(:project_status_color, 'completed')).to eq('text-gray-600 bg-gray-100')
+    let!(:document2) do
+      create(:document,
+        title: 'Permis de construire.pdf',
+        documentable: project1,
+        uploaded_by: user,
+        document_category: 'permit',
+        status: 'under_review',
+        created_at: 1.day.ago
+      )
     end
-  end
 
-  describe '#document_type_icon' do
-    it 'returns specific icon based on content type' do
-      pdf_doc = create(:document, :with_pdf_file)
-      expect(component.send(:document_type_icon, pdf_doc)).to eq('file-pdf')
+    let!(:document3) do
+      create(:document,
+        title: 'Étude de sol.pdf',
+        documentable: project2,
+        uploaded_by: user,
+        document_category: 'technical',
+        status: 'published',
+        created_at: 3.days.ago
+      )
     end
-    
-    it 'returns default icon for unknown types' do
-      doc = double('document')
-      expect(component.send(:document_type_icon, doc)).to eq('file')
-    end
-  end
 
-  describe '#current_phase_name' do
-    it 'returns current phase name' do
-      phase = double('phase', name: 'Construction')
-      project = double('project', current_phase: phase)
-      
-      expect(component.send(:current_phase_name, project)).to eq('Construction')
-    end
-    
-    it 'returns Initialisation when no current phase' do
-      project = double('project', current_phase: nil)
-      expect(component.send(:current_phase_name, project)).to eq('Initialisation')
-    end
-    
-    it 'returns Non définie when project has no current_phase method' do
-      project = double('project')
-      expect(component.send(:current_phase_name, project)).to eq('Non définie')
-    end
-  end
-
-  describe '#phase_color' do
-    it 'cycles through colors' do
-      colors = %w[blue green purple pink yellow indigo red orange]
-      
-      (0..10).each do |i|
-        color = component.send(:phase_color, i)
-        expect(colors).to include(color)
-      end
-    end
-  end
-
-  describe '#has_urgent_documents?' do
-    let(:project) { double('project', id: 1) }
-    
-    it 'returns true when pending documents exist' do
-      allow(component).to receive(:documents_by_project).and_return({
-        1 => { pending_count: 5 }
-      })
-      
-      expect(component.send(:has_urgent_documents?, project)).to be_truthy
-    end
-    
-    it 'returns false when no pending documents' do
-      allow(component).to receive(:documents_by_project).and_return({
-        1 => { pending_count: 0 }
-      })
-      
-      expect(component.send(:has_urgent_documents?, project)).to be_falsey
-    end
-  end
-
-  describe 'rendering' do
-    it 'renders successfully with no projects' do
-      render_inline(component)
+    it 'renders the widget header' do
+      render_inline(described_class.new(user: user))
       
       expect(page).to have_text('Documents par projet')
-      expect(page).to have_text('Aucun projet actif')
-      expect(page).to have_text("Vous n'êtes assigné à aucun projet")
+      expect(page).to have_text('2 projets actifs')
     end
-    
-    context 'with mock projects' do
-      let(:project1) do 
-        double('project', 
-          id: 1, 
-          name: 'Projet Alpha',
-          status: 'in_progress',
-          current_phase: double('phase', name: 'Construction'),
-          completion_percentage: 65
+
+    it 'displays global statistics' do
+      render_inline(described_class.new(user: user))
+      
+      expect(page).to have_text('3') # Total documents
+      expect(page).to have_text('Documents totaux')
+      expect(page).to have_text('1') # Pending documents (under_review)
+      expect(page).to have_text('En attente')
+      expect(page).to have_text('1') # Recent uploads (within 1 week)
+      expect(page).to have_text('Cette semaine')
+    end
+
+    it 'displays project information with status and progress' do
+      render_inline(described_class.new(user: user))
+      
+      expect(page).to have_link('Résidence Les Jardins')
+      expect(page).to have_link('Centre Commercial Atlantis')
+      expect(page).to have_text('Construction')
+      expect(page).to have_text('Planification')
+    end
+
+    it 'provides quick action buttons' do
+      render_inline(described_class.new(user: user))
+      
+      expect(page).to have_link(title: 'Uploader un document')
+      expect(page).to have_link(title: 'Voir tous les documents')
+    end
+
+    it 'shows urgent indicators for projects with pending documents' do
+      render_inline(described_class.new(user: user))
+      
+      # Should show urgent indicator for project1 which has under_review document
+      within find('h4', text: 'Résidence Les Jardins').find(:xpath, '..') do
+        expect(page).to have_css('.animate-pulse', count: 1)
+      end
+    end
+
+    it 'handles projects with no documents gracefully' do
+      # Create project without documents
+      project_without_docs = create(:immo_promo_project,
+        name: 'Projet Sans Documents',
+        project_manager: user,
+        organization: organization,
+        status: 'planning'
+      )
+
+      render_inline(described_class.new(user: user, max_projects: 3))
+      
+      expect(page).to have_text('Projet Sans Documents')
+      expect(page).to have_text('Aucun document pour ce projet')
+    end
+
+    it 'provides link to view all projects' do
+      render_inline(described_class.new(user: user))
+      
+      expect(page).to have_link('Voir tous mes projets')
+    end
+
+    context 'with different user profiles' do
+      context 'when user is direction' do
+        let(:user_profile) { create(:user_profile, user: user, profile_type: 'direction', active: true) }
+        let!(:other_project) do
+          create(:immo_promo_project,
+            name: 'Autre Projet',
+            organization: organization,
+            status: 'construction'
+          )
+        end
+
+        before { user.update!(active_profile: user_profile) }
+
+        it 'shows all organization projects' do
+          render_inline(described_class.new(user: user))
+          
+          expect(page).to have_text('3 projets actifs') # Including other_project
+          expect(page).to have_text('Autre Projet')
+        end
+      end
+    end
+
+    context 'with limit parameter' do
+      let!(:additional_projects) do
+        create_list(:immo_promo_project, 5,
+          project_manager: user,
+          organization: organization,
+          status: 'planning'
         )
       end
-      
-      let(:project2) do
-        double('project',
-          id: 2,
-          name: 'Projet Beta', 
-          status: 'planning',
-          current_phase: nil,
-          completion_percentage: 20
-        )
-      end
-      
-      before do
-        allow(component).to receive(:projects).and_return([project1, project2])
-        allow(component).to receive(:documents_by_project).and_return({
-          1 => {
-            recent: create_list(:document, 3, name: 'Doc Alpha'),
-            total_count: 15,
-            pending_count: 3,
-            phase_breakdown: { 'Design' => 5, 'Construction' => 10 }
-          },
-          2 => {
-            recent: [],
-            total_count: 0,
-            pending_count: 0,
-            phase_breakdown: {}
-          }
-        })
+
+      it 'respects the max_projects limit' do
+        render_inline(described_class.new(user: user, max_projects: 3))
         
-        allow(component).to receive(:stats).and_return({
-          total_projects: 2,
-          total_documents: 15,
-          pending_documents: 3,
-          recent_uploads: 5
-        })
+        # Should show only 3 projects despite having more
+        expect(page).to have_css('.p-4', count: 3) # Project containers
       end
+    end
+  end
+
+  context 'when ImmoPromo engine is not available' do
+    before do
+      # Stub to simulate engine not being available
+      allow(Object).to receive(:const_defined?).with('Immo::Promo::Project').and_return(false)
+    end
+
+    it 'shows empty state' do
+      render_inline(described_class.new(user: user))
       
-      it 'renders project information' do
-        render_inline(component)
-        
-        expect(page).to have_text('Projet Alpha')
-        expect(page).to have_text('Projet Beta')
-        expect(page).to have_text('En cours')
-        expect(page).to have_text('Planification')
-        expect(page).to have_text('65% complété')
-        expect(page).to have_text('Phase: Construction')
-      end
+      expect(page).to have_text('Aucun projet actif')
+      expect(page).to have_text('Vous n\'êtes assigné à aucun projet pour le moment.')
+    end
+  end
+
+  context 'when user has no active profile' do
+    before do
+      user.update!(active_profile: nil)
+    end
+
+    it 'shows empty state' do
+      render_inline(described_class.new(user: user))
       
-      it 'shows document stats' do
-        render_inline(component)
-        
-        expect(page).to have_text('15') # Total documents
-        expect(page).to have_text('3')  # Pending
-        expect(page).to have_text('5')  # Recent uploads
-      end
-      
-      it 'shows phase breakdown' do
-        render_inline(component)
-        
-        expect(page).to have_text('Design: 5')
-        expect(page).to have_text('Construction: 10')
-      end
-      
-      it 'shows empty state for project without documents' do
-        render_inline(component)
-        
-        expect(page).to have_text('Aucun document pour ce projet')
-      end
+      expect(page).to have_text('Aucun projet actif')
     end
   end
 end

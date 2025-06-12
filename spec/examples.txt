@@ -2056,27 +2056,17 @@ example_id                                                                      
 ./spec/components/dashboard/pending_tasks_widget_spec.rb[1:4:1]                                                     | passed  | 0.1846 seconds       |
 ./spec/components/dashboard/pending_tasks_widget_spec.rb[1:5:1]                                                     | passed  | 0.17114 seconds      |
 ./spec/components/dashboard/pending_tasks_widget_spec.rb[1:6:1]                                                     | passed  | 0.19504 seconds      |
-./spec/components/dashboard/project_documents_widget_component_spec.rb[1:1:1]                                       | unknown |                      |
-./spec/components/dashboard/project_documents_widget_component_spec.rb[1:1:2:1]                                     | unknown |                      |
-./spec/components/dashboard/project_documents_widget_component_spec.rb[1:2:1:1]                                     | unknown |                      |
-./spec/components/dashboard/project_documents_widget_component_spec.rb[1:2:2:1]                                     | unknown |                      |
-./spec/components/dashboard/project_documents_widget_component_spec.rb[1:3:1]                                       | unknown |                      |
-./spec/components/dashboard/project_documents_widget_component_spec.rb[1:4:1]                                       | unknown |                      |
-./spec/components/dashboard/project_documents_widget_component_spec.rb[1:4:2]                                       | unknown |                      |
-./spec/components/dashboard/project_documents_widget_component_spec.rb[1:5:1]                                       | unknown |                      |
-./spec/components/dashboard/project_documents_widget_component_spec.rb[1:6:1]                                       | unknown |                      |
-./spec/components/dashboard/project_documents_widget_component_spec.rb[1:6:2]                                       | unknown |                      |
-./spec/components/dashboard/project_documents_widget_component_spec.rb[1:7:1]                                       | unknown |                      |
-./spec/components/dashboard/project_documents_widget_component_spec.rb[1:7:2]                                       | unknown |                      |
-./spec/components/dashboard/project_documents_widget_component_spec.rb[1:7:3]                                       | unknown |                      |
-./spec/components/dashboard/project_documents_widget_component_spec.rb[1:8:1]                                       | unknown |                      |
-./spec/components/dashboard/project_documents_widget_component_spec.rb[1:9:1]                                       | unknown |                      |
-./spec/components/dashboard/project_documents_widget_component_spec.rb[1:9:2]                                       | unknown |                      |
-./spec/components/dashboard/project_documents_widget_component_spec.rb[1:10:1]                                      | unknown |                      |
-./spec/components/dashboard/project_documents_widget_component_spec.rb[1:10:2:1]                                    | unknown |                      |
-./spec/components/dashboard/project_documents_widget_component_spec.rb[1:10:2:2]                                    | unknown |                      |
-./spec/components/dashboard/project_documents_widget_component_spec.rb[1:10:2:3]                                    | unknown |                      |
-./spec/components/dashboard/project_documents_widget_component_spec.rb[1:10:2:4]                                    | unknown |                      |
+./spec/components/dashboard/project_documents_widget_component_spec.rb[1:1:1]                                       | failed  | 0.21099 seconds      |
+./spec/components/dashboard/project_documents_widget_component_spec.rb[1:1:2]                                       | failed  | 0.21616 seconds      |
+./spec/components/dashboard/project_documents_widget_component_spec.rb[1:1:3]                                       | failed  | 0.21623 seconds      |
+./spec/components/dashboard/project_documents_widget_component_spec.rb[1:1:4]                                       | failed  | 0.21203 seconds      |
+./spec/components/dashboard/project_documents_widget_component_spec.rb[1:1:5]                                       | failed  | 0.28427 seconds      |
+./spec/components/dashboard/project_documents_widget_component_spec.rb[1:1:6]                                       | failed  | 0.21721 seconds      |
+./spec/components/dashboard/project_documents_widget_component_spec.rb[1:1:7]                                       | failed  | 0.24042 seconds      |
+./spec/components/dashboard/project_documents_widget_component_spec.rb[1:1:8:1:1]                                   | failed  | 0.21503 seconds      |
+./spec/components/dashboard/project_documents_widget_component_spec.rb[1:1:9:1]                                     | failed  | 0.21194 seconds      |
+./spec/components/dashboard/project_documents_widget_component_spec.rb[1:2:1]                                       | failed  | 0.31701 seconds      |
+./spec/components/dashboard/project_documents_widget_component_spec.rb[1:3:1]                                       | failed  | 0.17672 seconds      |
 ./spec/components/dashboard/quick_access_widget_spec.rb[1:1:1]                                                      | passed  | 0.17957 seconds      |
 ./spec/components/dashboard/quick_access_widget_spec.rb[1:1:2]                                                      | passed  | 0.1798 seconds       |
 ./spec/components/dashboard/quick_access_widget_spec.rb[1:1:3]                                                      | passed  | 0.17739 seconds      |
@@ -4482,13 +4472,13 @@ example_id                                                                      
 ./spec/requests/document_api_spec.rb[1:3:2:1]                                                                       | passed  | 0.36733 seconds      |
 ./spec/requests/home_spec.rb[1:1:1]                                                                                 | passed  | 0.19228 seconds      |
 ./spec/requests/home_spec.rb[1:1:2]                                                                                 | passed  | 0.18756 seconds      |
-./spec/routing/route_helpers_spec.rb[1:1:1]                                                                         | passed  | 0.01621 seconds      |
-./spec/routing/route_helpers_spec.rb[1:1:2]                                                                         | passed  | 0.00066 seconds      |
-./spec/routing/route_helpers_spec.rb[1:1:3]                                                                         | passed  | 0.001 seconds        |
+./spec/routing/route_helpers_spec.rb[1:1:1]                                                                         | passed  | 0.01645 seconds      |
+./spec/routing/route_helpers_spec.rb[1:1:2]                                                                         | passed  | 0.00088 seconds      |
+./spec/routing/route_helpers_spec.rb[1:1:3]                                                                         | passed  | 0.00106 seconds      |
 ./spec/routing/route_helpers_spec.rb[1:2:1]                                                                         | passed  | 0.00494 seconds      |
-./spec/routing/route_helpers_spec.rb[1:2:2]                                                                         | passed  | 0.0108 seconds       |
-./spec/routing/route_helpers_spec.rb[1:3:1]                                                                         | passed  | 0.01022 seconds      |
-./spec/routing/route_helpers_spec.rb[1:3:2]                                                                         | passed  | 0.00083 seconds      |
+./spec/routing/route_helpers_spec.rb[1:2:2]                                                                         | passed  | 0.01975 seconds      |
+./spec/routing/route_helpers_spec.rb[1:3:1]                                                                         | passed  | 0.00075 seconds      |
+./spec/routing/route_helpers_spec.rb[1:3:2]                                                                         | passed  | 0.00079 seconds      |
 ./spec/services/ai_classification_service_spec.rb[1:1:1:1]                                                          | passed  | 0.22221 seconds      |
 ./spec/services/ai_classification_service_spec.rb[1:1:2:1]                                                          | passed  | 0.22164 seconds      |
 ./spec/services/ai_classification_service_spec.rb[1:2:1]                                                            | passed  | 0.19464 seconds      |
@@ -4813,12 +4803,12 @@ example_id                                                                      
 ./spec/system/mobile_responsive_spec.rb[1:6:1]                                                                      | failed  | 0.00397 seconds      |
 ./spec/system/mobile_responsive_spec.rb[1:6:2]                                                                      | failed  | 0.0041 seconds       |
 ./spec/system/mobile_responsive_spec.rb[1:7:1]                                                                      | failed  | 0.00391 seconds      |
-./spec/system/navigation_paths_spec.rb[1:1:1]                                                                       | failed  | 0.18365 seconds      |
-./spec/system/navigation_paths_spec.rb[1:1:2]                                                                       | failed  | 0.18167 seconds      |
-./spec/system/navigation_paths_spec.rb[1:2:1]                                                                       | failed  | 0.20776 seconds      |
-./spec/system/navigation_paths_spec.rb[1:2:2]                                                                       | failed  | 0.22874 seconds      |
-./spec/system/navigation_paths_spec.rb[1:3:1]                                                                       | failed  | 0.31595 seconds      |
-./spec/system/navigation_paths_spec.rb[1:4:1]                                                                       | failed  | 0.18276 seconds      |
+./spec/system/navigation_paths_spec.rb[1:1:1]                                                                       | failed  | 0.32811 seconds      |
+./spec/system/navigation_paths_spec.rb[1:1:2]                                                                       | failed  | 0.1977 seconds       |
+./spec/system/navigation_paths_spec.rb[1:2:1]                                                                       | failed  | 0.19999 seconds      |
+./spec/system/navigation_paths_spec.rb[1:2:2]                                                                       | failed  | 0.17199 seconds      |
+./spec/system/navigation_paths_spec.rb[1:3:1]                                                                       | failed  | 0.18929 seconds      |
+./spec/system/navigation_paths_spec.rb[1:4:1]                                                                       | failed  | 0.18606 seconds      |
 ./spec/system/performance_and_accessibility_spec.rb[1:1:1]                                                          | failed  | 0.0035 seconds       |
 ./spec/system/performance_and_accessibility_spec.rb[1:1:2]                                                          | failed  | 0.00363 seconds      |
 ./spec/system/performance_and_accessibility_spec.rb[1:1:3]                                                          | failed  | 0.00419 seconds      |

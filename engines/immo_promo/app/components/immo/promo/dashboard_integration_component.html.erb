@@ -1,0 +1,185 @@
+<% if show_project_documents_widget? %>
+  <!-- Widget Documents par Projet (pour dashboard principal) -->
+  <div class="col-span-12 lg:col-span-8">
+    <%= render Immo::Promo::ProjectDocumentsDashboardWidgetComponent.new(user: user, limit: 4) %>
+  </div>
+<% end %>
+
+<% if show_immo_alerts_widget? %>
+  <!-- Widget Alertes ImmoPromo (pour dashboard principal) -->
+  <div class="col-span-12 lg:col-span-4">
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 h-full">
+      <!-- Header -->
+      <div class="p-4 border-b border-gray-200">
+        <div class="flex items-center justify-between">
+          <h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+            <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 14.5c-.77.833.192 2.5 1.732 2.5z"></path>
+            </svg>
+            Alertes Projets
+          </h3>
+          <span class="text-sm text-gray-500">
+            <%= dashboard_data[:alerts_summary][:high] + dashboard_data[:alerts_summary][:medium] %> actives
+          </span>
+        </div>
+      </div>
+
+      <!-- Stats alertes -->
+      <div class="p-4 border-b border-gray-200">
+        <div class="grid grid-cols-3 gap-3 text-center">
+          <div>
+            <div class="text-lg font-bold text-red-600"><%= dashboard_data[:alerts_summary][:high] %></div>
+            <div class="text-xs text-gray-500">Critiques</div>
+          </div>
+          <div>
+            <div class="text-lg font-bold text-yellow-600"><%= dashboard_data[:alerts_summary][:medium] %></div>
+            <div class="text-xs text-gray-500">Importantes</div>
+          </div>
+          <div>
+            <div class="text-lg font-bold text-blue-600"><%= dashboard_data[:alerts_summary][:low] %></div>
+            <div class="text-xs text-gray-500">Informatives</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Liste des alertes -->
+      <div class="p-4 space-y-3">
+        <% if dashboard_data[:alerts_summary][:details].any? %>
+          <% dashboard_data[:alerts_summary][:details].each do |alert| %>
+            <div class="flex items-center gap-3 p-2 rounded-lg border <%= alert_color_class(alert[:type]) %>">
+              <div class="flex-shrink-0">
+                <% if alert[:type] == 'high' %>
+                  <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01"></path>
+                  </svg>
+                <% elsif alert[:type] == 'medium' %>
+                  <svg class="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01"></path>
+                  </svg>
+                <% else %>
+                  <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01"></path>
+                  </svg>
+                <% end %>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-xs font-medium truncate"><%= alert[:message] %></p>
+                <p class="text-xs opacity-75"><%= alert[:count] %> élément<%= 's' if alert[:count] > 1 %></p>
+              </div>
+            </div>
+          <% end %>
+        <% else %>
+          <div class="text-center py-4">
+            <svg class="mx-auto h-8 w-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <p class="mt-2 text-sm text-gray-600">Aucune alerte active</p>
+            <p class="text-xs text-gray-500">Tous les projets sont sous contrôle</p>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- Footer -->
+      <div class="px-4 py-3 bg-gray-50 border-t border-gray-200 rounded-b-lg">
+        <%= link_to "Voir tous les projets",
+            helpers.immo_promo_engine.projects_path,
+            class: "text-sm text-orange-600 hover:text-orange-800 font-medium" %>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<% if show_standalone_dashboard? %>
+  <!-- Dashboard ImmoPromo Standalone -->
+  <div class="space-y-6">
+    <!-- En-tête dashboard -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-bold text-gray-900">Dashboard ImmoPromo</h1>
+        <div class="flex items-center gap-4">
+          <span class="text-sm text-gray-500">
+            <%= dashboard_data[:projects_overview][:total] %> projet<%= 's' if dashboard_data[:projects_overview][:total] != 1 %> total
+          </span>
+          <%= link_to "Nouveau projet",
+              helpers.immo_promo_engine.new_project_path,
+              class: "bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-700" %>
+        </div>
+      </div>
+
+      <!-- Métriques globales -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="text-center">
+          <div class="text-3xl font-bold text-gray-900"><%= dashboard_data[:projects_overview][:active] %></div>
+          <div class="text-sm text-gray-500">Projets actifs</div>
+        </div>
+        <div class="text-center">
+          <div class="text-3xl font-bold text-blue-600"><%= dashboard_data[:documents_summary][:total] %></div>
+          <div class="text-sm text-gray-500">Documents totaux</div>
+        </div>
+        <div class="text-center">
+          <div class="text-3xl font-bold text-green-600"><%= dashboard_data[:projects_overview][:completion_avg] %>%</div>
+          <div class="text-sm text-gray-500">Avancement moyen</div>
+        </div>
+        <div class="text-center">
+          <div class="text-3xl font-bold text-orange-600"><%= dashboard_data[:workflow_status][:delayed] %></div>
+          <div class="text-sm text-gray-500">Phases en retard</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Grille widgets -->
+    <div class="grid grid-cols-12 gap-6">
+      <!-- Documents par projet -->
+      <div class="col-span-12 lg:col-span-8">
+        <%= render Immo::Promo::ProjectDocumentsDashboardWidgetComponent.new(user: user, limit: 6) %>
+      </div>
+
+      <!-- Activité récente -->
+      <div class="col-span-12 lg:col-span-4">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 h-full">
+          <div class="p-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900">Activité récente</h3>
+          </div>
+          
+          <div class="p-4 space-y-3 max-h-96 overflow-y-auto">
+            <% if dashboard_data[:recent_activity].any? %>
+              <% dashboard_data[:recent_activity].each do |activity| %>
+                <div class="flex items-start gap-3">
+                  <div class="flex-shrink-0 mt-1">
+                    <svg class="w-4 h-4 <%= activity_icon_class(activity[:icon]) %>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <% case activity[:icon] %>
+                      <% when 'document' %>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                      <% when 'check-circle' %>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                      <% when 'clipboard-check' %>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                      <% end %>
+                    </svg>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <%= link_to activity[:link], class: "block hover:bg-gray-50 rounded p-1 -m-1" do %>
+                      <p class="text-sm font-medium text-gray-900 truncate"><%= activity[:title] %></p>
+                      <div class="flex items-center gap-2 text-xs text-gray-500">
+                        <span><%= activity[:project] %></span>
+                        <span>•</span>
+                        <span><%= time_ago_in_words_short(activity[:time]) %></span>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+            <% else %>
+              <div class="text-center py-8">
+                <svg class="mx-auto h-8 w-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <p class="mt-2 text-sm text-gray-600">Aucune activité récente</p>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>

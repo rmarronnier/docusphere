@@ -17,16 +17,43 @@ module Dashboard
     attr_reader :user, :max_projects, :projects, :documents_by_project, :stats
 
     def load_user_projects
-      return [] unless user.active_profile&.profile_type == 'chef_projet'
-
-      # Charge les projets ImmoPromo assignés à l'utilisateur
+      # Load projects based on user profile - supporting multiple profile types
+      return [] unless user.active_profile
+      
       if defined?(Immo::Promo::Project)
-        Immo::Promo::Project
-          .joins(:project_stakeholders)
-          .where(immo_promo_project_stakeholders: { stakeholder_id: user.id })
-          .where(status: ['in_progress', 'planning', 'on_hold'])
-          .order(updated_at: :desc)
-          .limit(max_projects)
+        case user.active_profile.profile_type
+        when 'chef_projet'
+          # Project managers see their assigned projects
+          Immo::Promo::Project
+            .where(project_manager: user)
+            .active
+            .includes(:phases, :documents, :stakeholders)
+            .order(updated_at: :desc)
+            .limit(max_projects)
+        when 'direction'
+          # Direction sees all active projects in their organization
+          Immo::Promo::Project
+            .joins(:organization)
+            .where(organization: user.organization)
+            .active
+            .includes(:phases, :documents, :stakeholders)
+            .order(updated_at: :desc)
+            .limit(max_projects)
+        when 'commercial'
+          # Commercial users see projects where they are stakeholders
+          user_stakeholder_projects = Immo::Promo::Stakeholder
+                                       .where(user: user, role: ['sales', 'marketing'])
+                                       .joins(:project)
+                                       .select('immo_promo_projects.*')
+          
+          Immo::Promo::Project
+            .where(id: user_stakeholder_projects.select(:project_id))
+            .active
+            .includes(:phases, :documents, :stakeholders)
+            .limit(max_projects)
+        else
+          []
+        end
       else
         []
       end
@@ -37,18 +64,16 @@ module Dashboard
 
       documents = {}
       projects.each do |project|
-        # Documents liés au projet via association polymorphique
-        project_docs = Document
-          .where(documentable: project)
-          .or(Document.where(space_id: project_space_id(project)))
-          .includes(:uploaded_by, :tags)
-          .order(created_at: :desc)
-          .limit(5)
+        # Documents liés au projet via association polymorphique (utilise Documentable)
+        project_docs = project.documents
+                             .includes(:uploaded_by, :tags, :file_attachment)
+                             .order(created_at: :desc)
+                             .limit(5)
 
         documents[project.id] = {
           recent: project_docs,
-          total_count: count_total_documents(project),
-          pending_count: count_pending_documents(project),
+          total_count: project.documents.count,
+          pending_count: project.documents.where(status: ['draft', 'under_review']).count,
           phase_breakdown: phase_document_breakdown(project)
         }
       end
@@ -60,27 +85,22 @@ module Dashboard
       Space.find_by(name: "Projet #{project.name}")&.id
     end
 
-    def count_total_documents(project)
-      Document.where(documentable: project).count +
-        Document.where(space_id: project_space_id(project)).count
-    end
-
-    def count_pending_documents(project)
-      Document
-        .where(documentable: project, status: ['draft', 'pending_validation'])
-        .count
-    end
-
     def phase_document_breakdown(project)
       return {} unless project.respond_to?(:phases)
 
       breakdown = {}
-      project.phases.each do |phase|
-        breakdown[phase.name] = Document
-          .where(documentable: phase)
-          .or(Document.where("metadata ->> 'phase_id' = ?", phase.id.to_s))
-          .count
+      project.phases.includes(:documents).each do |phase|
+        phase_docs_count = phase.documents.count
+        breakdown[phase.name] = phase_docs_count if phase_docs_count > 0
       end
+      
+      # Add documents not assigned to any phase
+      unassigned_count = project.documents.where.missing(:metadata)
+                               .or(project.documents.left_joins(:metadata)
+                                         .where.not(metadata: { key: 'phase_id' }))
+                               .count
+      
+      breakdown['Non assignés'] = unassigned_count if unassigned_count > 0
       breakdown
     end
 
@@ -96,10 +116,7 @@ module Dashboard
     def count_recent_uploads
       return 0 if projects.empty?
 
-      Document
-        .where(documentable: projects)
-        .where('created_at > ?', 7.days.ago)
-        .count
+      projects.sum { |project| project.documents.where('created_at > ?', 7.days.ago).count }
     end
 
     def project_status_color(status)

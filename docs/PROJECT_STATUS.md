@@ -48,6 +48,31 @@ DocuSphere est une plateforme de gestion documentaire avancée avec un module sp
    - ✅ **PdfViewerController** : Navigation pages, zoom, contrôles PDF
    - ✅ **ImageViewerController** : Zoom, pan, rotation, navigation collection
    - ✅ **ActivityTimelineController** : Filtres, actions, load more
+   - ✅ **DocumentSidebarController** : Navigation onglets, état responsive
+
+**🚀 Phase 6 ImmoPromo Integration Complétée (06/12/2025)** ✅
+
+6. **Intégration Engine ImmoPromo avec Documents** :
+   - ✅ **Association Polymorphique** : Projects utilisent Documentable concern
+   - ✅ **Catégorisation Avancée** : plans, permis, techniques, financiers, juridiques
+   - ✅ **Métadonnées Automatiques** : project_id, phase_id, project_type linkées
+   - ✅ **ProjectDocumentsDashboardWidget** : Vue temps réel par projet/phase
+   - ✅ **DashboardIntegrationComponent** : Alertes et activité projets
+
+7. **Workflows Métier ImmoPromo Spécialisés** :
+   - ✅ **DocumentWorkflowService** : Upload contextuel par phase
+   - ✅ **Auto-Catégorisation** : IA filename → catégorie (plan/permit/contract/etc.)
+   - ✅ **Validation Automatique** : Types critiques → workflow validation
+   - ✅ **Partage Stakeholders** : Distribution par rôles (architect/commercial/etc.)
+   - ✅ **Rapports Conformité** : Par phase avec recommandations actionables
+   - ✅ **Batch Upload** : Multi-fichiers avec linking automatique projet/phase
+
+8. **Widgets Dashboard ImmoPromo** :
+   - ✅ **Breakdown par Phase** : Documents organisés par phase de projet
+   - ✅ **Indicateurs Urgence** : Alertes visuelles pour documents critiques  
+   - ✅ **Multi-Profils** : Direction (tous projets), Chef projet (assignés), Commercial (sales)
+   - ✅ **Statistiques Temps Réel** : Total documents, en attente, récents, alertes
+   - ✅ **Actions Rapides** : Upload contextuel, vue documents, navigation projets
    - ✅ **DocumentSidebarController** : Onglets, états, intégration viewer
 
 6. **Modèle Document Enrichi** :
