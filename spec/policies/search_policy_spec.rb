@@ -35,6 +35,16 @@ RSpec.describe SearchPolicy, type: :policy do
     end
   end
 
+  permissions :advanced? do
+    it "grants access to authenticated users" do
+      expect(subject).to permit(user, :search)
+    end
+
+    it "denies access to unauthenticated users" do
+      expect(subject).not_to permit(nil, :search)
+    end
+  end
+
   describe "#permitted_attributes" do
     let(:policy) { described_class.new(user, search_query) }
     

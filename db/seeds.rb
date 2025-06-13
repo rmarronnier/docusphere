@@ -407,7 +407,7 @@ organizations.each do |org|
         description: "Step #{index + 1}: #{step_name}",
         position: index + 1,
         assigned_to: org.users.sample,
-        step_type: ["review", "approval", "notification"].sample,
+        step_type: ["manual", "automatic", "conditional", "parallel"].sample,
         validation_rules: { min_reviewers: rand(1..3) },
         requires_approval: ["approval"].include?(step_name.downcase),
         priority: ["low", "medium", "high"].sample

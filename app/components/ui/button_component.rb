@@ -1,5 +1,5 @@
 class Ui::ButtonComponent < ApplicationComponent
-  renders_many :dropdown_items, lambda { |text:, href:, method: :get, icon: nil, divider: false, **options|
+  renders_many :dropdown_items, lambda { |text: nil, href: nil, method: :get, icon: nil, divider: false, **options|
     if divider
       content_tag(:div, nil, class: "dropdown-divider")
     else

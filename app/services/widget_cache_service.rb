@@ -148,10 +148,12 @@ class WidgetCacheService
     def cache_ttl_for_widget(widget)
       # Different TTLs based on widget type
       case widget.widget_type
-      when 'recent_documents', 'recent_activity', 'notifications'
+      when 'recent_documents', 'recent_activity', 'notifications', 'notifications_summary', 'my_documents'
         SHORT_CACHE_TTL # 1 minute for frequently changing data
       when 'statistics', 'metrics', 'portfolio_overview'
         CACHE_TTL # 10 minutes for slower changing data
+      when 'quick_links'
+        30.minutes # Quick links change rarely
       else
         5.minutes # Default 5 minutes
       end
@@ -170,6 +172,14 @@ class WidgetCacheService
         calculate_quick_access(user, widget.config)
       when 'statistics'
         calculate_statistics(user, widget.config)
+      when 'recent_activity'
+        calculate_recent_activity(user, widget.config)
+      when 'my_documents'
+        calculate_my_documents(user, widget.config)
+      when 'notifications_summary'
+        calculate_notifications_summary(user, widget.config)
+      when 'quick_links'
+        calculate_quick_links(user, widget.config)
       else
         { content: "Widget type '#{widget.widget_type}' not implemented" }
       end
@@ -277,6 +287,143 @@ class WidgetCacheService
           active_projects: user.active_profile&.profile_type == 'chef_projet' ? 5 : 0,
           team_members: user.organization.users.count
         }
+      }
+    end
+
+    def calculate_recent_activity(user, config)
+      limit = config['limit'] || 10
+      
+      # Combine different activity types
+      activities = []
+      
+      # Recent document uploads
+      recent_docs = Document.readable_by(user)
+                           .where('created_at > ?', 7.days.ago)
+                           .order(created_at: :desc)
+                           .limit(limit / 2)
+                           .includes(:uploaded_by)
+      
+      recent_docs.each do |doc|
+        activities << {
+          type: 'document_uploaded',
+          title: "Document ajouté : #{doc.title}",
+          user: doc.uploaded_by.display_name,
+          timestamp: doc.created_at,
+          path: "/ged/documents/#{doc.id}"
+        }
+      end
+      
+      # Recent notifications
+      recent_notifications = user.notifications
+                                .where('created_at > ?', 7.days.ago)
+                                .order(created_at: :desc)
+                                .limit(limit / 2)
+      
+      recent_notifications.each do |notif|
+        activities << {
+          type: 'notification',
+          title: notif.title,
+          user: user.display_name,
+          timestamp: notif.created_at,
+          path: '/notifications'
+        }
+      end
+      
+      # Sort by timestamp and limit
+      activities = activities.sort_by { |a| a[:timestamp] }.reverse.first(limit)
+      
+      {
+        activities: activities
+      }
+    end
+
+    def calculate_my_documents(user, config)
+      limit = config['limit'] || 8
+      
+      # Documents uploaded by the current user
+      my_documents = Document.where(uploaded_by: user)
+                            .order(updated_at: :desc)
+                            .limit(limit)
+                            .includes(:tags, :space)
+      
+      {
+        documents: my_documents.map do |doc|
+          {
+            id: doc.id,
+            title: doc.title,
+            space: doc.space&.name,
+            updated_at: doc.updated_at,
+            status: doc.status,
+            tags: doc.tags.pluck(:name),
+            path: "/ged/documents/#{doc.id}"
+          }
+        end,
+        count: my_documents.count,
+        total: Document.where(uploaded_by: user).count
+      }
+    end
+
+    def calculate_notifications_summary(user, config)
+      # Summary of notifications by type and priority
+      notifications = user.notifications.unread
+      
+      summary = {
+        total_unread: notifications.count,
+        by_type: notifications.group(:notification_type).count,
+        by_priority: notifications.group(:priority).count,
+        recent: notifications.order(created_at: :desc)
+                           .limit(3)
+                           .map do |notif|
+                             {
+                               id: notif.id,
+                               title: notif.title,
+                               message: notif.message&.truncate(100),
+                               notification_type: notif.notification_type,
+                               priority: notif.priority,
+                               created_at: notif.created_at
+                             }
+                           end
+      }
+      
+      {
+        content: summary
+      }
+    end
+
+    def calculate_quick_links(user, config)
+      # Customizable quick links based on user role and permissions
+      links = []
+      
+      # Role-based links
+      case user.role
+      when 'admin', 'super_admin'
+        links += [
+          { name: 'Administration', path: '/admin', icon: 'cog', description: 'Gestion système' },
+          { name: 'Utilisateurs', path: '/users', icon: 'users', description: 'Gestion utilisateurs' },
+          { name: 'Rapports', path: '/reports', icon: 'chart-bar', description: 'Rapports et statistiques' }
+        ]
+      when 'manager'
+        links += [
+          { name: 'Projets', path: '/immo/promo/projects', icon: 'briefcase', description: 'Mes projets' },
+          { name: 'Équipe', path: '/team', icon: 'user-group', description: 'Gestion équipe' }
+        ]
+      end
+      
+      # Common links for all users
+      links += [
+        { name: 'GED', path: '/ged', icon: 'folder', description: 'Gestion documentaire' },
+        { name: 'Recherche avancée', path: '/search/advanced', icon: 'search', description: 'Recherche détaillée' },
+        { name: 'Mes bannettes', path: '/baskets', icon: 'inbox', description: 'Documents en attente' },
+        { name: 'Profil', path: '/profile', icon: 'user', description: 'Mon profil utilisateur' }
+      ]
+      
+      # Organization-specific links
+      if user.organization.slug == 'immo-promo'
+        links << { name: 'Tableau de bord projet', path: '/immo/promo/dashboard', icon: 'chart-line', description: 'Vue d\'ensemble projets' }
+      end
+      
+      {
+        content: links
       }
     end
   end

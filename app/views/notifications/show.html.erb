@@ -6,7 +6,7 @@
     <ol class="inline-flex items-center space-x-1 md:space-x-3">
       <li class="inline-flex items-center">
         <%= link_to root_path, class: "inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600" do %>
-          <%= render Ui::IconComponent.new(name: 'home', size: :sm, classes: 'mr-2') %>
+          <%= render Ui::IconComponent.new(name: 'home', size: :sm, css_class: 'mr-2') %>
           Accueil
         <% end %>
       </li>
@@ -39,7 +39,7 @@
       <div class="flex items-center space-x-3">
         <%= link_to notifications_path, 
             class: "inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-700" do %>
-          <%= render Ui::IconComponent.new(name: 'arrow-left', size: :sm, classes: 'mr-1') %>
+          <%= render Ui::IconComponent.new(name: 'arrow-left', size: :sm, css_class: 'mr-1') %>
           Retour aux notifications
         <% end %>
       </div>
@@ -51,7 +51,7 @@
         <%= button_to mark_as_read_notification_path(@notification), 
             method: :patch,
             class: "inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" do %>
-          <%= render Ui::IconComponent.new(name: 'eye', size: :sm, classes: 'mr-2') %>
+          <%= render Ui::IconComponent.new(name: 'eye', size: :sm, css_class: 'mr-2') %>
           Marquer comme lu
         <% end %>
       <% end %>
@@ -61,7 +61,7 @@
           method: :delete,
           class: "inline-flex items-center px-4 py-2 border border-red-300 rounded-md shadow-sm bg-white text-sm font-medium text-red-700 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500",
           confirm: "Êtes-vous sûr de vouloir supprimer cette notification ?" do %>
-        <%= render Ui::IconComponent.new(name: 'trash', size: :sm, classes: 'mr-2') %>
+        <%= render Ui::IconComponent.new(name: 'trash', size: :sm, css_class: 'mr-2') %>
         Supprimer
       <% end %>
     </div>
@@ -93,7 +93,7 @@
                       else 'link'
                       end,
                 size: :md,
-                classes: 'text-gray-400'
+                css_class: 'text-gray-400'
               ) %>
             </div>
             
@@ -127,7 +127,7 @@
                 <div class="mt-3">
                   <%= link_to notifiable_url, 
                       class: "inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" do %>
-                    <%= render Ui::IconComponent.new(name: 'external-link', size: :sm, classes: 'mr-2') %>
+                    <%= render Ui::IconComponent.new(name: 'external-link', size: :sm, css_class: 'mr-2') %>
                     Voir le contenu
                   <% end %>
                 </div>
@@ -157,7 +157,7 @@
                   <div class="relative flex space-x-3">
                     <div>
                       <span class="h-8 w-8 rounded-full bg-gray-400 flex items-center justify-center ring-8 ring-white">
-                        <%= render Ui::IconComponent.new(name: 'check', size: :xs, classes: 'text-white') %>
+                        <%= render Ui::IconComponent.new(name: 'check', size: :xs, css_class: 'text-white') %>
                       </span>
                     </div>
                     

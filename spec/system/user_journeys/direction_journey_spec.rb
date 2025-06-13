@@ -2,12 +2,12 @@ require 'rails_helper'
 
 RSpec.describe 'Direction User Journey', type: :system do
   let(:organization) { create(:organization, name: 'Meridia Group') }
-  let(:direction_user) { create(:user, name: 'Marie Dubois', email: 'marie.dubois@meridia.fr', organization: organization) }
-  let!(:project) { create(:project, name: 'Jardins de Belleville', organization: organization) }
-  let!(:pending_validation) { create(:validation_request, document: create(:document, title: 'Permis de construire', organization: organization)) }
+  let(:direction_user) { create(:user, first_name: 'Marie', last_name: 'Dubois', email: 'marie.dubois@meridia.fr', organization: organization) }
+  let!(:project) { create(:immo_promo_project, name: 'Jardins de Belleville', organization: organization) }
+  let!(:pending_validation) { create(:validation_request, validatable: create(:document, title: 'Permis de construire', space: create(:space, organization: organization))) }
   
   before do
-    direction_user.add_role(:direction)
+    direction_user.update!(role: :admin) # Direction user needs admin role
     sign_in direction_user
   end
   

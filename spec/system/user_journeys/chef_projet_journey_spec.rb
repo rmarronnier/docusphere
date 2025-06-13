@@ -2,13 +2,13 @@ require 'rails_helper'
 
 RSpec.describe 'Chef de Projet User Journey', type: :system do
   let(:organization) { create(:organization, name: 'Meridia Group') }
-  let(:chef_projet) { create(:user, name: 'Julien Leroy', email: 'julien.leroy@meridia.fr', organization: organization) }
-  let!(:project) { create(:project, name: 'Résidence Horizon', organization: organization, project_manager: chef_projet) }
-  let!(:phase) { create(:phase, project: project, name: 'Terrassement', status: 'in_progress') }
-  let!(:task) { create(:task, phase: phase, name: 'Excavation principale', assigned_to: chef_projet) }
+  let(:chef_projet) { create(:user, first_name: 'Julien', last_name: 'Leroy', email: 'julien.leroy@meridia.fr', organization: organization) }
+  let!(:project) { create(:immo_promo_project, name: 'Résidence Horizon', organization: organization, project_manager: chef_projet) }
+  let!(:phase) { create(:immo_promo_phase, project: project, name: 'Terrassement', status: 'in_progress') }
+  let!(:task) { create(:immo_promo_task, phase: phase, name: 'Excavation principale', assigned_to: chef_projet) }
   
   before do
-    chef_projet.add_role(:chef_projet)
+    chef_projet.update!(role: :manager)
     sign_in chef_projet
   end
   

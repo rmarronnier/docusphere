@@ -97,6 +97,19 @@ RSpec.describe Ui::ButtonComponent, type: :component do
       expect(page).to have_link("Edit", href: "/edit")
       expect(page).to have_link("Delete", href: "/delete")
     end
+    
+    it "renders dropdown with divider" do
+      render_inline(described_class.new(text: "Actions", dropdown: true)) do |button|
+        button.with_dropdown_item(text: "Edit", href: "/edit")
+        button.with_dropdown_item(divider: true)
+        button.with_dropdown_item(text: "Delete", href: "/delete")
+      end
+      
+      expect(page).to have_css('.dropdown-menu')
+      expect(page).to have_css('.dropdown-divider')
+      expect(page).to have_link("Edit", href: "/edit")
+      expect(page).to have_link("Delete", href: "/delete")
+    end
   end
   
   describe "accessibility" do

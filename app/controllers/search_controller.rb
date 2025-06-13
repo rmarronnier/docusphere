@@ -21,6 +21,7 @@ class SearchController < ApplicationController
   end
   
   def advanced
+    authorize :search, :advanced?
     @spaces = policy_scope(Space).order(:name)
     @users = User.where(organization: current_user.organization).order(:last_name, :first_name)
     @tags = Tag.where(organization: current_user.organization).order(:name)

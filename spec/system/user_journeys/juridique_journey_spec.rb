@@ -2,12 +2,12 @@ require 'rails_helper'
 
 RSpec.describe 'Juridique User Journey', type: :system do
   let(:organization) { create(:organization, name: 'Meridia Group') }
-  let(:juridique) { create(:user, name: 'Claire Dumont', email: 'claire.dumont@meridia.fr', organization: organization) }
+  let(:juridique) { create(:user, first_name: 'Claire', last_name: 'Dumont', email: 'claire.dumont@meridia.fr', organization: organization) }
   let!(:contract) { create(:contract, title: 'Contrat de location Business Center', status: 'pending_review', organization: organization) }
   let!(:deadline) { create(:legal_deadline, title: 'Renouvellement assurance RC', due_date: 15.days.from_now, organization: organization) }
   
   before do
-    juridique.add_role(:juridique)
+    juridique.update!(role: :admin)
     sign_in juridique
   end
   

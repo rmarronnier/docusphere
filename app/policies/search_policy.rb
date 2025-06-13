@@ -7,6 +7,10 @@ class SearchPolicy < ApplicationPolicy
     user.present?
   end
 
+  def advanced?
+    user.present?
+  end
+
   def permitted_attributes
     [:name, :is_favorite, query_params: {}]
   end

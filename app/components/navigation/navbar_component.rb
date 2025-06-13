@@ -45,20 +45,23 @@ class Navigation::NavbarComponent < ApplicationComponent
   
   def default_navigation_items
     items = [
-      { name: 'Tableau de bord', path: root_path, icon: 'home' },
-      { name: 'GED', path: ged_dashboard_path, icon: 'document' },
-      { name: 'Bannettes', path: baskets_path, icon: 'inbox' },
-      { name: 'Tags', path: tags_path, icon: 'tag' },
-      { name: 'Recherche', path: search_path, icon: 'search' }
+      { name: 'Tableau de bord', path: helpers.root_path, icon: 'home' },
+      { name: 'GED', path: helpers.ged_dashboard_path, icon: 'document' },
+      { name: 'Bannettes', path: helpers.baskets_path, icon: 'inbox' },
+      { name: 'Tags', path: helpers.tags_path, icon: 'tag' },
+      { name: 'Recherche', path: helpers.search_path, icon: 'search' }
     ]
     
     # Add ImmoPromo if user has access
-    if current_user&.has_permission?('immo_promo:access')
+    if current_user && defined?(Immo::Promo::Project) && helpers.policy(Immo::Promo::Project).index?
       items << { name: 'Immo Promo', path: '/immo/promo/projects', icon: 'building' }
     end
     
-    if current_user&.admin? || current_user&.super_admin?
+    if current_user && helpers.policy(User).index?
       items << { name: 'Utilisateurs', path: helpers.users_path, icon: 'users' }
+    end
+    
+    if current_user && helpers.policy(UserGroup).index?
       items << { name: 'Groupes', path: helpers.user_groups_path, icon: 'user-group' }
     end
     
@@ -66,44 +69,21 @@ class Navigation::NavbarComponent < ApplicationComponent
   end
   
   def profile_specific_navigation_items
-    return [] unless current_user&.active_profile
+    return [] unless current_user
     
-    case current_user.active_profile.profile_type
-    when 'direction'
+    # Since we're not using profiles system anymore, base on user role
+    case current_user.role
+    when 'admin', 'super_admin'
       [
-        { name: 'Validations', path: helpers.validations_path, icon: 'check-circle', badge: pending_validations_count, badge_color: 'red' },
-        { name: 'Conformité', path: helpers.compliance_dashboard_path, icon: 'shield-check' }
-        # { name: 'Rapports', path: reports_path, icon: 'chart-bar' } # Route doesn't exist yet
+        { name: 'Validations', path: helpers.notifications_path, icon: 'check-circle', badge: pending_validations_count, badge_color: 'red' }
       ]
-    when 'chef_projet'
+    when 'manager'
       [
-        { name: 'Mes projets', path: helpers.immo_promo_engine.projects_path, icon: 'briefcase', badge: active_projects_count, badge_color: 'blue' }
-        # { name: 'Planning', path: planning_path, icon: 'calendar' }, # Route doesn't exist yet
-        # { name: 'Ressources', path: resources_path, icon: 'users' } # Route doesn't exist yet
+        { name: 'Mes projets', path: '/immo/promo/projects', icon: 'briefcase' }
       ]
-    when 'commercial'
+    when 'user'
       [
-        # { name: 'Clients', path: clients_path, icon: 'user-group', badge: new_leads_count, badge_color: 'green' }, # Route doesn't exist yet
-        { name: 'Propositions', path: helpers.proposals_path, icon: 'document-text' }
-        # { name: 'Contrats', path: contracts_path, icon: 'document-duplicate' } # Route doesn't exist yet
-      ]
-    when 'juridique'
-      [
-        # { name: 'Contrats', path: legal_contracts_path, icon: 'clipboard-check' }, # Route doesn't exist yet
-        { name: 'Conformité', path: helpers.compliance_dashboard_path, icon: 'shield-exclamation', badge: compliance_alerts_count, badge_color: 'orange' }
-        # { name: 'Échéances', path: legal_deadlines_path, icon: 'clock' } # Route doesn't exist yet
-      ]
-    when 'finance'
-      [
-        # { name: 'Factures', path: invoices_path, icon: 'currency-euro', badge: pending_invoices_count, badge_color: 'yellow' }, # Route doesn't exist yet
-        # { name: 'Budget', path: budget_dashboard_path, icon: 'calculator' }, # Route doesn't exist yet
-        # { name: 'Notes de frais', path: expense_reports_path, icon: 'receipt-tax' } # Route doesn't exist yet
-      ]
-    when 'technique'
-      [
-        # { name: 'Spécifications', path: specifications_path, icon: 'document-text' }, # Route doesn't exist yet
-        # { name: 'Documentation', path: technical_docs_path, icon: 'book-open' }, # Route doesn't exist yet
-        # { name: 'Support', path: support_tickets_path, icon: 'support', badge: open_tickets_count, badge_color: 'red' } # Route doesn't exist yet
+        { name: 'Mes documents', path: helpers.ged_dashboard_path, icon: 'document-text' }
       ]
     else
       []
@@ -119,7 +99,8 @@ class Navigation::NavbarComponent < ApplicationComponent
   end
   
   def show_profile_switcher?
-    current_user && current_user.user_profiles.count > 1
+    # Simplified - no profile switching for now
+    false
   end
   
   def show_breadcrumbs?
@@ -134,10 +115,10 @@ class Navigation::NavbarComponent < ApplicationComponent
 
   def user_items
     [
-      { name: 'Mon profil', path: edit_user_registration_path, icon: 'user' },
-      { name: 'Notifications', path: notifications_path, icon: 'bell', badge: unread_notifications_count },
-      { name: 'Paramètres', path: edit_user_registration_path, icon: 'cog' },
-      { name: 'Déconnexion', path: destroy_user_session_path, icon: 'logout', method: :delete }
+      { name: 'Mon profil', path: helpers.edit_user_registration_path, icon: 'user' },
+      { name: 'Notifications', path: helpers.notifications_path, icon: 'bell', badge: unread_notifications_count },
+      { name: 'Paramètres', path: helpers.edit_user_registration_path, icon: 'cog' },
+      { name: 'Déconnexion', path: helpers.destroy_user_session_path, icon: 'logout', method: :delete }
     ]
   end
 

@@ -4,7 +4,6 @@ class NotificationsController < ApplicationController
 
   def index
     @notifications = policy_scope(Notification)
-        .includes(:notifiable)
         .by_category(params[:category])
         .then { |scope| params[:unread_only] == 'true' ? scope.unread : scope }
         .recent

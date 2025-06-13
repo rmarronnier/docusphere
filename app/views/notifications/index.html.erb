@@ -18,7 +18,7 @@
         <%= button_to mark_all_as_read_notifications_path, 
             method: :patch,
             class: "inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" do %>
-          <%= render Ui::IconComponent.new(name: 'eye', size: :sm, classes: 'mr-2') %>
+          <%= render Ui::IconComponent.new(name: 'eye', size: 4, css_class: 'mr-2') %>
           Tout marquer comme lu
         <% end %>
       <% end %>
@@ -27,7 +27,7 @@
       <button type="button" 
               class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               data-action="click->filter#toggle">
-        <%= render Ui::IconComponent.new(name: 'filter', size: :sm, classes: 'mr-2') %>
+        <%= render Ui::IconComponent.new(name: 'filter', size: 4, css_class: 'mr-2') %>
         Filtres
       </button>
     </div>
@@ -39,7 +39,7 @@
       <div class="p-5">
         <div class="flex items-center">
           <div class="flex-shrink-0">
-            <%= render Ui::IconComponent.new(name: 'bell', size: :md, classes: 'text-gray-400') %>
+            <%= render Ui::IconComponent.new(name: 'bell', size: 5, css_class: 'text-gray-400') %>
           </div>
           <div class="ml-5 w-0 flex-1">
             <dl>
@@ -55,7 +55,7 @@
       <div class="p-5">
         <div class="flex items-center">
           <div class="flex-shrink-0">
-            <%= render Ui::IconComponent.new(name: 'eye-off', size: :md, classes: 'text-blue-400') %>
+            <%= render Ui::IconComponent.new(name: 'eye-off', size: 5, css_class: 'text-blue-400') %>
           </div>
           <div class="ml-5 w-0 flex-1">
             <dl>
@@ -71,7 +71,7 @@
       <div class="p-5">
         <div class="flex items-center">
           <div class="flex-shrink-0">
-            <%= render Ui::IconComponent.new(name: 'alert-triangle', size: :md, classes: 'text-red-400') %>
+            <%= render Ui::IconComponent.new(name: 'alert-triangle', size: 5, css_class: 'text-red-400') %>
           </div>
           <div class="ml-5 w-0 flex-1">
             <dl>
@@ -87,7 +87,7 @@
       <div class="p-5">
         <div class="flex items-center">
           <div class="flex-shrink-0">
-            <%= render Ui::IconComponent.new(name: 'calendar', size: :md, classes: 'text-green-400') %>
+            <%= render Ui::IconComponent.new(name: 'calendar', size: 5, css_class: 'text-green-400') %>
           </div>
           <div class="ml-5 w-0 flex-1">
             <dl>
@@ -218,9 +218,9 @@
         </div>
 
         <!-- Pagination -->
-        <% if @pagy.pages > 1 %>
+        <% if @notifications.total_pages > 1 %>
           <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
-            <%== pagy_nav(@pagy) if respond_to?(:pagy_nav) %>
+            <%= paginate @notifications %>
           </div>
         <% end %>
       </div>

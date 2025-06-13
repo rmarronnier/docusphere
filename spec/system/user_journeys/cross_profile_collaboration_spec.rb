@@ -11,16 +11,16 @@ RSpec.describe 'Cross-Profile Collaboration Journey', type: :system do
   let(:finance) { create(:user, first_name: 'Pierre', last_name: 'Lambert', organization: organization) }
   
   # Shared data
-  let!(:project) { create(:project, name: 'Business Center Alpha', organization: organization, project_manager: chef_projet) }
+  let!(:project) { create(:immo_promo_project, name: 'Business Center Alpha', organization: organization, project_manager: chef_projet) }
   let!(:client) { create(:client, name: 'Global Tech Solutions', organization: organization) }
   let!(:contract_draft) { create(:document, title: 'Contrat de location - Draft v1', documentable: project, uploaded_by: commercial) }
   
   before do
-    direction.add_role(:direction)
-    chef_projet.add_role(:chef_projet)
-    commercial.add_role(:commercial)
-    juridique.add_role(:juridique)
-    finance.add_role(:finance)
+    direction.update!(role: :admin)
+    chef_projet.update!(role: :manager)
+    commercial.update!(role: :user)
+    juridique.update!(role: :admin)
+    finance.update!(role: :admin)
   end
   
   describe 'New Client Contract Workflow' do

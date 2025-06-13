@@ -1,0 +1,82 @@
+<div class="space-y-4">
+  <!-- Summary Header -->
+  <div class="flex items-center justify-between">
+    <h4 class="text-sm font-medium text-gray-900">
+      <%= total_unread %> notification<%= total_unread > 1 ? 's' : '' %> non lue<%= total_unread > 1 ? 's' : '' %>
+    </h4>
+    <% if has_notifications? %>
+      <%= link_to "/notifications", class: "text-xs text-blue-600 hover:text-blue-800" do %>
+        Voir tout
+      <% end %>
+    <% end %>
+  </div>
+
+  <% if has_notifications? %>
+    <!-- Priority Distribution -->
+    <% if by_priority.any? %>
+      <div class="space-y-2">
+        <h5 class="text-xs font-medium text-gray-700 uppercase tracking-wide">Par priorité</h5>
+        <div class="flex flex-wrap gap-2">
+          <% by_priority.each do |priority, count| %>
+            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium <%= priority_color_class(priority) %>">
+              <%= count %> <%= priority_label(priority).downcase %>
+            </span>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Type Distribution -->
+    <% if by_type.any? %>
+      <div class="space-y-2">
+        <h5 class="text-xs font-medium text-gray-700 uppercase tracking-wide">Par type</h5>
+        <div class="space-y-1">
+          <% by_type.each do |type, count| %>
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-gray-600"><%= notification_type_label(type) %></span>
+              <span class="font-medium text-gray-900"><%= count %></span>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Recent Notifications -->
+    <% if recent_notifications.any? %>
+      <div class="space-y-2">
+        <h5 class="text-xs font-medium text-gray-700 uppercase tracking-wide">Récentes</h5>
+        <div class="space-y-2">
+          <% recent_notifications.each do |notification| %>
+            <div class="flex items-start space-x-2 p-2 rounded-md bg-gray-50">
+              <div class="flex-shrink-0 mt-0.5">
+                <div class="w-2 h-2 rounded-full <%= priority_color_class(notification[:priority]).split(' ').last %>"></div>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-xs font-medium text-gray-900 truncate">
+                  <%= notification[:title] %>
+                </p>
+                <% if notification[:message] %>
+                  <p class="text-xs text-gray-600 truncate mt-0.5">
+                    <%= notification[:message] %>
+                  </p>
+                <% end %>
+                <p class="text-xs text-gray-400 mt-0.5">
+                  <%= format_timestamp(notification[:created_at]) %>
+                </p>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  <% else %>
+    <!-- Empty State -->
+    <div class="text-center py-6">
+      <svg class="mx-auto h-10 w-10 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+      </svg>
+      <p class="mt-2 text-xs text-gray-500">Aucune notification</p>
+      <p class="text-xs text-gray-400">Vous êtes à jour !</p>
+    </div>
+  <% end %>
+</div>

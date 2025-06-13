@@ -83,6 +83,33 @@ fr:
     profile: "Mon profil"
     logout: "Déconnexion"
     
+  dashboard:
+    welcome: "Bonjour %{name} !"
+    good_morning: "Bonne matinée !"
+    good_afternoon: "Bon après-midi !"
+    good_evening: "Bonne soirée !"
+    subtitle: "Voici votre tableau de bord pour aujourd'hui."
+    quick_stats: "Statistiques rapides"
+    recent_activity: "Activité récente"
+    my_documents: "Mes documents"
+    notifications_summary: "Résumé des notifications"
+    quick_links: "Liens rapides"
+    no_activity: "Aucune activité récente"
+    no_documents: "Aucun document"
+    no_notifications: "Aucune notification"
+    view_all: "Voir tout"
+    refresh: "Actualiser"
+    widgets:
+      recent_documents: "Documents récents"
+      pending_tasks: "Tâches en attente"
+      notifications: "Notifications"
+      quick_access: "Accès rapide"
+      statistics: "Statistiques"
+      recent_activity: "Activité récente"
+      my_documents: "Mes documents"
+      notifications_summary: "Résumé notifications"
+      quick_links: "Liens rapides"
+    
   documents:
     title: "Documents"
     new_document: "Nouveau document"

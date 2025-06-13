@@ -2,13 +2,13 @@ require 'rails_helper'
 
 RSpec.describe 'Commercial User Journey', type: :system do
   let(:organization) { create(:organization, name: 'Meridia Group') }
-  let(:commercial) { create(:user, name: 'Sophie Martin', email: 'sophie.martin@meridia.fr', organization: organization) }
+  let(:commercial) { create(:user, first_name: 'Sophie', last_name: 'Martin', email: 'sophie.martin@meridia.fr', organization: organization) }
   let!(:client) { create(:client, name: 'ACME Corp', status: 'active', organization: organization) }
   let!(:prospect) { create(:client, name: 'TechStart SAS', status: 'prospect', organization: organization) }
-  let!(:project) { create(:project, name: 'Business Center Alpha', organization: organization) }
+  let!(:project) { create(:immo_promo_project, name: 'Business Center Alpha', organization: organization) }
   
   before do
-    commercial.add_role(:commercial)
+    commercial.update!(role: :user)
     sign_in commercial
   end
   

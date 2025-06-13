@@ -1,0 +1,37 @@
+<div class="grid grid-cols-2 gap-3">
+  <% if any_links? %>
+    <% links.each do |link| %>
+      <%= link_to link[:path], class: "group block p-3 rounded-lg border border-gray-200 hover:border-gray-300 hover:shadow-sm transition-all duration-200" do %>
+        <div class="flex items-start space-x-3">
+          <!-- Icon -->
+          <div class="flex-shrink-0">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center <%= icon_color_class(link[:icon]) %> group-hover:scale-105 transition-transform">
+              <%= render Ui::IconComponent.new(name: link[:icon], size: 4, css_class: 'text-current') %>
+            </div>
+          </div>
+          
+          <!-- Content -->
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium text-gray-900 group-hover:text-gray-700 truncate">
+              <%= link[:name] %>
+            </p>
+            <% if link[:description] %>
+              <p class="text-xs text-gray-500 mt-0.5 line-clamp-2">
+                <%= link[:description] %>
+              </p>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    <% end %>
+  <% else %>
+    <!-- Empty State -->
+    <div class="col-span-2 text-center py-8">
+      <svg class="mx-auto h-12 w-12 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+      </svg>
+      <p class="mt-2 text-sm text-gray-500">Aucun lien rapide</p>
+      <p class="text-xs text-gray-400">Les raccourcis apparaîtront ici</p>
+    </div>
+  <% end %>
+</div>

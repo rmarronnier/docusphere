@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_06_12_082520) do
+ActiveRecord::Schema[7.1].define(version: 2025_06_13_014406) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -120,6 +120,26 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_12_082520) do
     t.index ["basket_type"], name: "index_baskets_on_basket_type"
     t.index ["is_shared"], name: "index_baskets_on_is_shared"
     t.index ["user_id"], name: "index_baskets_on_user_id"
+  end
+
+  create_table "client_relationships", force: :cascade do |t|
+    t.bigint "client_id", null: false
+    t.bigint "organization_id", null: false
+    t.string "relationship_type"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["client_id"], name: "index_client_relationships_on_client_id"
+    t.index ["organization_id"], name: "index_client_relationships_on_organization_id"
+  end
+
+  create_table "clients", force: :cascade do |t|
+    t.string "name"
+    t.string "status"
+    t.string "email"
+    t.string "phone"
+    t.text "address"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "dashboard_widgets", force: :cascade do |t|
@@ -895,6 +915,14 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_12_082520) do
     t.index ["organization_id"], name: "index_tags_on_organization_id"
   end
 
+  create_table "user_bookmarked_documents", id: false, force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "document_id", null: false
+    t.index ["document_id"], name: "index_user_bookmarked_documents_on_document_id"
+    t.index ["user_id", "document_id"], name: "index_user_bookmarked_documents_on_user_id_and_document_id", unique: true
+    t.index ["user_id"], name: "index_user_bookmarked_documents_on_user_id"
+  end
+
   create_table "user_features", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.string "feature_key", null: false
@@ -1126,6 +1154,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_12_082520) do
   add_foreign_key "authorizations", "users", column: "revoked_by_id"
   add_foreign_key "basket_items", "baskets"
   add_foreign_key "baskets", "users"
+  add_foreign_key "client_relationships", "clients"
+  add_foreign_key "client_relationships", "organizations"
   add_foreign_key "dashboard_widgets", "user_profiles"
   add_foreign_key "document_metadata", "documents"
   add_foreign_key "document_metadata", "metadata_templates"

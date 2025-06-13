@@ -3,7 +3,7 @@
     <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
       <div class="px-6 py-12 text-center">
         <div class="mx-auto flex items-center justify-center h-24 w-24 rounded-full bg-yellow-100 mb-6">
-          <%= render Ui::IconComponent.new(name: "clock", size: :xl, style: "solid") %>
+          <%= render Ui::IconComponent.new(name: "clock", size: :xl) %>
         </div>
         
         <h2 class="text-3xl font-bold text-gray-900 mb-4">
@@ -28,7 +28,7 @@
           </p>
           <a href="mailto:support@docusphere.com" class="mt-2 inline-flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-500">
             Contactez notre équipe
-            <%= render Ui::IconComponent.new(name: "arrow-right", size: :sm, style: "solid", extra_classes: "ml-1") %>
+            <%= render Ui::IconComponent.new(name: "arrow-right", size: :sm, css_class: "ml-1") %>
           </a>
         </div>
       </div>

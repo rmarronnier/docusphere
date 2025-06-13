@@ -7,14 +7,14 @@
       <div class="flex items-center space-x-3">
         <%= link_to notifications_path, 
             class: "inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-700" do %>
-          <%= render Ui::IconComponent.new(name: 'arrow-left', size: :sm, classes: 'mr-1') %>
+          <%= render Ui::IconComponent.new(name: 'arrow-left', size: :sm, css_class: 'mr-1') %>
           Retour aux notifications
         <% end %>
       </div>
       
       <h1 class="mt-2 text-2xl font-bold leading-7 text-gray-900 sm:truncate">
         <div class="flex items-center space-x-3">
-          <%= render Ui::IconComponent.new(name: 'alert-triangle', size: :md, classes: 'text-red-500') %>
+          <%= render Ui::IconComponent.new(name: 'alert-triangle', size: :md, css_class: 'text-red-500') %>
           <span>Notifications urgentes</span>
         </div>
       </h1>
@@ -30,7 +30,7 @@
     <div class="rounded-md bg-red-50 p-4 mb-6">
       <div class="flex">
         <div class="flex-shrink-0">
-          <%= render Ui::IconComponent.new(name: 'alert-triangle', size: :sm, classes: 'text-red-400') %>
+          <%= render Ui::IconComponent.new(name: 'alert-triangle', size: :sm, css_class: 'text-red-400') %>
         </div>
         <div class="ml-3">
           <h3 class="text-sm font-medium text-red-800">

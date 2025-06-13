@@ -21,7 +21,7 @@
         <%= button_to immo_promo_engine.mark_all_as_read_notifications_path, 
             method: :patch,
             class: "inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500" do %>
-          <%= render Ui::IconComponent.new(name: 'eye', size: :sm, classes: 'mr-2') %>
+          <%= render Ui::IconComponent.new(name: 'eye', size: :sm, css_class: 'mr-2') %>
           Tout marquer comme lu
         <% end %>
       <% end %>
@@ -29,7 +29,7 @@
       <!-- Back to Main Notifications -->
       <%= link_to main_app.notifications_path, 
           class: "inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" do %>
-        <%= render Ui::IconComponent.new(name: 'arrow-left', size: :sm, classes: 'mr-2') %>
+        <%= render Ui::IconComponent.new(name: 'arrow-left', size: :sm, css_class: 'mr-2') %>
         Toutes les notifications
       <% end %>
     </div>

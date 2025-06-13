@@ -1,0 +1,55 @@
+<div class="space-y-3">
+  <% if any_activities? %>
+    <% activities.each do |activity| %>
+      <div class="flex items-start space-x-3">
+        <!-- Icon -->
+        <div class="flex-shrink-0">
+          <div class="w-8 h-8 rounded-full flex items-center justify-center <%= activity_color_class(activity_icon(activity)) %>">
+            <%= render Ui::IconComponent.new(name: activity_icon(activity), size: 4, css_class: 'text-current') %>
+          </div>
+        </div>
+        
+        <!-- Content -->
+        <div class="flex-1 min-w-0">
+          <% if activity[:path] && activity[:path] != '/notifications' %>
+            <%= link_to activity[:path], class: "block hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors" do %>
+              <p class="text-sm font-medium text-gray-900 truncate">
+                <%= activity[:title] %>
+              </p>
+              <div class="flex items-center justify-between mt-1">
+                <p class="text-xs text-gray-500">
+                  par <%= activity[:user] %>
+                </p>
+                <p class="text-xs text-gray-400">
+                  <%= format_timestamp(activity[:timestamp]) %>
+                </p>
+              </div>
+            <% end %>
+          <% else %>
+            <div class="p-2 -m-2">
+              <p class="text-sm font-medium text-gray-900 truncate">
+                <%= activity[:title] %>
+              </p>
+              <div class="flex items-center justify-between mt-1">
+                <p class="text-xs text-gray-500">
+                  par <%= activity[:user] %>
+                </p>
+                <p class="text-xs text-gray-400">
+                  <%= format_timestamp(activity[:timestamp]) %>
+                </p>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  <% else %>
+    <div class="text-center py-8">
+      <svg class="mx-auto h-12 w-12 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <p class="mt-2 text-sm text-gray-500">Aucune activité récente</p>
+      <p class="text-xs text-gray-400">L'activité de votre équipe apparaîtra ici</p>
+    </div>
+  <% end %>
+</div>

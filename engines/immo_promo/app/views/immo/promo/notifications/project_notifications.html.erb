@@ -7,7 +7,7 @@
       <li class="inline-flex items-center">
         <%= link_to immo_promo_engine.projects_path, 
             class: "inline-flex items-center text-sm font-medium text-gray-700 hover:text-green-600" do %>
-          <%= render Ui::IconComponent.new(name: 'building', size: :sm, classes: 'mr-2') %>
+          <%= render Ui::IconComponent.new(name: 'building', size: :sm, css_class: 'mr-2') %>
           ImmoPromo
         <% end %>
       </li>
@@ -52,13 +52,13 @@
     <div class="mt-4 flex md:mt-0 md:ml-4 space-x-3">
       <%= link_to immo_promo_engine.notifications_path, 
           class: "inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500" do %>
-        <%= render Ui::IconComponent.new(name: 'arrow-left', size: :sm, classes: 'mr-2') %>
+        <%= render Ui::IconComponent.new(name: 'arrow-left', size: :sm, css_class: 'mr-2') %>
         Toutes les notifications
       <% end %>
       
       <%= link_to immo_promo_engine.project_path(@project), 
           class: "inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500" do %>
-        <%= render Ui::IconComponent.new(name: 'folder-plus', size: :sm, classes: 'mr-2') %>
+        <%= render Ui::IconComponent.new(name: 'folder-plus', size: :sm, css_class: 'mr-2') %>
         Voir le projet
       <% end %>
     </div>
