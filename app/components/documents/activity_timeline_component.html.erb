@@ -35,7 +35,7 @@
                 <!-- Icon -->
                 <div class="relative">
                   <div class="h-10 w-10 rounded-full flex items-center justify-center ring-8 ring-white <%= activity.color_classes %>">
-                    <%= heroicon(activity.icon, variant: :solid, options: { class: "h-5 w-5" }) %>
+                    <%= render Ui::IconComponent.new(name: activity.icon, size: 5) %>
                   </div>
                 </div>
                 
@@ -125,7 +125,7 @@
                     <button type="button" 
                             class="bg-white rounded-full p-1 text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                             data-action="click->activity-timeline#toggleActions">
-                      <%= heroicon("ellipsis-vertical", variant: :solid, options: { class: "h-5 w-5" }) %>
+                      <%= render Ui::IconComponent.new(name: "ellipsis-vertical", size: 5) %>
                     </button>
                     
                     <div class="hidden origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10"
@@ -164,7 +164,7 @@
       <!-- Empty State -->
       <div class="text-center py-12">
         <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
-          <%= heroicon("clock", variant: :outline, options: { class: "h-8 w-8 text-gray-400" }) %>
+          <%= render Ui::IconComponent.new(name: "clock", size: 8, css_class: "text-gray-400") %>
         </div>
         <h3 class="text-sm font-medium text-gray-900 mb-1">No activity yet</h3>
         <p class="text-sm text-gray-500">
@@ -181,7 +181,7 @@
               class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               data-action="click->activity-timeline#loadMore">
         Load more activity
-        <%= heroicon("chevron-down", variant: :solid, options: { class: "ml-2 -mr-1 h-4 w-4" }) %>
+        <%= render Ui::IconComponent.new(name: "chevron-down", size: 4, css_class: "ml-2 -mr-1") %>
       </button>
     </div>
   <% end %>

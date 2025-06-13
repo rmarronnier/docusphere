@@ -24,7 +24,8 @@
         </div>
       </div>
 
-      <form id="createSpaceForm" class="mt-5 sm:mt-6">
+      <form id="createSpaceForm" class="mt-5 sm:mt-6" action="<%= ged_create_space_path %>" method="post">
+        <%= token_tag %>
         <div class="space-y-4">
           <div>
             <label for="space_name" class="block text-sm font-medium text-gray-700">
@@ -84,3 +85,4 @@
     </div>
   </div>
 </div>
+

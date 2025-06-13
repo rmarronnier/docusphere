@@ -20,14 +20,14 @@
                     class: "p-1.5 bg-white rounded-lg shadow-sm #{action[:class]}",
                     title: action[:title],
                     data: action[:data] || {} do %>
-                  <%= helpers.heroicon(action[:icon], variant: :outline, options: { class: "w-4 h-4" }) %>
+                  <%= render Ui::IconComponent.new(name: action[:icon], size: 4) %>
                 <% end %>
               <% else %>
                 <button type="button"
                         class="p-1.5 bg-white rounded-lg shadow-sm #{action[:class]}"
                         title="<%= action[:title] %>"
                         <%= tag.attributes(action[:data] || {}) %>>
-                  <%= helpers.heroicon(action[:icon], variant: :outline, options: { class: "w-4 h-4" }) %>
+                  <%= render Ui::IconComponent.new(name: action[:icon], size: 4) %>
                 </button>
               <% end %>
             <% end %>
@@ -46,7 +46,7 @@
           <div class="absolute bottom-2 left-2 flex items-center space-x-1">
             <% status_indicators.each do |indicator| %>
               <div class="bg-white bg-opacity-90 rounded-full p-1" title="<%= indicator[:title] %>">
-                <%= helpers.heroicon(indicator[:icon], variant: :solid, options: { class: "w-4 h-4 #{indicator[:color]}" }) %>
+                <%= render Ui::IconComponent.new(name: indicator[:icon], size: 4, css_class: indicator[:color]) %>
               </div>
             <% end %>
           </div>
@@ -121,7 +121,7 @@
                     class: "inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 border border-gray-300",
                     method: action[:method] || :get,
                     data: action[:data] || {} do %>
-                  <%= helpers.heroicon(action[:icon], variant: :outline, options: { class: "w-3.5 h-3.5 mr-1" }) %>
+                  <%= render Ui::IconComponent.new(name: action[:icon], size: 3, css_class: "mr-1") %>
                   <%= action[:label] %>
                 <% end %>
               <% end %>
@@ -172,7 +172,7 @@
       <div class="flex items-center justify-between">
         <div class="flex items-center min-w-0 flex-1">
           <div class="flex-shrink-0">
-            <%= helpers.heroicon(document_icon, variant: :outline, options: { class: "h-5 w-5 text-gray-400" }) %>
+            <%= render Ui::IconComponent.new(name: document_icon, size: 5, css_class: "text-gray-400") %>
           </div>
           <div class="ml-4 min-w-0 flex-1">
             <div class="flex items-center justify-between">
@@ -183,7 +183,7 @@
                 <!-- Status Indicators -->
                 <% status_indicators.each do |indicator| %>
                   <div title="<%= indicator[:title] %>">
-                    <%= helpers.heroicon(indicator[:icon], variant: :solid, options: { class: "w-4 h-4 #{indicator[:color]}" }) %>
+                    <%= render Ui::IconComponent.new(name: indicator[:icon], size: 4, css_class: indicator[:color]) %>
                   </div>
                 <% end %>
                 
@@ -222,14 +222,14 @@
                     class: "p-2 text-gray-400 hover:text-gray-600 rounded-md hover:bg-gray-100",
                     title: action[:title],
                     data: action[:data] || {} do %>
-                  <%= helpers.heroicon(action[:icon], variant: :outline, options: { class: "w-4 h-4" }) %>
+                  <%= render Ui::IconComponent.new(name: action[:icon], size: 4) %>
                 <% end %>
               <% else %>
                 <button type="button"
                         class="p-2 text-gray-400 hover:text-gray-600 rounded-md hover:bg-gray-100"
                         title="<%= action[:title] %>"
                         <%= tag.attributes(action[:data] || {}) %>>
-                  <%= helpers.heroicon(action[:icon], variant: :outline, options: { class: "w-4 h-4" }) %>
+                  <%= render Ui::IconComponent.new(name: action[:icon], size: 4) %>
                 </button>
               <% end %>
             <% end %>

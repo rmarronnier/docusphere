@@ -4,6 +4,7 @@ export default class extends Controller {
   static values = { space: Number, folder: Number }
   
   connect() {
+    console.log('GED Controller connected')
     this.setupFormSubmissions()
     this.setupSpaceChanges()
     this.setupDragAndDrop()
@@ -41,9 +42,30 @@ export default class extends Controller {
   }
 
   setupFormSubmissions() {
+    // Use a MutationObserver to watch for forms being added to the DOM
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        mutation.addedNodes.forEach((node) => {
+          if (node.nodeType === 1) { // Element node
+            // Check if the node is a form or contains forms
+            this.attachFormHandlers(node)
+          }
+        })
+      })
+    })
+    
+    // Start observing the document body for added nodes
+    observer.observe(document.body, { childList: true, subtree: true })
+    
+    // Also attach to any existing forms
+    this.attachFormHandlers(document.body)
+  }
+  
+  attachFormHandlers(container) {
     // Formulaire de création d'espace
-    const createSpaceForm = document.getElementById('createSpaceForm')
-    if (createSpaceForm) {
+    const createSpaceForm = container.querySelector ? container.querySelector('#createSpaceForm') : (container.id === 'createSpaceForm' ? container : null)
+    if (createSpaceForm && !createSpaceForm.hasAttribute('data-handler-attached')) {
+      createSpaceForm.setAttribute('data-handler-attached', 'true')
       createSpaceForm.addEventListener('submit', (e) => {
         e.preventDefault()
         this.submitForm(createSpaceForm, '/ged/spaces', 'createSpaceErrors', 'createSpaceErrorsList')
@@ -51,8 +73,9 @@ export default class extends Controller {
     }
 
     // Formulaire de création de dossier
-    const createFolderForm = document.getElementById('createFolderForm')
-    if (createFolderForm) {
+    const createFolderForm = container.querySelector ? container.querySelector('#createFolderForm') : (container.id === 'createFolderForm' ? container : null)
+    if (createFolderForm && !createFolderForm.hasAttribute('data-handler-attached')) {
+      createFolderForm.setAttribute('data-handler-attached', 'true')
       createFolderForm.addEventListener('submit', (e) => {
         e.preventDefault()
         this.submitForm(createFolderForm, '/ged/folders', 'createFolderErrors', 'createFolderErrorsList')
@@ -60,8 +83,9 @@ export default class extends Controller {
     }
 
     // Formulaire d'upload
-    const uploadForm = document.getElementById('uploadForm')
-    if (uploadForm) {
+    const uploadForm = container.querySelector ? container.querySelector('#uploadForm') : (container.id === 'uploadForm' ? container : null)
+    if (uploadForm && !uploadForm.hasAttribute('data-handler-attached')) {
+      uploadForm.setAttribute('data-handler-attached', 'true')
       uploadForm.addEventListener('submit', (e) => {
         e.preventDefault()
         this.submitForm(uploadForm, '/ged/documents', 'uploadErrors', 'uploadErrorsList')

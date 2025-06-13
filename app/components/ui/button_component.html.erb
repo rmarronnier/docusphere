@@ -2,7 +2,7 @@
 <% wrapper_options = href.present? ? html_options.merge(href: href) : html_options %>
 
 <% if dropdown %>
-  <div <%= tag.attributes(html_options.slice("data-controller", "data-action", "class")) %>>
+  <div class="relative inline-block text-left" <%= tag.attributes(html_options.slice("data-controller", "data-action").merge(class: "relative inline-block text-left")) %>>
     <%= content_tag wrapper_tag, wrapper_options.except("data-controller", "data-action") do %>
       <%= render_spinner if loading %>
       <%= render_icon if icon && icon_position == :left && !loading %>
@@ -10,7 +10,7 @@
       <%= render_icon if icon && icon_position == :right && !loading %>
     <% end %>
     <% if dropdown_items? %>
-      <div class="dropdown-menu">
+      <div class="dropdown-menu hidden absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none" data-dropdown-target="menu">
         <% dropdown_items.each do |item| %>
           <%= item %>
         <% end %>

@@ -32,6 +32,63 @@
     <%= yield %>
     
     <script>
+      // Global modal functions
+      window.openModal = function(modalId) {
+        console.log('Opening modal:', modalId);
+        const modal = document.getElementById(modalId);
+        if (modal) {
+          modal.classList.remove('hidden');
+          console.log('Modal opened successfully');
+        } else {
+          console.error('Modal not found:', modalId);
+        }
+      }
+      
+      window.closeModal = function(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+          modal.classList.add('hidden');
+          // Reset form if present
+          const form = modal.querySelector('form');
+          if (form) {
+            form.reset();
+            // Hide any error messages
+            const errorContainer = modal.querySelector('[id$="Errors"]');
+            if (errorContainer) {
+              errorContainer.classList.add('hidden');
+            }
+          }
+        }
+      }
+      
+      window.setSpaceContext = function(spaceId) {
+        // Pre-select space in modals
+        const folderSpaceSelect = document.getElementById('folder_space_id');
+        const documentSpaceSelect = document.getElementById('document_space_id');
+        
+        if (folderSpaceSelect) {
+          folderSpaceSelect.value = spaceId;
+        }
+        if (documentSpaceSelect) {
+          documentSpaceSelect.value = spaceId;
+        }
+      }
+      
+      window.setFolderContext = function(spaceId, folderId) {
+        // Pre-select space and folder in modals
+        window.setSpaceContext(spaceId);
+        
+        const folderParentSelect = document.getElementById('folder_parent_id');
+        const documentFolderSelect = document.getElementById('document_folder_id');
+        
+        if (folderParentSelect) {
+          folderParentSelect.value = folderId;
+        }
+        if (documentFolderSelect) {
+          documentFolderSelect.value = folderId;
+        }
+      }
+      
       // Clean up any lingering cursor states on page load
       document.addEventListener('DOMContentLoaded', function() {
         document.body.classList.remove('dashboard-dragging', 'widget-resizing');

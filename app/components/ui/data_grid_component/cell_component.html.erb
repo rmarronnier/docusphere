@@ -1,5 +1,7 @@
 <td class="<%= cell_classes %>">
-  <% if column.options[:link] %>
+  <% if column.content_block %>
+    <%= column.render_cell(item) %>
+  <% elsif column.options[:link] %>
     <%= link_to formatted_value, column.options[:link].call(item), 
                 class: "text-primary-600 hover:text-primary-900 font-medium" %>
   <% elsif column.options[:component] %>

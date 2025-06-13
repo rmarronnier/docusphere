@@ -14,7 +14,7 @@
                 class: "p-1.5 bg-white rounded-lg shadow-sm #{action[:class]}",
                 title: action[:title],
                 data: action[:data] || {} do %>
-              <%= helpers.heroicon(action[:icon], variant: :solid, options: { class: "w-4 h-4" }) %>
+              <%= render Ui::IconComponent.new(name: action[:icon], size: 4) %>
             <% end %>
           <% end %>
         </div>

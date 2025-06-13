@@ -24,7 +24,8 @@
         </div>
       </div>
 
-      <form id="createFolderForm" class="mt-5 sm:mt-6">
+      <form id="createFolderForm" class="mt-5 sm:mt-6" action="<%= ged_create_folder_path %>" method="post">
+        <%= token_tag %>
         <div class="space-y-4">
           <div>
             <label for="folder_space_id" class="block text-sm font-medium text-gray-700">
@@ -36,8 +37,10 @@
                       required
                       class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
                 <option value="">Sélectionner un espace</option>
-                <% current_user.organization.spaces.each do |space| %>
-                  <option value="<%= space.id %>"><%= space.name %></option>
+                <% if defined?(current_user) && current_user&.organization&.spaces&.any? %>
+                  <% current_user.organization.spaces.each do |space| %>
+                    <option value="<%= space.id %>"><%= space.name %></option>
+                  <% end %>
                 <% end %>
               </select>
             </div>
@@ -114,3 +117,4 @@
     </div>
   </div>
 </div>
+

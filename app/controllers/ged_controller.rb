@@ -15,8 +15,7 @@ class GedController < ApplicationController
 
   def dashboard
     @favorite_spaces = policy_scope(Space).limit(6)
-    @recent_documents = policy_scope(Document).where(uploaded_by: current_user)
-                                             .includes(:space, :folder)
+    @recent_documents = policy_scope(Document).includes(:space, :folder, :uploaded_by)
                                              .order(updated_at: :desc)
                                              .limit(10)
     @spaces_count = policy_scope(Space).count

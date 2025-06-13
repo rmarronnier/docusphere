@@ -211,7 +211,7 @@
               <% if document.uploaded_by %>
                 <div class="flex items-center space-x-2">
                   <%= render Ui::UserAvatarComponent.new(user: document.uploaded_by, size: :sm) %>
-                  <span class="text-sm text-gray-600"><%= document.uploaded_by.name %></span>
+                  <span class="text-sm text-gray-600"><%= document.uploaded_by.full_name %></span>
                 </div>
               <% else %>
                 <span class="text-sm text-gray-400">Inconnu</span>
@@ -252,25 +252,3 @@
 <%= render 'ged/modals/create_space' %>
 <%= render 'ged/modals/create_folder' %>
 <%= render 'ged/modals/upload_document' %>
-
-<script>
-  // Ensure modal functions are available
-  function openModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-      modal.classList.remove('hidden');
-    }
-  }
-  
-  function closeModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-      modal.classList.add('hidden');
-      // Reset form if present
-      const form = modal.querySelector('form');
-      if (form) {
-        form.reset();
-      }
-    }
-  }
-</script>
