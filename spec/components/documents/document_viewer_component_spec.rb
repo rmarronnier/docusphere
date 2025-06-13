@@ -26,7 +26,7 @@ RSpec.describe Documents::DocumentViewerComponent, type: :component do
         edit_ged_document_path: '/edit',
         new_ged_document_validation_request_path: '/validation/new',
         ged_document_versions_path: '/versions',
-        compare_ged_document_versions_path: '/versions/compare',
+        ged_compare_document_versions_path: '/versions/compare',
         audit_trail_ged_document_path: '/audit',
         heroicon: '<svg></svg>'.html_safe
       )

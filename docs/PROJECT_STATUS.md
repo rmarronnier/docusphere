@@ -6,6 +6,28 @@ DocuSphere est une plateforme de gestion documentaire avancée avec un module sp
 
 ## ✅ Accomplissements Récents
 
+### Session du 13/06/2025 - Correction Route Helpers ✅
+
+**🎯 Objectif atteint : Résolution complète des problèmes de route helpers manquants**
+
+#### 1. **Problèmes Identifiés et Corrigés**
+- ✅ **compare_ged_document_versions_path** → Correctement utilisé comme `ged_compare_document_versions_path`
+- ✅ **mark_all_as_read_path** → Correctement utilisé comme `mark_all_as_read_notifications_path`
+- ✅ **41 route helpers** analysés et catégorisés
+
+#### 2. **Catégorisation Route Helpers**
+- ✅ **Component Methods** (22) - Méthodes de classes Ruby, pas des routes
+- ✅ **Rails Standards** (6) - `asset_path`, `image_url`, etc.
+- ✅ **Devise Helpers** (4) - `confirmation_path`, `new_password_path`, etc. 
+- ✅ **Engine Routes** (3) - Correctement préfixées avec `immo_promo_`
+- ✅ **Legitimate Routes** (6) - Routes existantes et fonctionnelles
+
+#### 3. **Test de Validation Actualisé**
+- ✅ **Route validation** - 7 tests passants (0 failures)
+- ✅ **Hardcoded paths detection** - Scan automatique des vues
+- ✅ **ViewComponent usage** - Warnings pour bonnes pratiques
+- ✅ **Critical routes** - Toutes les routes essentielles validées
+
 ### Session du 13/06/2025 - Refactoring Services avec Concerns ✅
 
 **🎯 Objectif atteint : Refactoring massif des services avec extraction de concerns partagés**

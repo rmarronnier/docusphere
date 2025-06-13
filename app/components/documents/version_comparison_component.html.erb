@@ -8,7 +8,7 @@
   <% if can_compare? %>
     <!-- Version selector -->
     <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
-      <%= form_with url: helpers.compare_ged_document_versions_path(document), 
+      <%= form_with url: helpers.ged_compare_document_versions_path(document), 
                     method: :get,
                     data: { controller: "version-selector", action: "change->version-selector#submit" } do |f| %>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">

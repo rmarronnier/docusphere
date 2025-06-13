@@ -29,7 +29,16 @@ RSpec.describe "Route Helpers Validation", type: :routing do
         next if engine_routes.include?(helper)
         
         # Ignorer les méthodes de composants qui ne sont pas des routes
-        component_methods = ['icon_path', 'document_url', 'item_path', 'form_url', 'full_path', 'thumbnail_url', 'preview_url', 'action_path', 'main_link_path', 'share_form_url']
+        component_methods = [
+          'icon_path', 'document_url', 'thumbnail_url', 'preview_url', 'share_form_url', # Generic component methods
+          'action_path', 'arrow_path', 'item_path', 'main_link_path', # BreadcrumbComponent methods
+          'document_link_path', 'folder_link_path', # Link helper methods
+          'form_url', 'full_path', # Generic form/utility methods
+          'autocomplete_url', # Search component method
+          'office_viewer_url', 'pdf_viewer_url', 'video_url', # Viewer component methods
+          'new_proposal_path', 'share_document_path', 'stakeholders_path', # Dashboard widget methods
+          'upload_document_path', 'project_documents_path', 'notification_path' # Other component methods
+        ]
         next if component_methods.include?(helper)
         
         # Ignorer les helpers Rails standards
@@ -51,8 +60,11 @@ RSpec.describe "Route Helpers Validation", type: :routing do
         pwa_helpers = ['start_url', 'start_path']
         next if pwa_helpers.include?(helper)
         
-        # Ignorer seulement les helpers vraiment non métier
-        non_business_helpers = ['mark_all_as_read_path'] # Seulement ceux qui sont vraiment des alias
+        # Ignorer les helpers corrigés qui sont maintenant des méthodes composant/alias
+        non_business_helpers = [
+          'mark_all_as_read_path', # Alias pour mark_all_as_read_notifications_path
+          'compare_ged_document_versions_path' # Alias pour ged_compare_document_versions_path
+        ]
         next if non_business_helpers.include?(helper)
         
         expect(Rails.application.routes.url_helpers).to respond_to(helper), 

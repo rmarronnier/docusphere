@@ -34,7 +34,7 @@
         <h3 class="text-sm font-semibold text-gray-900">Notifications</h3>
         <div class="flex items-center space-x-2">
           <% if unread_count > 0 %>
-            <%= link_to mark_all_as_read_path,
+            <%= link_to helpers.mark_all_as_read_notifications_path,
                 method: :post,
                 remote: true,
                 class: "text-xs text-primary-600 hover:text-primary-800 font-medium",

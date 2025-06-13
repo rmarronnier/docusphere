@@ -41,7 +41,7 @@ RSpec.describe Documents::VersionComparisonComponent, type: :component do
     allow(User).to receive(:find_by).with(id: user.id.to_s).and_return(user)
     allow_any_instance_of(described_class).to receive(:helpers).and_return(
       double(
-        compare_ged_document_versions_path: "/compare/#{document.id}",
+        ged_compare_document_versions_path: "/compare/#{document.id}",
         restore_ged_document_version_path: ->(doc, version_id) { "/restore/#{doc.id}/#{version_id}" }
       )
     )
