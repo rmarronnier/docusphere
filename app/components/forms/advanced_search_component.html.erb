@@ -1,0 +1,381 @@
+<div class="advanced-search-component" data-controller="<%= stimulus_controllers %>">
+  <%= form_with url: helpers.search_documents_path, method: :get, id: form_id, data: { turbo_frame: "search-results" } do |f| %>
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+      
+      <!-- Header avec titre et actions -->
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+          Recherche avancée
+          <% if has_active_filters? %>
+            <span class="ml-2 text-sm font-normal text-gray-500">
+              (<%= active_filters_count %> filtres actifs)
+            </span>
+          <% end %>
+        </h3>
+        
+        <div class="flex items-center gap-2">
+          <% if has_active_filters? %>
+            <%= link_to helpers.url_for(helpers.params.permit.except(:search)), class: "text-sm text-red-600 hover:text-red-700" do %>
+              Réinitialiser
+            <% end %>
+          <% end %>
+          
+          <% if show_saved_searches && saved_searches.any? %>
+            <div class="relative" data-controller="dropdown">
+              <button type="button" class="text-sm text-blue-600 hover:text-blue-700" data-action="dropdown#toggle">
+                Recherches sauvegardées
+              </button>
+              <div class="hidden absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg z-10" data-dropdown-target="menu">
+                <% saved_searches.each do |search| %>
+                  <%= link_to search.name, helpers.search_documents_path(saved_search_id: search.id), 
+                      class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" %>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Champ de recherche principal -->
+      <div class="mb-6">
+        <%= f.label :query, "Rechercher", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+        <%= f.text_field :query, 
+            value: search_params[:query],
+            placeholder: "Rechercher dans les documents...",
+            class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500",
+            data: { 
+              autocomplete_target: "input",
+              autocomplete_url: autocomplete_url
+            } %>
+      </div>
+
+      <!-- Filtres en accordéon -->
+      <div class="space-y-4" data-controller="accordion">
+        
+        <!-- Catégories et statuts -->
+        <div class="border border-gray-200 rounded-lg">
+          <button type="button" class="w-full px-4 py-3 text-left flex items-center justify-between hover:bg-gray-50"
+                  data-action="accordion#toggle">
+            <span class="font-medium text-gray-700">Catégories et statuts</span>
+            <svg class="w-5 h-5 text-gray-400 transform transition-transform" data-accordion-target="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </button>
+          
+          <div class="px-4 pb-4 hidden" data-accordion-target="content">
+            <div class="grid grid-cols-2 gap-4 mt-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Catégories</label>
+                <div class="space-y-2 max-h-40 overflow-y-auto">
+                  <% category_options.each do |label, value| %>
+                    <label class="flex items-center">
+                      <%= check_box_tag "search[categories][]", value, 
+                          selected_categories.include?(value),
+                          class: "rounded border-gray-300 text-blue-600 focus:ring-blue-500" %>
+                      <span class="ml-2 text-sm text-gray-700"><%= label %></span>
+                    </label>
+                  <% end %>
+                </div>
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Statuts</label>
+                <div class="space-y-2">
+                  <% status_options.each do |label, value| %>
+                    <label class="flex items-center">
+                      <%= check_box_tag "search[statuses][]", value, 
+                          selected_statuses.include?(value),
+                          class: "rounded border-gray-300 text-blue-600 focus:ring-blue-500" %>
+                      <span class="ml-2 text-sm text-gray-700"><%= label %></span>
+                    </label>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Types de fichiers -->
+        <div class="border border-gray-200 rounded-lg">
+          <button type="button" class="w-full px-4 py-3 text-left flex items-center justify-between hover:bg-gray-50"
+                  data-action="accordion#toggle">
+            <span class="font-medium text-gray-700">Types de fichiers</span>
+            <svg class="w-5 h-5 text-gray-400 transform transition-transform" data-accordion-target="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </button>
+          
+          <div class="px-4 pb-4 hidden" data-accordion-target="content">
+            <div class="grid grid-cols-3 gap-2 mt-4">
+              <% content_type_options.each do |label, value| %>
+                <label class="flex items-center">
+                  <%= check_box_tag "search[content_types][]", value, 
+                      selected_content_types.include?(value),
+                      class: "rounded border-gray-300 text-blue-600 focus:ring-blue-500" %>
+                  <span class="ml-2 text-sm text-gray-700"><%= label %></span>
+                </label>
+              <% end %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dates -->
+        <div class="border border-gray-200 rounded-lg">
+          <button type="button" class="w-full px-4 py-3 text-left flex items-center justify-between hover:bg-gray-50"
+                  data-action="accordion#toggle">
+            <span class="font-medium text-gray-700">Dates</span>
+            <svg class="w-5 h-5 text-gray-400 transform transition-transform" data-accordion-target="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </button>
+          
+          <div class="px-4 pb-4 hidden" data-accordion-target="content">
+            <div class="space-y-4 mt-4">
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <%= f.label :date_field, "Champ de date", class: "block text-sm font-medium text-gray-700 mb-1" %>
+                  <%= f.select :date_field, options_for_select(date_field_options, search_params[:date_field]),
+                      { prompt: "Sélectionner..." },
+                      class: "w-full px-3 py-2 border border-gray-300 rounded-md" %>
+                </div>
+                
+                <div>
+                  <%= f.label :date_range, "Période", class: "block text-sm font-medium text-gray-700 mb-1" %>
+                  <%= f.select :date_range, options_for_select(date_range_options, search_params[:date_range]),
+                      { prompt: "Sélectionner..." },
+                      class: "w-full px-3 py-2 border border-gray-300 rounded-md",
+                      data: { action: "change->advanced-search#toggleCustomDates" } %>
+                </div>
+              </div>
+              
+              <div class="grid grid-cols-2 gap-4 <%= 'hidden' unless show_custom_date_fields? %>" data-advanced-search-target="customDates">
+                <div>
+                  <%= f.label :date_from, "Du", class: "block text-sm font-medium text-gray-700 mb-1" %>
+                  <%= f.date_field :date_from, value: search_params[:date_from],
+                      class: "w-full px-3 py-2 border border-gray-300 rounded-md" %>
+                </div>
+                
+                <div>
+                  <%= f.label :date_to, "Au", class: "block text-sm font-medium text-gray-700 mb-1" %>
+                  <%= f.date_field :date_to, value: search_params[:date_to],
+                      class: "w-full px-3 py-2 border border-gray-300 rounded-md" %>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Utilisateurs et projets -->
+        <% if available_users.any? || available_projects.any? %>
+          <div class="border border-gray-200 rounded-lg">
+            <button type="button" class="w-full px-4 py-3 text-left flex items-center justify-between hover:bg-gray-50"
+                    data-action="accordion#toggle">
+              <span class="font-medium text-gray-700">Utilisateurs et projets</span>
+              <svg class="w-5 h-5 text-gray-400 transform transition-transform" data-accordion-target="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+              </svg>
+            </button>
+            
+            <div class="px-4 pb-4 hidden" data-accordion-target="content">
+              <div class="grid grid-cols-2 gap-4 mt-4">
+                <% if available_users.any? %>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Uploadé par</label>
+                    <div class="space-y-2 max-h-40 overflow-y-auto">
+                      <% available_users.each do |name, id| %>
+                        <label class="flex items-center">
+                          <%= check_box_tag "search[uploaded_by][]", id, 
+                              selected_users.include?(id.to_s),
+                              class: "rounded border-gray-300 text-blue-600 focus:ring-blue-500" %>
+                          <span class="ml-2 text-sm text-gray-700"><%= name %></span>
+                        </label>
+                      <% end %>
+                    </div>
+                  </div>
+                <% end %>
+                
+                <% if available_projects.any? %>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Projets</label>
+                    <div class="space-y-2 max-h-40 overflow-y-auto">
+                      <% available_projects.each do |name, id| %>
+                        <label class="flex items-center">
+                          <%= check_box_tag "search[project_ids][]", id, 
+                              selected_projects.include?(id.to_s),
+                              class: "rounded border-gray-300 text-blue-600 focus:ring-blue-500" %>
+                          <span class="ml-2 text-sm text-gray-700"><%= name %></span>
+                        </label>
+                      <% end %>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+
+        <!-- Tags -->
+        <div class="border border-gray-200 rounded-lg">
+          <button type="button" class="w-full px-4 py-3 text-left flex items-center justify-between hover:bg-gray-50"
+                  data-action="accordion#toggle">
+            <span class="font-medium text-gray-700">Tags</span>
+            <svg class="w-5 h-5 text-gray-400 transform transition-transform" data-accordion-target="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </button>
+          
+          <div class="px-4 pb-4 hidden" data-accordion-target="content">
+            <div class="mt-4">
+              <div class="mb-3" data-controller="tag-selector">
+                <%= f.text_field :tags_input, 
+                    placeholder: "Ajouter des tags...",
+                    class: "w-full px-3 py-2 border border-gray-300 rounded-md",
+                    data: { 
+                      tag_selector_target: "input",
+                      action: "keydown.enter->tag-selector#addTag"
+                    } %>
+                
+                <div class="mt-2 flex flex-wrap gap-2" data-tag-selector-target="container">
+                  <% selected_tags.each do |tag| %>
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
+                      <%= tag %>
+                      <%= hidden_field_tag "search[tags][]", tag %>
+                      <button type="button" class="ml-2 text-blue-600 hover:text-blue-800" data-action="tag-selector#removeTag">
+                        &times;
+                      </button>
+                    </span>
+                  <% end %>
+                </div>
+              </div>
+              
+              <% if popular_tags.any? %>
+                <div>
+                  <p class="text-sm text-gray-600 mb-2">Tags populaires :</p>
+                  <div class="flex flex-wrap gap-2">
+                    <% popular_tags.each do |tag_data| %>
+                      <button type="button" 
+                              class="text-sm px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded"
+                              data-action="tag-selector#addPopularTag"
+                              data-tag="<%= tag_data[:name] %>">
+                        <%= tag_data[:name] %> (<%= tag_data[:count] %>)
+                      </button>
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Autres critères -->
+        <div class="border border-gray-200 rounded-lg">
+          <button type="button" class="w-full px-4 py-3 text-left flex items-center justify-between hover:bg-gray-50"
+                  data-action="accordion#toggle">
+            <span class="font-medium text-gray-700">Autres critères</span>
+            <svg class="w-5 h-5 text-gray-400 transform transition-transform" data-accordion-target="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </button>
+          
+          <div class="px-4 pb-4 hidden" data-accordion-target="content">
+            <div class="space-y-4 mt-4">
+              <!-- Taille du fichier -->
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <%= f.label :size_min, "Taille minimale", class: "block text-sm font-medium text-gray-700 mb-1" %>
+                  <%= f.text_field :size_min, 
+                      value: search_params[:size_min],
+                      placeholder: "ex: 100KB, 5MB",
+                      class: "w-full px-3 py-2 border border-gray-300 rounded-md" %>
+                </div>
+                
+                <div>
+                  <%= f.label :size_max, "Taille maximale", class: "block text-sm font-medium text-gray-700 mb-1" %>
+                  <%= f.text_field :size_max, 
+                      value: search_params[:size_max],
+                      placeholder: "ex: 10MB, 1GB",
+                      class: "w-full px-3 py-2 border border-gray-300 rounded-md" %>
+                </div>
+              </div>
+              
+              <!-- Validation -->
+              <div>
+                <%= f.label :validation_status, "Statut de validation", class: "block text-sm font-medium text-gray-700 mb-1" %>
+                <%= f.select :validation_status, 
+                    options_for_select(validation_status_options, search_params[:validation_status]),
+                    { prompt: "Tous les statuts" },
+                    class: "w-full px-3 py-2 border border-gray-300 rounded-md" %>
+              </div>
+              
+              <!-- Options de recherche -->
+              <div class="space-y-2">
+                <label class="flex items-center">
+                  <%= f.check_box :include_archived, checked: search_params[:include_archived] == '1',
+                      class: "rounded border-gray-300 text-blue-600 focus:ring-blue-500" %>
+                  <span class="ml-2 text-sm text-gray-700">Inclure les documents archivés</span>
+                </label>
+                
+                <label class="flex items-center">
+                  <%= f.check_box :with_versions_only, checked: search_params[:with_versions_only] == '1',
+                      class: "rounded border-gray-300 text-blue-600 focus:ring-blue-500" %>
+                  <span class="ml-2 text-sm text-gray-700">Uniquement les documents avec versions</span>
+                </label>
+                
+                <label class="flex items-center">
+                  <%= f.check_box :my_documents_only, checked: search_params[:my_documents_only] == '1',
+                      class: "rounded border-gray-300 text-blue-600 focus:ring-blue-500" %>
+                  <span class="ml-2 text-sm text-gray-700">Uniquement mes documents</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tri -->
+        <div class="border border-gray-200 rounded-lg">
+          <button type="button" class="w-full px-4 py-3 text-left flex items-center justify-between hover:bg-gray-50"
+                  data-action="accordion#toggle">
+            <span class="font-medium text-gray-700">Tri et affichage</span>
+            <svg class="w-5 h-5 text-gray-400 transform transition-transform" data-accordion-target="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </button>
+          
+          <div class="px-4 pb-4 hidden" data-accordion-target="content">
+            <div class="grid grid-cols-2 gap-4 mt-4">
+              <div>
+                <%= f.label :sort_by, "Trier par", class: "block text-sm font-medium text-gray-700 mb-1" %>
+                <%= f.select :sort_by, options_for_select(sort_options, search_params[:sort_by]),
+                    { prompt: "Par défaut" },
+                    class: "w-full px-3 py-2 border border-gray-300 rounded-md" %>
+              </div>
+              
+              <div>
+                <%= f.label :sort_order, "Ordre", class: "block text-sm font-medium text-gray-700 mb-1" %>
+                <%= f.select :sort_order, options_for_select(sort_order_options, search_params[:sort_order]),
+                    {},
+                    class: "w-full px-3 py-2 border border-gray-300 rounded-md" %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="mt-6 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <%= f.submit "Rechercher", class: "px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+          
+          <button type="button" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
+                  data-action="advanced-search#saveSearch">
+            Sauvegarder cette recherche
+          </button>
+        </div>
+        
+        <div class="text-sm text-gray-500">
+          <span data-advanced-search-target="resultCount"></span>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>

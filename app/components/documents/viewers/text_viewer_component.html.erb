@@ -1,0 +1,36 @@
+<div class="text-viewer h-full flex flex-col">
+  <% if is_code_file? %>
+    <!-- Code viewer with syntax highlighting -->
+    <div class="code-toolbar bg-gray-800 text-white px-4 py-2 flex items-center justify-between">
+      <div class="flex items-center space-x-4">
+        <span class="text-sm font-mono"><%= document.title %></span>
+        <span class="text-xs text-gray-400"><%= syntax_language.upcase %></span>
+      </div>
+      <div class="flex items-center space-x-2">
+        <button type="button" 
+                class="text-sm hover:text-gray-300"
+                data-action="click->code-viewer#copy">
+          <%= render Ui::IconComponent.new(name: :clipboard, size: 4, css_class: "mr-1 inline") %>
+          Copy
+        </button>
+        <% if show_actions %>
+          <%= download_button %>
+        <% end %>
+      </div>
+    </div>
+    <div class="flex-1 overflow-auto bg-gray-900">
+      <pre class="p-4 text-sm"><code class="language-<%= syntax_language %>" data-code-viewer-target="code"><%= text_content %></code></pre>
+    </div>
+  <% else %>
+    <!-- Plain text viewer -->
+    <div class="text-toolbar bg-gray-100 border-b px-4 py-2 flex items-center justify-between">
+      <span class="font-medium"><%= document.title %></span>
+      <% if show_actions %>
+        <%= download_button %>
+      <% end %>
+    </div>
+    <div class="flex-1 overflow-auto p-6 bg-white">
+      <pre class="whitespace-pre-wrap font-mono text-sm"><%= text_content %></pre>
+    </div>
+  <% end %>
+</div>

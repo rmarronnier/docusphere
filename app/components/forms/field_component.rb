@@ -1,18 +1,19 @@
 # Base component for all form fields with consistent styling and error handling
 class Forms::FieldComponent < ApplicationComponent
-  def initialize(form:, attribute:, label: nil, hint: nil, required: false, wrapper_class: nil, **options)
+  def initialize(form:, attribute:, label: nil, hint: nil, required: false, wrapper_class: nil, layout: :stacked, **options)
     @form = form
     @attribute = attribute.to_sym
     @label = label
     @hint = hint
     @required = required
     @wrapper_class = wrapper_class || 'mb-4'
+    @layout = layout.to_sym # :stacked or :inline
     @options = options
   end
 
   protected
 
-  attr_reader :form, :attribute, :label, :hint, :required, :wrapper_class, :options
+  attr_reader :form, :attribute, :label, :hint, :required, :wrapper_class, :layout, :options
 
   def render_label
     label_text = @label || @attribute.to_s.humanize
@@ -44,7 +45,12 @@ class Forms::FieldComponent < ApplicationComponent
   end
 
   def label_classes
-    'block text-sm font-medium text-gray-700 mb-1'
+    base_classes = 'text-sm font-medium text-gray-700'
+    if inline_layout?
+      "#{base_classes} flex-shrink-0 w-1/3 pt-2"
+    else
+      "#{base_classes} block mb-1"
+    end
   end
   
   def field_classes
@@ -82,6 +88,30 @@ class Forms::FieldComponent < ApplicationComponent
     opts[:aria][:describedby] = aria_describedby if aria_describedby
     opts[:aria][:invalid] = true if has_errors?
     opts
+  end
+
+  def inline_layout?
+    @layout == :inline
+  end
+
+  def stacked_layout?
+    @layout == :stacked
+  end
+
+  def field_wrapper_classes
+    if inline_layout?
+      'flex-1'
+    else
+      ''
+    end
+  end
+
+  def hint_and_errors_wrapper_classes
+    if inline_layout?
+      'ml-auto flex-1'
+    else
+      ''
+    end
   end
 
 end

@@ -2,44 +2,53 @@
 
 <div class="space-y-6">
   <!-- Project Header -->
-  <div class="bg-white shadow rounded-lg p-6">
-    <div class="md:flex md:items-center md:justify-between">
-      <div class="min-w-0 flex-1">
-        <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
-          <%= @project.name %>
-        </h2>
-        <p class="mt-1 text-sm text-gray-500">
-          Référence: <%= @project.reference_number %>
-        </p>
-      </div>
-      <div class="mt-4 flex space-x-3 md:ml-4 md:mt-0">
-        <% if policy(@project).edit? %>
-          <%= link_to "Modifier", immo_promo_engine.edit_project_path(@project),
-                      class: "inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" %>
-        <% end %>
-        <%= link_to "Documents", immo_promo_engine.project_documents_path(@project),
-                    class: "inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500" %>
-        <%= link_to "Phases", immo_promo_engine.project_phases_path(@project),
-                    class: "inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" %>
-        <%= link_to "Budget", immo_promo_engine.project_budgets_path(@project),
-                    class: "inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" %>
-        <%= link_to "Permis", immo_promo_engine.project_permits_path(@project),
-                    class: "inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" %>
-        <%= link_to "Intervenants", immo_promo_engine.project_stakeholders_path(@project),
-                    class: "inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" %>
-      </div>
-    </div>
+  <%= render Immo::Promo::Shared::HeaderCardComponent.new(
+    title: @project.name,
+    subtitle: "Référence: #{@project.reference_number}",
+    actions: [
+      (policy(@project).edit? ? {
+        text: "Modifier",
+        href: immo_promo_engine.edit_project_path(@project),
+        type: :secondary
+      } : nil),
+      {
+        text: "Documents",
+        href: immo_promo_engine.project_documents_path(@project),
+        type: :primary
+      },
+      {
+        text: "Phases",
+        href: immo_promo_engine.project_phases_path(@project),
+        type: :secondary
+      },
+      {
+        text: "Budget",
+        href: immo_promo_engine.project_budgets_path(@project),
+        type: :secondary
+      },
+      {
+        text: "Permis",
+        href: immo_promo_engine.project_permits_path(@project),
+        type: :secondary
+      },
+      {
+        text: "Intervenants",
+        href: immo_promo_engine.project_stakeholders_path(@project),
+        type: :secondary
+      }
+    ].compact,
+    extra_classes: "mb-4"
+  ) %>
 
-    <!-- Project Status Badge -->
-    <div class="mt-4">
-      <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
-                   <%= @project.status == 'planning' ? 'bg-blue-100 text-blue-800' :
-                       @project.status == 'construction' ? 'bg-yellow-100 text-yellow-800' :
-                       @project.status == 'completed' ? 'bg-green-100 text-green-800' :
-                       'bg-gray-100 text-gray-800' %>">
-        <%= @project.status.humanize %>
-      </span>
-    </div>
+  <!-- Project Status Badge -->
+  <div class="bg-white shadow rounded-lg p-6 mb-4">
+    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
+                 <%= @project.status == 'planning' ? 'bg-blue-100 text-blue-800' :
+                     @project.status == 'construction' ? 'bg-yellow-100 text-yellow-800' :
+                     @project.status == 'completed' ? 'bg-green-100 text-green-800' :
+                     'bg-gray-100 text-gray-800' %>">
+      <%= @project.status.humanize %>
+    </span>
   </div>
 
   <!-- Project Info Grid -->

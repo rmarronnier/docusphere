@@ -6,15 +6,6 @@ class BaseListComponent < ApplicationComponent
     @wrapper_class = wrapper_class || default_wrapper_class
   end
   
-  def call
-    if @items.any?
-      content_tag :div, class: @wrapper_class do
-        @items.map { |item| render_item(item) }.join.html_safe
-      end
-    else
-      render_empty_state
-    end
-  end
   
   protected
   

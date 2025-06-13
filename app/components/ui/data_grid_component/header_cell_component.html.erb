@@ -1,0 +1,23 @@
+<th scope="col"
+    class="<%= header_classes %>"
+    role="columnheader"
+    <% if column.width %>style="width: <%= column.width %>"<% end %>
+    <%= sortable_attributes.map { |k, v| "#{k}=\"#{v}\"" }.join(' ').html_safe if column.sortable %>>
+  <div class="<%= flex_classes %>">
+    <%= column.label %>
+    <% if column.sortable %>
+      <% if column.key.to_s == current_sort_key.to_s %>
+        <% if current_sort_direction == "asc" %>
+          <%= render Ui::IconComponent.new(name: :chevron_up, size: 4, css_class: "ml-1 text-gray-600") %>
+        <% else %>
+          <%= render Ui::IconComponent.new(name: :chevron_down, size: 4, css_class: "ml-1 text-gray-600") %>
+        <% end %>
+      <% else %>
+        <!-- Neutral sort indicator -->
+        <svg class="ml-1 h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
+        </svg>
+      <% end %>
+    <% end %>
+  </div>
+</th>

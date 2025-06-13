@@ -1,0 +1,69 @@
+<% if @variant == :pill %>
+  <span class="<%= pill_classes %>">
+    <% if @icon %>
+      <span class="inline-block w-4 h-4" aria-hidden="true">
+        <%= @icon.html_safe %>
+      </span>
+    <% end %>
+    
+    <% if @label.present? %>
+      <%= @label %>
+    <% end %>
+    
+    <% if @removable %>
+      <button type="button"
+              class="<%= remove_button_classes_pill %>"
+              data-action="click->remove"
+              aria-label="Remove <%= @label %>">
+        <svg class="h-3 w-3" 
+             fill="none" 
+             stroke="currentColor" 
+             stroke-width="2" 
+             viewBox="0 0 24 24" 
+             aria-hidden="true" 
+             xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" 
+                stroke-linejoin="round" 
+                stroke-width="2" 
+                d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    <% end %>
+  </span>
+<% else %>
+  <span class="<%= badge_classes %>">
+    <% if @dot %>
+      <span class="<%= dot_indicator_classes %>" aria-hidden="true"></span>
+    <% end %>
+    
+    <% if @icon %>
+      <span class="inline-block w-4 h-4" aria-hidden="true">
+        <%= @icon.html_safe %>
+      </span>
+    <% end %>
+    
+    <% if @label.present? %>
+      <%= @label %>
+    <% end %>
+    
+    <% if @removable %>
+      <button type="button"
+              class="<%= remove_button_classes %>"
+              data-action="click->remove"
+              aria-label="Remove <%= @label %>">
+        <svg class="h-2 w-2" 
+             fill="none" 
+             stroke="currentColor" 
+             stroke-width="2" 
+             viewBox="0 0 24 24" 
+             aria-hidden="true" 
+             xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" 
+                stroke-linejoin="round" 
+                stroke-width="2" 
+                d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    <% end %>
+  </span>
+<% end %>

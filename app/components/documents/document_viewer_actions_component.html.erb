@@ -1,0 +1,17 @@
+<div class="document-viewer-actions">
+  <% if profile_actions.any? %>
+    <div class="flex flex-wrap gap-2">
+      <% profile_actions.each do |action| %>
+        <% link_data = action[:data] || {} %>
+        <% link_data[:confirm] = action[:confirm] if action[:confirm] %>
+        <%= link_to action[:path], 
+            method: action[:method], 
+            class: "inline-flex items-center px-3 py-2 text-sm font-medium rounded-md #{action[:css_class]}",
+            data: link_data do %>
+          <%= render Ui::IconComponent.new(name: action[:icon].to_sym, size: 4, css_class: "mr-2") %>
+          <%= action[:label] %>
+        <% end %>
+      <% end %>
+    </div>
+  <% end %>
+</div>

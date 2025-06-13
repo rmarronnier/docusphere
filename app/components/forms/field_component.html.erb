@@ -1,15 +1,37 @@
 <div class="<%= wrapper_class %>">
-  <% if should_render_label? %>
-    <%= render_label %>
-  <% end %>
-  
-  <%= render_field %>
-  
-  <% if hint.present? %>
-    <%= render_hint %>
-  <% end %>
-  
-  <% if has_errors? %>
-    <%= render_errors %>
+  <% if inline_layout? %>
+    <div class="flex items-start space-x-4">
+      <% if should_render_label? %>
+        <%= render_label %>
+      <% end %>
+      
+      <div class="<%= field_wrapper_classes %>">
+        <%= render_field %>
+        
+        <div class="<%= hint_and_errors_wrapper_classes %>">
+          <% if hint.present? %>
+            <%= render_hint %>
+          <% end %>
+          
+          <% if has_errors? %>
+            <%= render_errors %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% else %>
+    <% if should_render_label? %>
+      <%= render_label %>
+    <% end %>
+    
+    <%= render_field %>
+    
+    <% if hint.present? %>
+      <%= render_hint %>
+    <% end %>
+    
+    <% if has_errors? %>
+      <%= render_errors %>
+    <% end %>
   <% end %>
 </div>

@@ -1,0 +1,160 @@
+<div class="<%= card_classes %>">
+  <!-- En-tête de l'intervention -->
+  <div class="flex items-start justify-between">
+    <div class="flex-1 min-w-0">
+      <div class="flex items-center space-x-2 mb-1">
+        <%= render Ui::IconComponent.new(name: task_type_icon, size: 4, css_class: 'text-gray-600 flex-shrink-0') %>
+        <h3 class="font-medium text-gray-900 truncate">
+          <%= intervention.name %>
+        </h3>
+        
+        <!-- Badge de priorité (uniquement si élevée) -->
+        <% if intervention.priority.in?(['high', 'critical']) %>
+          <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium <%= priority_badge_color %>">
+            <%= priority_text %>
+          </span>
+        <% end %>
+      </div>
+      
+      <!-- Informations assignation -->
+      <div class="flex items-center space-x-4 text-sm text-gray-600">
+        <div class="flex items-center space-x-1">
+          <%= render Ui::IconComponent.new(name: 'user', size: 3) %>
+          <span><%= assigned_person_name %></span>
+        </div>
+        
+        <div class="flex items-center space-x-1">
+          <%= render Ui::IconComponent.new(name: 'building-office', size: 3) %>
+          <span><%= phase_name %></span>
+        </div>
+        
+        <div class="flex items-center space-x-1">
+          <%= render Ui::IconComponent.new(name: 'tag', size: 3) %>
+          <span><%= task_type_text %></span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Statut et date -->
+    <div class="text-right flex-shrink-0 ml-4">
+      <div class="flex items-center justify-end space-x-1 mb-1">
+        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 <%= intervention_status_color %>">
+          <%= intervention_status_text %>
+        </span>
+        
+        <!-- Indicateur de retard -->
+        <% if is_overdue? %>
+          <%= render Ui::IconComponent.new(name: 'exclamation-triangle', size: 4, css_class: 'text-red-500') %>
+        <% end %>
+      </div>
+      
+      <p class="text-sm text-gray-600">
+        <span class="font-medium"><%= display_date_label %>:</span><br>
+        <%= display_date %>
+      </p>
+      
+      <!-- Jours restants -->
+      <% if days_remaining && variant == :current %>
+        <p class="text-xs mt-1 <%= days_remaining <= 1 ? 'text-red-600 font-medium' : 'text-gray-500' %>">
+          <% if days_remaining == 0 %>
+            Échéance aujourd'hui
+          <% elsif days_remaining == 1 %>
+            1 jour restant
+          <% elsif days_remaining > 1 %>
+            <%= pluralize(days_remaining, 'jour restant', 'jours restants') %>
+          <% end %>
+        </p>
+      <% end %>
+    </div>
+  </div>
+  
+  <!-- Barre de progression -->
+  <% if show_progress && completion_percentage && completion_percentage > 0 %>
+    <div class="mt-3">
+      <%= render Immo::Promo::Shared::ProgressIndicatorComponent.new(
+          progress: completion_percentage,
+          show_label: true,
+          size: size == :small ? 'small' : 'medium',
+          color_scheme: progress_color_scheme
+      ) %>
+    </div>
+  <% end %>
+  
+  <!-- Compétences requises -->
+  <% if required_skills.any? %>
+    <div class="mt-2">
+      <div class="flex flex-wrap gap-1">
+        <% required_skills.first(3).each do |skill| %>
+          <span class="inline-flex items-center px-2 py-0.5 rounded text-xs bg-blue-100 text-blue-800">
+            <%= skill %>
+          </span>
+        <% end %>
+        <% if required_skills.count > 3 %>
+          <span class="inline-flex items-center px-2 py-0.5 rounded text-xs bg-gray-100 text-gray-600">
+            +<%= required_skills.count - 3 %>
+          </span>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+  
+  <!-- Timeline mini (si activée) -->
+  <% if show_timeline && timeline_items.any? %>
+    <div class="mt-3 pt-3 border-t border-gray-200">
+      <div class="flex items-center space-x-2 text-xs">
+        <% timeline_items.each_with_index do |item, index| %>
+          <div class="flex items-center space-x-1">
+            <div class="w-2 h-2 rounded-full <%= 
+              case item[:status]
+              when 'completed'
+                'bg-green-500'
+              when 'overdue'
+                'bg-red-500'
+              else
+                'bg-gray-300'
+              end
+            %>"></div>
+            <span class="text-gray-600">
+              <%= item[:label] %>: <%= l(item[:date], format: :long) %>
+            </span>
+          </div>
+          <% unless index == timeline_items.count - 1 %>
+            <div class="w-4 h-px bg-gray-300"></div>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+  
+  <!-- Actions rapides (si variant permet) -->
+  <% if variant == :current || variant == :upcoming %>
+    <div class="mt-3 pt-3 border-t border-gray-200">
+      <div class="flex items-center justify-between">
+        <div class="flex space-x-2">
+          <% if intervention.respond_to?(:can_start?) && !intervention.can_start? %>
+            <span class="text-xs text-amber-600 font-medium flex items-center space-x-1">
+              <%= render Ui::IconComponent.new(name: 'exclamation-triangle', size: 3) %>
+              <span>Prérequis non remplis</span>
+            </span>
+          <% end %>
+          
+          <% if intervention.estimated_hours && intervention.estimated_hours > 0 %>
+            <span class="text-xs text-gray-600">
+              <%= intervention.estimated_hours %>h estimées
+            </span>
+          <% end %>
+        </div>
+        
+        <div class="flex space-x-1">
+          <!-- Lien vers les détails -->
+          <% if defined?(helpers) %>
+            <%= link_to helpers.immo_promo_engine.project_phase_task_path(intervention.project, intervention.phase, intervention),
+                class: 'text-blue-600 hover:text-blue-700 text-xs font-medium' do %>
+              Voir détails
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>

@@ -48,6 +48,30 @@ RSpec.describe Forms::FieldComponent, type: :component do
       end
     end
 
+    context 'with inline layout' do
+      let(:options) { { layout: :inline } }
+
+      it 'renders with flex layout' do
+        render_inline(component)
+        expect(page).to have_css('.flex.items-start.space-x-4')
+      end
+
+      it 'applies inline label classes' do
+        render_inline(component)
+        expect(page).to have_css('label.flex-shrink-0.w-1\\/3.pt-2')
+      end
+    end
+
+    context 'with stacked layout' do
+      let(:options) { { layout: :stacked } }
+
+      it 'renders with block layout' do
+        render_inline(component)
+        expect(page).not_to have_css('.flex.items-start')
+        expect(page).to have_css('label.block.mb-1')
+      end
+    end
+
     context 'with custom label' do
       let(:options) { { label: 'Full Name' } }
 
@@ -103,8 +127,16 @@ RSpec.describe Forms::FieldComponent, type: :component do
 
   describe 'protected methods' do
     describe '#label_classes' do
-      it 'returns standard label classes' do
-        expect(component.send(:label_classes)).to eq 'block text-sm font-medium text-gray-700 mb-1'
+      it 'returns standard label classes for stacked layout' do
+        expect(component.send(:label_classes)).to eq 'text-sm font-medium text-gray-700 block mb-1'
+      end
+
+      context 'with inline layout' do
+        let(:options) { { layout: :inline } }
+
+        it 'returns inline label classes' do
+          expect(component.send(:label_classes)).to eq 'text-sm font-medium text-gray-700 flex-shrink-0 w-1/3 pt-2'
+        end
       end
     end
 

@@ -8,18 +8,6 @@ class Ui::DataGridComponent::CellComponent < ApplicationComponent
     @compact = compact
   end
 
-  def call
-    content_tag :td, class: cell_classes do
-      if column.options[:link]
-        link_to formatted_value, column.options[:link].call(item), 
-                class: "text-primary-600 hover:text-primary-900 font-medium"
-      elsif column.options[:component]
-        render column.options[:component].new(item: item, value: value)
-      else
-        formatted_value
-      end
-    end
-  end
 
   private
 

@@ -26,12 +26,26 @@ class Documents::DocumentActionsDropdownComponent < ViewComponent::Base
       }
       
       actions_list << { 
+        label: "Aperçu", 
+        icon: "eye", 
+        action: "preview",
+        data: { action: "click->document-actions#preview" }
+      }
+      
+      actions_list << { 
         label: "Imprimer", 
         icon: "document", 
         action: "print",
         data: { action: "click->document-viewer#print" }
       }
 
+      actions_list << {
+        label: "Partager",
+        icon: "share",
+        action: "share",
+        data: { action: "click->document-actions#share" }
+      }
+      
       actions_list << {
         label: "Générer lien public",
         icon: "external_link",
@@ -116,23 +130,23 @@ class Documents::DocumentActionsDropdownComponent < ViewComponent::Base
   end
 
   def download_action
-    helpers.download_ged_document_path(document)
+    helpers.ged_download_document_path(document)
   end
 
   def duplicate_action
-    helpers.duplicate_ged_document_path(document)
+    helpers.ged_duplicate_document_path(document)
   end
 
   def archive_action
-    helpers.archive_ged_document_path(document)
+    helpers.ged_archive_document_path(document)
   end
 
   def lock_action
-    helpers.lock_ged_document_path(document)
+    helpers.ged_lock_document_path(document)
   end
 
   def unlock_action
-    helpers.unlock_ged_document_path(document)
+    helpers.ged_unlock_document_path(document)
   end
 
   def delete_action
@@ -160,7 +174,6 @@ class Documents::DocumentActionsDropdownComponent < ViewComponent::Base
     
     users = current_user.organization.users
                        .where.not(id: current_user.id)
-                       .where(active: true)
                        .order(:last_name, :first_name)
     
     users.map { |user| [user.display_name, user.id] }

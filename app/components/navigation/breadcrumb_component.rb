@@ -1,18 +1,19 @@
 class Navigation::BreadcrumbComponent < ApplicationComponent
-  def initialize(items:, separator: :chevron, show_home: true, truncate: true, **options)
+  def initialize(items:, separator: :chevron, show_home: true, truncate: true, mobile_back: true, **options)
     @items = items
-    @separator = separator # :chevron, :slash, :arrow, :dot
+    @separator = separator # :chevron, :slash, :arrow, :dot, :ged
     @show_home = show_home
     @truncate = truncate
+    @mobile_back = mobile_back
     @options = options
   end
 
   private
 
-  attr_reader :items, :separator, :show_home, :truncate, :options
+  attr_reader :items, :separator, :show_home, :truncate, :mobile_back, :options
 
   def wrapper_classes
-    classes = ["breadcrumb-wrapper flex items-center space-x-2 text-sm"]
+    classes = ["flex mb-6"]
     classes << options[:class] if options[:class]
     classes.join(" ")
   end
@@ -27,6 +28,8 @@ class Navigation::BreadcrumbComponent < ApplicationComponent
       "arrow-right"
     when :dot
       nil # Use text
+    when :ged
+      nil # Use custom SVG
     else
       "chevron-right"
     end
@@ -43,6 +46,14 @@ class Navigation::BreadcrumbComponent < ApplicationComponent
     end
   end
 
+  def custom_separator_svg
+    return nil unless separator == :ged
+    
+    content_tag(:svg, class: "flex-shrink-0 h-5 w-5 text-gray-300", fill: "currentColor", viewBox: "0 0 20 20", "aria-hidden": "true") do
+      content_tag(:path, nil, d: "M5.555 17.776l8-16 .894.448-8 16-.894-.448z")
+    end
+  end
+
   def truncated_items
     return items unless truncate && items.length > 3
     
@@ -50,23 +61,10 @@ class Navigation::BreadcrumbComponent < ApplicationComponent
     [items.first, { name: "...", path: nil, truncated: true }] + items.last(2)
   end
 
-  def link_classes(item, index)
-    classes = ["breadcrumb-link inline-flex items-center"]
-    
-    if index == display_items.length - 1
-      # Last item (current page)
-      classes << "text-gray-700 font-medium cursor-default"
-    else
-      # Clickable items
-      classes << "text-gray-500 hover:text-gray-700 transition-colors duration-150"
-    end
-    
-    classes.join(" ")
-  end
 
   def display_items
     @display_items ||= begin
-      home_item = show_home ? [{ name: "Home", path: root_path, icon: "home" }] : []
+      home_item = show_home ? [{ name: "Accueil", path: root_path, icon: "home" }] : []
       breadcrumb_items = truncate && items.length > 3 ? truncated_items : items
       home_item + breadcrumb_items
     end
@@ -82,6 +80,6 @@ class Navigation::BreadcrumbComponent < ApplicationComponent
   end
 
   def root_path
-    options[:root_path] || "/"
+    options[:root_path] || helpers.root_path
   end
 end

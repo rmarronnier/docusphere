@@ -84,6 +84,66 @@ FactoryBot.define do
       attach_file { false }
       skip_file_validation { true }
     end
+    
+    trait :with_video_file do
+      after(:build) do |document|
+        document.file.attach(
+          io: StringIO.new("Fake video content"),
+          filename: "test_video.mp4",
+          content_type: "video/mp4"
+        )
+      end
+    end
+    
+    trait :with_excel_file do
+      after(:build) do |document|
+        document.file.attach(
+          io: StringIO.new("Excel file content"),
+          filename: "test.xlsx",
+          content_type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+      end
+    end
+    
+    trait :with_xlsx_file do
+      after(:build) do |document|
+        document.file.attach(
+          io: StringIO.new("Excel file content"),
+          filename: "test.xlsx",
+          content_type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+      end
+    end
+    
+    trait :with_docx_file do
+      after(:build) do |document|
+        document.file.attach(
+          io: StringIO.new("Word document content"),
+          filename: "test.docx",
+          content_type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        )
+      end
+    end
+    
+    trait :with_txt_file do
+      after(:build) do |document|
+        document.file.attach(
+          io: StringIO.new("Plain text content\nLine 2\nLine 3"),
+          filename: "test.txt",
+          content_type: "text/plain"
+        )
+      end
+    end
+    
+    trait :with_text_file do
+      after(:build) do |document|
+        document.file.attach(
+          io: StringIO.new("def hello\n  puts 'Hello, World!'\nend"),
+          filename: "test.rb",
+          content_type: "text/plain"
+        )
+      end
+    end
 
     factory :pdf_document do
       after(:build) do |document|

@@ -8,20 +8,20 @@
           <h1 class="text-xl font-semibold text-gray-900"><%= document.title %></h1>
           <div class="flex items-center space-x-4 mt-1 text-sm text-gray-600">
             <span class="flex items-center">
-              <%= heroicon("user", variant: :solid, options: { class: "w-4 h-4 mr-1" }) %>
+              <%= render Ui::IconComponent.new(name: :user, size: 4, css_class: "mr-1") %>
               <%= document.uploaded_by&.display_name || "Unknown" %>
             </span>
             <span class="flex items-center">
-              <%= heroicon("calendar", variant: :solid, options: { class: "w-4 h-4 mr-1" }) %>
+              <%= render Ui::IconComponent.new(name: :calendar, size: 4, css_class: "mr-1") %>
               <%= document.created_at.to_fs(:short) %>
             </span>
             <span class="flex items-center">
-              <%= heroicon("folder", variant: :solid, options: { class: "w-4 h-4 mr-1" }) %>
+              <%= render Ui::IconComponent.new(name: :folder, size: 4, css_class: "mr-1") %>
               <%= link_to document.folder&.name || "Root", helpers.ged_folder_path(document.folder || document.space), class: "text-blue-600 hover:underline" %>
             </span>
             <% if document.locked? %>
               <span class="flex items-center text-red-600">
-                <%= heroicon("lock-closed", variant: :solid, options: { class: "w-4 h-4 mr-1" }) %>
+                <%= render Ui::IconComponent.new(name: :lock_closed, size: 4, css_class: "mr-1") %>
                 Locked
               </span>
             <% end %>

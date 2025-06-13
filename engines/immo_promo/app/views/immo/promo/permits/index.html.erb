@@ -1,25 +1,14 @@
 <div class="space-y-6">
-  <div class="flex items-center justify-between">
-    <div>
-      <h1 class="text-2xl font-bold text-gray-900 flex items-center">
-        <%= render Ui::IconComponent.new(name: :clipboard, size: 8, css_class: "text-green-600 mr-3") %>
-        Permis et Autorisations
-      </h1>
-      <p class="mt-1 text-sm text-gray-600">
-        <%= pluralize(@permits.count, 'permis') %> 
-        pour le projet <%= @project.name %>
-      </p>
-    </div>
-    
-    <div class="flex items-center space-x-3">
-      <%= render Ui::ButtonComponent.new(
-        text: "Nouveau permis",
-        variant: :primary,
-        icon: :plus,
-        href: immo_promo_engine.new_project_permit_path(@project)
-      ) %>
-    </div>
-  </div>
+  <%= render Immo::Promo::Shared::HeaderCardComponent.new(
+    title: "Permis et Autorisations",
+    subtitle: "#{pluralize(@permits.count, 'permis')} pour le projet #{@project.name}",
+    actions: [{
+      text: "Nouveau permis",
+      href: immo_promo_engine.new_project_permit_path(@project),
+      type: :primary
+    }],
+    show_background: false
+  ) %>
 
   <!-- Filtres et statistiques -->
   <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">

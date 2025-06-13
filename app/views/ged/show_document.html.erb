@@ -1,6 +1,6 @@
 <%= render Layout::PageWrapperComponent.new do %>
       <!-- Breadcrumb -->
-      <%= render Navigation::BreadcrumbComponent.new(items: @breadcrumbs) %>
+      <%= ged_breadcrumb(@breadcrumbs) %>
       
       <!-- Advanced Document Viewer -->
       <div class="document-viewer-container min-h-screen">
@@ -427,4 +427,9 @@
 <%= render 'ged/modals/version_upload' if @document %>
 
 <!-- Share Modal -->
-<%= render Documents::DocumentShareModalComponent.new(document: @document) if @document %>
+<%= render Documents::DocumentShareModalComponent.new(document: @document, modal_id: 'share-modal') if @document %>
+
+<!-- Preview Modal -->
+<div id="preview-modal">
+  <%= render Documents::DocumentPreviewModalComponent.new(document: @document) if @document %>
+</div>

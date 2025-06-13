@@ -3,22 +3,53 @@
     <span class="text-gray-500">Type:</span>
     <span class="text-gray-900"><%= project.project_type.humanize %></span>
   </div>
-  <% if project.total_units %>
-    <div class="flex justify-between text-sm">
-      <span class="text-gray-500">Logements:</span>
-      <span class="text-gray-900"><%= project.total_units %></span>
-    </div>
+  
+  <% unless compact_layout? %>
+    <% if project.total_units %>
+      <div class="flex justify-between text-sm">
+        <span class="text-gray-500">Logements:</span>
+        <span class="text-gray-900"><%= project.total_units %></span>
+      </div>
+    <% end %>
+    <% if formatted_surface_area %>
+      <div class="flex justify-between text-sm">
+        <span class="text-gray-500">Surface:</span>
+        <span class="text-gray-900"><%= formatted_surface_area %> m²</span>
+      </div>
+    <% end %>
   <% end %>
-  <% if formatted_surface_area %>
-    <div class="flex justify-between text-sm">
-      <span class="text-gray-500">Surface:</span>
-      <span class="text-gray-900"><%= formatted_surface_area %> m²</span>
-    </div>
+
+  <% if show_financial_info? %>
+    <% if formatted_total_budget %>
+      <div class="flex justify-between text-sm">
+        <span class="text-gray-500">Budget total:</span>
+        <span class="text-gray-900 font-medium"><%= formatted_total_budget %></span>
+      </div>
+    <% end %>
+    <% if formatted_current_budget %>
+      <div class="flex justify-between text-sm">
+        <span class="text-gray-500">Coût actuel:</span>
+        <span class="text-gray-900 <%= 'text-red-600 font-semibold' if is_over_budget? %>">
+          <%= formatted_current_budget %>
+        </span>
+      </div>
+    <% end %>
+    <% if budget_usage_percentage && budget_usage_percentage > 0 %>
+      <div class="flex justify-between text-sm">
+        <span class="text-gray-500">Utilisation budget:</span>
+        <span class="text-gray-900 <%= 'text-red-600 font-semibold' if budget_usage_percentage > 100 %>">
+          <%= number_with_precision(budget_usage_percentage, precision: 1) %>%
+        </span>
+      </div>
+    <% end %>
   <% end %>
-  <% if project.project_manager %>
-    <div class="flex justify-between text-sm">
-      <span class="text-gray-500">Chef de projet:</span>
-      <span class="text-gray-900"><%= project.project_manager.display_name %></span>
-    </div>
+
+  <% unless compact_layout? %>
+    <% if project.project_manager %>
+      <div class="flex justify-between text-sm">
+        <span class="text-gray-500">Chef de projet:</span>
+        <span class="text-gray-900"><%= project.project_manager.display_name %></span>
+      </div>
+    <% end %>
   <% end %>
 </div>

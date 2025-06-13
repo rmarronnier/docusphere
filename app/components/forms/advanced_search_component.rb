@@ -94,16 +94,19 @@ module Forms
 
     def available_users
       User.where(organization: user.organization)
-          .joins(:uploaded_documents)
+          .joins("INNER JOIN documents ON documents.uploaded_by_id = users.id")
+          .joins("INNER JOIN spaces ON documents.space_id = spaces.id")
+          .where(spaces: { organization_id: user.organization_id })
+          .select("users.*, users.first_name, users.last_name")
           .distinct
-          .order(:full_name)
-          .pluck(:full_name, :id)
+          .order("users.first_name, users.last_name")
+          .map { |u| [u.display_name, u.id] }
     end
 
     def available_projects
       return [] unless defined?(Immo::Promo::Project)
 
-      case user.active_profile&.profile_type
+      scope = case user.active_profile&.profile_type
       when 'direction'
         Immo::Promo::Project.where(organization: user.organization)
       when 'chef_projet'
@@ -115,8 +118,10 @@ module Forms
                                    .select('immo_promo_projects.*')
         Immo::Promo::Project.where(id: user_stakeholder_projects.select(:project_id))
       else
-        Immo::Promo::Project.none
-      end.active.order(:name).pluck(:name, :id)
+        return []
+      end
+      
+      scope.active.order(:name).pluck(:name, :id)
     end
 
     def saved_searches
@@ -127,11 +132,11 @@ module Forms
       Tag.joins(:document_tags)
          .joins("JOIN documents ON document_tags.document_id = documents.id")
          .joins("JOIN spaces ON documents.space_id = spaces.id")
-         .where(spaces: { organization: user.organization })
+         .where(spaces: { organization_id: user.organization_id })
          .group('tags.name')
-         .order('COUNT(*) DESC')
+         .order(Arel.sql('COUNT(*) DESC'))
          .limit(20)
-         .pluck('tags.name', 'COUNT(*)')
+         .pluck('tags.name', Arel.sql('COUNT(*)'))
          .map { |name, count| { name: name, count: count } }
     end
 
@@ -193,11 +198,11 @@ module Forms
     end
 
     def clear_filters_url
-      url_for(params.permit.except(:search))
+      helpers.url_for(helpers.params.permit.except(:search))
     end
 
     def autocomplete_url
-      search_suggestions_path
+      helpers.search_suggestions_path
     end
 
     def form_id
@@ -212,8 +217,6 @@ module Forms
         'autocomplete'
       ].join(' ')
     end
-
-    private
 
     def parse_size_to_bytes(size_string)
       return nil if size_string.blank?

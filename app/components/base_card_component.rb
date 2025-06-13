@@ -8,11 +8,6 @@ class BaseCardComponent < ApplicationComponent
     @border = border
   end
   
-  def call
-    content_tag :div, class: card_classes do
-      render_card_content
-    end
-  end
   
   protected
   

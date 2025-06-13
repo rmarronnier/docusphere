@@ -116,29 +116,12 @@
       <% if @coordination_data[:current_interventions].any? %>
         <div class="space-y-3">
           <% @coordination_data[:current_interventions].limit(5).each do |intervention| %>
-            <div class="border rounded-lg p-3">
-              <div class="flex items-center justify-between">
-                <div>
-                  <h3 class="font-medium text-gray-900"><%= intervention.name %></h3>
-                  <p class="text-sm text-gray-600"><%= intervention.assigned_to.name %></p>
-                </div>
-                <div class="text-right">
-                  <p class="text-sm text-gray-900">Phase: <%= intervention.phase.name %></p>
-                  <p class="text-xs text-gray-600">Échéance: <%= l(intervention.due_date, format: :short) %></p>
-                </div>
-              </div>
-              
-              <% if intervention.completion_percentage.present? %>
-                <div class="mt-2">
-                  <%= render Immo::Promo::Shared::ProgressIndicatorComponent.new(
-                      progress: intervention.completion_percentage,
-                      show_label: false,
-                      size: 'small',
-                      color_scheme: 'green'
-                  ) %>
-                </div>
-              <% end %>
-            </div>
+            <%= render Immo::Promo::Coordination::InterventionCardComponent.new(
+                intervention: intervention,
+                variant: :current,
+                show_progress: true,
+                size: :medium
+            ) %>
           <% end %>
         </div>
         
@@ -169,18 +152,12 @@
       <% if @coordination_data[:upcoming_interventions].any? %>
         <div class="space-y-3">
           <% @coordination_data[:upcoming_interventions].limit(5).each do |intervention| %>
-            <div class="border rounded-lg p-3">
-              <div class="flex items-center justify-between">
-                <div>
-                  <h3 class="font-medium text-gray-900"><%= intervention.name %></h3>
-                  <p class="text-sm text-gray-600"><%= intervention.assigned_to.name %></p>
-                </div>
-                <div class="text-right">
-                  <p class="text-sm text-gray-900">Début: <%= l(intervention.start_date, format: :short) %></p>
-                  <p class="text-xs text-gray-600"><%= intervention.phase.name %></p>
-                </div>
-              </div>
-            </div>
+            <%= render Immo::Promo::Coordination::InterventionCardComponent.new(
+                intervention: intervention,
+                variant: :upcoming,
+                show_progress: false,
+                size: :medium
+            ) %>
           <% end %>
         </div>
         

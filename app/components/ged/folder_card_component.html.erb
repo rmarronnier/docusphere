@@ -1,0 +1,113 @@
+<div class="<%= card_classes %>" 
+     data-controller="folder-actions dropdown"
+     <%= tag.attributes(drag_data_attributes) %>>
+  
+  <!-- Main folder link -->
+  <%= link_to folder_link_path, folder_link_options do %>
+    <span class="sr-only">Ouvrir <%= folder.name %></span>
+  <% end %>
+  
+  <!-- Content -->
+  <div class="flex items-center justify-between">
+    <!-- Left side: Icon and info -->
+    <div class="flex items-center space-x-3 min-w-0 flex-1">
+      <!-- Folder icon -->
+      <div class="flex-shrink-0">
+        <%= helpers.heroicon("folder", variant: :solid, options: { class: folder_icon_classes }) %>
+      </div>
+      
+      <!-- Folder info -->
+      <div class="min-w-0 flex-1">
+        <div class="flex items-center justify-between mb-1">
+          <h3 class="text-sm font-medium text-gray-900 truncate pr-2">
+            <%= folder.name %>
+          </h3>
+          <% if formatted_updated_at %>
+            <span class="text-xs text-gray-400 flex-shrink-0">
+              <%= formatted_updated_at %>
+            </span>
+          <% end %>
+        </div>
+        
+        <!-- Description -->
+        <% if folder.description.present? %>
+          <p class="text-xs text-gray-600 line-clamp-2 mb-2">
+            <%= folder.description %>
+          </p>
+        <% end %>
+        
+        <!-- Metadata -->
+        <p class="text-xs text-gray-500">
+          <%= folder_metadata %>
+        </p>
+      </div>
+    </div>
+    
+    <!-- Right side: Quick actions -->
+    <% if show_actions && quick_actions.any? %>
+      <div class="relative z-10 flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        <% quick_actions.each do |action| %>
+          <% if action[:path] %>
+            <%= link_to action[:path], 
+                class: "p-1.5 #{action[:class]} rounded-md hover:bg-gray-100",
+                title: action[:title],
+                onclick: "event.stopPropagation()",
+                data: action[:data] || {} do %>
+              <%= helpers.heroicon(action[:icon], variant: :outline, options: { class: "w-4 h-4" }) %>
+            <% end %>
+          <% else %>
+            <button type="button"
+                    class="p-1.5 #{action[:class]} rounded-md hover:bg-gray-100"
+                    title="<%= action[:title] %>"
+                    onclick="event.stopPropagation()"
+                    <%= tag.attributes(action[:data] || {}) %>>
+              <%= helpers.heroicon(action[:icon], variant: :outline, options: { class: "w-4 h-4" }) %>
+            </button>
+          <% end %>
+        <% end %>
+        
+        <!-- More actions dropdown -->
+        <% if folder_actions.length > 1 %>
+          <div class="relative">
+            <button type="button" 
+                    class="p-1.5 text-gray-400 hover:text-gray-600 rounded-md hover:bg-gray-100"
+                    onclick="event.stopPropagation()"
+                    data-action="click->dropdown#toggle">
+              <span class="sr-only">Options</span>
+              <%= helpers.heroicon("ellipsis-vertical", variant: :solid, options: { class: "w-4 h-4" }) %>
+            </button>
+            
+            <div class="hidden origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-20"
+                 data-dropdown-target="menu">
+              <div class="py-1">
+                <% folder_actions.each_with_index do |action, index| %>
+                  <% if action[:divider] %>
+                    <div class="border-t border-gray-100 my-1"></div>
+                  <% elsif action[:path] %>
+                    <%= link_to action[:label], 
+                        action[:path],
+                        method: action[:method] || :get,
+                        class: "block px-4 py-2 text-sm #{action[:danger] ? 'text-red-700 hover:bg-red-50' : 'text-gray-700 hover:bg-gray-100'}",
+                        data: action[:data] || {} %>
+                  <% else %>
+                    <button type="button"
+                            class="block w-full text-left px-4 py-2 text-sm #{action[:danger] ? 'text-red-700 hover:bg-red-50' : 'text-gray-700 hover:bg-gray-100'}"
+                            <%= tag.attributes(action[:data] || {}) %>>
+                      <%= action[:label] %>
+                    </button>
+                  <% end %>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+  
+  <!-- Drag feedback overlay -->
+  <% if draggable %>
+    <div class="absolute inset-0 bg-blue-500 bg-opacity-10 border-2 border-blue-500 border-dashed rounded-lg opacity-0 pointer-events-none transition-opacity" 
+         data-drag-drop-target="overlay"></div>
+  <% end %>
+</div>

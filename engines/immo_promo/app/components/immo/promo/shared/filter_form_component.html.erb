@@ -1,0 +1,74 @@
+<div class="<%= css_class %>">
+  <%= form_with url: action_url, method: method, local: true, class: form_css_classes, **stimulus_attributes do |form| %>
+    <% filters.each do |filter| %>
+      <div class="<%= filter[:container_class] || 'flex-1 min-w-0' %>">
+        <% if filter[:label] %>
+          <%= form.label filter[:name], filter[:label], class: filter_label_css_classes %>
+        <% end %>
+        
+        <% case filter[:type] %>
+        <% when :select %>
+          <%= form.select filter[:name], 
+                          options_for_select(filter[:options], selected_value_for(filter)),
+                          filter[:form_options] || {},
+                          { 
+                            class: "#{filter_input_css_classes} #{filter[:css_class]}",
+                            **filter[:html_options] || {}
+                          } %>
+        
+        <% when :text %>
+          <%= form.text_field filter[:name], 
+                             value: selected_value_for(filter),
+                             placeholder: filter[:placeholder],
+                             class: "#{filter_input_css_classes} #{filter[:css_class]}",
+                             **filter[:html_options] || {} %>
+        
+        <% when :date %>
+          <%= form.date_field filter[:name], 
+                             value: selected_value_for(filter),
+                             class: "#{filter_input_css_classes} #{filter[:css_class]}",
+                             **filter[:html_options] || {} %>
+        
+        <% when :search %>
+          <div class="relative">
+            <%= form.text_field filter[:name], 
+                               value: selected_value_for(filter),
+                               placeholder: filter[:placeholder] || "Rechercher...",
+                               class: "#{filter_input_css_classes} #{filter[:css_class]} pl-10",
+                               **filter[:html_options] || {} %>
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+              </svg>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+    
+    <% unless auto_submit %>
+      <div class="flex-shrink-0">
+        <%= form.submit "Filtrer", 
+                        class: "rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:ring-2 focus:ring-indigo-600" %>
+      </div>
+    <% end %>
+    
+    <% if show_reset && has_active_filters? %>
+      <div class="flex-shrink-0">
+        <%= link_to "Réinitialiser", 
+                    reset_url,
+                    class: "rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 hover:text-gray-900 focus:ring-2 focus:ring-indigo-600",
+                    data: { turbo_frame: "_top" } %>
+      </div>
+    <% end %>
+  <% end %>
+  
+  <% if auto_submit && has_active_filters? %>
+    <div class="mt-2 text-sm text-gray-500 flex items-center">
+      <svg class="w-4 h-4 mr-1 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+      </svg>
+      Filtres actifs - Les résultats sont automatiquement mis à jour
+    </div>
+  <% end %>
+</div>

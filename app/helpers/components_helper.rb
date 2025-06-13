@@ -29,6 +29,10 @@ module ComponentsHelper
     render Ui::DropdownComponent.new(trigger_text: trigger_text, trigger_icon: trigger_icon, position: position), &block
   end
   
+  def action_dropdown(actions:, **options)
+    render Ui::ActionDropdownComponent.new(actions: actions, **options)
+  end
+  
   def notification(type: :info, title: nil, dismissible: true, &block)
     render Ui::NotificationComponent.new(type: type, title: title, dismissible: dismissible), &block
   end

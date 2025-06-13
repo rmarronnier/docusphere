@@ -1,54 +1,52 @@
 <nav class="<%= wrapper_classes %>" aria-label="Breadcrumb">
-  <ol role="list" class="flex items-center flex-wrap">
+  <ol role="list" class="flex items-center space-x-4">
     <% display_items.each_with_index do |item, index| %>
-      <li class="flex items-center">
-        <% if index > 0 %>
-          <!-- Separator -->
-          <span class="mx-2 text-gray-400" aria-hidden="true">
-            <% if separator_icon.present? %>
-              <%= render Ui::IconComponent.new(name: separator_icon, size: 4) %>
-            <% else %>
-              <%= separator_text %>
+      <li>
+        <div class="flex items-center">
+          <% if index > 0 %>
+            <!-- Separator -->
+            <% if custom_separator_svg %>
+              <%= custom_separator_svg %>
+            <% elsif separator_icon.present? %>
+              <span class="mx-2 text-gray-400" aria-hidden="true">
+                <%= render Ui::IconComponent.new(name: separator_icon, size: 4) %>
+              </span>
+            <% elsif separator_text %>
+              <span class="mx-2 text-gray-400" aria-hidden="true">
+                <%= separator_text %>
+              </span>
             <% end %>
-          </span>
-        <% end %>
-        
-        <% if item[:truncated] %>
-          <!-- Truncated indicator -->
-          <span class="text-gray-400">
-            <%= render Ui::IconComponent.new(name: "dots-horizontal", size: 5) %>
-          </span>
-        <% elsif index == display_items.length - 1 %>
-          <!-- Current page (last item) -->
-          <span class="<%= link_classes(item, index) %>" aria-current="page">
-            <% if item[:icon] %>
-              <%= render Ui::IconComponent.new(name: item[:icon], size: 4, css_class: "mr-1.5") %>
-            <% end %>
-            <span class="<%= truncate ? 'max-w-[200px] truncate' : '' %>">
-              <%= item_text(item) %>
-            </span>
-          </span>
-        <% else %>
-          <!-- Clickable breadcrumb -->
-          <%= link_to item_path(item), class: link_classes(item, index) do %>
-            <% if item[:icon] %>
-              <%= render Ui::IconComponent.new(name: item[:icon], size: 4, css_class: "mr-1.5") %>
-            <% end %>
-            <span class="<%= truncate ? 'max-w-[200px] truncate' : '' %>">
-              <%= item_text(item) %>
-            </span>
           <% end %>
-        <% end %>
+        
+          <% if item[:truncated] %>
+            <!-- Truncated indicator -->
+            <span class="ml-4 text-gray-400">
+              <%= render Ui::IconComponent.new(name: "dots-horizontal", size: 5) %>
+            </span>
+          <% elsif index == display_items.length - 1 %>
+            <!-- Current page (last item) -->
+            <span class="ml-4 text-sm font-medium text-gray-500" aria-current="page">
+              <%= item_text(item) %>
+            </span>
+          <% else %>
+            <!-- Clickable breadcrumb -->
+            <%= link_to item_path(item), class: "ml-4 text-sm font-medium text-gray-500 hover:text-gray-700" do %>
+              <%= item_text(item) %>
+            <% end %>
+          <% end %>
+        </div>
       </li>
     <% end %>
   </ol>
 </nav>
 
-<!-- Mobile breadcrumb -->
-<nav class="sm:hidden" aria-label="Back">
-  <%= link_to display_items[-2] ? item_path(display_items[-2]) : helpers.root_path, 
-              class: "flex items-center text-sm font-medium text-gray-500 hover:text-gray-700" do %>
-    <%= render Ui::IconComponent.new(name: "chevron-left", size: 5, css_class: "mr-1") %>
-    <span>Retour</span>
-  <% end %>
-</nav>
+<% if mobile_back %>
+  <!-- Mobile breadcrumb -->
+  <nav class="sm:hidden" aria-label="Back">
+    <%= link_to display_items[-2] ? item_path(display_items[-2]) : helpers.root_path, 
+                class: "flex items-center text-sm font-medium text-gray-500 hover:text-gray-700" do %>
+      <%= render Ui::IconComponent.new(name: "chevron-left", size: 5, css_class: "mr-1") %>
+      <span>Retour</span>
+    <% end %>
+  </nav>
+<% end %>

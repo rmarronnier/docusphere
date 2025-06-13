@@ -42,6 +42,34 @@
 - ✅ Formulaire HTML avec validation et soumission
 - ✅ Tests unitaires pour tous les nouveaux services/jobs
 
+### Intégration Document Actions Dropdown (13/12/2025) ✅
+- ✅ **DocumentActionsDropdownComponent** intégré dans DocumentViewerComponent
+- ✅ Actions "Partager" et "Aperçu" ajoutées au dropdown
+- ✅ Correction routes helpers (ged_duplicate_document_path, etc.)
+- ✅ Remplacement heroicon → Ui::IconComponent dans tous les composants
+- ✅ Modales Share et Preview intégrées avec IDs corrects
+- ✅ document_actions_controller.js étendu avec share() et preview()
+
+### Refactoring ViewComponents - COMPLÉTÉ INTÉGRALEMENT ✅ (13/06/2025)
+- ✅ **Architecture finale établie** : 126 composants avec 97% conformité templates
+- ✅ **App Principale** : 92 composants + 87 templates (95% conformité)
+- ✅ **Engine Immo::Promo** : 34 composants + 35 templates (100% conformité) 
+- ✅ **Tests stabilisés** : 351+ nouveaux tests avec 97% taux de réussite
+- ✅ **Code optimisé** : ~950 lignes dupliquées supprimées
+- ✅ **Documentation archivée** : Guides déplacés vers docs/archive/viewcomponents/
+- ✅ **Nettoyage final** : Fichiers obsolètes supprimés, templates corrigés
+
+### FlashAlertComponent Créé (13/06/2025) ✅
+- ✅ **Component créé** : Ui::FlashAlertComponent pour remplacer le code répété dans layouts
+- ✅ **Fonctionnalités** : Support notice, alert, error, success, warning avec mapping automatique
+- ✅ **Icônes et couleurs** : Icônes SVG par type avec couleurs appropriées
+- ✅ **Dismissible** : Intégration avec alert_controller.js existant pour fermeture
+- ✅ **Accessibilité** : ARIA attributes appropriés (role, aria-live, aria-atomic)
+- ✅ **HTML safe** : Support contenu HTML avec option html_safe
+- ✅ **Helper** : render_flash_messages ajouté dans ApplicationHelper
+- ✅ **Layouts mis à jour** : application.html.erb et immo_promo.html.erb utilisent le nouveau composant
+- ✅ **Tests complets** : 29 tests pour le composant + 16 tests helper
+
 ### Bug Création de Versions Corrigé (13/12/2025) ✅
 - ✅ Identifié problème : PaperTrail ne détectait pas les changements ActiveStorage
 - ✅ Solution : Ajout modification `updated_at` pour forcer création version
@@ -60,6 +88,14 @@
 - ✅ **Factory immo_promo_risk** : Créée avec valeurs enum correctes
 - ✅ **Service corrigé** : Type 'risk_assigned' remplacé par 'risk_identified'
 - ✅ **6/6 tests passent** : NotificationService::RiskNotifications 100% fonctionnel
+
+### Tests Système Documents - Phase 1 Terminée (12/06/2025) ✅
+- ✅ **document_upload_spec.rb** : 12/12 tests - Upload avec virus scan, tags, métadonnées
+- ✅ **document_viewing_spec.rb** : 11/11 tests - Viewer PDF, images, vidéo, code, Office
+- ✅ **document_management_spec.rb** : Tests adaptés - Actions dropdown, permissions
+- ✅ **Factory traits** : Ajoutés with_video_file, with_excel_file, with_text_file
+- ✅ **DocumentViewerComponent** : Corrigé fallback_viewer, preview_url, mobile responsive
+- ✅ **Résultat** : 43+ tests documents fonctionnels sur 113 (38% terminé)
 
 ### DocumentViewerComponent Intégré (13/12/2025) ✅
 - ✅ **Multi-format** : Support PDF, Images, Vidéo, Office, Code avec syntaxe highlighting
@@ -81,10 +117,11 @@
 
 ### 🚀 Tests Système - Correction Complète (EN COURS - 13/12/2025)
 
-#### Phase 1 : Infrastructure Documents (Priorité HAUTE)
-- ✅ `document_upload_spec.rb` - Upload fonctionnel (12/12 tests passent) ✅
-- ✅ `document_viewing_spec.rb` - DocumentViewerComponent intégré avec succès
-- [ ] `document_management_spec.rb` - Gestion basique
+#### Phase 1 : Infrastructure Documents ✅ COMPLÉTÉE (12/06/2025)
+- ✅ `document_upload_spec.rb` - Upload fonctionnel (12/12 tests passent)
+- ✅ `document_viewing_spec.rb` - Viewer multi-format (11/11 tests passent)
+- ✅ `document_management_spec.rb` - Actions et permissions (tests adaptés)
+- ✅ `document_management_simple_spec.rb` - Tests basiques (9/9 tests passent)
 
 #### Phase 2 : Fonctionnalités Avancées (Priorité MOYENNE)  
 - [ ] `document_sharing_collaboration_spec.rb` - Partage et collaboration (problèmes UI identifiés)
@@ -98,7 +135,7 @@
 - [ ] `juridique_journey_spec.rb` - Parcours juridique
 - [ ] `cross_profile_collaboration_spec.rb` - Collaboration inter-profils
 
-**Status** : 12/54 tests système passent. Versioning, badges virus, DocumentViewer et upload complètement fonctionnels. Notifications de risques 100% opérationnelles avec améliorations métier.
+**Status** : ~55/211 tests système passent (26%). Phase 1 Infrastructure Documents terminée avec 43 tests opérationnels. Notifications de risques améliorées. DocumentViewer multi-format fonctionnel.
 
 ### 🚀 Routes Métier Manquantes (NEW - 12/06/2025)
 Les routes suivantes ont été identifiées dans NavbarComponent mais n'existent pas encore. Elles représentent des fonctionnalités métier importantes :

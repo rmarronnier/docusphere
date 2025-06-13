@@ -1,0 +1,63 @@
+<div class="flex items-center gap-<%= gap %>">
+  <% if filtered_actions.any? %>
+    <% case style %>
+    <% when :dropdown %>
+      <div class="relative inline-block text-left" data-controller="dropdown">
+        <button type="button" 
+                class="inline-flex items-center px-2 py-1 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+                data-action="click->dropdown#toggle">
+          <%= dropdown_label %>
+          <%= render Ui::IconComponent.new(name: :chevron_down, size: 4, css_class: "ml-1") %>
+        </button>
+        
+        <div class="hidden absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5"
+             data-dropdown-target="menu">
+          <div class="py-1">
+            <% filtered_actions.each do |action| %>
+              <%= link_to action[:path] || action[:url] || "#",
+                          class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100",
+                          **action_data_attributes(action) do %>
+                <% if action[:icon] %>
+                  <%= render Ui::IconComponent.new(name: action[:icon].to_sym, size: 4, css_class: "inline-block mr-2") %>
+                <% end %>
+                <%= action[:label] %>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+      
+    <% when :buttons %>
+      <div class="flex gap-<%= gap %>">
+        <% filtered_actions.each do |action| %>
+          <%= link_to action[:path] || action[:url] || "#",
+                      class: action_classes(action),
+                      **action_data_attributes(action) do %>
+            <% if action[:icon] %>
+              <%= render Ui::IconComponent.new(name: action[:icon].to_sym, size: icon_size, css_class: show_labels ? "mr-1" : "") %>
+            <% end %>
+            <% if show_labels %>
+              <%= action[:label] %>
+            <% end %>
+          <% end %>
+        <% end %>
+      </div>
+      
+    <% else %>
+      <% filtered_actions.each_with_index do |action, index| %>
+        <%= link_to action[:path] || action[:url] || "#",
+                    class: "text-blue-600 hover:text-blue-800 text-sm",
+                    **action_data_attributes(action) do %>
+          <% if action[:icon] && !show_labels %>
+            <%= render Ui::IconComponent.new(name: action[:icon].to_sym, size: 4) %>
+          <% else %>
+            <%= action[:label] %>
+          <% end %>
+        <% end %>
+        <% if index < filtered_actions.length - 1 %>
+          <span class="text-gray-300"> | </span>
+        <% end %>
+      <% end %>
+    <% end %>
+  <% end %>
+</div>

@@ -30,6 +30,24 @@ export default class extends Controller {
     }
   }
 
+  share(event) {
+    event.preventDefault()
+    const modal = document.getElementById('share-modal')
+    if (modal) {
+      modal.classList.remove('hidden')
+      modal.dispatchEvent(new Event('modal:open'))
+    }
+  }
+
+  preview(event) {
+    event.preventDefault()
+    const modal = document.getElementById('preview-modal')
+    if (modal) {
+      modal.classList.remove('hidden')
+      modal.dispatchEvent(new Event('modal:open'))
+    }
+  }
+
   async generatePublicLink(event) {
     event.preventDefault()
     

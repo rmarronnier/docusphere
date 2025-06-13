@@ -9,7 +9,7 @@ class Ui::StatusBadgeComponent < BaseStatusComponent
     in_progress: 'blue'
   )
   
-  def initialize(status: nil, label: nil, color: nil, size: :default, dot: false, removable: false)
+  def initialize(status: nil, label: nil, color: nil, size: :default, dot: false, removable: false, icon: nil, variant: :badge, **options)
     # Map legacy size names
     mapped_size = case size
                   when :small then :sm
@@ -19,6 +19,7 @@ class Ui::StatusBadgeComponent < BaseStatusComponent
                   end
     
     @removable = removable
+    @options = options
     
     # Pass the full set of options to super, don't pass color directly
     # since it will be computed automatically from status
@@ -26,7 +27,10 @@ class Ui::StatusBadgeComponent < BaseStatusComponent
       status: status || 'unknown',
       label: label,
       size: mapped_size,
-      dot: dot
+      dot: dot,
+      variant: variant,
+      icon: icon,
+      **options
     )
     
     # Override color if explicitly provided
@@ -48,41 +52,44 @@ class Ui::StatusBadgeComponent < BaseStatusComponent
     end
     
     color_classes = "bg-#{@color}-100 text-#{@color}-800"
+    custom_classes = @options[:class]
     
-    [base, size_classes, color_classes].compact.join(' ')
+    [base, size_classes, color_classes, custom_classes].compact.join(' ')
   end
   
-  def dot_color_class
-    "bg-#{@color}-400"
+  def pill_classes
+    base = "inline-flex items-center gap-1.5 font-medium rounded-md"
+    
+    size_classes = case @size
+    when :sm
+      "px-2 py-1 text-xs"
+    when :lg
+      "px-4 py-2 text-base"
+    else
+      "px-3 py-1 text-sm"
+    end
+    
+    color_classes = "bg-#{@color}-50 text-#{@color}-700 ring-1 ring-inset ring-#{@color}-600/20"
+    custom_classes = @options[:class]
+    
+    [base, size_classes, color_classes, custom_classes].compact.join(' ')
+  end
+  
+  def dot_indicator_classes
+    "w-2 h-2 rounded-full bg-#{@color}-400"
+  end
+  
+  def remove_button_classes
+    "ml-1.5 inline-flex flex-shrink-0 h-4 w-4 rounded-full hover:bg-black hover:bg-opacity-10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-black focus:ring-opacity-20"
+  end
+  
+  def remove_button_classes_pill
+    "ml-2 inline-flex flex-shrink-0 h-5 w-5 rounded hover:bg-black hover:bg-opacity-10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-black focus:ring-opacity-20"
   end
   
   protected
   
   def status_color
     custom_status_color || super
-  end
-  
-  def render_badge
-    content_tag :span, class: badge_classes do
-      safe_join([
-        render_dot_indicator,
-        render_icon,
-        @label,
-        render_remove_button
-      ].compact)
-    end
-  end
-  
-  def render_remove_button
-    return unless @removable
-    
-    content_tag :button, type: 'button',
-                class: "ml-1.5 inline-flex flex-shrink-0 h-4 w-4 rounded-full hover:bg-black hover:bg-opacity-10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-black focus:ring-opacity-20",
-                'data-action': "click->remove",
-                'aria-label': "Remove #{@label}" do
-      content_tag :svg, class: "h-2 w-2", fill: "none", stroke: "currentColor", 'stroke-width': "2", viewbox: "0 0 24 24", 'aria-hidden': "true", xmlns: "http://www.w3.org/2000/svg" do
-        content_tag :path, '', 'stroke-linecap': "round", 'stroke-linejoin': "round", 'stroke-width': "2", d: "M6 18L18 6M6 6l12 12"
-      end
-    end
   end
 end

@@ -31,6 +31,7 @@ module Immo
 
       # Aliases métier pour compatibilité tests
       alias_attribute :actual_end_date, :completed_date
+      alias_attribute :due_date, :end_date
 
       monetize :estimated_cost_cents, allow_nil: true
       monetize :actual_cost_cents, allow_nil: true

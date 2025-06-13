@@ -9,12 +9,34 @@ class Forms::TextFieldComponent < Forms::FieldComponent
   
   private
   
+  def render_field
+    case @type
+    when :email
+      @form.email_field @attribute, field_options.merge(text_field_options)
+    when :password
+      @form.password_field @attribute, field_options.merge(text_field_options)
+    when :number
+      @form.number_field @attribute, field_options.merge(text_field_options)
+    when :tel
+      @form.telephone_field @attribute, field_options.merge(text_field_options)
+    when :url
+      @form.url_field @attribute, field_options.merge(text_field_options)
+    when :date
+      @form.date_field @attribute, field_options.merge(text_field_options)
+    when :time
+      @form.time_field @attribute, field_options.merge(text_field_options)
+    when :datetime
+      @form.datetime_field @attribute, field_options.merge(text_field_options)
+    else
+      @form.text_field @attribute, field_options.merge(text_field_options)
+    end
+  end
+  
   def text_field_options
     {
       class: field_classes,
       placeholder: @placeholder,
-      autocomplete: @autocomplete,
-      required: @required
+      autocomplete: @autocomplete
     }.compact
   end
 end

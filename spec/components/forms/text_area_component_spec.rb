@@ -125,6 +125,65 @@ RSpec.describe Forms::TextAreaComponent, type: :component do
         expect(page).to have_css('textarea.custom-textarea')
       end
     end
+
+    context 'with auto-resize enabled' do
+      let(:options) { { auto_resize: true } }
+
+      it 'adds auto-resize controller' do
+        render_inline(component)
+        expect(page).to have_css('textarea[data-controller*="auto-resize"]')
+        expect(page).to have_css('textarea[data-action*="input->auto-resize#resize"]')
+      end
+
+      it 'disables manual resize' do
+        render_inline(component)
+        expect(page).to have_css('textarea.resize-none')
+      end
+    end
+
+    context 'with character count enabled' do
+      let(:options) { { character_count: true } }
+
+      it 'adds character count controller' do
+        render_inline(component)
+        expect(page).to have_css('textarea[data-controller*="character-count"]')
+        expect(page).to have_css('textarea[data-action*="input->character-count#update"]')
+      end
+
+      it 'renders character count display' do
+        render_inline(component)
+        expect(page).to have_text('11 characters')
+      end
+
+      it 'adds padding for character count' do
+        render_inline(component)
+        expect(page).to have_css('textarea.pb-8')
+      end
+    end
+
+    context 'with max length' do
+      let(:options) { { character_count: true, max_length: 100 } }
+
+      it 'sets maxlength attribute' do
+        render_inline(component)
+        expect(page).to have_css('textarea[maxlength="100"]')
+      end
+
+      it 'shows character count with limit' do
+        render_inline(component)
+        expect(page).to have_text('11/100')
+      end
+    end
+
+    context 'with both auto-resize and character count' do
+      let(:options) { { auto_resize: true, character_count: true } }
+
+      it 'adds both controllers' do
+        render_inline(component)
+        expect(page).to have_css('textarea[data-controller*="auto-resize"]')
+        expect(page).to have_css('textarea[data-controller*="character-count"]')
+      end
+    end
   end
 
   describe 'styling' do

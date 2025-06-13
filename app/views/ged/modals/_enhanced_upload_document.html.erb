@@ -1,0 +1,257 @@
+<%# Enhanced Document Upload Modal using new form field components %>
+<div id="enhancedUploadModal" class="fixed inset-0 z-50 overflow-y-auto hidden upload-modal" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+  <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="closeModal('enhancedUploadModal')"></div>
+
+    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+    <div class="relative inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full sm:p-6">
+      <div>
+        <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-indigo-100">
+          <svg class="h-6 w-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+          </svg>
+        </div>
+        <div class="mt-3 text-center sm:mt-5">
+          <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+            Enhanced Document Upload
+          </h3>
+          <div class="mt-2">
+            <p class="text-sm text-gray-500">
+              Upload documents using the enhanced form components with validation and progress tracking.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <%= form_with model: Document.new, local: false, id: "enhancedUploadForm", 
+                    class: "mt-5 sm:mt-6", 
+                    data: { ajax: true },
+                    enctype: "multipart/form-data" do |form| %>
+        
+        <div class="space-y-6">
+          <%# Enhanced Select Field with Search %>
+          <%= render Forms::SelectComponent.new(
+                form: form, 
+                attribute: :space_id,
+                options: current_user.organization.spaces.map { |s| [s.name, s.id] },
+                label: 'Document Space',
+                hint: 'Select the space where this document will be stored',
+                required: true,
+                searchable: true,
+                prompt: 'Choose a space...'
+              ) %>
+
+          <%# Enhanced Select Field for Folder (Standard) %>
+          <%= render Forms::SelectComponent.new(
+                form: form, 
+                attribute: :folder_id,
+                options: [],
+                label: 'Folder (Optional)',
+                hint: 'Select a folder within the space',
+                include_blank: 'Root of space',
+                layout: :inline
+              ) %>
+
+          <%# Enhanced File Upload with Drag & Drop %>
+          <%= render Forms::FileFieldComponent.new(
+                form: form,
+                attribute: :file,
+                label: 'Document File',
+                hint: 'Drag and drop or click to select files',
+                required: true,
+                accept: '.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.gif,.zip,.txt',
+                max_file_size: 10.megabytes,
+                max_files: 1,
+                drag_drop: true,
+                preview: true,
+                progress: true
+              ) %>
+
+          <%# Enhanced Text Field %>
+          <%= render Forms::TextFieldComponent.new(
+                form: form,
+                attribute: :title,
+                type: :text,
+                label: 'Document Title',
+                hint: 'Enter a descriptive title for the document',
+                required: true,
+                placeholder: 'Enter document title...'
+              ) %>
+
+          <%# Enhanced Textarea with Character Count and Auto-resize %>
+          <%= render Forms::TextAreaComponent.new(
+                form: form,
+                attribute: :description,
+                label: 'Description',
+                hint: 'Provide a detailed description of the document',
+                placeholder: 'Describe the document content, purpose, and relevant details...',
+                rows: 3,
+                auto_resize: true,
+                character_count: true,
+                max_length: 500
+              ) %>
+
+          <%# Enhanced Select Field for Category %>
+          <%= render Forms::SelectComponent.new(
+                form: form, 
+                attribute: :category,
+                options: [
+                  ['Contract', 'contract'],
+                  ['Technical Document', 'technical'],
+                  ['Invoice', 'invoice'],
+                  ['Report', 'report'],
+                  ['Correspondence', 'correspondence'],
+                  ['Legal Document', 'legal'],
+                  ['Presentation', 'presentation'],
+                  ['Other', 'other']
+                ],
+                label: 'Document Category',
+                hint: 'Categorize the document for better organization',
+                searchable: true,
+                prompt: 'Select a category...'
+              ) %>
+
+          <%# Enhanced Text Field for Tags %>
+          <%= render Forms::TextFieldComponent.new(
+                form: form,
+                attribute: :tags,
+                type: :text,
+                label: 'Tags',
+                hint: 'Add tags separated by commas for easy searching',
+                placeholder: 'e.g., urgent, confidential, review-needed'
+              ) %>
+
+          <%# Enhanced Checkbox for Metadata Extraction %>
+          <%= render Forms::CheckboxComponent.new(
+                form: form,
+                attribute: :extract_metadata,
+                label: 'Extract Metadata Automatically',
+                hint: 'Automatically extract metadata from the document content'
+              ) %>
+
+          <%# Enhanced Checkbox for AI Classification %>
+          <%= render Forms::CheckboxComponent.new(
+                form: form,
+                attribute: :ai_classification,
+                label: 'Enable AI Classification',
+                hint: 'Use AI to automatically classify and tag the document'
+              ) %>
+        </div>
+
+        <%# Progress and Error Areas %>
+        <div id="enhancedUploadProgress" class="mt-6 hidden upload-progress">
+          <div class="rounded-md bg-blue-50 p-4">
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-blue-400 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              </div>
+              <div class="ml-3 flex-1">
+                <p class="text-sm font-medium text-blue-800">Processing document...</p>
+                <div class="mt-2 w-full bg-blue-200 rounded-full h-2">
+                  <div id="enhancedUploadProgressBar" class="progress-bar bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+                <p id="enhancedUploadProgressText" class="text-xs text-blue-600 mt-1">0% - Preparing upload...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="enhancedUploadErrors" class="mt-4 hidden">
+          <div class="rounded-md bg-red-50 p-4">
+            <div class="flex">
+              <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                </svg>
+              </div>
+              <div class="ml-3">
+                <h3 class="text-sm font-medium text-red-800">Upload failed</h3>
+                <ul id="enhancedUploadErrorsList" class="mt-2 list-disc list-inside text-sm text-red-700"></ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6 sm:grid sm:grid-cols-2 sm:gap-3 sm:grid-flow-row-dense">
+          <button type="submit"
+                  class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:col-start-2 sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  id="enhancedUploadSubmit">
+            <svg class="hidden -ml-1 mr-2 h-4 w-4 animate-spin" id="enhancedUploadSpinner" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+            Upload Document
+          </button>
+          <button type="button"
+                  onclick="closeModal('enhancedUploadModal')"
+                  class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:col-start-1 sm:text-sm">
+            Cancel
+          </button>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const enhancedUploadForm = document.getElementById('enhancedUploadForm');
+  
+  if (enhancedUploadForm) {
+    enhancedUploadForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const formData = new FormData(this);
+      const progressContainer = document.getElementById('enhancedUploadProgress');
+      const errorsContainer = document.getElementById('enhancedUploadErrors');
+      const submitButton = document.getElementById('enhancedUploadSubmit');
+      const spinner = document.getElementById('enhancedUploadSpinner');
+      
+      // Show progress and disable form
+      progressContainer.classList.remove('hidden');
+      errorsContainer.classList.add('hidden');
+      submitButton.disabled = true;
+      spinner.classList.remove('hidden');
+      
+      // Simulate progressive upload stages
+      const stages = [
+        { progress: 10, text: 'Validating file...' },
+        { progress: 30, text: 'Uploading to server...' },
+        { progress: 60, text: 'Processing document...' },
+        { progress: 80, text: 'Extracting metadata...' },
+        { progress: 100, text: 'Finalizing...' }
+      ];
+      
+      let currentStage = 0;
+      const progressInterval = setInterval(() => {
+        if (currentStage < stages.length) {
+          const stage = stages[currentStage];
+          document.getElementById('enhancedUploadProgressBar').style.width = stage.progress + '%';
+          document.getElementById('enhancedUploadProgressText').textContent = 
+            stage.progress + '% - ' + stage.text;
+          currentStage++;
+        } else {
+          clearInterval(progressInterval);
+          
+          // Simulate successful completion
+          setTimeout(() => {
+            progressContainer.classList.add('hidden');
+            submitButton.disabled = false;
+            spinner.classList.add('hidden');
+            closeModal('enhancedUploadModal');
+            
+            // Show success notification
+            if (typeof showNotification === 'function') {
+              showNotification('Document uploaded successfully!', 'success');
+            } else {
+              alert('Document uploaded successfully!');
+            }
+          }, 500);
+        }
+      }, 800);
+    });
+  }
+});
+</script>

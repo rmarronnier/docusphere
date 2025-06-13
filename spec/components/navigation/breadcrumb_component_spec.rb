@@ -13,7 +13,7 @@ RSpec.describe Navigation::BreadcrumbComponent, type: :component do
     it "renders breadcrumb navigation" do
       render_inline(described_class.new(items: basic_items))
       
-      expect(page).to have_css(".breadcrumb-wrapper")
+      expect(page).to have_css("nav[aria-label='Breadcrumb']")
       expect(page).to have_text("Projects")
       expect(page).to have_text("Project Alpha")
       expect(page).to have_text("Documents")
@@ -22,14 +22,14 @@ RSpec.describe Navigation::BreadcrumbComponent, type: :component do
     it "includes home link by default" do
       render_inline(described_class.new(items: basic_items))
       
-      expect(page).to have_text("Home")
-      expect(page).to have_link("Home", href: "/")
+      expect(page).to have_text("Accueil")
+      expect(page).to have_link("Accueil", href: "/")
     end
 
     it "can hide home link" do
       render_inline(described_class.new(items: basic_items, show_home: false))
       
-      expect(page).not_to have_text("Home")
+      expect(page).not_to have_text("Accueil")
     end
 
     it "uses custom root path for home" do
@@ -38,7 +38,7 @@ RSpec.describe Navigation::BreadcrumbComponent, type: :component do
         root_path: "/dashboard"
       ))
       
-      expect(page).to have_link("Home", href: "/dashboard")
+      expect(page).to have_link("Accueil", href: "/dashboard")
     end
   end
 
@@ -104,6 +104,16 @@ RSpec.describe Navigation::BreadcrumbComponent, type: :component do
       
       expect(page).to have_css("svg") # Arrow icons
     end
+
+    it "uses GED separator with custom SVG" do
+      render_inline(described_class.new(
+        items: basic_items,
+        separator: :ged
+      ))
+      
+      # Check for the specific SVG path used in GED
+      expect(page).to have_css("svg path[d*='M5.555 17.776l8-16']")
+    end
   end
 
   describe "truncation" do
@@ -157,8 +167,8 @@ RSpec.describe Navigation::BreadcrumbComponent, type: :component do
     it "styles the last item differently (current page)" do
       render_inline(described_class.new(items: basic_items))
       
-      expect(page).to have_css(".text-gray-700.font-medium", text: "Documents")
-      expect(page).to have_css(".cursor-default", text: "Documents")
+      expect(page).to have_css("span[aria-current='page']", text: "Documents")
+      expect(page).to have_css(".text-gray-500", text: "Documents")
     end
 
     it "makes non-current items hoverable" do
@@ -176,7 +186,7 @@ RSpec.describe Navigation::BreadcrumbComponent, type: :component do
         class: "custom-breadcrumb"
       ))
       
-      expect(page).to have_css(".breadcrumb-wrapper.custom-breadcrumb")
+      expect(page).to have_css(".flex.mb-6.custom-breadcrumb")
     end
   end
 
@@ -228,14 +238,31 @@ RSpec.describe Navigation::BreadcrumbComponent, type: :component do
       
       expect(page).to have_css(".text-sm")
     end
+
+    it "shows mobile back navigation by default" do
+      render_inline(described_class.new(items: basic_items))
+      
+      expect(page).to have_css("nav.sm\\:hidden")
+      expect(page).to have_text("Retour")
+    end
+
+    it "can hide mobile back navigation" do
+      render_inline(described_class.new(
+        items: basic_items,
+        mobile_back: false
+      ))
+      
+      expect(page).not_to have_css("nav.sm\\:hidden")
+      expect(page).not_to have_text("Retour")
+    end
   end
 
   describe "edge cases" do
     it "handles empty items array" do
       render_inline(described_class.new(items: []))
       
-      expect(page).to have_css(".breadcrumb-wrapper")
-      expect(page).to have_text("Home") # Only home is shown
+      expect(page).to have_css("nav[aria-label='Breadcrumb']")
+      expect(page).to have_text("Accueil") # Only home is shown
     end
 
     it "handles single item" do
@@ -243,7 +270,7 @@ RSpec.describe Navigation::BreadcrumbComponent, type: :component do
         items: [{ name: "Dashboard", path: "/dashboard" }]
       ))
       
-      expect(page).to have_text("Home")
+      expect(page).to have_text("Accueil")
       expect(page).to have_text("Dashboard")
     end
 

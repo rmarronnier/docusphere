@@ -1,0 +1,49 @@
+<div class="office-viewer h-full flex flex-col">
+  <% if Rails.env.development? || !document.file.attached? %>
+    <!-- Fallback for development or missing file -->
+    <div class="flex-1 flex items-center justify-center bg-gray-50">
+      <div class="text-center max-w-md">
+        <div class="mx-auto w-24 h-24 bg-gray-200 rounded-lg flex items-center justify-center mb-4">
+          <%= render Ui::IconComponent.new(name: file_icon, size: 12, css_class: "text-gray-400") %>
+        </div>
+        
+        <h3 class="text-lg font-medium text-gray-900 mb-2">
+          <%= file_type_name %>
+        </h3>
+        
+        <p class="text-sm text-gray-500 mb-6">
+          Office document preview is not available in development mode.
+          Download the file to view it in your Office application.
+        </p>
+        
+        <% if show_actions %>
+          <div class="flex items-center justify-center space-x-4">
+            <%= download_button %>
+            <%= edit_button if helpers.policy(document).update? %>
+          </div>
+        <% end %>
+        
+        <div class="mt-4 text-xs text-gray-400">
+          <%= document.file_size_human %> • <%= document.file_extension&.upcase %>
+        </div>
+      </div>
+    </div>
+  <% else %>
+    <!-- Office Online Viewer (production only) -->
+    <div class="office-toolbar bg-gray-100 border-b px-4 py-2 flex items-center justify-between">
+      <div class="flex items-center space-x-2">
+        <%= render Ui::IconComponent.new(name: file_icon, size: 5, css_class: "text-gray-600") %>
+        <span class="font-medium"><%= document.title %></span>
+      </div>
+      <% if show_actions %>
+        <%= download_button %>
+      <% end %>
+    </div>
+    
+    <iframe src="<%= office_viewer_url %>"
+            class="flex-1 w-full border-0"
+            loading="lazy"
+            title="Office Viewer: <%= document.title %>">
+    </iframe>
+  <% end %>
+</div>

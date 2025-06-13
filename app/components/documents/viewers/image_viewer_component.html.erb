@@ -1,0 +1,47 @@
+<div class="image-viewer-container h-full" data-controller="image-viewer">
+  <!-- Image Toolbar -->
+  <div class="image-toolbar bg-gray-100 border-b flex items-center justify-between p-2">
+    <!-- Navigation Controls (if part of collection) -->
+    <% if has_collection_navigation? %>
+      <div class="flex items-center space-x-2">
+        <%= icon_button("chevron_left", "Previous", data: { action: "click->image-viewer#previous" }) %>
+        <span class="text-sm"><%= collection_info %></span>
+        <%= icon_button("chevron_right", "Next", data: { action: "click->image-viewer#next" }) %>
+      </div>
+    <% else %>
+      <div></div>
+    <% end %>
+    
+    <!-- Zoom Controls -->
+    <div class="flex items-center space-x-2">
+      <%= icon_button("minus", "Zoom Out", data: { action: "click->image-viewer#zoomOut" }) %>
+      <span class="text-sm w-12 text-center" data-image-viewer-target="zoomLevel">100%</span>
+      <%= icon_button("plus", "Zoom In", data: { action: "click->image-viewer#zoomIn" }) %>
+      <%= icon_button("arrows_pointing_out", "Fit", data: { action: "click->image-viewer#fit" }) %>
+      <%= icon_button("magnifying_glass_plus", "Actual Size", data: { action: "click->image-viewer#actualSize" }) %>
+    </div>
+    
+    <!-- Transform Controls -->
+    <div class="flex items-center space-x-2">
+      <%= icon_button("arrow_path", "Rotate", data: { action: "click->image-viewer#rotate" }) %>
+      <%= icon_button("arrows_right_left", "Flip Horizontal", data: { action: "click->image-viewer#flipHorizontal" }) %>
+      <%= icon_button("arrows_up_down", "Flip Vertical", data: { action: "click->image-viewer#flipVertical" }) %>
+      <% if show_actions %>
+        <%= download_button %>
+      <% end %>
+    </div>
+  </div>
+  
+  <!-- Image Container -->
+  <div class="image-container h-full overflow-auto flex items-center justify-center bg-gray-50"
+       data-image-viewer-target="container">
+    <img src="<%= image_url %>"
+         alt="<%= document.title %>"
+         class="max-w-full max-h-full cursor-move"
+         data-image-viewer-target="image"
+         data-action="wheel->image-viewer#handleWheel
+                      mousedown->image-viewer#startDrag
+                      dblclick->image-viewer#toggleZoom"
+         draggable="false">
+  </div>
+</div>

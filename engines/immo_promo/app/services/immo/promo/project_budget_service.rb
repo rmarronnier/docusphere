@@ -1,10 +1,14 @@
 module Immo
   module Promo
     class ProjectBudgetService
+      include ProjectCalculable
+      include ::Reportable
+      
       attr_reader :project
 
       def initialize(project)
         @project = project
+        super() # Initialize concerns
       end
 
       def budget_summary
@@ -16,7 +20,9 @@ module Immo
           is_over_budget: project.is_over_budget?,
           budgets: detailed_budget_breakdown,
           forecast: budget_forecast,
-          alerts: budget_alerts
+          alerts: budget_alerts,
+          progress: calculate_budget_progress(project),
+          timeline_progress: calculate_timeline_progress(project)
         }
       end
 
@@ -28,7 +34,8 @@ module Immo
             fiscal_year: budget.fiscal_year,
             lines: budget_lines_summary(budget),
             totals: calculate_budget_totals(budget),
-            variance_analysis: variance_analysis(budget)
+            variance_analysis: variance_analysis(budget),
+            trend: calculate_trend_for_budget(budget)
           }
         end
       end
@@ -84,7 +91,45 @@ module Immo
         }
       end
 
+      # Export budget report using Reportable concern
+      def export_budget_report(format: :pdf)
+        @report_data = budget_summary
+        generate_report(format: format, title: "Rapport Budget - #{@project.name}")
+      end
+
+      # Export cost tracking report
+      def export_cost_tracking_report(format: :excel)
+        @report_data = cost_tracking_report
+        generate_report(format: format, title: "Suivi des Coûts - #{@project.name}")
+      end
+
       private
+
+      # Implement build_report_data from Reportable concern
+      def build_report_data
+        budget_summary.merge(
+          cost_tracking: cost_tracking_report,
+          cash_flow: cash_flow_analysis,
+          optimization: budget_optimization_suggestions
+        )
+      end
+
+      def calculate_trend_for_budget(budget)
+        # Use trend calculation from Calculable concern
+        current_spending = budget.budget_lines.sum(&:actual_amount_cents) || 0
+        planned_spending = budget.budget_lines.sum(&:planned_amount_cents) || 0
+        
+        if planned_spending.zero?
+          'stable'
+        else
+          trend_value = calculate_trend(current_spending, planned_spending)
+          case trend_value
+          when -Float::INFINITY..-10 then 'decreasing'
+          when -10..10 then 'stable'
+          else 'increasing'
+          end
+        end
+      end
 
       def budget_lines_summary(budget)
         budget.budget_lines.map do |line|
@@ -141,7 +186,7 @@ module Immo
         return 0 if line.planned_amount_cents.nil? || line.planned_amount_cents.zero?
         
         variance = line.planned_amount_cents - (line.actual_amount_cents || 0)
-        (variance.to_f / line.planned_amount_cents * 100).round(2)
+        calculate_percentage(variance, line.planned_amount_cents)
       end
 
       def variance_status(percentage)
@@ -271,17 +316,19 @@ module Immo
       def calculate_burn_rate
         return Money.new(0, 'EUR') unless project.start_date
         
-        months_elapsed = ((Date.current - project.start_date) / 30.0).round(1)
-        return Money.new(0, 'EUR') if months_elapsed <= 0
+        days_elapsed = (Date.current - project.start_date).to_i
+        business_days_elapsed = calculate_business_days(project.start_date, Date.current)
+        return Money.new(0, 'EUR') if business_days_elapsed <= 0
         
-        project.current_budget / months_elapsed
+        monthly_burn = project.current_budget.to_f / (business_days_elapsed / 22.0) # Assuming 22 business days per month
+        Money.new((monthly_burn * 100).round, 'EUR')
       end
 
       def calculate_months_remaining
         return 0 unless project.end_date
         
-        months = ((project.end_date - Date.current) / 30.0).round(1)
-        [months, 0].max
+        business_days_remaining = calculate_business_days(Date.current, project.end_date)
+        (business_days_remaining / 22.0).round(1) # Convert to months
       end
 
       def project_total_cost(burn_rate, months_remaining)
@@ -290,8 +337,8 @@ module Immo
       end
 
       def calculate_forecast_confidence
-        # Based on project progress and historical accuracy
-        progress = project.calculate_overall_progress
+        # Based on project progress and historical accuracy using ProjectCalculable
+        progress = calculate_project_progress(project)
         
         if progress < 20
           'low'
@@ -380,7 +427,8 @@ module Immo
         costs_by_category.each do |category, costs|
           next if costs[:planned].zero?
           
-          variance_percentage = ((costs[:actual] - costs[:planned]).to_f / costs[:planned].to_f * 100).round(2)
+          variance_amount = costs[:actual] - costs[:planned]
+          variance_percentage = calculate_percentage(variance_amount.cents, costs[:planned].cents)
           if variance_percentage > 15
             overruns << {
               category: category,
@@ -416,12 +464,12 @@ module Immo
         
         # Identify categories with low utilization
         costs_by_category.each do |category, costs|
-          utilization = costs[:planned].zero? ? 0 : (costs[:actual].to_f / costs[:planned].to_f * 100)
+          utilization = costs[:planned].zero? ? 0 : calculate_percentage(costs[:actual].cents, costs[:planned].cents)
           if utilization < 50 && costs[:planned] > Money.new(100000, 'EUR')
             suggestions << {
               type: 'underutilized_budget',
               category: category,
-              utilization_percentage: utilization.round(2),
+              utilization_percentage: utilization,
               potential_savings: costs[:planned] - costs[:actual],
               recommendation: 'Consider reallocating unused budget to critical areas'
             }
@@ -512,7 +560,7 @@ module Immo
           cumulative << {
             month: month,
             amount: total,
-            percentage_of_budget: project.total_budget ? (total.to_f / project.total_budget.to_f * 100).round(2) : 0
+            percentage_of_budget: project.total_budget ? calculate_percentage(total.cents, project.total_budget.cents) : 0
           }
         end
         

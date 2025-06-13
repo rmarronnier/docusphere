@@ -1,0 +1,9 @@
+<% if @items.any? %>
+  <div class="<%= @wrapper_class %>">
+    <% @items.each do |item| %>
+      <%= render_item(item) %>
+    <% end %>
+  </div>
+<% else %>
+  <%= render_empty_state %>
+<% end %>

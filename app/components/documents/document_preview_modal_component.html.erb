@@ -18,7 +18,7 @@
         <div class="flex items-center justify-between p-4 border-b">
           <div class="flex items-center space-x-4">
             <h3 class="text-lg font-semibold text-gray-900 truncate">
-              <%= document.name %>
+              <%= document.title %>
             </h3>
             <span class="text-sm text-gray-500">
               <%= document.file_extension&.upcase %>
@@ -29,7 +29,7 @@
                   class="text-gray-400 hover:text-gray-600 transition-colors"
                   data-action="click->document-preview#close"
                   aria-label="Close preview">
-            <%= heroicon("x-mark", variant: :solid, options: { class: "w-6 h-6" }) %>
+            <%= render Ui::IconComponent.new(name: :x_mark, size: 6) %>
           </button>
         </div>
         
@@ -52,7 +52,7 @@
           <div class="absolute inset-0 flex items-center justify-center bg-white hidden"
                data-document-preview-target="error">
             <div class="text-center">
-              <%= heroicon("exclamation-triangle", variant: :solid, options: { class: "w-12 h-12 text-red-500 mx-auto mb-4" }) %>
+              <%= render Ui::IconComponent.new(name: :exclamation_triangle, size: 12, css_class: "text-red-500 mx-auto mb-4") %>
               <p class="text-lg font-semibold text-gray-900">Preview Error</p>
               <p class="mt-2 text-sm text-gray-600">Unable to load document preview</p>
             </div>
@@ -68,7 +68,7 @@
           </div>
           
           <div class="flex items-center space-x-3">
-            <%= modal_actions %>
+            <%= modal_actions_html %>
           </div>
         </div>
       </div>
@@ -89,6 +89,6 @@
   <button type="button"
           class="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors"
           data-action="click->image-zoom#close">
-    <%= heroicon("x-mark", variant: :solid, options: { class: "w-8 h-8" }) %>
+    <%= render Ui::IconComponent.new(name: :x_mark, size: 8) %>
   </button>
 </div>

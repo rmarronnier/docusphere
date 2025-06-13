@@ -4,26 +4,7 @@
   <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
     <div class="px-4 py-6 sm:px-0">
       <!-- Breadcrumb -->
-      <nav class="flex mb-6" aria-label="Breadcrumb">
-        <ol role="list" class="flex items-center space-x-4">
-          <% @breadcrumbs.each_with_index do |breadcrumb, index| %>
-            <li>
-              <div class="flex items-center">
-                <% if index > 0 %>
-                  <svg class="flex-shrink-0 h-5 w-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                    <path d="M5.555 17.776l8-16 .894.448-8 16-.894-.448z"/>
-                  </svg>
-                <% end %>
-                <% if index == @breadcrumbs.length - 1 %>
-                  <span class="ml-4 text-sm font-medium text-gray-500"><%= breadcrumb[:name] %></span>
-                <% else %>
-                  <%= link_to breadcrumb[:name], breadcrumb[:path], class: "ml-4 text-sm font-medium text-gray-500 hover:text-gray-700" %>
-                <% end %>
-              </div>
-            </li>
-          <% end %>
-        </ol>
-      </nav>
+      <%= ged_breadcrumb(@breadcrumbs) %>
 
       <!-- Header avec actions -->
       <div class="md:flex md:items-center md:justify-between mb-8">

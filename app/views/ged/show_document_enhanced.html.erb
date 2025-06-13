@@ -1,7 +1,7 @@
 <%= render Layout::PageWrapperComponent.new(full_width: true) do %>
   <!-- Breadcrumb -->
   <div class="px-4 sm:px-6 lg:px-8 py-4 bg-white border-b">
-    <%= render Navigation::BreadcrumbComponent.new(items: @breadcrumbs) %>
+    <%= ged_breadcrumb(@breadcrumbs) %>
   </div>
 
   <!-- Enhanced Document View Layout -->

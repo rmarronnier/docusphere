@@ -1,13 +1,23 @@
-<div class="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition-shadow duration-200">
-  <div class="p-6">
+<div class="<%= card_classes %>">
+  <div class="<%= card_padding_classes %>">
     <!-- Project Header -->
-    <%= render Immo::Promo::ProjectCard::HeaderComponent.new(project: project) %>
+    <%= render Immo::Promo::ProjectCard::HeaderComponent.new(
+          project: project, 
+          show_thumbnail: show_thumbnail,
+          variant: variant
+        ) %>
 
     <!-- Project Info -->
-    <%= render Immo::Promo::ProjectCard::InfoComponent.new(project: project) %>
+    <%= render Immo::Promo::ProjectCard::InfoComponent.new(
+          project: project,
+          show_financial: show_financial,
+          variant: variant
+        ) %>
 
-    <!-- Progress Bar -->
-    <%= render Immo::Promo::ProjectCard::ProgressComponent.new(project: project) %>
+    <!-- Progress Bar (hidden in compact mode) -->
+    <% unless compact_layout? %>
+      <%= render Immo::Promo::ProjectCard::ProgressComponent.new(project: project) %>
+    <% end %>
 
     <!-- Dates -->
     <%= render Immo::Promo::ProjectCard::DatesComponent.new(project: project) %>

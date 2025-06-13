@@ -2,27 +2,28 @@
 
 <div class="space-y-6">
   <!-- Header -->
-  <div class="bg-white shadow rounded-lg p-6">
-    <div class="md:flex md:items-center md:justify-between">
-      <div class="min-w-0 flex-1">
-        <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
-          <%= @budget.name %>
-        </h2>
-        <p class="mt-1 text-sm text-gray-500">
-          <%= @budget.description %>
-        </p>
-      </div>
-      <div class="mt-4 flex space-x-3 md:ml-4 md:mt-0">
-        <%= link_to "Retour", immo_promo_engine.project_budgets_path(@project),
-                    class: "inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" %>
-        <%= link_to "Modifier", immo_promo_engine.edit_project_budget_path(@project, @budget),
-                    class: "inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" %>
-        <%= button_to "Dupliquer", immo_promo_engine.duplicate_project_budget_path(@project, @budget),
-                      method: :post,
-                      class: "inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500" %>
-      </div>
-    </div>
-  </div>
+  <%= render Immo::Promo::Shared::HeaderCardComponent.new(
+    title: @budget.name,
+    subtitle: @budget.description,
+    actions: [
+      {
+        text: "Retour",
+        href: immo_promo_engine.project_budgets_path(@project),
+        type: :secondary
+      },
+      {
+        text: "Modifier",
+        href: immo_promo_engine.edit_project_budget_path(@project, @budget),
+        type: :secondary
+      },
+      {
+        text: "Dupliquer",
+        url: immo_promo_engine.duplicate_project_budget_path(@project, @budget),
+        method: :post,
+        type: :primary
+      }
+    ]
+  ) %>
 
   <!-- Budget Summary -->
   <div class="grid grid-cols-1 gap-6 lg:grid-cols-4">

@@ -1,0 +1,24 @@
+<div class="<%= header_classes %>" role="banner" aria-label="<%= title %>">
+  <div class="<%= main_container_classes %>">
+    <!-- Title and subtitle section -->
+    <div class="<%= content_container_classes %>">
+      <h1 class="<%= title_classes %>" id="page-title">
+        <%= title %>
+      </h1>
+      <% if subtitle.present? %>
+        <p class="<%= subtitle_classes %>" aria-describedby="page-title">
+          <%= subtitle %>
+        </p>
+      <% end %>
+    </div>
+
+    <!-- Actions section -->
+    <% if has_actions? %>
+      <div class="<%= actions_container_classes %>" role="group" aria-label="Actions de la page">
+        <% actions.each do |action| %>
+          <%= render_action(action) %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>

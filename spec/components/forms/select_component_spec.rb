@@ -143,6 +143,42 @@ RSpec.describe Forms::SelectComponent, type: :component do
         expect(page).to have_css('select[required]')
       end
     end
+
+    context 'with searchable enabled' do
+      let(:options) { { options: select_options, searchable: true } }
+
+      it 'renders searchable interface' do
+        render_inline(component)
+        expect(page).to have_css('[data-controller="searchable"]')
+        expect(page).to have_css('input[data-searchable-target="input"]')
+        expect(page).to have_css('[data-searchable-target="dropdown"]')
+      end
+
+      it 'renders hidden select for form submission' do
+        render_inline(component)
+        expect(page).to have_css('select.hidden[data-searchable-target="select"]')
+      end
+
+      it 'renders dropdown options' do
+        render_inline(component)
+        expect(page).to have_css('[data-searchable-target="option"][data-value="US"]')
+        expect(page).to have_css('[data-searchable-target="option"][data-value="CA"]')
+      end
+
+      it 'includes dropdown icon' do
+        render_inline(component)
+        expect(page).to have_css('svg.h-5.w-5.text-gray-400')
+      end
+
+      context 'with multiple selection' do
+        let(:options) { { options: select_options, searchable: true, multiple: true } }
+
+        it 'shows multiple selection placeholder' do
+          render_inline(component)
+          expect(page).to have_css('input[placeholder*="multiple"]')
+        end
+      end
+    end
   end
 
   describe 'styling' do

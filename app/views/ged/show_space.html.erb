@@ -4,26 +4,7 @@
   <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
     <div class="px-4 py-6 sm:px-0">
       <!-- Breadcrumb -->
-      <nav class="flex mb-6" aria-label="Breadcrumb">
-        <ol role="list" class="flex items-center space-x-4">
-          <% @breadcrumbs.each_with_index do |breadcrumb, index| %>
-            <li>
-              <div class="flex items-center">
-                <% if index > 0 %>
-                  <svg class="flex-shrink-0 h-5 w-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                    <path d="M5.555 17.776l8-16 .894.448-8 16-.894-.448z"/>
-                  </svg>
-                <% end %>
-                <% if index == @breadcrumbs.length - 1 %>
-                  <span class="ml-4 text-sm font-medium text-gray-500"><%= breadcrumb[:name] %></span>
-                <% else %>
-                  <%= link_to breadcrumb[:name], breadcrumb[:path], class: "ml-4 text-sm font-medium text-gray-500 hover:text-gray-700" %>
-                <% end %>
-              </div>
-            </li>
-          <% end %>
-        </ol>
-      </nav>
+      <%= ged_breadcrumb(@breadcrumbs) %>
 
       <!-- Header avec actions -->
       <div class="md:flex md:items-center md:justify-between mb-8">
@@ -70,41 +51,12 @@
           <h2 class="text-lg font-medium text-gray-900 mb-4">Dossiers</h2>
           <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             <% @folders.each do |folder| %>
-              <div class="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm hover:border-gray-400 cursor-pointer group">
-                <%= link_to ged_folder_path(folder), class: "absolute inset-0" do %>
-                  <span class="sr-only">Ouvrir <%= folder.name %></span>
-                <% end %>
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center space-x-3 min-w-0 flex-1">
-                    <div class="flex-shrink-0">
-                      <svg class="h-8 w-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-5l-2-2H5a2 2 0 00-2 2z"/>
-                      </svg>
-                    </div>
-                    <div class="min-w-0 flex-1">
-                      <p class="text-sm font-medium text-gray-900 truncate"><%= folder.name %></p>
-                      <p class="text-sm text-gray-500">
-                        <%= pluralize(folder.documents.count, 'document') %>
-                        <% if folder.children.any? %>
-                          • <%= pluralize(folder.children.count, 'sous-dossier') %>
-                        <% end %>
-                      </p>
-                    </div>
-                  </div>
-                  <% if folder.can_admin?(current_user) %>
-                    <div class="relative z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <%= link_to ged_folder_permissions_path(folder), 
-                          class: "p-1 text-gray-400 hover:text-gray-600 rounded-md hover:bg-gray-100",
-                          title: "Gérer les droits",
-                          onclick: "event.stopPropagation()" do %>
-                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                        </svg>
-                      <% end %>
-                    </div>
-                  <% end %>
-                </div>
-              </div>
+              <%= render Ged::FolderCardComponent.new(
+                    folder: folder, 
+                    current_user: current_user,
+                    show_actions: true,
+                    draggable: true
+                  ) %>
             <% end %>
           </div>
         </div>
@@ -112,95 +64,72 @@
 
       <!-- Documents -->
       <div>
-        <h2 class="text-lg font-medium text-gray-900 mb-4">Documents</h2>
-        <% if @documents.any? %>
-          <div class="bg-white shadow overflow-hidden sm:rounded-md">
-            <ul role="list" class="divide-y divide-gray-200">
-              <% @documents.each do |document| %>
-                <li>
-                  <%= link_to ged_document_path(document), class: "block hover:bg-gray-50" do %>
-                    <div class="px-4 py-4 sm:px-6">
-                      <div class="flex items-center justify-between">
-                        <div class="flex items-center">
-                          <div class="flex-shrink-0">
-                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                            </svg>
-                          </div>
-                          <div class="ml-4">
-                            <p class="text-sm font-medium text-indigo-600 truncate"><%= document.title %></p>
-                            <p class="text-sm text-gray-500">
-                              Par <%= document.uploaded_by.display_name %>
-                              <% if document.description.present? %>
-                                • <%= truncate(document.description, length: 50) %>
-                              <% end %>
-                            </p>
-                          </div>
-                        </div>
-                        <div class="flex flex-shrink-0 items-center space-x-2">
-                          <!-- Actions rapides -->
-                          <div class="flex space-x-1">
-                            <% if document.can_read?(current_user) %>
-                              <%= link_to ged_preview_document_path(document), 
-                                  class: "p-2 text-gray-400 hover:text-gray-600 rounded-md hover:bg-gray-100",
-                                  title: "Prévisualiser",
-                                  target: "_blank" do %>
-                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                </svg>
-                              <% end %>
-                              <%= link_to ged_download_document_path(document), 
-                                  class: "p-2 text-gray-400 hover:text-gray-600 rounded-md hover:bg-gray-100",
-                                  title: "Télécharger" do %>
-                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m-5 3.5V4a1 1 0 011-1h4a1 1 0 011 1v7"/>
-                                </svg>
-                              <% end %>
-                            <% end %>
-                            <% if document.can_admin?(current_user) %>
-                              <%= link_to ged_document_permissions_path(document), 
-                                  class: "p-2 text-gray-400 hover:text-gray-600 rounded-md hover:bg-gray-100",
-                                  title: "Gérer les droits" do %>
-                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                                </svg>
-                              <% end %>
-                            <% end %>
-                          </div>
-                          
-                          <span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 capitalize">
-                            <%= document.status.humanize %>
-                          </span>
-                          <p class="ml-2 text-sm text-gray-500">
-                            <%= l(document.updated_at, format: :short) %>
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  <% end %>
-                </li>
-              <% end %>
-            </ul>
-          </div>
-        <% else %>
-          <div class="text-center py-12">
-            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-            </svg>
-            <h3 class="mt-2 text-sm font-medium text-gray-900">Aucun document</h3>
-            <p class="mt-1 text-sm text-gray-500">Commencez par uploader votre premier document.</p>
-            <div class="mt-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-medium text-gray-900">Documents</h2>
+          
+          <!-- View Toggle (Grid/List) -->
+          <% if @documents.any? %>
+            <div class="flex items-center space-x-2" data-controller="view-toggle">
               <button type="button" 
-                      onclick="openModal('uploadModal'); setSpaceContext(<%= @space.id %>)"
-                      class="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700">
-                <svg class="-ml-0.5 mr-1.5 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                </svg>
-                Nouveau Document
+                      class="p-2 text-gray-400 hover:text-gray-600 rounded-md hover:bg-gray-100 active"
+                      data-action="click->view-toggle#switchToGrid"
+                      data-view-toggle-target="gridButton"
+                      title="Vue grille">
+                <%= heroicon("squares-2x2", variant: :outline, options: { class: "w-5 h-5" }) %>
+              </button>
+              <button type="button" 
+                      class="p-2 text-gray-400 hover:text-gray-600 rounded-md hover:bg-gray-100"
+                      data-action="click->view-toggle#switchToList"
+                      data-view-toggle-target="listButton"
+                      title="Vue liste">
+                <%= heroicon("list-bullet", variant: :outline, options: { class: "w-5 h-5" }) %>
               </button>
             </div>
+          <% end %>
+        </div>
+        
+        <% if @documents.any? %>
+          <!-- Grid View (default) -->
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" 
+               data-view-toggle-target="gridView">
+            <% @documents.each do |document| %>
+              <%= render Ged::DocumentCardComponent.new(
+                    document: document, 
+                    current_user: current_user,
+                    layout: :grid,
+                    show_preview: true,
+                    show_actions: true,
+                    draggable: true
+                  ) %>
+            <% end %>
           </div>
+          
+          <!-- List View (hidden by default) -->
+          <div class="hidden bg-white shadow overflow-hidden sm:rounded-md" 
+               data-view-toggle-target="listView">
+            <div class="divide-y divide-gray-200">
+              <% @documents.each do |document| %>
+                <%= render Ged::DocumentCardComponent.new(
+                      document: document, 
+                      current_user: current_user,
+                      layout: :list,
+                      show_preview: false,
+                      show_actions: true,
+                      draggable: true
+                    ) %>
+              <% end %>
+            </div>
+          </div>
+        <% else %>
+          <!-- Empty State -->
+          <%= render Ui::EmptyStateComponent.new(
+                icon: "document",
+                title: "Aucun document",
+                description: "Commencez par uploader votre premier document.",
+                action_text: "Nouveau Document",
+                action_onclick: "openModal('uploadModal'); setSpaceContext(#{@space.id})",
+                action_classes: "inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700"
+              ) %>
         <% end %>
       </div>
     </div>

@@ -1,12 +1,24 @@
 <div class="flex items-center justify-between mb-4">
   <div class="flex items-center space-x-3">
     <div class="flex-shrink-0">
-      <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
-        <%= render Ui::IconComponent.new(name: :office_building, size: 6, css_class: 'text-indigo-600') %>
-      </div>
+      <% if has_thumbnail? %>
+        <div class="<%= compact_layout? ? 'w-8 h-8' : 'w-12 h-12' %> rounded-lg overflow-hidden bg-gray-100">
+          <%= image_tag thumbnail_url, 
+                        class: "w-full h-full object-cover",
+                        alt: "#{project.name} thumbnail" %>
+        </div>
+      <% else %>
+        <div class="<%= compact_layout? ? 'w-8 h-8' : 'w-10 h-10' %> bg-indigo-100 rounded-lg flex items-center justify-center">
+          <%= render Ui::IconComponent.new(
+                name: project_icon, 
+                size: compact_layout? ? 4 : 6, 
+                css_class: 'text-indigo-600'
+              ) %>
+        </div>
+      <% end %>
     </div>
     <div class="flex-1 min-w-0">
-      <h3 class="text-lg font-medium text-gray-900 truncate">
+      <h3 class="<%= compact_layout? ? 'text-base' : 'text-lg' %> font-medium text-gray-900 truncate">
         <%= link_to project.name, project_path, class: "hover:text-indigo-600" %>
       </h3>
       <p class="text-sm text-gray-500"><%= project.reference_number %></p>
@@ -14,6 +26,6 @@
   </div>
   <%= render Immo::Promo::Shared::StatusBadgeComponent.new(
     status: project.status,
-    size: 'small'
+    size: compact_layout? ? 'tiny' : 'small'
   ) %>
 </div>

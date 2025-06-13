@@ -46,20 +46,6 @@ class BaseStatusComponent < ApplicationComponent
     @dot = options.fetch(:dot, false)
   end
 
-  def call
-    case @variant
-    when :badge
-      render_badge
-    when :pill
-      render_pill
-    when :dot
-      render_dot_status
-    when :minimal
-      render_minimal
-    else
-      render_badge
-    end
-  end
 
   protected
 
