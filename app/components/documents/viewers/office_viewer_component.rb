@@ -15,13 +15,32 @@ module Documents
       attr_reader :document, :show_actions
       
       def office_viewer_url
-        # Microsoft Office Online Viewer for public documents
-        # For private documents, would need different approach
+        # Use local preview service in development if available
         if document.file.attached?
-          "https://view.officeapps.live.com/op/embed.aspx?src=#{CGI.escape(document_url)}"
+          if use_local_preview?
+            helpers.ged_preview_document_path(document)
+          elsif publicly_accessible?
+            "https://view.officeapps.live.com/op/embed.aspx?src=#{CGI.escape(document_url)}"
+          else
+            '#'
+          end
         else
           '#'
         end
+      end
+      
+      def use_local_preview?
+        # Check if we have a local preview service available
+        Rails.env.development? && ENV['DOCUMENT_PROCESSOR_URL'].present?
+      end
+      
+      def publicly_accessible?
+        # Check if we have a public URL (e.g., via ngrok or production)
+        url_options = Rails.application.config.action_controller.default_url_options
+        return false unless url_options.is_a?(Hash)
+        
+        host = url_options[:host]
+        host && !host.include?('localhost') && !host.include?('127.0.0.1')
       end
       
       def document_url

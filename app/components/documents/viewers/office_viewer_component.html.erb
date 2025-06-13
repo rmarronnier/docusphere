@@ -1,5 +1,5 @@
 <div class="office-viewer h-full flex flex-col">
-  <% if Rails.env.development? || !document.file.attached? %>
+  <% if !document.file.attached? %>
     <!-- Fallback for development or missing file -->
     <div class="flex-1 flex items-center justify-center bg-gray-50">
       <div class="text-center max-w-md">
@@ -12,8 +12,7 @@
         </h3>
         
         <p class="text-sm text-gray-500 mb-6">
-          Office document preview is not available in development mode.
-          Download the file to view it in your Office application.
+          Aucun fichier attaché à ce document.
         </p>
         
         <% if show_actions %>
@@ -28,8 +27,58 @@
         </div>
       </div>
     </div>
+  <% elsif use_local_preview? %>
+    <!-- Local preview using document processor -->
+    <iframe src="<%= office_viewer_url %>"
+            class="w-full h-full border-0"
+            loading="lazy"
+            title="Document Preview: <%= document.title %>">
+    </iframe>
+  <% elsif Rails.env.development? && !publicly_accessible? %>
+    <!-- Development mode fallback -->
+    <div class="flex-1 flex items-center justify-center bg-gray-50">
+      <div class="text-center max-w-md">
+        <div class="mx-auto w-24 h-24 bg-yellow-100 rounded-lg flex items-center justify-center mb-4">
+          <%= render Ui::IconComponent.new(name: :exclamation_triangle, size: 12, css_class: "text-yellow-600") %>
+        </div>
+        
+        <h3 class="text-lg font-medium text-gray-900 mb-2">
+          Prévisualisation non disponible
+        </h3>
+        
+        <p class="text-sm text-gray-500 mb-4">
+          Pour activer la prévisualisation, vous pouvez :
+        </p>
+        
+        <div class="bg-blue-50 rounded-lg p-4 text-left mb-6">
+          <h4 class="text-sm font-medium text-blue-900 mb-2">Option 1 : Service de preview local</h4>
+          <ol class="text-sm text-blue-700 space-y-1 list-decimal list-inside mb-4">
+            <li>Assurez-vous que le container document-processor est lancé</li>
+            <li>Ajoutez dans .env : <code class="bg-blue-100 px-1 rounded">DOCUMENT_PROCESSOR_URL=http://localhost:8000</code></li>
+          </ol>
+          
+          <h4 class="text-sm font-medium text-blue-900 mb-2">Option 2 : Microsoft Office Online (ngrok)</h4>
+          <ol class="text-sm text-blue-700 space-y-1 list-decimal list-inside">
+            <li>Installez ngrok : <code class="bg-blue-100 px-1 rounded">brew install ngrok</code></li>
+            <li>Lancez ngrok : <code class="bg-blue-100 px-1 rounded">ngrok http 3000</code></li>
+            <li>Configurez l'URL dans config/environments/development.rb</li>
+          </ol>
+        </div>
+        
+        <% if show_actions %>
+          <div class="flex items-center justify-center space-x-4">
+            <%= download_button %>
+            <%= edit_button if helpers.policy(document).update? %>
+          </div>
+        <% end %>
+        
+        <div class="mt-4 text-xs text-gray-400">
+          <%= file_size_human %> • <%= document.file_extension&.upcase %>
+        </div>
+      </div>
+    </div>
   <% else %>
-    <!-- Office Online Viewer (production only) -->
+    <!-- Office Online Viewer -->
     <div class="office-toolbar bg-gray-100 border-b px-4 py-2 flex items-center justify-between">
       <div class="flex items-center space-x-2">
         <%= render Ui::IconComponent.new(name: file_icon, size: 5, css_class: "text-gray-600") %>

@@ -10,7 +10,7 @@ class GedController < ApplicationController
   before_action :set_space, only: [:show_space]
   before_action :set_space_for_folder, only: [:create_folder]
   before_action :set_folder, only: [:show_folder]
-  before_action :set_document, only: [:show_document, :lock_document, :unlock_document]
+  before_action :set_document, only: [:show_document, :edit_document, :update_document, :lock_document, :unlock_document, :preview_document, :download_document]
   skip_after_action :verify_authorized, only: [:dashboard]
 
   def dashboard
@@ -162,6 +162,57 @@ class GedController < ApplicationController
         { name: 'Upload', path: ged_upload_path }
       ]
       render :new_document
+    end
+  end
+  
+  # Preview document
+  def preview_document
+    # authorize already called in set_document
+    
+    if @document.file.attached?
+      if ENV['DOCUMENT_PROCESSOR_URL'].present?
+        # Use document processor service to generate preview
+        preview_url = "#{ENV['DOCUMENT_PROCESSOR_URL']}/preview/#{@document.id}"
+        redirect_to preview_url
+      else
+        # Fallback to direct file display
+        redirect_to rails_blob_path(@document.file, disposition: "inline")
+      end
+    else
+      redirect_to ged_document_path(@document), alert: "Aucun fichier à prévisualiser"
+    end
+  end
+  
+  # Edit document
+  def edit_document
+    # authorize already called in set_document
+    authorize @document, :update?
+    @spaces = policy_scope(Space).order(:name)
+    @breadcrumbs = build_document_breadcrumbs(@document)
+  end
+  
+  # Update document
+  def update_document
+    # authorize already called in set_document
+    authorize @document, :update?
+    
+    if @document.update(document_params)
+      redirect_to ged_document_path(@document), notice: 'Document mis à jour avec succès.'
+    else
+      @spaces = policy_scope(Space).order(:name)
+      @breadcrumbs = build_document_breadcrumbs(@document)
+      render :edit_document
+    end
+  end
+  
+  # Download document
+  def download_document
+    # authorize already called in set_document
+    
+    if @document.file.attached?
+      redirect_to rails_blob_path(@document.file, disposition: "attachment")
+    else
+      redirect_to ged_document_path(@document), alert: "Aucun fichier à télécharger"
     end
   end
   

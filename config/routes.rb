@@ -80,6 +80,7 @@ Rails.application.routes.draw do
     get '/folders/:id', to: 'ged#show_folder', as: 'folder'
     get '/documents/:id', to: 'ged#show_document', as: 'document'
     get '/documents/:id/edit', to:'ged#edit_document', as: 'edit_document'
+    patch '/documents/:id', to: 'ged#update_document', as: 'update_document'
     get '/documents/new', to: 'ged#new_document', as: 'new_document'
     get '/documents', to: 'ged#index_documents', as: 'documents'
     get '/my-documents', to: 'ged#my_documents', as: 'my_documents'

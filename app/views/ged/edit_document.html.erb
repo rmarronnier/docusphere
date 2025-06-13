@@ -1,0 +1,140 @@
+<% content_for :title, "Modifier le document" %>
+
+<div class="min-h-screen bg-gray-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="md:flex md:items-center md:justify-between mb-8">
+      <div class="flex-1 min-w-0">
+        <h1 class="text-2xl font-bold text-gray-900">Modifier le document</h1>
+        <p class="mt-1 text-sm text-gray-500">
+          Modifiez les informations du document
+        </p>
+      </div>
+    </div>
+
+    <!-- Breadcrumbs -->
+    <%= ged_breadcrumb(@breadcrumbs) %>
+
+    <!-- Edit Form -->
+    <div class="bg-white shadow rounded-lg">
+      <div class="px-4 py-5 sm:p-6">
+        <%= form_with model: @document, url: ged_update_document_path(@document), method: :patch, local: false, html: { class: "space-y-6" } do |form| %>
+          
+          <!-- Current File Info -->
+          <% if @document.file.attached? %>
+            <div class="bg-gray-50 rounded-lg p-4">
+              <h3 class="text-sm font-medium text-gray-900 mb-2">Fichier actuel</h3>
+              <div class="flex items-center space-x-3">
+                <%= render Ui::IconComponent.new(name: :document, size: 8, css_class: "text-gray-400") %>
+                <div>
+                  <p class="text-sm font-medium text-gray-900"><%= @document.file_name || @document.file.filename %></p>
+                  <p class="text-sm text-gray-500"><%= number_to_human_size(@document.file_size) if @document.file_size %></p>
+                </div>
+              </div>
+            </div>
+          <% end %>
+
+          <!-- Title -->
+          <div>
+            <%= form.label :title, "Titre", class: "block text-sm font-medium text-gray-700" %>
+            <div class="mt-1">
+              <%= form.text_field :title, class: "shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md", required: true %>
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div>
+            <%= form.label :description, "Description", class: "block text-sm font-medium text-gray-700" %>
+            <div class="mt-1">
+              <%= form.text_area :description, rows: 3, class: "shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" %>
+            </div>
+            <p class="mt-2 text-sm text-gray-500">
+              Décrivez brièvement le contenu du document
+            </p>
+          </div>
+
+          <!-- Space Selection -->
+          <div>
+            <%= form.label :space_id, "Espace", class: "block text-sm font-medium text-gray-700" %>
+            <div class="mt-1">
+              <%= form.select :space_id, 
+                  options_from_collection_for_select(@spaces, :id, :name, @document.space_id),
+                  { prompt: "Sélectionner un espace" },
+                  class: "shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md",
+                  required: true %>
+            </div>
+          </div>
+
+          <!-- Category -->
+          <div>
+            <%= form.label :document_category, "Catégorie", class: "block text-sm font-medium text-gray-700" %>
+            <div class="mt-1">
+              <%= form.select :document_category,
+                  options_for_select([
+                    ["Document administratif", "administrative"],
+                    ["Document technique", "technical"],
+                    ["Document commercial", "commercial"],
+                    ["Document juridique", "legal"],
+                    ["Document financier", "financial"],
+                    ["Autre", "other"]
+                  ], @document.document_category),
+                  { prompt: "Sélectionner une catégorie" },
+                  class: "shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" %>
+            </div>
+          </div>
+
+          <!-- Tags -->
+          <div>
+            <%= form.label :tag_list, "Tags", class: "block text-sm font-medium text-gray-700" %>
+            <div class="mt-1">
+              <%= form.text_field :tag_list, 
+                  class: "shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md",
+                  placeholder: "Séparez les tags par des virgules",
+                  value: @document.tag_list %>
+            </div>
+            <p class="mt-2 text-sm text-gray-500">
+              Ajoutez des tags pour faciliter la recherche
+            </p>
+          </div>
+
+          <!-- Status -->
+          <div>
+            <%= form.label :status, "Statut", class: "block text-sm font-medium text-gray-700" %>
+            <div class="mt-1">
+              <%= form.select :status,
+                  options_for_select([
+                    ["Brouillon", "draft"],
+                    ["Publié", "published"],
+                    ["Archivé", "archived"]
+                  ], @document.status),
+                  {},
+                  class: "shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" %>
+            </div>
+          </div>
+
+          <!-- Expiration Date -->
+          <div>
+            <%= form.label :expires_at, "Date d'expiration", class: "block text-sm font-medium text-gray-700" %>
+            <div class="mt-1">
+              <%= form.date_field :expires_at, 
+                  class: "shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md",
+                  value: @document.expires_at&.to_date %>
+            </div>
+            <p class="mt-2 text-sm text-gray-500">
+              Laissez vide si le document n'expire pas
+            </p>
+          </div>
+
+          <!-- Actions -->
+          <div class="pt-5">
+            <div class="flex justify-end">
+              <%= link_to "Annuler", ged_document_path(@document), class: "bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
+              <%= form.submit "Enregistrer", class: "ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
+            </div>
+          </div>
+
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

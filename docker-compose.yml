@@ -37,6 +37,7 @@ services:
       CLAMAV_HOST: clamav
       CLAMAV_PORT: 3310
       DOCKER_CONTAINER: 'true'
+      DOCUMENT_PROCESSOR_URL: http://document-processor:8000
 
   sidekiq:
     build:
