@@ -4,14 +4,21 @@ export default class extends Controller {
   static targets = ["menu"]
 
   connect() {
+    console.log("Dropdown controller connected", this.element)
+    console.log("Has menu target:", this.hasMenuTarget)
     this.close = this.close.bind(this)
   }
 
   toggle() {
-    if (this.menuTarget.classList.contains("hidden")) {
-      this.open()
+    console.log("Dropdown toggle clicked")
+    if (this.hasMenuTarget) {
+      if (this.menuTarget.classList.contains("hidden")) {
+        this.open()
+      } else {
+        this.close()
+      }
     } else {
-      this.close()
+      console.error("No menu target found")
     }
   }
 

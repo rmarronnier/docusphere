@@ -75,7 +75,7 @@ class Navigation::NavbarComponent < ApplicationComponent
     case current_user.role
     when 'admin', 'super_admin'
       [
-        { name: 'Validations', path: helpers.notifications_path, icon: 'check-circle', badge: pending_validations_count, badge_color: 'red' }
+        { name: 'Validations', path: helpers.validation_requests_path, icon: 'check-circle', badge: pending_validations_count, badge_color: 'red' }
       ]
     when 'manager'
       [

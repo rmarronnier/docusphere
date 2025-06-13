@@ -4,12 +4,26 @@ export default class extends Controller {
   static targets = ["infoTab", "metadataTab", "activityTab", "versionsTab"]
   
   connect() {
+    console.log('Document sidebar controller connected')
     // Set initial active tab
     this.activeTab = 'info'
+    console.log('Available targets:', {
+      hasInfo: this.hasInfoTabTarget,
+      hasMetadata: this.hasMetadataTabTarget,
+      hasActivity: this.hasActivityTabTarget,
+      hasVersions: this.hasVersionsTabTarget
+    })
   }
 
   showTab(event) {
-    const tabName = event.params.tab
+    event.preventDefault()
+    
+    // Get the tab name from the data attribute
+    const button = event.currentTarget
+    const tabName = button.dataset.documentSidebarTabParam
+    console.log('Switching to tab:', tabName)
+    console.log('Button clicked:', button)
+    console.log('Tab param value:', tabName)
     
     // Update button states
     const buttons = this.element.querySelectorAll('nav button')
@@ -39,7 +53,9 @@ export default class extends Controller {
   }
 
   showTabContent(tabName) {
+    console.log('Showing tab content for:', tabName)
     const target = this[`${tabName}TabTarget`]
+    console.log('Target element:', target)
     if (target) {
       target.classList.remove('hidden')
       
@@ -47,6 +63,8 @@ export default class extends Controller {
       if (tabName === 'activity' && !target.dataset.loaded) {
         this.loadActivityContent()
       }
+    } else {
+      console.error(`No target found for tab: ${tabName}`)
     }
   }
 

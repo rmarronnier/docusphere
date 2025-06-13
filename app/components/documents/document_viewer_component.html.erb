@@ -54,27 +54,27 @@
 
     <!-- Sidebar -->
     <% if show_sidebar %>
-      <div class="w-80 bg-gray-50 border-l flex flex-col overflow-hidden" data-controller="document-sidebar">
+      <div class="w-80 bg-gray-50 border-l flex flex-col" data-controller="document-sidebar">
         <!-- Sidebar Tabs -->
-        <div class="bg-white border-b">
-          <nav class="flex -mb-px">
-            <button class="px-4 py-3 text-sm font-medium text-blue-600 border-b-2 border-blue-600 bg-white" 
+        <div class="bg-white border-b overflow-x-auto">
+          <nav class="flex -mb-px whitespace-nowrap">
+            <button type="button" class="px-4 py-3 text-sm font-medium text-blue-600 border-b-2 border-blue-600 bg-white" 
                     data-action="click->document-sidebar#showTab" 
                     data-document-sidebar-tab-param="info">
               Information
             </button>
-            <button class="px-4 py-3 text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300" 
+            <button type="button" class="px-4 py-3 text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300" 
                     data-action="click->document-sidebar#showTab" 
                     data-document-sidebar-tab-param="metadata">
               Metadata
             </button>
-            <button class="px-4 py-3 text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300" 
+            <button type="button" class="px-4 py-3 text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300" 
                     data-action="click->document-sidebar#showTab" 
                     data-document-sidebar-tab-param="activity">
               Activity
             </button>
             <% if document.versions.any? %>
-              <button class="px-4 py-3 text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300" 
+              <button type="button" class="px-4 py-3 text-sm font-medium text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300" 
                       data-action="click->document-sidebar#showTab" 
                       data-document-sidebar-tab-param="versions">
                 Versions
@@ -213,7 +213,7 @@
                           <% end %>
                         </p>
                         <p class="text-xs text-gray-600 mt-1">
-                          <%= version.created_at.to_fs(:short) %> by <%= version.whodunnit_user&.name || "Unknown" %>
+                          <%= version.created_at.to_fs(:short) %> by <%= version.whodunnit_user&.full_name || "Unknown" %>
                         </p>
                       </div>
                       <div class="flex items-center space-x-2">

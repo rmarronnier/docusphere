@@ -50,7 +50,7 @@ class Ged::DocumentCardComponent < ApplicationComponent
 
   def file_type_icon
     content_tag(:div, class: "text-gray-400") do
-      helpers.heroicon(document_icon, variant: :solid, options: { class: "w-16 h-16" })
+      render Ui::IconComponent.new(name: document_icon, size: 16, css_class: "mx-auto")
     end
   end
 

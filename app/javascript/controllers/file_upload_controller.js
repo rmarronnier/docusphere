@@ -124,14 +124,60 @@ export default class extends Controller {
     this.fileListTarget.innerHTML = ''
 
     if (this.selectedFiles.length === 0) {
-      this.fileListTarget.innerHTML = '<div class="text-sm text-gray-500">Selected files will appear here</div>'
+      this.fileListTarget.classList.add('hidden')
+      // Reset drop zone to initial state
+      this.dropZoneTarget.innerHTML = `
+        <div class="space-y-1 text-center pointer-events-none">
+          <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+          <div class="flex text-sm text-gray-600">
+            <span class="font-medium text-indigo-600 hover:text-indigo-500">
+              Télécharger un fichier
+            </span>
+            <p class="pl-1">ou glisser-déposer</p>
+          </div>
+          <p class="text-xs text-gray-500">
+            PDF, DOC, XLS, PNG jusqu'à 50MB
+          </p>
+        </div>
+      `
       return
     }
 
-    this.selectedFiles.forEach((file, index) => {
-      const fileItem = this.createFileListItem(file, index)
-      this.fileListTarget.appendChild(fileItem)
-    })
+    // Show the file in the drop zone for single file upload
+    if (!this.inputTarget.multiple && this.selectedFiles.length === 1) {
+      const file = this.selectedFiles[0]
+      this.dropZoneTarget.innerHTML = `
+        <div class="space-y-1 text-center">
+          <svg class="mx-auto h-12 w-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <div class="text-sm text-gray-900">
+            <p class="font-medium">${file.name}</p>
+            <p class="text-gray-500">${this.humanizeFileSize(file.size)}</p>
+          </div>
+          <p class="text-sm text-indigo-600 hover:text-indigo-500">
+            Cliquer pour changer de fichier
+          </p>
+        </div>
+      `
+      
+      // Auto-fill title if empty
+      const titleInput = document.getElementById('document_title')
+      if (titleInput && !titleInput.value) {
+        // Remove extension from filename for title
+        const fileName = file.name.replace(/\.[^/.]+$/, "")
+        titleInput.value = fileName
+      }
+    } else {
+      // Show file list for multiple files
+      this.fileListTarget.classList.remove('hidden')
+      this.selectedFiles.forEach((file, index) => {
+        const fileItem = this.createFileListItem(file, index)
+        this.fileListTarget.appendChild(fileItem)
+      })
+    }
   }
 
   createFileListItem(file, index) {

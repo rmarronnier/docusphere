@@ -305,33 +305,33 @@ class NavigationService
   def direction_quick_links
     [
       { title: 'Nouveau projet', link: '/immo/promo/projects/new', icon: 'plus', color: 'blue' },
-      { title: 'Validations urgentes', link: '/validations?urgency=high', icon: 'exclamation', color: 'red' },
-      { title: 'Rapport mensuel', link: '/reports/monthly', icon: 'document-report', color: 'green' },
-      { title: 'Réunion équipe', link: '/calendar?type=meeting', icon: 'calendar', color: 'purple' },
+      { title: 'Validations', link: '/validation_requests', icon: 'check-circle', color: 'red' },
+      { title: 'Rapports', link: '/immo/promo/reports', icon: 'document-report', color: 'green' },
+      { title: 'Projets', link: '/immo/promo/projects', icon: 'briefcase', color: 'purple' },
       { title: 'Tableau financier', link: '/immo/promo/financial-dashboard', icon: 'chart-pie', color: 'yellow' },
-      { title: 'Messages', link: '/messages', icon: 'mail', color: 'gray' }
+      { title: 'Documents', link: '/ged', icon: 'folder', color: 'gray' }
     ]
   end
   
   def chef_projet_quick_links
     [
-      { title: 'Nouvelle tâche', link: '/tasks/new', icon: 'plus-circle', color: 'blue' },
-      { title: 'Planning jour', link: '/immo/promo/coordination/today', icon: 'calendar', color: 'green' },
+      { title: 'Nouveau projet', link: '/immo/promo/projects/new', icon: 'plus-circle', color: 'blue' },
+      { title: 'Mes projets', link: '/immo/promo/projects', icon: 'briefcase', color: 'green' },
       { title: 'Upload document', link: '/ged/upload', icon: 'upload', color: 'purple' },
-      { title: 'Rapport avancement', link: '/reports/progress', icon: 'chart-bar', color: 'yellow' },
-      { title: 'Équipe projet', link: '/immo/promo/stakeholders', icon: 'users', color: 'pink' },
-      { title: 'Notes', link: '/notes', icon: 'pencil', color: 'gray' }
+      { title: 'Coordination', link: '/immo/promo/coordination', icon: 'calendar', color: 'yellow' },
+      { title: 'Intervenants', link: '/immo/promo/stakeholders', icon: 'users', color: 'pink' },
+      { title: 'Documents', link: '/ged', icon: 'folder', color: 'gray' }
     ]
   end
   
   def juriste_quick_links
     [
-      { title: 'Nouveau contrat', link: '/contracts/new', icon: 'document-add', color: 'blue' },
-      { title: 'Permis urgents', link: '/immo/promo/permits?status=urgent', icon: 'exclamation-circle', color: 'red' },
-      { title: 'Veille juridique', link: '/legal-watch', icon: 'newspaper', color: 'green' },
-      { title: 'Modèles', link: '/templates/legal', icon: 'duplicate', color: 'purple' },
-      { title: 'Agenda juridique', link: '/calendar/legal', icon: 'calendar', color: 'yellow' },
-      { title: 'Recherche', link: '/search/legal', icon: 'search', color: 'gray' }
+      { title: 'Upload document', link: '/ged/upload', icon: 'document-add', color: 'blue' },
+      { title: 'Permis', link: '/immo/promo/permits', icon: 'clipboard-check', color: 'red' },
+      { title: 'Documents juridiques', link: '/ged', icon: 'scale', color: 'green' },
+      { title: 'Mes documents', link: '/ged/my-documents', icon: 'folder-open', color: 'purple' },
+      { title: 'Projets', link: '/immo/promo/projects', icon: 'briefcase', color: 'yellow' },
+      { title: 'Recherche', link: '/search', icon: 'search', color: 'gray' }
     ]
   end
   
@@ -340,7 +340,7 @@ class NavigationService
       { title: 'Mes documents', link: '/ged/my-documents', icon: 'folder-open', color: 'blue' },
       { title: 'Upload', link: '/ged/upload', icon: 'upload', color: 'green' },
       { title: 'Recherche', link: '/search', icon: 'search', color: 'purple' },
-      { title: 'Aide', link: '/help', icon: 'question-mark-circle', color: 'gray' }
+      { title: 'Tableau de bord', link: '/dashboard', icon: 'home', color: 'gray' }
     ]
   end
   

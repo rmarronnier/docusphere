@@ -52,7 +52,7 @@ class ApplicationController < ActionController::Base
     user_not_authorized
   end
   
-  def authenticate_user!
+  def authenticate_user!(*args)
     if request.format.json? && !user_signed_in?
       render json: { error: 'Authentication required' }, status: :unauthorized
     else

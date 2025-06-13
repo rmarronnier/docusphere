@@ -195,7 +195,7 @@
             </div>
             <div class="flex items-center justify-between mt-1">
               <p class="text-sm text-gray-500">
-                Par <%= document.uploaded_by.display_name %>
+                Par <%= document.uploaded_by.full_name %>
                 <% if document.description.present? %>
                   • <%= truncate(document.description, length: 50) %>
                 <% end %>

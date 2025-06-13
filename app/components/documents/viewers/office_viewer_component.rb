@@ -64,6 +64,17 @@ module Documents
           concat "Modifier"
         end
       end
+      
+      def file_size_human
+        return "0 B" unless document.file_size
+        
+        units = ['B', 'KB', 'MB', 'GB']
+        exp = (Math.log(document.file_size) / Math.log(1024)).to_i
+        exp = units.length - 1 if exp >= units.length
+        
+        size = document.file_size.to_f / (1024 ** exp)
+        "#{size.round(1)} #{units[exp]}"
+      end
     end
   end
 end

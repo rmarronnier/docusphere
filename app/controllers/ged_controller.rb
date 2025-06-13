@@ -83,6 +83,35 @@ class GedController < ApplicationController
     @total_results = @documents.total_count + @spaces.count + @folders.count
   end
 
+  # My documents
+  def my_documents
+    authorize :ged, :my_documents?
+    
+    # Base query for documents
+    base_query = policy_scope(Document).where(uploaded_by: current_user)
+    
+    # Statistics (on unpaginated query)
+    @total_count = base_query.count
+    @week_count = base_query.where('created_at >= ?', 1.week.ago).count
+    @spaces_count = base_query.distinct.count(:space_id)
+    @tags_count = base_query.joins(:tags).count('DISTINCT tags.id')
+    
+    # Paginated documents for display
+    @documents = base_query.includes(:space, :folder, :tags, :uploaded_by)
+                          .order(updated_at: :desc)
+                          .page(params[:page])
+    
+    @breadcrumbs = [
+      { name: 'GED', path: ged_dashboard_path }, 
+      { name: 'Mes documents', path: ged_my_documents_path }
+    ]
+    
+    respond_to do |format|
+      format.html { render :my_documents }
+      format.json { render json: serialize_documents(@documents) }
+    end
+  end
+
   # Advanced search
   def advanced_search
     @documents = policy_scope(Document).includes(:space, :folder, :uploaded_by, :tags)
@@ -106,6 +135,36 @@ class GedController < ApplicationController
     end
   end
 
+  # New document (upload page)
+  def new_document
+    @document = Document.new
+    authorize @document, :create?
+    @spaces = policy_scope(Space).order(:name)
+    @breadcrumbs = [
+      { name: 'GED', path: ged_dashboard_path },
+      { name: 'Upload', path: ged_upload_path }
+    ]
+  end
+  
+  # Upload document
+  def upload_document
+    @document = Document.new(document_params)
+    @document.uploaded_by = current_user
+    
+    authorize @document, :create?
+    
+    if @document.save
+      redirect_to ged_document_path(@document), notice: 'Document uploadé avec succès.'
+    else
+      @spaces = policy_scope(Space).order(:name)
+      @breadcrumbs = [
+        { name: 'GED', path: ged_dashboard_path },
+        { name: 'Upload', path: ged_upload_path }
+      ]
+      render :new_document
+    end
+  end
+  
   # Document statistics
   def document_statistics
     authorize :ged, :statistics?
@@ -158,7 +217,7 @@ class GedController < ApplicationController
   end
 
   def document_params
-    params.require(:document).permit(:title, :description, :file, :document_type, :tags, :category, :space_id, :folder_id)
+    params.require(:document).permit(:title, :description, :file, :document_type, :tag_list, :document_category, :space_id, :folder_id)
   end
 
   def serialize_documents(documents)

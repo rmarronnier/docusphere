@@ -12,7 +12,7 @@
           <div class="flex items-center justify-center w-10 h-10 rounded-full <%= notification.urgent? ? 'bg-red-100' : 'bg-gray-100' %>">
             <%= render Ui::IconComponent.new(
               name: notification.icon, 
-              size: :sm, 
+              size: 5, 
               css_class: notification.color_class
             ) %>
           </div>
@@ -69,7 +69,7 @@
                         action: "click->notification#markAsRead",
                         notification_target: "markReadButton"
                       } do %>
-                    <%= render Ui::IconComponent.new(name: 'eye', size: :xs) %>
+                    <%= render Ui::IconComponent.new(name: 'eye', size: 4) %>
                   <% end %>
                 <% end %>
 
@@ -83,7 +83,7 @@
                       action: "click->notification#delete",
                       notification_target: "deleteButton"
                     } do %>
-                  <%= render Ui::IconComponent.new(name: 'trash', size: :xs) %>
+                  <%= render Ui::IconComponent.new(name: 'trash', size: 4) %>
                 <% end %>
               </div>
             <% end %>
@@ -104,7 +104,7 @@
   <% else %>
     <div class="text-center py-12">
       <div class="flex justify-center">
-        <%= render Ui::IconComponent.new(name: 'bell', size: :lg, css_class: 'text-gray-400') %>
+        <%= render Ui::IconComponent.new(name: 'bell', size: 12, css_class: 'text-gray-400') %>
       </div>
       <h3 class="mt-2 text-sm font-medium text-gray-900">Aucune notification</h3>
       <p class="mt-1 text-sm text-gray-500">

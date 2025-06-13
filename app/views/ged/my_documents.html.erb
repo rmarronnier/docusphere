@@ -1,0 +1,130 @@
+<% content_for :title, "Mes documents" %>
+
+<div class="min-h-screen bg-gray-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="md:flex md:items-center md:justify-between mb-8">
+      <div class="flex-1 min-w-0">
+        <h1 class="text-2xl font-bold text-gray-900">Mes documents</h1>
+        <p class="mt-1 text-sm text-gray-500">
+          Tous les documents que vous avez uploadés
+        </p>
+      </div>
+      <div class="mt-4 flex md:mt-0 md:ml-4">
+        <%= link_to ged_upload_path, class: "inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" do %>
+          <%= render Ui::IconComponent.new(name: :arrow_up_tray, size: 5, css_class: "mr-2 -ml-1") %>
+          Nouveau document
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Breadcrumbs -->
+    <%= ged_breadcrumb(@breadcrumbs) %>
+
+    <!-- Statistics -->
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="p-5">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <%= render Ui::IconComponent.new(name: :document, size: 10, css_class: "text-gray-400") %>
+            </div>
+            <div class="ml-5 w-0 flex-1">
+              <dl>
+                <dt class="text-sm font-medium text-gray-500 truncate">Total documents</dt>
+                <dd class="text-lg font-medium text-gray-900"><%= @total_count %></dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="p-5">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <%= render Ui::IconComponent.new(name: :clock, size: 10, css_class: "text-blue-400") %>
+            </div>
+            <div class="ml-5 w-0 flex-1">
+              <dl>
+                <dt class="text-sm font-medium text-gray-500 truncate">Cette semaine</dt>
+                <dd class="text-lg font-medium text-gray-900"><%= @week_count %></dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="p-5">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <%= render Ui::IconComponent.new(name: :folder, size: 10, css_class: "text-green-400") %>
+            </div>
+            <div class="ml-5 w-0 flex-1">
+              <dl>
+                <dt class="text-sm font-medium text-gray-500 truncate">Espaces utilisés</dt>
+                <dd class="text-lg font-medium text-gray-900"><%= @spaces_count %></dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="p-5">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <%= render Ui::IconComponent.new(name: :tag, size: 10, css_class: "text-purple-400") %>
+            </div>
+            <div class="ml-5 w-0 flex-1">
+              <dl>
+                <dt class="text-sm font-medium text-gray-500 truncate">Tags utilisés</dt>
+                <dd class="text-lg font-medium text-gray-900"><%= @tags_count %></dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Documents List -->
+    <div class="bg-white shadow rounded-lg">
+      <div class="px-4 py-5 sm:p-6">
+        <% if @documents.any? %>
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <% @documents.each do |document| %>
+              <%= render Ged::DocumentCardComponent.new(
+                document: document,
+                show_actions: true,
+                current_user: current_user
+              ) %>
+            <% end %>
+          </div>
+
+          <!-- Pagination -->
+          <% if @documents.total_pages > 1 %>
+            <div class="mt-6 flex items-center justify-center">
+              <%= paginate @documents %>
+            </div>
+          <% end %>
+        <% else %>
+          <!-- Empty state -->
+          <div class="text-center py-12">
+            <%= render Ui::IconComponent.new(name: :document, size: 12, css_class: "mx-auto text-gray-400") %>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">Aucun document</h3>
+            <p class="mt-1 text-sm text-gray-500">
+              Vous n'avez pas encore uploadé de documents.
+            </p>
+            <div class="mt-6">
+              <%= link_to ged_upload_path, class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" do %>
+                <%= render Ui::IconComponent.new(name: :plus, size: 5, css_class: "mr-2 -ml-1") %>
+                Uploader un document
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
