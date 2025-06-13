@@ -13,24 +13,24 @@
           </p>
         </div>
         <div class="mt-4 flex space-x-3 md:ml-4 md:mt-0">
-          <%= render Ui::ButtonComponent.new(
-            text: "Nouvel Espace",
-            icon: "folder-plus",
-            variant: :primary,
-            onclick: "openModal('createSpaceModal')" 
-          ) %>
-          <%= render Ui::ButtonComponent.new(
-            text: "Nouveau Dossier",
-            icon: "folder",
-            variant: :secondary,
-            onclick: "openModal('createFolderModal')" 
-          ) %>
-          <%= render Ui::ButtonComponent.new(
-            text: "Upload Document",
-            icon: "cloud-upload",
-            variant: :secondary,
-            onclick: "openModal('uploadModal')" 
-          ) %>
+          <button type="button"
+                  class="btn btn-primary"
+                  onclick="openModal('createSpaceModal')">
+            <%= render Ui::IconComponent.new(name: "folder-plus", size: 5, css_class: "mr-2") %>
+            Nouvel Espace
+          </button>
+          <button type="button"
+                  class="btn btn-secondary"
+                  onclick="openModal('createFolderModal')">
+            <%= render Ui::IconComponent.new(name: "folder", size: 5, css_class: "mr-2") %>
+            Nouveau Dossier
+          </button>
+          <button type="button"
+                  class="btn btn-secondary"
+                  onclick="openModal('uploadModal')">
+            <%= render Ui::IconComponent.new(name: "cloud-upload", size: 5, css_class: "mr-2") %>
+            Upload Document
+          </button>
         </div>
       </div>
 
@@ -44,7 +44,7 @@
           trend: :up,
           trend_value: "+12%",
           variant: :primary,
-          href: "#"
+          
         ) %>
         
         <%= render Ui::StatCardComponent.new(
@@ -252,3 +252,25 @@
 <%= render 'ged/modals/create_space' %>
 <%= render 'ged/modals/create_folder' %>
 <%= render 'ged/modals/upload_document' %>
+
+<script>
+  // Ensure modal functions are available
+  function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+      modal.classList.remove('hidden');
+    }
+  }
+  
+  function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+      modal.classList.add('hidden');
+      // Reset form if present
+      const form = modal.querySelector('form');
+      if (form) {
+        form.reset();
+      }
+    }
+  }
+</script>

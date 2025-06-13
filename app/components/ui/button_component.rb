@@ -108,6 +108,9 @@ class Ui::ButtonComponent < ApplicationComponent
       disabled: disabled
     )
     
+    # Include onclick if present
+    opts[:onclick] = options[:onclick] if options[:onclick]
+    
     opts["aria-label"] = aria_label if aria_label
     opts["aria-busy"] = "true" if loading
     opts["aria-disabled"] = "true" if disabled

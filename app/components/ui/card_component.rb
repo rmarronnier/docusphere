@@ -49,7 +49,7 @@ class Ui::CardComponent < ApplicationComponent
     
     # Interactive states
     if clickable
-      css_classes << "cursor-pointer transform transition-all duration-200"
+      css_classes << "relative cursor-pointer transform transition-all duration-200"
       css_classes << "hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0" if hover
     elsif hover && !loading
       css_classes << "transition-shadow duration-200 hover:shadow-lg"

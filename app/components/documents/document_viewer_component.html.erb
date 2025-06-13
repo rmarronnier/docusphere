@@ -149,7 +149,7 @@
                     <% document.related_documents.limit(5).each do |related| %>
                       <li>
                         <% link_to helpers.ged_document_path(related), { class: "flex items-center space-x-2 text-sm text-blue-600 hover:underline" } do %>
-                          <%= heroicon("document", variant: :solid, options: { class: "w-4 h-4" }) %>
+                          <%= render Ui::IconComponent.new(name: "document", size: 4) %>
                           <span class="truncate"><%= related.title %></span>
                         <% end %>
                       </li>

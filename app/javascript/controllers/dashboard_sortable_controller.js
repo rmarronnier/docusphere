@@ -13,6 +13,8 @@ export default class extends Controller {
   
   connect() {
     this.initializeSortable()
+    // Start with sortable disabled
+    this.disable()
   }
   
   disconnect() {

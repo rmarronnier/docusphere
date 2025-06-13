@@ -30,5 +30,12 @@
     </div>
     
     <%= yield %>
+    
+    <script>
+      // Clean up any lingering cursor states on page load
+      document.addEventListener('DOMContentLoaded', function() {
+        document.body.classList.remove('dashboard-dragging', 'widget-resizing');
+      });
+    </script>
   </body>
 </html>

@@ -13,7 +13,7 @@
     <div class="flex items-center space-x-3 min-w-0 flex-1">
       <!-- Folder icon -->
       <div class="flex-shrink-0">
-        <%= helpers.heroicon("folder", variant: :solid, options: { class: folder_icon_classes }) %>
+        <%= render Ui::IconComponent.new(name: "folder", css_class: folder_icon_classes) %>
       </div>
       
       <!-- Folder info -->
@@ -53,7 +53,7 @@
                 title: action[:title],
                 onclick: "event.stopPropagation()",
                 data: action[:data] || {} do %>
-              <%= helpers.heroicon(action[:icon], variant: :outline, options: { class: "w-4 h-4" }) %>
+              <%= render Ui::IconComponent.new(name: action[:icon], size: 4) %>
             <% end %>
           <% else %>
             <button type="button"
@@ -61,7 +61,7 @@
                     title="<%= action[:title] %>"
                     onclick="event.stopPropagation()"
                     <%= tag.attributes(action[:data] || {}) %>>
-              <%= helpers.heroicon(action[:icon], variant: :outline, options: { class: "w-4 h-4" }) %>
+              <%= render Ui::IconComponent.new(name: action[:icon], size: 4) %>
             </button>
           <% end %>
         <% end %>
@@ -74,7 +74,7 @@
                     onclick="event.stopPropagation()"
                     data-action="click->dropdown#toggle">
               <span class="sr-only">Options</span>
-              <%= helpers.heroicon("ellipsis-vertical", variant: :solid, options: { class: "w-4 h-4" }) %>
+              <%= render Ui::IconComponent.new(name: "ellipsis-vertical", size: 4) %>
             </button>
             
             <div class="hidden origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-20"

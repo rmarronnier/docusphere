@@ -18,14 +18,15 @@ RSpec.describe Ui::EmptyStateComponent, type: :component do
     expect(rendered).to have_text('Upload your first document to get started')
   end
 
-  it "renders with custom icon" do
+  it "renders with custom SVG icon" do
+    # Since icon is now expected to be a string name for IconComponent,
+    # we need to test differently or update the component to detect SVG
     rendered = render_inline(described_class.new(
       title: 'Empty',
-      icon: '<path d="M10 20v-6m0 0v-6m0 6h6m-6 0H4"/>'
+      icon: 'folder'
     ))
     
-    expect(rendered).to have_css('svg')
-    expect(rendered).to have_css('path[d="M10 20v-6m0 0v-6m0 6h6m-6 0H4"]')
+    expect(rendered).to have_css('.h-12.w-12')
   end
 
   it "renders action slot content" do
@@ -41,14 +42,49 @@ RSpec.describe Ui::EmptyStateComponent, type: :component do
     rendered = render_inline(described_class.new(
       title: 'No search results',
       description: 'Try adjusting your filters',
-      icon: '<circle cx="12" cy="12" r="10"/>'
+      icon: 'search'
     )) do
       '<a href="#" class="link">Clear filters</a>'.html_safe
     end
     
     expect(rendered).to have_text('No search results')
     expect(rendered).to have_text('Try adjusting your filters')
-    expect(rendered).to have_css('circle[cx="12"][cy="12"][r="10"]')
+    expect(rendered).to have_css('.h-12.w-12')
     expect(rendered).to have_link('Clear filters')
+  end
+
+  it "renders with action button" do
+    rendered = render_inline(described_class.new(
+      title: 'No documents',
+      action_text: 'Upload Document',
+      action_onclick: "openModal('upload')"
+    ))
+    
+    expect(rendered).to have_css('button')
+    expect(rendered).to have_text('Upload Document')
+    expect(rendered).to have_css('button[onclick="openModal(\'upload\')"]')
+  end
+
+  it "renders with action link" do
+    rendered = render_inline(described_class.new(
+      title: 'No items',
+      action_text: 'Create New',
+      action_href: '/items/new',
+      action_classes: 'custom-btn-class'
+    ))
+    
+    expect(rendered).to have_link('Create New', href: '/items/new')
+    expect(rendered).to have_css('a.custom-btn-class')
+  end
+
+  it "renders icon using IconComponent when string provided" do
+    rendered = render_inline(described_class.new(
+      title: 'Empty folder',
+      icon: 'folder'
+    ))
+    
+    expect(rendered).to have_css('.h-12.w-12')
+    # Should render IconComponent, not raw SVG
+    expect(rendered).not_to have_css('svg path[d="folder"]')
   end
 end

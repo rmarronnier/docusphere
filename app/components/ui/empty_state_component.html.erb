@@ -1,7 +1,13 @@
 <div class="text-center">
-  <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <%= raw(icon || default_icon) %>
-  </svg>
+  <% if icon.present? %>
+    <div class="mx-auto h-12 w-12 text-gray-400">
+      <%= render Ui::IconComponent.new(name: icon, size: 12, css_class: "text-gray-400") %>
+    </div>
+  <% else %>
+    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <%= raw(default_icon) %>
+    </svg>
+  <% end %>
   <h3 class="mt-2 text-sm font-semibold text-gray-900"><%= title %></h3>
   <% if description.present? %>
     <p class="mt-1 text-sm text-gray-500"><%= description %></p>
@@ -9,6 +15,18 @@
   <% if content.present? %>
     <div class="mt-6">
       <%= content %>
+    </div>
+  <% elsif action_text.present? %>
+    <div class="mt-6">
+      <% if action_href.present? %>
+        <%= link_to action_text, action_href, class: action_classes || "btn btn-primary btn-sm" %>
+      <% else %>
+        <button type="button" 
+                onclick="<%= action_onclick %>"
+                class="<%= action_classes || 'btn btn-primary btn-sm' %>">
+          <%= action_text %>
+        </button>
+      <% end %>
     </div>
   <% end %>
 </div>

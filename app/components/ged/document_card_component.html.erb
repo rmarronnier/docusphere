@@ -74,13 +74,13 @@
         <div class="flex items-center space-x-3">
           <% if formatted_date %>
             <span class="flex items-center">
-              <%= helpers.heroicon("calendar", variant: :outline, options: { class: "w-3.5 h-3.5 mr-1" }) %>
+              <%= render Ui::IconComponent.new(name: "calendar", size: 4) %>
               <%= formatted_date %>
             </span>
           <% end %>
           <% if file_size %>
             <span class="flex items-center">
-              <%= helpers.heroicon("document", variant: :outline, options: { class: "w-3.5 h-3.5 mr-1" }) %>
+              <%= render Ui::IconComponent.new(name: "document", size: 4) %>
               <%= file_size %>
             </span>
           <% end %>
@@ -135,7 +135,7 @@
                       class="p-1.5 text-gray-400 hover:text-gray-600 rounded-md hover:bg-gray-50"
                       data-action="click->dropdown#toggle">
                 <span class="sr-only">Options</span>
-                <%= helpers.heroicon("ellipsis-vertical", variant: :solid, options: { class: "w-4 h-4" }) %>
+                <%= render Ui::IconComponent.new(name: "ellipsis-vertical", size: 4) %>
               </button>
               
               <div class="hidden origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10"
@@ -241,7 +241,7 @@
                         class="p-2 text-gray-400 hover:text-gray-600 rounded-md hover:bg-gray-100"
                         data-action="click->dropdown#toggle">
                   <span class="sr-only">Options</span>
-                  <%= helpers.heroicon("ellipsis-vertical", variant: :solid, options: { class: "w-4 h-4" }) %>
+                  <%= render Ui::IconComponent.new(name: "ellipsis-vertical", size: 4) %>
                 </button>
                 
                 <div class="hidden origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10"

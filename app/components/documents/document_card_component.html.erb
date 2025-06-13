@@ -48,12 +48,12 @@
     <div class="flex items-center justify-between text-xs text-gray-500 mb-3">
       <div class="flex items-center space-x-3">
         <span class="flex items-center">
-          <%= helpers.heroicon("calendar", variant: :outline, options: { class: "w-3.5 h-3.5 mr-1" }) %>
+          <%= render Ui::IconComponent.new(name: "calendar", size: 4) %>
           <%= formatted_date %>
         </span>
         <% if file_size %>
           <span class="flex items-center">
-            <%= helpers.heroicon("document", variant: :outline, options: { class: "w-3.5 h-3.5 mr-1" }) %>
+            <%= render Ui::IconComponent.new(name: "document", size: 4) %>
             <%= file_size %>
           </span>
         <% end %>
@@ -91,7 +91,7 @@
             <%= link_to helpers.ged_download_document_path(document),
                 class: "inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 border border-gray-300",
                 data: { turbo: false } do %>
-              <%= helpers.heroicon("arrow-down-tray", variant: :outline, options: { class: "w-3.5 h-3.5 mr-1" }) %>
+              <%= render Ui::IconComponent.new(name: "arrow-down-tray", size: 4) %>
               Download
             <% end %>
           <% end %>
@@ -101,7 +101,7 @@
                     class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md text-primary-700 bg-primary-50 hover:bg-primary-100 border border-primary-200"
                     data-action="click->document-preview#open"
                     data-document-id="<%= document.id %>">
-              <%= helpers.heroicon("eye", variant: :outline, options: { class: "w-3.5 h-3.5 mr-1" }) %>
+              <%= render Ui::IconComponent.new(name: "eye", size: 4) %>
               Preview
             </button>
           <% end %>
@@ -113,7 +113,7 @@
                   class="p-1.5 text-gray-400 hover:text-gray-600 rounded-md hover:bg-gray-50"
                   data-action="click->dropdown#toggle">
             <span class="sr-only">Open options</span>
-            <%= helpers.heroicon("ellipsis-vertical", variant: :solid, options: { class: "w-4 h-4" }) %>
+            <%= render Ui::IconComponent.new(name: "ellipsis-vertical", size: 4) %>
           </button>
           
           <div class="hidden origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10"

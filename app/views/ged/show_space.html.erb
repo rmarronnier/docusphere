@@ -74,14 +74,14 @@
                       data-action="click->view-toggle#switchToGrid"
                       data-view-toggle-target="gridButton"
                       title="Vue grille">
-                <%= heroicon("squares-2x2", variant: :outline, options: { class: "w-5 h-5" }) %>
+                <%= render Ui::IconComponent.new(name: "squares-2x2", size: 5) %>
               </button>
               <button type="button" 
                       class="p-2 text-gray-400 hover:text-gray-600 rounded-md hover:bg-gray-100"
                       data-action="click->view-toggle#switchToList"
                       data-view-toggle-target="listButton"
                       title="Vue liste">
-                <%= heroicon("list-bullet", variant: :outline, options: { class: "w-5 h-5" }) %>
+                <%= render Ui::IconComponent.new(name: "list-bullet", size: 5) %>
               </button>
             </div>
           <% end %>
@@ -138,3 +138,32 @@
 <!-- Modales -->
 <%= render 'ged/modals/create_folder' %>
 <%= render 'ged/modals/upload_document' %>
+
+<script>
+  // Modal functions
+  function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+      modal.classList.remove('hidden');
+    }
+  }
+  
+  function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+      modal.classList.add('hidden');
+      const form = modal.querySelector('form');
+      if (form) {
+        form.reset();
+      }
+    }
+  }
+  
+  // Set space context for upload
+  function setSpaceContext(spaceId) {
+    const spaceSelect = document.getElementById('document_space_id');
+    if (spaceSelect) {
+      spaceSelect.value = spaceId;
+    }
+  }
+</script>
