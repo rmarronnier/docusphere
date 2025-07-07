@@ -19,7 +19,7 @@ gem "image_processing", "~> 1.12"
 
 
 # Background Jobs
-gem "sidekiq", "~> 7.1"
+gem "sidekiq", "~> 8.0"
 gem "sidekiq-cron", "~> 1.10"
 
 # Cache & Queues
