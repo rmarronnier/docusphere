@@ -20,7 +20,7 @@ gem "image_processing", "~> 1.12"
 
 # Background Jobs
 gem "sidekiq", "~> 7.1"
-gem "sidekiq-cron", "~> 1.10"
+gem "sidekiq-cron", "~> 2.3"
 
 # Cache & Queues
 gem "redis", "~> 5.0"
