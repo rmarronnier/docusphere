@@ -45,7 +45,7 @@ gem "mail", "~> 2.8"
 gem "rtesseract", "~> 3.1"
 
 # Search
-gem "elasticsearch-model", "~> 7.2"
+gem "elasticsearch-model", "~> 8.0"
 gem "elasticsearch-rails", "~> 7.2"
 gem "searchkick", "~> 5.3"
 
