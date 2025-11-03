@@ -99,7 +99,7 @@ group :test do
   gem "selenium-webdriver"
   gem "shoulda-matchers", "~> 6.4"
   gem "rails-controller-testing"
-  gem "pundit-matchers", "~> 3.1"
+  gem "pundit-matchers", "~> 4.0"
 end
 
 # Document processing gems (additional)
